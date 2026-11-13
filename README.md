@@ -1,15 +1,16 @@
-# Dota 2 Build Assistant — versión 0.2
+# Dota 2 Build Assistant — versión 0.3
 
-Aplicación web progresiva (PWA) pensada para instalarse en Android.
+Aplicación web progresiva (PWA) para preparar drafts y consultar builds situacionales de Dota 2.
 
 ## Qué incluye
 - Catálogo de héroes desde la API pública de OpenDota.
 - Selección visual de 5 aliados y 5 enemigos.
 - Selección de héroe propio, posición, modo (Ranked/Turbo) y rango.
-- Análisis preliminar de composición y respuestas situacionales.
-- Perfiles orientativos específicos para Pugna Mid, Drow Carry y Luna Carry.
+- Interfaz renovada, adaptable a PC y Android.
+- Perfiles orientativos para Pugna Mid, Drow Carry y Luna Carry.
+- Iconos de objetos en las recomendaciones de builds y respuestas situacionales.
 - Exportación del draft y contexto para continuar el análisis con ChatGPT.
-- Diseño responsive y service worker con caché v02 para forzar actualización.
+- Service worker con comprobación de actualizaciones y limpieza de cachés anteriores.
 
 ## Limitaciones
 - Es una PWA, no un APK nativo.
@@ -23,4 +24,4 @@ Aplicación web progresiva (PWA) pensada para instalarse en Android.
 2. Abrí la URL desde Chrome en Android.
 3. Menú ⋮ → «Instalar aplicación» o «Añadir a pantalla de inicio».
 
-Al publicar cambios, se incrementa la versión de caché en `sw.js` para que la PWA descargue los archivos nuevos.
+Al publicar cambios, incrementá la versión de caché en `sw.js`.
