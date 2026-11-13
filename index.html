@@ -33,7 +33,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft visual · análisis de enfrentamiento · builds situacionales</div></div><div class="tag">PROTOTIPO 0.1</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft visual · análisis de enfrentamiento · builds situacionales</div></div><div class="tag">VERSIÓN 0.2</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -52,7 +52,7 @@
     <h2>Tu configuración</h2>
     <div class="controls">
       <div class="field"><label for="myHero">¿Cuál es tu héroe?</label><select id="myHero"><option value="">Seleccioná primero tu equipo</option></select></div>
-      <div class="field"><label for="myRole">Tu posición</label><select id="myRole"><option value="Carry">Carry (1)</option><option value="Mid">Mid (2)</option><option value="Offlane">Offlane (3)</option><option value="Support 4">Support (4)</option><option value="Support 5">Hard Support (5)</option></select></div>
+      <div class="field"><label for="myRole">Tu posición</label><select id="myRole"><option value="Carry">Carry (1)</option><option value="Mid">Mid (2)</option><option value="Offlane">Offlane (3)</option><option value="Support 4">Support (4)</option><option value="Support 5">Hard Support (5)</option></select></div><div class="field"><label for="gameMode">Modo de juego</label><select id="gameMode"><option value="Ranked">Ranked</option><option value="Turbo">Turbo</option></select></div><div class="field"><label for="rank">Rango / medalla</label><select id="rank"><option value="Heraldo">Heraldo</option><option value="Guardián">Guardián</option><option value="Cruzado">Cruzado</option><option value="Arconte">Arconte</option><option value="Leyenda">Leyenda</option><option value="Ancestro">Ancestro</option><option value="Divino">Divino</option><option value="Inmortal">Inmortal</option></select></div>
     </div>
     <div class="actions"><button class="btn" id="analyze" disabled>Analizar draft y build</button><button class="btn secondary" id="reset">Limpiar selección</button></div>
     <p class="hint">Tocá un espacio vacío para elegir un héroe. No se puede repetir el mismo héroe en los dos equipos.</p>
@@ -104,6 +104,17 @@ function renderHeroGrid(){
 }
 function chooseHero(id){const h=heroes.find(x=>x.id===id);(target.team==='ally'?ally:enemy)[target.index]=h;$('modal').classList.remove('open');renderSlots();$('result').classList.remove('show')}
 function item(name,why){return {name,why}}
+const heroPlans = {
+"npc_dota_hero_pugna|Mid": {title:"Pugna Mid · control de mapa y presión",early:[["Bottle","sustain de línea y control de runas si el matchup lo permite"],["Magic Wand","respuesta económica frente a intercambios de hechizos"],["Null Talisman","estadísticas y maná si la línea lo necesita"]],core:[["Arcane Boots","maná para sostener presión"],["Aether Lens","alcance para lanzar habilidades desde una posición segura"],["Aghanim’s Shard","evaluar según el efecto vigente del parche"]],situational:[["Glimmer Cape","salvación propia o de un aliado"],["Force Staff","reposicionamiento contra iniciación"],["Ethereal Blade","si el equipo aprovecha el daño mágico"],["Black King Bar","si el control enemigo impide canalizar"],["Scythe of Vyse","control fuerte para asegurar una eliminación"]],note:"Administrá Nether Blast y Life Drain sin exponerte. Ajustá la compra a la presión de línea y al control rival."},
+"npc_dota_hero_drow_ranger|Carry": {title:"Drow Ranger Carry · rango y daño sostenido",early:[["Power Treads","atributos y velocidad de ataque"],["Wraith Band","estadísticas eficientes si el ritmo lo permite"],["Dragon Lance","alcance y atributos para pegar desde más lejos"]],core:[["Hurricane Pike","alcance y reposicionamiento defensivo"],["Manta Style","dispel y presión de líneas cuando sea útil"],["Black King Bar","si el control o daño mágico te impide atacar"]],situational:[["Butterfly","evasión y daño contra ataques físicos"],["Daedalus","daño físico para cerrar peleas"],["Satanic","supervivencia en peleas largas"],["Silver Edge","si necesitás romper una pasiva relevante"],["Swift Blink","movilidad y posicionamiento tardío"]],note:"Jugá alrededor de Marksmanship y mantené distancia. Si pueden saltarte, priorizá supervivencia y posicionamiento."},
+"npc_dota_hero_luna|Carry": {title:"Luna Carry · farmeo acelerado y daño en área",early:[["Power Treads","atributos y velocidad de ataque"],["Mask of Madness","acelera farmeo, pero silencia habilidades al activarla"],["Magic Wand","respuesta económica a intercambios y ganks"]],core:[["Manta Style","estadísticas, presión de líneas y dispel cuando corresponda"],["Black King Bar","protección para mantenerte pegando"],["Hurricane Pike","alcance y reposicionamiento si te alcanzan"]],situational:[["Butterfly","daño y evasión contra ataques físicos"],["Satanic","sustain para peleas prolongadas"],["Daedalus","daño físico para cerrar partidas"],["Aghanim’s Scepter","opción situacional según parche y draft"],["Swift Blink","movilidad para entrar y salir"]],note:"Aprovechá Moon Glaives para farmear. Evitá pelear antes de tus tiempos clave salvo que tengas ventaja clara."}
+};
+function getHeroPlan(hero,role){return heroPlans[hero.name+"|"+role]||null;}
+function renderHeroPlan(plan){
+ const section=(heading,items)=>'<div class="result-section"><h3>'+heading+'</h3><ol>'+items.map(x=>'<li><b>'+esc(x[0])+'</b> — '+esc(x[1])+'</li>').join('')+'</ol></div>';
+ return section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
+}
+
 const counterRules=[
  {match:['phantom_assassin','windrunner','riki'],label:'Evasión / invisibilidad',items:[item('Monkey King Bar','contra evasión; confirmar si el problema real es la evasión'),item('Dust of Appearance','detección de invisibilidad'),item('Gem of True Sight','visión permanente si el equipo puede protegerla')]},
  {match:['phantom_lancer','naga_siren','chaos_knight'],label:'Ilusiones',items:[item('Mjollnir','daño en área y efecto activo contra ilusiones'),item('Shiva’s Guard','daño en área y reducción de velocidad de ataque'),item('Battle Fury','opción de limpieza para héroes que aprovechan cleave')]},
@@ -137,7 +148,8 @@ function analyze(){
  if(enemyRoles.includes('Disabler'))threats.push('No entres solo: el control en cadena puede dejarte sin posibilidad de responder.');
  const lines=[];
  lines.push(`DOTA 2 BUILD ASSISTANT — DRAFT`);
- lines.push(`MI HÉROE: ${me.localized_name} | POSICIÓN: ${role}`);
+ const mode=$('gameMode').value, rank=$('rank').value;
+ lines.push(`MI HÉROE: ${me.localized_name} | POSICIÓN: ${role} | MODO: ${mode} | RANGO: ${rank}`);
  lines.push(`ALIADOS: ${allies.map(h=>h.localized_name).join(', ')}`);
  lines.push(`ENEMIGOS: ${enemies.map(h=>h.localized_name).join(', ')}`);
  lines.push(`\nPEDIDO: analizá el matchup completo con información vigente del parche. Quiero una build específica para ${me.localized_name}, con orden de compra, alternativas y explicación de cada objeto. No uses una build genérica si el enfrentamiento exige cambios. Separá recomendaciones de alta confianza de opciones situacionales. Verificá habilidades, roles y objetos antes de concluir.`);
@@ -147,10 +159,11 @@ function analyze(){
  html.push(`<div class="result-section"><h3>Composición aliada</h3><p class="hint">${allies.map(h=>esc(h.localized_name)).join(' · ')}</p></div>`);
  html.push(`<div class="result-section"><h3>Composición enemiga</h3><p class="hint">${enemies.map(h=>esc(h.localized_name)).join(' · ')}</p></div>`);
  html.push(`<div class="result-section"><h3>Objetos base por posición · punto de partida</h3><ol>${buildRole(role).map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p class="hint">Esto no es una build cerrada: el héroe, su habilidad principal y el ritmo de la partida pueden cambiar completamente el orden.</p></div>`);
+ const plan=getHeroPlan(me,role); if(plan) html.push(renderHeroPlan(plan));
  if(hits.length)hits.forEach(r=>html.push(`<div class="result-section"><h3>Respuesta situacional: ${esc(r.label)}</h3><div class="chips">${r.items.map(x=>`<span class="chip">${esc(x.name)}</span>`).join('')}</div><p class="hint">${r.items.map(x=>esc(x.name)+': '+esc(x.why)).join(' · ')}</p></div>`));
  else html.push(`<div class="result-section"><h3>Contrarrestos</h3><p class="hint">No se activó una regla específica del catálogo preliminar. Hace falta revisar habilidades y matchups con más profundidad.</p></div>`);
  html.push(`<div class="result-section"><h3>Lectura estratégica inicial</h3><ul>${[...synergies,...threats].map(x=>`<li>${esc(x)}</li>`).join('')||'<li>Analizar iniciación, control, daño y escalado antes de definir el plan de juego.</li>'}</ul></div>`);
- html.push(`<div class="warning">Prototipo 0.1: las reglas son heurísticas y no sustituyen datos estadísticos por parche ni análisis de habilidades. Usá “Copiar análisis para ChatGPT” para pedir una build específica y contrastada. No se presenta ninguna recomendación como infalible.</div>`);
+ html.push(`<div class="warning">Versión 0.2: perfiles orientativos para Pugna Mid, Drow Carry y Luna Carry. Las rutas no son estadísticas verificadas por rango ni builds certificadas para cada parche. Contrastá el draft completo antes de comprar.</div>`);
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent='Preliminar · reglas iniciales';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
