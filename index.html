@@ -294,7 +294,8 @@ function pugnaFinalBuild(matchups,state){
 function analyze(){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean);
- const matchups=getMatchupData(me,enemies);\n const live=getLiveState();
+ const matchups=getMatchupData(me,enemies);
+ const live=getLiveState();
  const allRoles=allies.flatMap(h=>h.roles||[]);
  const synergies=[];
  if(allRoles.includes('Disabler'))synergies.push('Hay control aliado: esperá que tus compañeros inmovilicen antes de usar tus habilidades importantes.');
