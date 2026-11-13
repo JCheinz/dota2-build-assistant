@@ -1,6 +1,63 @@
-const CACHE='dota-build-v02';const CORE=['./','./index.html','./manifest.webmanifest'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
-self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET')return;
- if(u.origin===location.origin)e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(x=>x.put(e.request,copy));return r}).catch(()=>caches.match('./index.html'))));
+const CACHE = 'dota-build-v03';
+const CORE = ['./', './index.html', './manifest.webmanifest'];
+
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await cache.addAll(CORE);
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys
+      .filter(key => key.startsWith('dota-build-') && key !== CACHE)
+      .map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // HTML y navegación: primero red para evitar servir una versión vieja.
+  if (request.mode === 'navigate' ||
+      request.destination === 'document' ||
+      url.pathname.endsWith('.html') ||
+      url.pathname.endsWith('/')) {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request, { cache: 'no-store' });
+        if (response && response.ok) {
+          const cache = await caches.open(CACHE);
+          await cache.put(request, response.clone());
+        }
+        return response;
+      } catch (error) {
+        return (await caches.match(request)) ||
+               (await caches.match('./index.html')) ||
+               Response.error();
+      }
+    })());
+    return;
+  }
+
+  // Recursos estáticos: caché primero y actualización en segundo plano.
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
+    const network = fetch(request).then(async response => {
+      if (response && response.ok) {
+        const cache = await caches.open(CACHE);
+        await cache.put(request, response.clone());
+      }
+      return response;
+    });
+    return cached || network;
+  })());
 });
