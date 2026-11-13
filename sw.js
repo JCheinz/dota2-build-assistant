@@ -1,4 +1,4 @@
-const CACHE='dota-build-v01';const CORE=['./','./index.html','./manifest.webmanifest'];
+const CACHE='dota-build-v02';const CORE=['./','./index.html','./manifest.webmanifest'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET')return;
