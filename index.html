@@ -284,8 +284,7 @@ function getNextPurchase(build,state){
  if(!recipe)return {target,kind:"complete",name:target.name,cost:target.cost,remaining:Math.max(0,target.cost-state.gold),affordable:state.gold>=target.cost,reason:target.condition};
  const missing=recipe.filter(part=>!state.components.includes(part.name));
  if(!missing.length)return {target,kind:"complete",name:target.name,cost:target.cost,remaining:Math.max(0,target.cost-state.gold),affordable:state.gold>=target.cost,reason:"Ya marcaste todos los componentes; falta completar el objeto si todavía no figura como comprado."};
- const affordable=missing.filter(part=>state.gold>=part.cost).sort((a,b)=>a.cost-b.cost);
- const next=affordable[0]||missing.slice().sort((a,b)=>a.cost-b.cost)[0];
+ const next=missing.find(part=>state.gold>=part.cost)||missing[0];
  return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:"Componente para "+target.name+". "+target.condition,remainingParts:missing.length};
 }
 function pugnaFinalBuild(matchups,state){
