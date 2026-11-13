@@ -92,7 +92,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 0.9</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 1.0</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -120,7 +120,7 @@
         <div class="field"><label for="currentGold">Oro disponible</label><input id="currentGold" type="number" min="0" max="100000" value="0" placeholder="Ej. 1200"></div>
         <div class="field"><label for="currentProblem">¿Qué problema estás sufriendo?</label><select id="currentProblem"><option value="none">Todavía ninguno / no sé</option><option value="rupture">Bloodseeker me amenaza con Rupture</option><option value="initiation">Me eliminan con iniciación (Centaur / Dawnbreaker)</option><option value="lane">Viper me está ganando la línea</option><option value="teamfight">Dark Seer domina las peleas de equipo</option><option value="magic">Me bloquean con control o daño mágico</option></select></div>
       </div>
-      <p class="hint">Marcá solo los objetos completos que ya tenés. Esto permite evitar compras repetidas y ajustar la siguiente recomendación.</p>
+      <p class="hint">Marcá los objetos completos y los componentes que ya tenés. Así podemos sugerir el siguiente componente sin volver a comprar lo que ya está en tu inventario.</p>
       <div class="controls">
         <label class="chip"><input type="checkbox" class="owned-item" value="Bottle"> Bottle</label>
         <label class="chip"><input type="checkbox" class="owned-item" value="Magic Wand"> Magic Wand</label>
@@ -131,6 +131,17 @@
         <label class="chip"><input type="checkbox" class="owned-item" value="Glimmer Cape"> Glimmer Cape</label>
         <label class="chip"><input type="checkbox" class="owned-item" value="Black King Bar"> Black King Bar</label>
         <label class="chip"><input type="checkbox" class="owned-item" value="Scythe of Vyse"> Scythe of Vyse</label>
+      </div>
+      <p class="hint" style="margin-top:12px">Componentes que ya tenés (opcional):</p>
+      <div class="controls">
+        <label class="chip"><input type="checkbox" class="owned-component" value="Energy Booster"> Energy Booster</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Void Stone"> Void Stone</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Vitality Booster"> Vitality Booster</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Ultimate Orb"> Ultimate Orb</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Ring of Health"> Ring of Health</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Boots of Speed"> Boots of Speed</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Ring of Basilius"> Ring of Basilius</label>
+        <label class="chip"><input type="checkbox" class="owned-component" value="Wizard Hat"> Wizard Hat</label>
       </div>
     </div>
     <div class="actions"><button class="btn" id="analyze" disabled>Analizar draft y build</button><button class="btn secondary" id="reset">Limpiar selección</button></div>
@@ -256,8 +267,26 @@ function getLiveState(){
   minute:Math.max(0,Number($('gameMinute').value)||0),
   gold:Math.max(0,Number($('currentGold').value)||0),
   problem:$('currentProblem').value,
-  owned:[...document.querySelectorAll('.owned-item:checked')].map(x=>x.value)
+  owned:[...document.querySelectorAll('.owned-item:checked')].map(x=>x.value),
+  components:[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value)
  };
+}
+const itemRecipes={
+ "Aether Lens":[{name:"Energy Booster",cost:800},{name:"Void Stone",cost:700},{name:"Receta de Aether Lens",cost:775}],
+ "Linken’s Sphere":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700},{name:"Ultimate Orb",cost:2800},{name:"Receta de Linken’s Sphere",cost:600}],
+ "Aeon Disk":[{name:"Vitality Booster",cost:1000},{name:"Energy Booster",cost:800},{name:"Receta de Aeon Disk",cost:1200}],
+ "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}]
+};
+function getNextPurchase(build,state){
+ const target=build.find(x=>x.priority&&!state.owned.includes(x.name))||build.find(x=>!state.owned.includes(x.name));
+ if(!target)return {done:true};
+ const recipe=itemRecipes[target.name];
+ if(!recipe)return {target,kind:"complete",name:target.name,cost:target.cost,remaining:Math.max(0,target.cost-state.gold),affordable:state.gold>=target.cost,reason:target.condition};
+ const missing=recipe.filter(part=>!state.components.includes(part.name));
+ if(!missing.length)return {target,kind:"complete",name:target.name,cost:target.cost,remaining:Math.max(0,target.cost-state.gold),affordable:state.gold>=target.cost,reason:"Ya marcaste todos los componentes; falta completar el objeto si todavía no figura como comprado."};
+ const affordable=missing.filter(part=>state.gold>=part.cost).sort((a,b)=>a.cost-b.cost);
+ const next=affordable[0]||missing.slice().sort((a,b)=>a.cost-b.cost)[0];
+ return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:"Componente para "+target.name+". "+target.condition,remainingParts:missing.length};
 }
 function pugnaFinalBuild(matchups,state){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
@@ -274,7 +303,7 @@ function pugnaFinalBuild(matchups,state){
   {name:"Black King Bar",stage:"Defensa",cost:4050,score:0,why:"No se recomienda automáticamente para este draft.",condition:"Evaluá solo tras identificar qué controles concretos te afectan y si BKB los contrarresta en el parche."},
   {name:"Scythe of Vyse",stage:"Cierre",cost:5200,score:1.0,why:"Control fuerte para neutralizar temporalmente una amenaza.",condition:"Objeto de cierre si necesitás control adicional."}
  ];
- if(problem==="rupture"&&has("bloodseeker")){candidates.find(x=>x.name==="Linken’s Sphere").score=6;}
+ if(problem==="rupture"&&has("bloodseeker"))candidates.find(x=>x.name==="Linken’s Sphere").score=6;
  if(problem==="initiation"&&(has("centaur")||has("dawnbreaker")))candidates.find(x=>x.name==="Aeon Disk").score=5.8;
  if(problem==="lane"&&has("viper"))candidates.find(x=>x.name==="Magic Wand").score=4.8;
  if(problem==="teamfight"&&has("dark_seer"))candidates.find(x=>x.name==="Glimmer Cape").score=2.8;
@@ -303,7 +332,7 @@ function analyze(){
  if(allies.some(h=>h.name==='npc_dota_hero_disruptor'))synergies.push('Disruptor puede mantener enemigos dentro de una zona; coordiná Nether Blast y Life Drain sin adelantarte.');
  if(allies.some(h=>h.name==='npc_dota_hero_lina'))synergies.push('Lina aporta daño mágico explosivo; Decrepify puede amplificarlo sobre un enemigo, pero impide que aliados le hagan ataques físicos.');
  const isPugnaMid=me.name==='npc_dota_hero_pugna'&&role==='Mid';
- const lines=['DOTA 2 BUILD ASSISTANT — ANÁLISIS v0.9','MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),'MINUTO: '+live.minute+' | ORO: '+live.gold+' | PROBLEMA: '+live.problem+' | OBJETOS COMPLETOS: '+live.owned.join(', '),'Analizá amenazas, plan y build sin inventar estadísticas. Diferenciá lo confirmado de lo condicional.'];
+ const lines=['DOTA 2 BUILD ASSISTANT — ANÁLISIS v1.0','MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),'MINUTO: '+live.minute+' | ORO: '+live.gold+' | PROBLEMA: '+live.problem+' | OBJETOS COMPLETOS: '+live.owned.join(', ')+' | COMPONENTES: '+live.components.join(', '),'Analizá amenazas, plan y build sin inventar estadísticas. Diferenciá lo confirmado de lo condicional.'];
  lastReport=lines.join('\n');
  const html=[];
  html.push('<div class="result-section"><h3>Resumen del draft</h3><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
@@ -316,6 +345,10 @@ function analyze(){
  if(isPugnaMid){
   const build=pugnaFinalBuild(matchups,live);
   const grouped={Inicio:[],Núcleo:[],Defensa:[],Cierre:[]};
+  const next=getNextPurchase(build,live);
+  if(next.done)html.push('<div class="result-section"><h3>Tu próxima compra</h3><div class="warning">Ya marcaste todos los objetos recomendados de esta ruta. Volvé a evaluar el draft y tu inventario.</div></div>');
+  else html.push('<div class="result-section"><h3>Tu próxima compra</h3><div class="item-card priority"><span class="item-number">1</span><div class="item-copy"><b>'+esc(next.name)+'</b><span>'+(next.kind==='component'?'Componente para '+esc(next.target.name):'Objeto completo: '+esc(next.name))+' · '+esc(next.reason)+'</span><small class="item-priority-label">'+(next.affordable?'PODÉS COMPRARLO AHORA':'TE FALTAN '+next.remaining.toLocaleString('es-AR')+' DE ORO')+'</small></div></div><p class="hint">'+(next.kind==='component'?'Marcá los componentes que ya tenés para que el sistema no te los recomiende de nuevo.':'Marcá lo que ya tenés para ajustar esta recomendación.')+'</p></div>');
+
   build.forEach(x=>grouped[x.stage].push(x));
   html.push('<div class="result-section"><h3>Build final sugerida · Pugna Mid</h3><p class="hint"><span style="color:#71e6a3;font-weight:800">Verde: 3 prioridades principales.</span> <span style="color:#82bfff;font-weight:800">Azul: complementos situacionales.</span> Las prioridades consideran minuto, oro, problema actual y objetos completos que ya tenés. El precio es el costo total del objeto, no descuenta componentes.</p>');
   Object.entries(grouped).forEach(([stage,items])=>{if(items.length)html.push('<h3 style="margin-top:12px">'+stage+'</h3>'+renderItemCards(items.map(x=>({name:x.name,why:x.why+' · '+x.condition+' · '+(x.affordable?'Precio total cubierto con tu oro (sin contar componentes)':'No alcanza el precio total; considerá componentes o ahorrar') ,priority:x.priority}))))});
@@ -330,7 +363,7 @@ function analyze(){
   }else html.push('<div class="result-section"><h3>Build</h3><p class="hint">No hay una build específica cargada para este héroe. La aplicación no va a inventar una secuencia de compra.</p></div>');
  }
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 0.9 · recomendaciones según estado de partida. Las reglas son heurísticas, no estadísticas verificadas por rango. Las reglas son heurísticas, no estadísticas verificadas por rango. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
+ html.push('<div class="warning">Versión 1.0 · siguiente compra y componentes según inventario. Las reglas son heurísticas, no estadísticas verificadas por rango. Las reglas son heurísticas, no estadísticas verificadas por rango. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas reconocidas · reglas heurísticas';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
