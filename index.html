@@ -88,7 +88,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 0.4</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 0.5</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -222,55 +222,74 @@ function getMatchupData(me,enemies){
  const ids=enemies.map(h=>h.name.replace("npc_dota_hero_",""));
  return ids.filter(id=>matchupRules[id]).map(id=>({...matchupRules[id],hero:enemies.find(h=>h.name.endsWith(id))}));
 }
+function uniqueItems(items){
+ const seen=new Set();
+ return items.filter(x=>{const key=x.name.toLowerCase();if(seen.has(key))return false;seen.add(key);return true});
+}
+function pugnaFinalBuild(matchups){
+ const pool=[
+  {name:"Bottle",why:"Compra de línea si necesitás sustain y disputar runas",stage:"Inicio",rank:1,condition:"Si el matchup permite controlar runas"},
+  {name:"Magic Wand",why:"Eficiente contra rivales que intercambian hechizos",stage:"Inicio",rank:2,condition:"Prioridad alta si acumula cargas"},
+  {name:"Arcane Boots",why:"Sostiene el uso de habilidades y aporta maná al equipo",stage:"Núcleo",rank:3,condition:"Compra habitual para esta ruta"},
+  {name:"Aether Lens",why:"Aumenta el margen de lanzamiento y ayuda a jugar desde atrás",stage:"Núcleo",rank:4,condition:"Prioridad alta si necesitás distancia segura"},
+  {name:"Aghanim’s Shard",why:"Mejora potencial sujeto al efecto vigente del parche",stage:"Núcleo",rank:7,condition:"Verificá el efecto actual y compralo si aporta a tu plan"},
+  {name:"Linken’s Sphere",why:"Puede bloquear Rupture si el bloqueo está disponible; el rival puede consumirlo antes",stage:"Defensa",rank:5,condition:"Contra Bloodseeker si Rupture es la amenaza principal"},
+  {name:"Aeon Disk",why:"Te da una ventana defensiva ante una iniciación y burst que te eliminan",stage:"Defensa",rank:6,condition:"Si Centaur u otro iniciador te elimina antes de responder"},
+  {name:"Glimmer Cape",why:"Salvación para vos o un aliado enfocado",stage:"Defensa",rank:8,condition:"Si el equipo necesita salvar objetivos o mitigar daño mágico"},
+  {name:"Black King Bar",why:"Permite actuar frente a ciertos controles y daños; no evita todo",stage:"Defensa",rank:9,condition:"Solo si el control que te afecta puede ser bloqueado por inmunidad"},
+  {name:"Scythe of Vyse",why:"Control fuerte para neutralizar una amenaza prioritaria",stage:"Cierre",rank:10,condition:"Si llegás a una etapa avanzada y necesitás control adicional"}
+ ];
+ const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
+ const include=pool.filter(x=>{
+  if(["Bottle","Magic Wand","Arcane Boots","Aether Lens"].includes(x.name))return true;
+  if(x.name==="Linken’s Sphere")return active.has("bloodseeker");
+  if(x.name==="Aeon Disk")return active.has("centaur")||active.has("dawnbreaker");
+  if(x.name==="Glimmer Cape")return active.has("viper")||active.has("dark_seer");
+  if(x.name==="Black King Bar")return active.has("viper")||active.has("dark_seer");
+  return x.name==="Aghanim’s Shard"||x.name==="Scythe of Vyse";
+ });
+ return include.sort((a,b)=>a.rank-b.rank);
+}
 function analyze(){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean);
- const hits=counterRules.filter(r=>enemies.some(h=>r.match.includes(h.name.replace('npc_dota_hero_',''))));
  const matchups=getMatchupData(me,enemies);
- const synergies=[];
  const allRoles=allies.flatMap(h=>h.roles||[]);
- if(allRoles.includes('Disabler'))synergies.push('Tu equipo tiene control: coordiná tu entrada después de que se usen las habilidades de inmovilización.');
- if(allRoles.includes('Initiator'))synergies.push('Hay iniciación aliada: dejá que tu iniciador marque el comienzo y seguí desde una posición segura.');
- if(allRoles.includes('Support'))synergies.push('Protegé a tus supports y coordiná las salvaciones; no gastes Decrepify sin mirar qué objetivo necesitan atacar tus aliados.');
- const enemyRoles=enemies.flatMap(h=>h.roles||[]);
- const threats=[];
- if(enemyRoles.includes('Carry'))threats.push('Identificá qué carry enemigo está más fuerte y reservá control para que no ataque libremente.');
- if(enemyRoles.includes('Nuker'))threats.push('Medí el daño mágico explosivo antes de elegir BKB, resistencia mágica o salvación.');
- if(enemyRoles.includes('Disabler'))threats.push('Evitá mostrarte primero: el control encadenado puede impedirte canalizar Life Drain.');
+ const synergies=[];
+ if(allRoles.includes('Disabler'))synergies.push('Hay control aliado: esperá que tus compañeros inmovilicen antes de usar tus habilidades importantes.');
+ if(allRoles.includes('Initiator'))synergies.push('Tenés iniciación aliada: jugá detrás del iniciador y seguí su entrada.');
+ if(allies.some(h=>h.name==='npc_dota_hero_disruptor'))synergies.push('Disruptor puede mantener enemigos dentro de una zona; coordiná Nether Blast y Life Drain sin adelantarte.');
+ if(allies.some(h=>h.name==='npc_dota_hero_lina'))synergies.push('Lina aporta daño mágico explosivo; Decrepify puede amplificarlo sobre un enemigo, pero impide que aliados le hagan ataques físicos.');
  const isPugnaMid=me.name==='npc_dota_hero_pugna'&&role==='Mid';
- const lines=[];
- lines.push('DOTA 2 BUILD ASSISTANT — ANÁLISIS v0.4');
- const mode=$('gameMode').value,rank=$('rank').value;
- lines.push('MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+mode+' | RANGO: '+rank);
- lines.push('ALIADOS: '+allies.map(h=>h.localized_name).join(', '));
- lines.push('ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '));
- lines.push('\nPEDIDO: analizá el draft completo y explicá amenazas concretas, sinergias, plan por etapas y compra adaptada. Diferenciá mecánicas verificadas de inferencias. No inventes estadísticas por rango ni datos de parche.');
+ const lines=['DOTA 2 BUILD ASSISTANT — ANÁLISIS v0.5','MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),'Analizá amenazas, plan y build sin inventar estadísticas. Diferenciá lo confirmado de lo condicional.'];
  lastReport=lines.join('\n');
  const html=[];
- html.push('<div class="result-section"><h3>Tu héroe y posición</h3><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc(mode)+' · '+esc(rank)+'</span></div></div>');
- html.push('<div class="result-section"><h3>Composición aliada</h3><p class="hint">'+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
- html.push('<div class="result-section"><h3>Composición enemiga</h3><p class="hint">'+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
+ html.push('<div class="result-section"><h3>Resumen del draft</h3><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(matchups.length){
-  html.push('<div class="result-section"><h3>Amenazas específicas detectadas</h3>');
-  matchups.forEach(m=>{html.push('<div class="warning" style="margin:8px 0"><b>'+esc(m.hero.localized_name)+' · Riesgo '+esc(m.risk)+'</b><br>'+esc(m.advice)+'</div><p class="hint"><b>Plan:</b> '+esc(m.plan)+'</p>'+renderItemCards(m.items));});
+  const ordered=[...matchups].sort((a,b)=>(a.risk==='ALTA'?-1:1)-(b.risk==='ALTA'?-1:1));
+  html.push('<div class="result-section"><h3>Amenazas principales</h3>');
+  ordered.forEach(m=>html.push('<div class="warning" style="margin:7px 0"><b>'+esc(m.hero.localized_name)+' · Riesgo '+esc(m.risk)+'</b><br>'+esc(m.advice)+'<p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p></div>'));
   html.push('</div>');
- } else html.push('<div class="result-section"><h3>Amenazas específicas</h3><p class="hint">Todavía no hay una regla detallada para estos rivales. El análisis general no sustituye una revisión de habilidades y parche.</p></div>');
- html.push('<div class="result-section"><h3>Plan de partida</h3><ul><li><b>Línea:</b> priorizá experiencia, recursos y supervivencia; no fuerces intercambios desfavorables.</li><li><b>Medio juego:</b> agrupate con tus héroes de control y jugá alrededor de objetivos con visión.</li><li><b>Peleas:</b> identificá primero quién puede iniciar sobre vos; posicionate detrás y usá tus habilidades cuando el rival haya mostrado sus amenazas.</li><li><b>Final:</b> reevaluá el objeto defensivo según quién esté más fuerte, no compres siempre la misma secuencia.</li></ul></div>');
- html.push('<div class="result-section"><h3>Sinergias aliadas</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="result-section"><h3>Lectura general del draft</h3><ul>'+threats.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- const plan=getHeroPlan(me,role);
- if(plan){
-  if(isPugnaMid&&matchups.length){
-   const early=plan.early.filter(x=>x[0]!=='Null Talisman');
-   const core=plan.core;
-   html.push('<div class="result-section"><h3>Build adaptada · '+esc(plan.title)+'</h3><p class="hint">La ruta base se mantiene, pero las compras defensivas se deciden según la amenaza que esté más activa.</p><h3>Compra inicial / línea</h3>'+renderItemCards(early)+'</div>');
-   html.push('<div class="result-section"><h3>Núcleo</h3>'+renderItemCards(core)+'</div>');
-   html.push('<div class="result-section"><h3>Prioridad situacional para este draft</h3>'+renderItemCards(matchups.flatMap(m=>m.items).filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i))+'</div>');
-  } else html.push(renderHeroPlan(plan));
- } else html.push('<div class="result-section"><h3>Build por posición · solo referencia</h3><ol>'+buildRole(role).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol><p class="hint">Es una estructura genérica, no una build optimizada para este héroe.</p></div>');
- if(hits.length)hits.forEach(r=>html.push('<div class="result-section"><h3>Respuesta situacional: '+esc(r.label)+'</h3>'+renderItemCards(r.items)+'</div>'));
- html.push('<div class="warning">Versión 0.4 · reglas de matchup para amenazas identificadas y plan de juego contextual. Las recomendaciones son heurísticas, no estadísticas verificadas por rango ni garantía de victoria. Confirmá siempre los efectos y objetos del parche vigente.</div>');
- $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas específicas · heurístico';$('result').scrollIntoView({behavior:'smooth',block:'start'});
+ }else html.push('<div class="result-section"><h3>Amenazas</h3><p class="hint">No hay reglas específicas para estos cinco rivales todavía. La lectura es general y no debe tomarse como counter confirmado.</p></div>');
+ if(isPugnaMid){
+  const build=pugnaFinalBuild(matchups);
+  const grouped={Inicio:[],Núcleo:[],Defensa:[],Cierre:[]};
+  build.forEach(x=>grouped[x.stage].push(x));
+  html.push('<div class="result-section"><h3>Build final sugerida · Pugna Mid</h3><p class="hint">Lista única, sin repetir objetos. Las compras condicionales no son obligatorias: reevaluá según quién te esté amenazando realmente.</p>');
+  Object.entries(grouped).forEach(([stage,items])=>{if(items.length)html.push('<h3 style="margin-top:12px">'+stage+'</h3>'+renderItemCards(items.map(x=>item(x.name,x.why+' · '+x.condition))))});
+  html.push('</div>');
+  const avoid=matchups.some(m=>m.hero.name==='npc_dota_hero_bloodseeker');
+  html.push('<div class="warning"><b>Qué evitar:</b> '+(avoid?'no priorices Force Staff como escape mientras Rupture esté activa: el desplazamiento puede hacerte recibir daño. Linken’s solo ayuda si el bloqueo sigue disponible. ':'no compres defensas por costumbre: primero identificá qué habilidad enemiga te está impidiendo jugar. ')+'BKB tampoco es una respuesta universal a todo el control.</div>');
+ }else{
+  const plan=getHeroPlan(me,role);
+  if(plan){
+   const combined=uniqueItems([...plan.early.map(x=>item(x[0],x[1])),...plan.core.map(x=>item(x[0],x[1]))]);
+   html.push('<div class="result-section"><h3>Compra base · '+esc(plan.title)+'</h3>'+renderItemCards(combined)+'</div><p class="hint">Las alternativas del perfil son situacionales; todavía no hay una ruta específica validada para este héroe y draft.</p>');
+  }else html.push('<div class="result-section"><h3>Build</h3><p class="hint">No hay una build específica cargada para este héroe. La aplicación no va a inventar una secuencia de compra.</p></div>');
+ }
+ if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
+ html.push('<div class="warning">Versión 0.5 · informe simplificado y objetos unificados. Las reglas son heurísticas, no estadísticas verificadas por rango. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
+ $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas reconocidas · reglas heurísticas';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
 $('myHero').onchange=()=>{$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
