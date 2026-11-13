@@ -171,7 +171,19 @@ $('myHero').onchange=()=>{$('analyze').disabled=ally.filter(Boolean).length+enem
 $('analyze').onclick=analyze;
 $('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+if('serviceWorker' in navigator){
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(refreshing)return;
+    refreshing=true;
+    window.location.reload();
+  });
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'})
+      .then(reg=>reg.update())
+      .catch(()=>{});
+  });
+}
 loadHeroes();
 </script>
 </body></html>
