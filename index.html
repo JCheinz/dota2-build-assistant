@@ -92,7 +92,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 0.7</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 0.8</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -233,20 +233,20 @@ function uniqueItems(items){
 }
 function pugnaFinalBuild(matchups){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
- const pool=[
-  {name:"Bottle",why:"Sustain de línea y control de runas",stage:"Inicio",score:62,condition:"Si podés disputar runas sin perder demasiados recursos"},
-  {name:"Magic Wand",why:"Respuesta barata a intercambios frecuentes de hechizos",stage:"Inicio",score:82,condition:"Sube de prioridad si los rivales generan cargas"},
-  {name:"Arcane Boots",why:"Maná para sostener presión y aportar al equipo",stage:"Núcleo",score:76,condition:"Compra base habitual; adelantala si falta maná"},
-  {name:"Aether Lens",why:"Más alcance para lanzar habilidades desde una posición segura",stage:"Núcleo",score:88,condition:"Muy valiosa si necesitás mantener distancia"},
-  {name:"Aghanim’s Shard",why:"Mejora potencial sujeta al efecto vigente del parche",stage:"Núcleo",score:38,condition:"Compralo solo después de verificar su efecto actual y utilidad"},
-  {name:"Linken’s Sphere",why:"Puede bloquear Rupture si el bloqueo está activo; el rival puede consumirlo antes",stage:"Defensa",score:active.has("bloodseeker")?100:0,condition:"Contra Bloodseeker si Rupture es la amenaza que define tus muertes"},
-  {name:"Aeon Disk",why:"Ventana defensiva ante una iniciación y burst que te eliminan",stage:"Defensa",score:(active.has("centaur")||active.has("dawnbreaker"))?91:0,condition:"Si la iniciación rival te elimina antes de que puedas responder"},
-  {name:"Glimmer Cape",why:"Salvación para vos o un aliado enfocado",stage:"Defensa",score:(active.has("viper")||active.has("dark_seer"))?58:0,condition:"Si tu equipo necesita salvar a un objetivo o mitigar daño mágico"},
-  {name:"Black King Bar",why:"Ayuda contra ciertos controles y daños; no evita todos los efectos",stage:"Defensa",score:(active.has("viper")||active.has("dark_seer"))?55:0,condition:"Solo si los controles que te afectan pueden ser bloqueados por inmunidad"},
-  {name:"Scythe of Vyse",why:"Control fuerte para neutralizar una amenaza prioritaria",stage:"Cierre",score:34,condition:"Compra de cierre si necesitás control adicional"}
+ const has=(id)=>active.has(id);
+ const candidates=[
+  {name:"Bottle",stage:"Inicio",score:1.5,why:"Regeneración y control de runas para la fase de líneas.",condition:"Compralo si podés disputar runas y necesitás sustain.",priorityReason:"No es una prioridad defensiva del draft."},
+  {name:"Magic Wand",stage:"Inicio",score:2.8,why:"Ráfaga de vida y maná en intercambios con hechizos.",condition:"Sube de valor contra rivales que lanzan habilidades con frecuencia.",priorityReason:"Útil contra una composición de mucho hostigamiento, pero no contrarresta una habilidad clave por sí sola."},
+  {name:"Arcane Boots",stage:"Núcleo",score:2.7,why:"Sostienen el maná de Pugna y pueden ayudar al equipo.",condition:"Ruta base razonable; reconsiderá si tu equipo ya cubre el maná.",priorityReason:"Objeto funcional de la build, no respuesta directa a un enemigo."},
+  {name:"Aether Lens",stage:"Núcleo",score:4.2,why:"Aumenta el alcance de lanzamiento y ayuda a Pugna a contribuir sin exponerse.",condition:"Prioridad de núcleo si necesitás jugar fuera del alcance de iniciación.",priorityReason:"Sinergia directa con el plan de Pugna: lanzar desde más lejos y reducir exposición."},
+  {name:"Linken’s Sphere",stage:"Defensa",score:has("bloodseeker")?5:0,why:"Su bloqueo de hechizo puede bloquear Rupture si está disponible.",condition:"Contra Bloodseeker cuando Rupture sea la amenaza que te obliga a cambiar tu movimiento. El rival puede consumir el bloqueo con otro hechizo.",priorityReason:"Respuesta específica a Rupture; no bloquea automáticamente el resto de su combo."},
+  {name:"Aeon Disk",stage:"Defensa",score:(has("centaur")||has("dawnbreaker"))?4.6:0,why:"Puede darte una ventana para sobrevivir a una iniciación seguida de burst.",condition:"Compralo si Centaur o Dawnbreaker te están iniciando y muriendo antes de que puedas responder.",priorityReason:"Respuesta condicional al patrón de iniciación y burst; no evita que te controlen ni garantiza escapar."},
+  {name:"Glimmer Cape",stage:"Defensa",score:(has("viper")||has("dark_seer"))?1.8:0,why:"Herramienta de salvación para vos o un aliado.",condition:"Elegila si el equipo necesita una salvación y el rival no puede revelar o seguir fácilmente al objetivo.",priorityReason:"Complemento de equipo; no es un counter directo a Viper ni a Dark Seer."},
+  {name:"Black King Bar",stage:"Defensa",score:0,why:"No se recomienda automáticamente para este draft.",condition:"Evaluá solo después de identificar qué efectos concretos te están controlando y si BKB los contrarresta en el parche vigente.",priorityReason:"No se marca como prioridad sin confirmar la interacción de cada habilidad."},
+  {name:"Scythe of Vyse",stage:"Cierre",score:1.2,why:"Control fuerte para neutralizar temporalmente una amenaza.",condition:"Objeto de cierre si necesitás control adicional y llegás a una etapa avanzada.",priorityReason:"Aporta control, pero no resuelve por sí solo las amenazas defensivas principales."}
  ].filter(x=>x.score>0);
- const top=new Set([...pool].sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.name));
- return pool.map(x=>({...x,priority:top.has(x.name)})).sort((a,b)=>{
+ const priorityNames=new Set([...candidates].sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.name));
+ return candidates.map(x=>({...x,priority:priorityNames.has(x.name)})).sort((a,b)=>{
   if(a.priority!==b.priority)return a.priority?-1:1;
   return b.score-a.score;
  });
@@ -276,7 +276,7 @@ function analyze(){
   const build=pugnaFinalBuild(matchups);
   const grouped={Inicio:[],Núcleo:[],Defensa:[],Cierre:[]};
   build.forEach(x=>grouped[x.stage].push(x));
-  html.push('<div class="result-section"><h3>Build final sugerida · Pugna Mid</h3><p class="hint"><span style="color:#71e6a3;font-weight:800">Verde: 3 prioridades principales.</span> <span style="color:#82bfff;font-weight:800">Azul: complementos situacionales.</span> La selección cambia según las amenazas detectadas; no compres todos los objetos automáticamente.</p>');
+  html.push('<div class="result-section"><h3>Build final sugerida · Pugna Mid</h3><p class="hint"><span style="color:#71e6a3;font-weight:800">Verde: 3 prioridades principales.</span> <span style="color:#82bfff;font-weight:800">Azul: complementos situacionales.</span> Verde: tres prioridades sugeridas por sinergia o respuesta a amenazas detectadas. Azul: complementos. Confirmá que la condición se esté dando en tu partida antes de comprar.</p>');
   Object.entries(grouped).forEach(([stage,items])=>{if(items.length)html.push('<h3 style="margin-top:12px">'+stage+'</h3>'+renderItemCards(items.map(x=>({name:x.name,why:x.why+' · '+x.condition,priority:x.priority}))))});
   html.push('</div>');
   const avoid=matchups.some(m=>m.hero.name==='npc_dota_hero_bloodseeker');
@@ -289,7 +289,7 @@ function analyze(){
   }else html.push('<div class="result-section"><h3>Build</h3><p class="hint">No hay una build específica cargada para este héroe. La aplicación no va a inventar una secuencia de compra.</p></div>');
  }
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 0.7 · prioridades visuales corregidas y objetos unificados. Las reglas son heurísticas, no estadísticas verificadas por rango. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
+ html.push('<div class="warning">Versión 0.8 · selección contextual de objetos y objetos unificados. Las reglas son heurísticas, no estadísticas verificadas por rango. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas reconocidas · reglas heurísticas';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
