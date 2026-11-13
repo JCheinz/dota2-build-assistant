@@ -29,11 +29,66 @@
     .result{display:none}.result.show{display:block}.result h2{margin-bottom:8px}.result-section{padding:11px 0;border-top:1px solid var(--line)}.result-section h3{font-size:13px;margin:0 0 7px;color:var(--gold)}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{background:#29313d;border:1px solid #3c4859;border-radius:8px;padding:6px 8px;font-size:12px}.warning{border-left:3px solid var(--gold);padding:9px 11px;background:#30291e;color:#ead7b5;border-radius:5px;font-size:12px;line-height:1.45}
     footer{text-align:center;color:#788392;font-size:11px;padding:20px 0}.loading{padding:20px;text-align:center;color:var(--muted)}
     @media(max-width:650px){.wrap{padding:14px 10px 42px}.teams{grid-template-columns:1fr}.slot{min-height:84px}.slot img{height:58px}.hero-grid{grid-template-columns:repeat(3,1fr)}.hero img{height:86px}.tag{display:none}.controls{grid-template-columns:1fr 1fr}}
+
+    /* Interfaz 0.3: paneles más claros, jerarquía visual y adaptación móvil */
+    :root{--bg:#0c1016;--panel:#171e28;--panel2:#202a37;--line:#344153;--gold:#efbd62;--green:#70d5a0;--red:#ed716b;--muted:#aeb9c8}
+    body{background:radial-gradient(ellipse at 12% -10%,#293849 0,transparent 42%),radial-gradient(ellipse at 100% 0%,#3a2a24 0,transparent 30%),var(--bg)}
+    .wrap{max-width:1180px;padding-top:24px}
+    header{padding:8px 4px 18px}
+    .logo{width:54px;height:54px;border-radius:16px;font-size:24px;background:linear-gradient(145deg,#e0a34d,#9b392f);box-shadow:0 8px 30px #0008}
+    h1{font-size:clamp(20px,3vw,27px);letter-spacing:-.5px}
+    .sub{font-size:13px}
+    .tag{background:#342a1b;font-weight:800;letter-spacing:.4px}
+    .panel{background:linear-gradient(160deg,#1a222dF2,#131922F5);border:1px solid #354254;border-radius:20px;padding:18px;box-shadow:0 16px 36px #0003}
+    .panel h2{font-size:16px;letter-spacing:.1px}
+    .team{background:#111821;border:1px solid #2b3746;border-radius:15px;padding:12px}
+    .team-title{font-size:12px;letter-spacing:.7px}
+    .slots{gap:8px}
+    .slot{background:#19222e;border:1px dashed #536174;border-radius:12px;min-height:104px;transition:transform .15s,border-color .15s}
+    .slot:hover{transform:translateY(-2px);border-color:var(--gold)}
+    .slot img{height:68px;object-fit:cover}
+    .slot span{font-size:11px;font-weight:650;padding:2px 4px 7px}
+    .slot.empty{font-size:25px;color:#8593a5}
+    .field select,.search{background:#0e151e;border-color:#3a485a;padding:12px}
+    .field select:focus,.search:focus{outline:2px solid #dca64f88;border-color:var(--gold)}
+    .btn{background:linear-gradient(135deg,#f0c46f,#c77b3e);box-shadow:0 6px 18px #0004}
+    .btn.secondary{background:#263344;border-color:#43536a}
+    .btn:focus-visible,.slot:focus-visible,.hero:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    .actions .btn{min-height:46px}
+    .result{border-color:#80643a}
+    .result-section{padding:15px 0;border-top-color:#344153}
+    .result-section h3{font-size:14px}
+    .hero{background:#1c2734;border-color:#3b4b5f;transition:transform .15s,border-color .15s}
+    .hero:hover{transform:translateY(-2px);border-color:var(--gold)}
+    .hero img{height:82px}
+    .item-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:9px;margin-top:9px}
+    .item-card{display:flex;align-items:center;gap:11px;min-width:0;padding:10px;background:linear-gradient(145deg,#222d3b,#18212c);border:1px solid #3a485a;border-radius:13px}
+    .item-icon{width:58px;height:43px;flex:0 0 58px;object-fit:cover;border-radius:7px;background:#0d131b;border:1px solid #536174}
+    .item-icon-fallback{width:58px;height:43px;flex:0 0 58px;display:grid;place-items:center;border-radius:7px;background:#0d131b;border:1px solid #536174;color:var(--gold);font-size:21px}
+    .item-copy{min-width:0}
+    .item-copy b{display:block;font-size:12px;line-height:1.25;color:#f5f1e9}
+    .item-copy span{display:block;color:#aeb9c8;font-size:11px;line-height:1.35;margin-top:4px}
+    .item-number{display:inline-grid;place-items:center;width:20px;height:20px;flex:0 0 20px;border-radius:50%;background:#49391f;color:#f4c66f;font-size:10px;font-weight:800}
+    .chips .chip{background:#253344;border-color:#3d5065}
+    .warning{background:#30291e;border-left-color:var(--gold)}
+    @media(max-width:650px){
+      .wrap{padding:12px 9px 38px}
+      header{gap:10px;margin-bottom:12px}
+      .logo{width:46px;height:46px}
+      .panel{padding:13px;border-radius:16px}
+      .team{padding:9px}
+      .slot{min-height:86px}
+      .slot img{height:56px}
+      .item-list{grid-template-columns:1fr}
+      .item-icon{width:64px;height:47px;flex-basis:64px}
+      .hero img{height:78px}
+    }
+
   </style>
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft visual · análisis de enfrentamiento · builds situacionales</div></div><div class="tag">VERSIÓN 0.2</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 0.3</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -104,6 +159,30 @@ function renderHeroGrid(){
 }
 function chooseHero(id){const h=heroes.find(x=>x.id===id);(target.team==='ally'?ally:enemy)[target.index]=h;$('modal').classList.remove('open');renderSlots();$('result').classList.remove('show')}
 function item(name,why){return {name,why}}
+const ITEM_IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/';
+const itemSlugs={
+ 'Bottle':'bottle','Magic Wand':'magic_wand','Null Talisman':'null_talisman','Arcane Boots':'arcane_boots',
+ 'Aghanim’s Shard':'aghanims_shard','Glimmer Cape':'glimmer_cape','Force Staff':'force_staff',
+ 'Ethereal Blade':'ethereal_blade','Black King Bar':'black_king_bar','Scythe of Vyse':'sheepstick',
+ 'Power Treads':'power_treads','Wraith Band':'wraith_band','Dragon Lance':'dragon_lance',
+ 'Hurricane Pike':'hurricane_pike','Manta Style':'manta','Butterfly':'butterfly','Daedalus':'daedalus',
+ 'Satanic':'satanic','Silver Edge':'silver_edge','Swift Blink':'swift_blink','Mask of Madness':'mask_of_madness',
+ 'Aghanim’s Scepter':'ultimate_scepter','Monkey King Bar':'monkey_king_bar','Dust of Appearance':'dust',
+ 'Gem of True Sight':'gem','Mjollnir':'mjollnir','Shiva’s Guard':'shivas_guard','Battle Fury':'bfury',
+ 'Pipe of Insight':'pipe','Spirit Vessel':'spirit_vessel','Assault Cuirass':'assault','Heaven’s Halberd':'heavens_halberd',
+ 'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
+ 'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
+ 'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots'
+};
+function renderItemCards(items){
+ return '<div class="item-list">'+items.map((x,i)=>{
+  const name=Array.isArray(x)?x[0]:x.name,why=Array.isArray(x)?x[1]:x.why;
+  const slug=itemSlugs[name];
+  const image=slug?'<img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.outerHTML=\'<span class=&quot;item-icon-fallback&quot;>⚔</span>\'">':'<span class="item-icon-fallback">⚔</span>';
+  return '<div class="item-card"><span class="item-number">'+(i+1)+'</span>'+image+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(why||'Objeto situacional')+'</span></div></div>';
+ }).join('')+'</div>';
+}
+
 const heroPlans = {
 "npc_dota_hero_pugna|Mid": {title:"Pugna Mid · control de mapa y presión",early:[["Bottle","sustain de línea y control de runas si el matchup lo permite"],["Magic Wand","respuesta económica frente a intercambios de hechizos"],["Null Talisman","estadísticas y maná si la línea lo necesita"]],core:[["Arcane Boots","maná para sostener presión"],["Aether Lens","alcance para lanzar habilidades desde una posición segura"],["Aghanim’s Shard","evaluar según el efecto vigente del parche"]],situational:[["Glimmer Cape","salvación propia o de un aliado"],["Force Staff","reposicionamiento contra iniciación"],["Ethereal Blade","si el equipo aprovecha el daño mágico"],["Black King Bar","si el control enemigo impide canalizar"],["Scythe of Vyse","control fuerte para asegurar una eliminación"]],note:"Administrá Nether Blast y Life Drain sin exponerte. Ajustá la compra a la presión de línea y al control rival."},
 "npc_dota_hero_drow_ranger|Carry": {title:"Drow Ranger Carry · rango y daño sostenido",early:[["Power Treads","atributos y velocidad de ataque"],["Wraith Band","estadísticas eficientes si el ritmo lo permite"],["Dragon Lance","alcance y atributos para pegar desde más lejos"]],core:[["Hurricane Pike","alcance y reposicionamiento defensivo"],["Manta Style","dispel y presión de líneas cuando sea útil"],["Black King Bar","si el control o daño mágico te impide atacar"]],situational:[["Butterfly","evasión y daño contra ataques físicos"],["Daedalus","daño físico para cerrar peleas"],["Satanic","supervivencia en peleas largas"],["Silver Edge","si necesitás romper una pasiva relevante"],["Swift Blink","movilidad y posicionamiento tardío"]],note:"Jugá alrededor de Marksmanship y mantené distancia. Si pueden saltarte, priorizá supervivencia y posicionamiento."},
@@ -111,8 +190,8 @@ const heroPlans = {
 };
 function getHeroPlan(hero,role){return heroPlans[hero.name+"|"+role]||null;}
 function renderHeroPlan(plan){
- const section=(heading,items)=>'<div class="result-section"><h3>'+heading+'</h3><ol>'+items.map(x=>'<li><b>'+esc(x[0])+'</b> — '+esc(x[1])+'</li>').join('')+'</ol></div>';
- return section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
+ const section=(heading,items)=>'<div class="result-section"><h3>'+heading+'</h3>'+renderItemCards(items)+'</div>';
+ return '<div class="result-section"><h3>'+esc(plan.title)+'</h3></div>'+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
 }
 
 const counterRules=[
@@ -147,7 +226,7 @@ function analyze(){
  if(enemyRoles.includes('Nuker'))threats.push('Considerá resistencia mágica o BKB si el daño mágico rival define las peleas.');
  if(enemyRoles.includes('Disabler'))threats.push('No entres solo: el control en cadena puede dejarte sin posibilidad de responder.');
  const lines=[];
- lines.push(`DOTA 2 BUILD ASSISTANT — DRAFT`);
+ lines.push(`DOTA 2 BUILD ASSISTANT — DRAFT v0.3`);
  const mode=$('gameMode').value, rank=$('rank').value;
  lines.push(`MI HÉROE: ${me.localized_name} | POSICIÓN: ${role} | MODO: ${mode} | RANGO: ${rank}`);
  lines.push(`ALIADOS: ${allies.map(h=>h.localized_name).join(', ')}`);
@@ -160,10 +239,10 @@ function analyze(){
  html.push(`<div class="result-section"><h3>Composición enemiga</h3><p class="hint">${enemies.map(h=>esc(h.localized_name)).join(' · ')}</p></div>`);
  html.push(`<div class="result-section"><h3>Objetos base por posición · punto de partida</h3><ol>${buildRole(role).map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p class="hint">Esto no es una build cerrada: el héroe, su habilidad principal y el ritmo de la partida pueden cambiar completamente el orden.</p></div>`);
  const plan=getHeroPlan(me,role); if(plan) html.push(renderHeroPlan(plan));
- if(hits.length)hits.forEach(r=>html.push(`<div class="result-section"><h3>Respuesta situacional: ${esc(r.label)}</h3><div class="chips">${r.items.map(x=>`<span class="chip">${esc(x.name)}</span>`).join('')}</div><p class="hint">${r.items.map(x=>esc(x.name)+': '+esc(x.why)).join(' · ')}</p></div>`));
+ if(hits.length)hits.forEach(r=>html.push(`<div class="result-section"><h3>Respuesta situacional: ${esc(r.label)}</h3>${renderItemCards(r.items)}</div>`));
  else html.push(`<div class="result-section"><h3>Contrarrestos</h3><p class="hint">No se activó una regla específica del catálogo preliminar. Hace falta revisar habilidades y matchups con más profundidad.</p></div>`);
  html.push(`<div class="result-section"><h3>Lectura estratégica inicial</h3><ul>${[...synergies,...threats].map(x=>`<li>${esc(x)}</li>`).join('')||'<li>Analizar iniciación, control, daño y escalado antes de definir el plan de juego.</li>'}</ul></div>`);
- html.push(`<div class="warning">Versión 0.2: perfiles orientativos para Pugna Mid, Drow Carry y Luna Carry. Las rutas no son estadísticas verificadas por rango ni builds certificadas para cada parche. Contrastá el draft completo antes de comprar.</div>`);
+ html.push(`<div class="warning">Versión 0.3: interfaz renovada e iconos de objetos; perfiles orientativos para Pugna Mid, Drow Carry y Luna Carry. Las rutas no son estadísticas verificadas por rango ni builds certificadas para cada parche. Contrastá el draft completo antes de comprar.</div>`);
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent='Preliminar · reglas iniciales';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
