@@ -1,4 +1,4 @@
-# Dota 2 Build Assistant — versión 0.3
+# Dota 2 Build Assistant — versión 0.5
 
 Aplicación web progresiva (PWA) para preparar drafts y consultar builds situacionales de Dota 2.
 
@@ -8,14 +8,16 @@ Aplicación web progresiva (PWA) para preparar drafts y consultar builds situaci
 - Selección de héroe propio, posición, modo (Ranked/Turbo) y rango.
 - Interfaz renovada, adaptable a PC y Android.
 - Perfiles orientativos para Pugna Mid, Drow Carry y Luna Carry.
-- Iconos de objetos en las recomendaciones de builds y respuestas situacionales.
+- Iconos de objetos en una build final simplificada, con prioridades y compras condicionales.
+- Reglas heurísticas de amenazas específicas y sinergias para algunos drafts.
 - Exportación del draft y contexto para continuar el análisis con ChatGPT.
 - Service worker con comprobación de actualizaciones y limpieza de cachés anteriores.
 
 ## Limitaciones
 - Es una PWA, no un APK nativo.
 - Requiere conexión para cargar el catálogo e imágenes.
-- Los perfiles de objetos son rutas orientativas, no builds estadísticas certificadas por rango o parche.
+- El análisis de amenazas y las builds son heurísticos; no son estadísticas verificadas por rango ni builds certificadas por parche.
+- La build específica adaptada al draft está disponible inicialmente para Pugna Mid; otros héroes conservan perfiles base o indicaciones generales.
 - El selector de rango contextualiza el análisis, pero todavía no filtra datos estadísticos por bracket.
 - No está afiliada a Valve ni a Dota 2.
 
