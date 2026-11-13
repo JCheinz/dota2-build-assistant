@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111318">
+  <meta name="description" content="Asistente de draft y builds para Dota 2">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <title>Dota 2 Build Assistant</title>
+  <style>
+    :root{color-scheme:dark;--bg:#101217;--panel:#191d25;--panel2:#222834;--line:#303846;--txt:#f4f5f7;--muted:#a8b0bd;--gold:#e5b65c;--red:#d75a52;--green:#79c69b}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#292f3a 0,var(--bg) 52%);color:var(--txt);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    button,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1080px;margin:auto;padding:18px 14px 60px}
+    header{display:flex;align-items:center;gap:12px;margin:4px 0 20px}.logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#a63c32,#e0a34d);display:grid;place-items:center;font-weight:900;font-size:22px;box-shadow:0 8px 25px #0006}
+    h1{font-size:20px;line-height:1.1;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:4px}.tag{margin-left:auto;border:1px solid #5a4930;color:var(--gold);padding:6px 9px;border-radius:99px;font-size:11px}
+    .panel{background:#191d25eF;border:1px solid var(--line);border-radius:17px;padding:15px;margin:13px 0;box-shadow:0 12px 28px #0002}
+    .panel h2{font-size:15px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}.count{font-size:12px;color:var(--muted);font-weight:500}
+    .teams{display:grid;grid-template-columns:1fr 1fr;gap:12px}.team-title{display:flex;align-items:center;gap:8px;font-weight:750;margin-bottom:10px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}.enemy .dot{background:var(--red)}
+    .slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.slot{min-width:0;border:1px dashed #485364;border-radius:10px;overflow:hidden;background:#11151b;min-height:90px;padding:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+    .slot img{width:100%;height:62px;object-fit:cover;display:block}.slot span{font-size:10px;line-height:1.15;text-align:center;padding:0 3px 5px;overflow-wrap:anywhere}.slot.empty{font-size:22px}.slot.selected{border:1px solid var(--gold);box-shadow:0 0 0 1px #e5b65c33}
+    .controls{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}.field label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}.field select,.search{width:100%;background:#10141b;border:1px solid var(--line);border-radius:10px;padding:11px;color:var(--txt)}
+    .btn{border:0;border-radius:11px;padding:12px 15px;font-weight:750;background:linear-gradient(135deg,#e1ad53,#bd713b);color:#19130c}.btn.secondary{background:#29313e;color:var(--txt);border:1px solid #3c4656}.btn:disabled{opacity:.4;cursor:not-allowed}
+    .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions .btn{flex:1}
+    .hint{color:var(--muted);font-size:12px;line-height:1.5}.status{font-size:12px;color:var(--muted);margin:8px 0}.error{color:#ff9c91}
+    .modal{position:fixed;inset:0;background:#000b;display:none;z-index:5;padding:16px;align-items:center;justify-content:center}.modal.open{display:flex}.dialog{width:min(760px,100%);max-height:90vh;overflow:auto;background:#171c24;border:1px solid #465163;border-radius:18px;padding:15px}
+    .dialog-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.dialog-head h3{margin:0;font-size:17px}.close{margin-left:auto;background:#2b3441;color:white;border:0;border-radius:9px;padding:8px 11px}
+    .search{margin-bottom:10px}.hero-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.hero{background:#242c38;border:1px solid #3b4656;border-radius:10px;overflow:hidden;color:white;padding:0;text-align:center;min-width:0}.hero img{width:100%;height:72px;object-fit:cover;display:block}.hero span{font-size:11px;display:block;padding:6px 3px;line-height:1.1}
+    .result{display:none}.result.show{display:block}.result h2{margin-bottom:8px}.result-section{padding:11px 0;border-top:1px solid var(--line)}.result-section h3{font-size:13px;margin:0 0 7px;color:var(--gold)}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{background:#29313d;border:1px solid #3c4859;border-radius:8px;padding:6px 8px;font-size:12px}.warning{border-left:3px solid var(--gold);padding:9px 11px;background:#30291e;color:#ead7b5;border-radius:5px;font-size:12px;line-height:1.45}
+    footer{text-align:center;color:#788392;font-size:11px;padding:20px 0}.loading{padding:20px;text-align:center;color:var(--muted)}
+    @media(max-width:650px){.wrap{padding:14px 10px 42px}.teams{grid-template-columns:1fr}.slot{min-height:84px}.slot img{height:58px}.hero-grid{grid-template-columns:repeat(3,1fr)}.hero img{height:86px}.tag{display:none}.controls{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft visual · análisis de enfrentamiento · builds situacionales</div></div><div class="tag">PROTOTIPO 0.1</div></header>
+  <section class="panel">
+    <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
+    <div class="teams">
+      <div class="team">
+        <div class="team-title"><i class="dot"></i> TU EQUIPO</div>
+        <div class="slots" id="allySlots"></div>
+      </div>
+      <div class="team enemy">
+        <div class="team-title"><i class="dot"></i> EQUIPO ENEMIGO</div>
+        <div class="slots" id="enemySlots"></div>
+      </div>
+    </div>
+    <div class="status" id="loadStatus">Cargando héroes oficiales desde OpenDota…</div>
+  </section>
+  <section class="panel">
+    <h2>Tu configuración</h2>
+    <div class="controls">
+      <div class="field"><label for="myHero">¿Cuál es tu héroe?</label><select id="myHero"><option value="">Seleccioná primero tu equipo</option></select></div>
+      <div class="field"><label for="myRole">Tu posición</label><select id="myRole"><option value="Carry">Carry (1)</option><option value="Mid">Mid (2)</option><option value="Offlane">Offlane (3)</option><option value="Support 4">Support (4)</option><option value="Support 5">Hard Support (5)</option></select></div>
+    </div>
+    <div class="actions"><button class="btn" id="analyze" disabled>Analizar draft y build</button><button class="btn secondary" id="reset">Limpiar selección</button></div>
+    <p class="hint">Tocá un espacio vacío para elegir un héroe. No se puede repetir el mismo héroe en los dos equipos.</p>
+  </section>
+  <section class="panel result" id="result">
+    <h2>Informe de partida <span class="count" id="confidence">Análisis preliminar</span></h2>
+    <div id="report"></div>
+    <div class="actions"><button class="btn" id="copy">Copiar análisis para ChatGPT</button></div>
+    <p class="hint">El botón copia el draft y el contexto para que podamos hacer un análisis más profundo juntos en esta conversación.</p>
+  </section>
+  <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
+</div>
+<div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
+<script>
+const API='https://api.opendota.com/api/heroes';
+const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
+let heroes=[], ally=Array(5).fill(null), enemy=Array(5).fill(null), target={team:'ally',index:0}, lastReport='';
+const $=id=>document.getElementById(id);
+function heroImage(h){return IMG+h.name.replace('npc_dota_hero_','')+'.png'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadHeroes(){
+  try{
+    const r=await fetch(API); if(!r.ok)throw Error('HTTP '+r.status);
+    heroes=await r.json(); heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
+    $('loadStatus').textContent=`${heroes.length} héroes cargados. Seleccioná los 10 de la partida.`;
+    renderSlots(); renderHeroGrid();
+  }catch(e){$('loadStatus').innerHTML='<span class="error">No se pudo cargar la lista. Revisá tu conexión y recargá la app.</span>'; $('heroGrid').innerHTML='<p class="hint">No hay conexión con OpenDota.</p>'}
+}
+function renderSlots(){
+  for(const [team,data] of [['ally',ally],['enemy',enemy]]){
+    const root=$(team==='ally'?'allySlots':'enemySlots');root.innerHTML='';
+    data.forEach((h,i)=>{const b=document.createElement('button');b.className='slot'+(h?' selected':' empty');b.innerHTML=h?`<img src="${heroImage(h)}" alt=""><span>${esc(h.localized_name)}</span>`:'＋';b.onclick=()=>openPicker(team,i);root.appendChild(b)});
+  }
+  const n=ally.filter(Boolean).length+enemy.filter(Boolean).length;
+  $('draftCount').textContent=`${n} / 10 héroes`;
+  $('analyze').disabled=n!==10||!$('myHero').value;
+  const sel=$('myHero'),old=sel.value;sel.innerHTML='<option value="">Elegí tu héroe</option>';
+  ally.filter(Boolean).forEach(h=>{const o=document.createElement('option');o.value=h.id;o.textContent=h.localized_name;sel.appendChild(o)});
+  if([...sel.options].some(o=>o.value===old))sel.value=old;
+  $('analyze').disabled=n!==10||!sel.value;
+}
+function openPicker(team,index){target={team,index};$('modalTitle').textContent=(team==='ally'?'Tu equipo':'Equipo enemigo')+' · espacio '+(index+1);$('search').value='';renderHeroGrid();$('modal').classList.add('open');$('search').focus()}
+function renderHeroGrid(){
+  const used=new Set([...ally,...enemy].filter(Boolean).map(h=>h.id));
+  const q=$('search').value?.toLocaleLowerCase('es')||'';
+  const list=heroes.filter(h=>(h.localized_name.toLocaleLowerCase('es').includes(q)||h.name.includes(q))&&(!used.has(h.id)||((target.team==='ally'?ally:enemy)[target.index]?.id===h.id)));
+  $('heroGrid').innerHTML=list.map(h=>`<button class="hero" data-id="${h.id}"><img loading="lazy" src="${heroImage(h)}" alt=""><span>${esc(h.localized_name)}</span></button>`).join('')||'<p class="hint">No hay resultados.</p>';
+  $('heroGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>chooseHero(Number(b.dataset.id)));
+}
+function chooseHero(id){const h=heroes.find(x=>x.id===id);(target.team==='ally'?ally:enemy)[target.index]=h;$('modal').classList.remove('open');renderSlots();$('result').classList.remove('show')}
+function item(name,why){return {name,why}}
+const counterRules=[
+ {match:['phantom_assassin','windrunner','riki'],label:'Evasión / invisibilidad',items:[item('Monkey King Bar','contra evasión; confirmar si el problema real es la evasión'),item('Dust of Appearance','detección de invisibilidad'),item('Gem of True Sight','visión permanente si el equipo puede protegerla')]},
+ {match:['phantom_lancer','naga_siren','chaos_knight'],label:'Ilusiones',items:[item('Mjollnir','daño en área y efecto activo contra ilusiones'),item('Shiva’s Guard','daño en área y reducción de velocidad de ataque'),item('Battle Fury','opción de limpieza para héroes que aprovechan cleave')]},
+ {match:['enigma','crystal_maiden','witch_doctor','bane'],label:'Canalizaciones / ultimates interrumpibles',items:[item('Black King Bar','si necesitás evitar control mágico durante la entrada'),item('Scythe of Vyse','control instantáneo sobre un objetivo'),item('Eul’s Scepter of Divinity','interrupción situacional y dispel propio')]},
+ {match:['zeus','lina','skywrath_mage'],label:'Daño mágico explosivo',items:[item('Black King Bar','si el daño y control mágico te impiden jugar'),item('Pipe of Insight','mitigación grupal cuando el equipo enemigo depende de magia'),item('Glimmer Cape','salvación y resistencia mágica para un aliado')]},
+ {match:['huskar','alchemist'],label:'Regeneración / sustain alto',items:[item('Spirit Vessel','reduce curación y regeneración mientras tenga cargas'),item('Shiva’s Guard','reducción de curación en área')]},
+ {match:['drow_ranger','templar_assassin','sniper'],label:'Daño físico a distancia',items:[item('Assault Cuirass','armadura y velocidad de ataque para el equipo'),item('Heaven’s Halberd','desarme situacional contra ataques'),item('Ghost Scepter','supervivencia temporal frente a ataques físicos')]}
+];
+function buildRole(role){
+ const sets={
+ 'Carry':['Power Treads','Magic Wand','Maelstrom / Battle Fury (según héroe)','Black King Bar (si hace falta)','Daño o supervivencia según partida','Satanic / objeto de cierre'],
+ 'Mid':['Bottle (si la línea lo justifica)','Power Treads / Boots of Travel','Magic Wand','Objeto de ritmo propio del héroe','Black King Bar / control según draft','Objeto de cierre'],
+ 'Offlane':['Boots of Speed / Phase Boots','Magic Wand','Blink Dagger (si tu iniciación lo necesita)','Pipe of Insight / Crimson Guard (según daño rival)','Shiva’s Guard / Lotus Orb','Objeto de utilidad para el equipo'],
+ 'Support 4':['Boots','Magic Wand','Force Staff / Glimmer Cape','Blink Dagger (si tu héroe inicia)','Eul’s Scepter / Lotus Orb','Aghanim’s Shard (si aporta valor)'],
+ 'Support 5':['Boots','Magic Wand','Glimmer Cape / Force Staff','Mekansm / Urn of Shadows (según partida)','Aeon Disk / Ghost Scepter','Aghanim’s Shard (si aporta valor)']
+ };return sets[role]
+}
+function analyze(){
+ const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
+ const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean);
+ const hits=counterRules.filter(r=>enemies.some(h=>r.match.includes(h.name.replace('npc_dota_hero_',''))));
+ const synergies=[];
+ const allRoles=allies.flatMap(h=>h.roles||[]);
+ if(allRoles.includes('Disabler'))synergies.push('Tu equipo cuenta con herramientas de control: coordiná tu entrada después de que se usen los disables principales.');
+ if(allRoles.includes('Initiator'))synergies.push('Hay potencial de iniciación: evitá gastar tus habilidades clave antes de que comience la pelea.');
+ if(allRoles.includes('Support'))synergies.push('Protegé a tus supports y jugá alrededor de sus habilidades de salvación y control.');
+ const enemyRoles=enemies.flatMap(h=>h.roles||[]);
+ const threats=[];
+ if(enemyRoles.includes('Carry'))threats.push('Identificá al carry rival y reservá control para impedir que pegue libremente.');
+ if(enemyRoles.includes('Nuker'))threats.push('Considerá resistencia mágica o BKB si el daño mágico rival define las peleas.');
+ if(enemyRoles.includes('Disabler'))threats.push('No entres solo: el control en cadena puede dejarte sin posibilidad de responder.');
+ const lines=[];
+ lines.push(`DOTA 2 BUILD ASSISTANT — DRAFT`);
+ lines.push(`MI HÉROE: ${me.localized_name} | POSICIÓN: ${role}`);
+ lines.push(`ALIADOS: ${allies.map(h=>h.localized_name).join(', ')}`);
+ lines.push(`ENEMIGOS: ${enemies.map(h=>h.localized_name).join(', ')}`);
+ lines.push(`\nPEDIDO: analizá el matchup completo con información vigente del parche. Quiero una build específica para ${me.localized_name}, con orden de compra, alternativas y explicación de cada objeto. No uses una build genérica si el enfrentamiento exige cambios. Separá recomendaciones de alta confianza de opciones situacionales. Verificá habilidades, roles y objetos antes de concluir.`);
+ lastReport=lines.join('\n');
+ const html=[];
+ html.push(`<div class="result-section"><h3>Tu héroe y posición</h3><div class="chips"><span class="chip">${esc(me.localized_name)}</span><span class="chip">${esc(role)}</span></div></div>`);
+ html.push(`<div class="result-section"><h3>Composición aliada</h3><p class="hint">${allies.map(h=>esc(h.localized_name)).join(' · ')}</p></div>`);
+ html.push(`<div class="result-section"><h3>Composición enemiga</h3><p class="hint">${enemies.map(h=>esc(h.localized_name)).join(' · ')}</p></div>`);
+ html.push(`<div class="result-section"><h3>Objetos base por posición · punto de partida</h3><ol>${buildRole(role).map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p class="hint">Esto no es una build cerrada: el héroe, su habilidad principal y el ritmo de la partida pueden cambiar completamente el orden.</p></div>`);
+ if(hits.length)hits.forEach(r=>html.push(`<div class="result-section"><h3>Respuesta situacional: ${esc(r.label)}</h3><div class="chips">${r.items.map(x=>`<span class="chip">${esc(x.name)}</span>`).join('')}</div><p class="hint">${r.items.map(x=>esc(x.name)+': '+esc(x.why)).join(' · ')}</p></div>`));
+ else html.push(`<div class="result-section"><h3>Contrarrestos</h3><p class="hint">No se activó una regla específica del catálogo preliminar. Hace falta revisar habilidades y matchups con más profundidad.</p></div>`);
+ html.push(`<div class="result-section"><h3>Lectura estratégica inicial</h3><ul>${[...synergies,...threats].map(x=>`<li>${esc(x)}</li>`).join('')||'<li>Analizar iniciación, control, daño y escalado antes de definir el plan de juego.</li>'}</ul></div>`);
+ html.push(`<div class="warning">Prototipo 0.1: las reglas son heurísticas y no sustituyen datos estadísticos por parche ni análisis de habilidades. Usá “Copiar análisis para ChatGPT” para pedir una build específica y contrastada. No se presenta ninguna recomendación como infalible.</div>`);
+ $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent='Preliminar · reglas iniciales';$('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
+$('myHero').onchange=()=>{$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
+$('analyze').onclick=analyze;
+$('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+loadHeroes();
+</script>
+</body></html>
