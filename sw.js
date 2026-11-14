@@ -1,4 +1,4 @@
-const CACHE = 'dota-build-v34';
+const CACHE = 'dota-build-v35';
 const CORE = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
