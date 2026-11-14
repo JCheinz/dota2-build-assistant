@@ -1,6 +1,12 @@
-# Dota 2 Build Assistant — versión 2.9
+# Dota 2 Build Assistant — versión 3.3
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 3.3
+- Priorización de amenazas enemigas según mecánicas tácticas reconocibles, vulnerabilidad del héroe propio, posición y minuto de partida.
+- Perfiles específicos para 57 héroes frecuentes; los restantes conservan inferencia conservadora basada en roles.
+- Cada amenaza muestra prioridad relativa, mecánicas detectadas, motivo de peligro y pauta de juego.
+- Orden dinámico de amenazas de mayor a menor prioridad.
 
 ## Novedades de la versión 2.9
 - Corregido el cálculo de próxima compra de Anti-Mage: ahora usa oro, componentes marcados y objetos completos.
