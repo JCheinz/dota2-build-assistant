@@ -187,12 +187,26 @@ const $=id=>document.getElementById(id);
 function heroImage(h){return IMG+h.name.replace('npc_dota_hero_','')+'.png'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function loadHeroes(){
-  try{
-    const r=await fetch(API); if(!r.ok)throw Error('HTTP '+r.status);
-    heroes=await r.json(); heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
-    $('loadStatus').textContent=`${heroes.length} héroes cargados. Seleccioná los 10 de la partida.`;
-    renderSlots(); renderHeroGrid(); renderDynamicStateControls();
-  }catch(e){$('loadStatus').innerHTML='<span class="error">No se pudo cargar la lista. Revisá tu conexión y recargá la app.</span>'; $('heroGrid').innerHTML='<p class="hint">No hay conexión con OpenDota.</p>'}
+  const status=$('loadStatus');
+  status.textContent='Cargando héroes desde OpenDota…';
+  const endpoints=[API,'https://api.opendota.com/api/heroes'];
+  let lastError=null;
+  for(const endpoint of endpoints){
+    try{
+      const r=await fetch(endpoint,{cache:'no-store'});
+      if(!r.ok)throw Error('HTTP '+r.status+' en '+endpoint.split('/').pop());
+      const data=await r.json();
+      if(!Array.isArray(data)||!data.length)throw Error('La API devolvió una lista vacía');
+      heroes=data;
+      heroes.sort((a,b)=>(a.localized_name||'').localeCompare(b.localized_name||'','es'));
+      status.textContent=heroes.length+' héroes cargados. Seleccioná los 10 de la partida.';
+      renderSlots(); renderHeroGrid(); renderDynamicStateControls();
+      return;
+    }catch(e){lastError=e}
+  }
+  status.innerHTML='<span class="error">No se pudo conectar con OpenDota ('+esc(lastError?.message||'error de red')+').</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
+  $('retryHeroes')?.addEventListener('click',loadHeroes);
+  $('heroGrid').innerHTML='<p class="hint">No se pudo obtener el catálogo. Revisá la conexión y tocá Reintentar.</p>';
 }
 function renderSlots(){
   for(const [team,data] of [['ally',ally],['enemy',enemy]]){
