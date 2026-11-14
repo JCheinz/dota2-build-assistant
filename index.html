@@ -134,7 +134,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.0</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.1</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -579,11 +579,45 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const heroPlan=getHeroPlan(hero,role);
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada"}))]:[];
  const plannedItems=heroRoute.map(x=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true}));
- const candidates=[...universalItems,...plannedItems,...focusedItems].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
+ const heroRoles=new Set(hero.roles||[]);
+ const archetypeItems=[];
+ const addArchetype=(name,why,roles,tags)=>archetypeItems.push({name,why,roles,tags,heroArchetype:true});
+ if(role==="Carry"&&heroRoles.has("Carry")){
+  if(ranged){
+   addArchetype("Dragon Lance","Alcance y atributos para mantener distancia si tu ataque a distancia lo aprovecha.",["Carry"],["range","physical"]);
+   addArchetype("Hurricane Pike","Reposicionamiento si los rivales pueden alcanzarte.",["Carry"],["range","save"]);
+   addArchetype("Manta Style","Dispel y presión de líneas si el héroe aprovecha ilusiones.",["Carry"],["dispel","farm"]);
+  }else{
+   addArchetype("Battle Fury","Aceleración de farmeo para carries cuerpo a cuerpo que aprovechan cleave.",["Carry"],["farm","physical"]);
+   addArchetype("Satanic","Sustain en peleas cuando podés mantener ataques.",["Carry"],["physical","survival"]);
+  }
+  addArchetype("Black King Bar","Si el control rival te impide mantener ataques.",["Carry"],["magic","control"]);
+  addArchetype("Daedalus","Daño físico si necesitás escalar y el equipo ya te permite pegar.",["Carry"],["physical","damage"]);
+ }
+ if(role==="Offlane"&&(heroRoles.has("Durable")||heroRoles.has("Initiator"))){
+  addArchetype("Vanguard","Mitigación para sostener la línea ante daño repetido; no es automática contra daño mágico.",["Offlane"],["survival","physical"]);
+  addArchetype("Blade Mail","Si recibís foco al iniciar y el rival te hace daño durante la entrada.",["Offlane"],["survival","physical"]);
+  addArchetype("Blink Dagger","Si tu héroe necesita iniciar o alcanzar un objetivo clave.",["Offlane"],["initiation","mobility"]);
+  addArchetype("Pipe of Insight","Si el daño mágico en área amenaza al equipo.",["Offlane"],["team","magic"]);
+  addArchetype("Crimson Guard","Si sufrís muchos ataques rápidos, unidades o ilusiones.",["Offlane"],["team","physical"]);
+  addArchetype("Heart of Tarrasque","Si necesitás aguante para ocupar espacio en peleas largas.",["Offlane"],["survival"]);
+ }
+ if(role.startsWith("Support")){
+  addArchetype("Glimmer Cape","Salvación si el rival no tiene detección suficiente.",[role],["save","magic"]);
+  addArchetype("Force Staff","Reposicionamiento para salvar aliados o salir de zonas peligrosas.",[role],["save","mobility"]);
+  addArchetype("Aether Lens","Alcance si tus habilidades importantes se benefician de lanzar desde lejos.",[role],["range","spell"]);
+  addArchetype("Mekansm","Sustain grupal si tu equipo necesita sostener peleas.",[role],["team","save"]);
+ }
+ if(role==="Mid"&&heroRoles.has("Nuker")){
+  addArchetype("Aether Lens","Alcance para lanzar habilidades desde una posición más segura.",["Mid"],["range","spell"]);
+  addArchetype("Eul’s Scepter of Divinity","Dispel propio y control situacional cuando el héroe lo aprovecha.",["Mid"],["dispel","control"]);
+  addArchetype("Scythe of Vyse","Control fuerte para neutralizar una amenaza prioritaria en el cierre.",["Mid"],["control"]);
+ }
+ const candidates=[...universalItems,...plannedItems,...archetypeItems,...focusedItems].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
-  const tags=x.tags;
+  if(x.heroArchetype)score+=2.6;\n  const tags=x.tags;
   if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
   if(tags.includes("magic")&&threatMagic)score+=1.3;
   if(tags.includes("control")&&threatInitiation)score+=0.8;
