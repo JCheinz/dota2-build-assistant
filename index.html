@@ -617,7 +617,8 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
-  if(x.heroArchetype)score+=2.6;\n  const tags=x.tags;
+  if(x.heroArchetype)score+=2.6;
+  const tags=x.tags;
   if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
   if(tags.includes("magic")&&threatMagic)score+=1.3;
   if(tags.includes("control")&&threatInitiation)score+=0.8;
