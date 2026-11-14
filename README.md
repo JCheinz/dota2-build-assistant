@@ -1,6 +1,11 @@
-# Dota 2 Build Assistant — versión 2.2
+# Dota 2 Build Assistant — versión 2.8
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 2.8
+- Ruta de Anti-Mage actualizada para 7.41f: Power Treads → Battle Fury → Yasha → Manta Style.
+- La próxima compra respeta el orden del núcleo y avanza al siguiente objeto cuando marcás el anterior como comprado.
+- El estado de partida permite recalcular las recomendaciones al cambiar minuto, oro, inventario o amenaza seleccionada.
 
 ## Qué incluye
 - Catálogo de héroes desde OpenDota.
