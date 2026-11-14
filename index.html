@@ -118,31 +118,12 @@
       <div class="controls">
         <div class="field"><label for="gameMinute">Minuto de partida</label><input id="gameMinute" type="number" min="0" max="120" value="0" placeholder="Ej. 18"></div>
         <div class="field"><label for="currentGold">Oro disponible</label><input id="currentGold" type="number" min="0" max="100000" value="0" placeholder="Ej. 1200"></div>
-        <div class="field"><label for="currentProblem">¿Qué problema estás sufriendo?</label><select id="currentProblem"><option value="none">Todavía ninguno / no sé</option><option value="rupture">Bloodseeker me amenaza con Rupture</option><option value="initiation">Me eliminan con iniciación (Centaur / Dawnbreaker)</option><option value="lane">Viper me está ganando la línea</option><option value="teamfight">Dark Seer domina las peleas de equipo</option><option value="magic">Me bloquean con control o daño mágico</option></select></div>
+        <div class="field"><label for="currentProblem">¿Qué problema estás sufriendo?</label><select id="currentProblem"><option value="none">Todavía ninguno / no sé</option></select><small id="problemHint" class="hint">Las situaciones se generan según los enemigos seleccionados.</small></div>
       </div>
-      <p class="hint">Marcá los objetos completos y los componentes que ya tenés. Así podemos sugerir el siguiente componente sin volver a comprar lo que ya está en tu inventario.</p>
-      <div class="controls">
-        <label class="chip"><input type="checkbox" class="owned-item" value="Bottle"> Bottle</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Magic Wand"> Magic Wand</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Arcane Boots"> Arcane Boots</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Aether Lens"> Aether Lens</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Linken’s Sphere"> Linken’s Sphere</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Aeon Disk"> Aeon Disk</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Glimmer Cape"> Glimmer Cape</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Black King Bar"> Black King Bar</label>
-        <label class="chip"><input type="checkbox" class="owned-item" value="Scythe of Vyse"> Scythe of Vyse</label>
-      </div>
-      <p class="hint" style="margin-top:12px">Componentes que ya tenés (opcional):</p>
-      <div class="controls">
-        <label class="chip"><input type="checkbox" class="owned-component" value="Energy Booster"> Energy Booster</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Void Stone"> Void Stone</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Vitality Booster"> Vitality Booster</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Ultimate Orb"> Ultimate Orb</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Ring of Health"> Ring of Health</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Boots of Speed"> Boots of Speed</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Ring of Basilius"> Ring of Basilius</label>
-        <label class="chip"><input type="checkbox" class="owned-component" value="Wizard Hat"> Wizard Hat</label>
-      </div>
+      <p class="hint">Marcá los objetos que ya tenés. La lista cambia según tu héroe, posición y enemigos.</p>
+      <div class="controls" id="ownedItems"></div>
+      <p class="hint" style="margin-top:12px">Componentes que ya tenés (si forman parte de una ruta sugerida):</p>
+      <div class="controls" id="ownedComponents"></div>
     </div>
     <div class="actions"><button class="btn" id="analyze" disabled>Analizar draft y build</button><button class="btn secondary" id="reset">Limpiar selección</button></div>
     <p class="hint">Tocá un espacio vacío para elegir un héroe. No se puede repetir el mismo héroe en los dos equipos.</p>
@@ -168,7 +149,7 @@ async function loadHeroes(){
     const r=await fetch(API); if(!r.ok)throw Error('HTTP '+r.status);
     heroes=await r.json(); heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
     $('loadStatus').textContent=`${heroes.length} héroes cargados. Seleccioná los 10 de la partida.`;
-    renderSlots(); renderHeroGrid();
+    renderSlots(); renderHeroGrid(); renderDynamicStateControls();
   }catch(e){$('loadStatus').innerHTML='<span class="error">No se pudo cargar la lista. Revisá tu conexión y recargá la app.</span>'; $('heroGrid').innerHTML='<p class="hint">No hay conexión con OpenDota.</p>'}
 }
 function renderSlots(){
@@ -192,7 +173,7 @@ function renderHeroGrid(){
   $('heroGrid').innerHTML=list.map(h=>`<button class="hero" data-id="${h.id}"><img loading="lazy" src="${heroImage(h)}" alt=""><span>${esc(h.localized_name)}</span></button>`).join('')||'<p class="hint">No hay resultados.</p>';
   $('heroGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>chooseHero(Number(b.dataset.id)));
 }
-function chooseHero(id){const h=heroes.find(x=>x.id===id);(target.team==='ally'?ally:enemy)[target.index]=h;$('modal').classList.remove('open');renderSlots();$('result').classList.remove('show')}
+function chooseHero(id){const h=heroes.find(x=>x.id===id);(target.team==='ally'?ally:enemy)[target.index]=h;$('modal').classList.remove('open');renderSlots();renderDynamicStateControls();$('result').classList.remove('show')}
 function item(name,why){return {name,why}}
 const ITEM_IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/';
 const itemSlugs={
@@ -466,6 +447,50 @@ const universalItems=[
  {name:"Gem of True Sight",roles:["Offlane","Support 4","Support 5"],tags:["detection"],why:"Detección persistente si el equipo puede proteger al portador."},
  {name:"Shiva’s Guard",roles:["Mid","Offlane"],tags:["armor","team"],why:"Armadura y utilidad contra daño físico y velocidad de ataque."}
 ];
+
+function renderDynamicStateControls(){
+ const me=ally.find(h=>String(h.id)===$("myHero").value);
+ const role=$("myRole").value;
+ const enemies=enemy.filter(Boolean);
+ const problem=$("currentProblem");
+ const previous=problem.value;
+ const options=[{value:"none",label:"Todavía ninguno / no sé"}];
+ const add=(value,label)=>{if(!options.some(x=>x.value===value))options.push({value,label})};
+ enemies.forEach(h=>{
+  const id=h.name.replace("npc_dota_hero_","");
+  const specific=matchupRules[id];
+  if(specific)add("enemy:"+id,h.localized_name+" · "+specific.title.split("·").slice(1).join("·").trim());
+ });
+ const tags=new Set(enemies.flatMap(h=>h.roles||[]));
+ if(tags.has("Initiator"))add("issue:initiation","Me están iniciando o saltando");
+ if(tags.has("Nuker"))add("issue:magic","Sufro daño mágico explosivo");
+ if(tags.has("Disabler"))add("issue:control","Me encadenan controles");
+ if([...enemies].some(h=>["phantom_lancer","naga_siren","chaos_knight"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:illusions","No puedo limpiar las ilusiones");
+ if([...enemies].some(h=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:invisibility","Me amenaza la invisibilidad");
+ problem.innerHTML=options.map(x=>'<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>').join("");
+ problem.value=options.some(x=>x.value===previous)?previous:"none";
+ const hint=$("problemHint");
+ if(hint)hint.textContent=enemies.length?"Situaciones detectadas a partir de los cinco enemigos seleccionados; no aparecen amenazas de héroes ausentes.":"Elegí los enemigos para detectar situaciones específicas.";
+ const candidates=[];
+ const addItem=x=>{if(x&&x.name&&!candidates.some(y=>y.name===x.name))candidates.push({name:x.name,why:x.why||"Objeto contemplado por el análisis"})};
+ universalItems.forEach(addItem);
+ const plan=me?getHeroPlan(me,role):null;
+ if(plan)[...plan.early,...plan.core,...plan.situational].forEach(x=>addItem({name:x[0],why:x[1]}));
+ getDraftCounterRecommendations(enemies).forEach(g=>g.items.forEach(x=>addItem({name:x[0],why:x[1]})));
+ const ownedRoot=$("ownedItems");
+ if(ownedRoot){
+  const checked=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
+  ownedRoot.innerHTML=candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("");
+ }
+ const parts=new Set();
+ Object.values(itemRecipes).flat().forEach(x=>parts.add(x.name));
+ const componentRoot=$("ownedComponents");
+ if(componentRoot){
+  const checked=new Set([...document.querySelectorAll(".owned-component:checked")].map(x=>x.value));
+  componentRoot.innerHTML=[...parts].map(x=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" '+(checked.has(x)?"checked":"")+'> '+esc(x)+'</label>').join("");
+ }
+}
+
 function buildAdaptivePlan(hero,role,enemies,live){
  const fit=heroPositionFit(hero),fitScore=(fit.find(x=>x.role===role)||{score:0}).score;
  const enemyIds=new Set(enemies.map(h=>h.name.replace("npc_dota_hero_","")));
@@ -487,10 +512,22 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(tags.includes("damage")&&!carry)score-=2;
   if(live.minute<12&&["Bottle","Magic Wand","Arcane Boots","Phase Boots","Power Treads"].includes(x.name))score+=1;
   if(live.minute>=28&&["Scythe of Vyse","Shiva’s Guard","Satanic","Daedalus","Aeon Disk"].includes(x.name))score+=0.8;
+  if(focusedEnemy&&focusedItems.some(y=>y.name===x.name))score+=3.5;
+  if(selectedProblem==="issue:initiation"&&["Aeon Disk","Blink Dagger","Force Staff","Glimmer Cape"].includes(x.name))score+=1.4;
+  if(selectedProblem==="issue:magic"&&["Black King Bar","Pipe of Insight","Glimmer Cape","Aeon Disk"].includes(x.name))score+=1.4;
+  if(selectedProblem==="issue:control"&&["Black King Bar","Lotus Orb","Aeon Disk"].includes(x.name))score+=1.4;
+  if(selectedProblem==="issue:illusions"&&["Shiva’s Guard","Mjollnir","Battle Fury"].includes(x.name))score+=1.8;
+  if(selectedProblem==="issue:invisibility"&&["Dust of Appearance","Gem of True Sight"].includes(x.name))score+=2.2;
   if(live.owned.includes(x.name))score=-100;
   return {...x,score,priority:false};
  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
  const threatGroups=getDraftCounterRecommendations(enemies);
+ const selectedProblem=live.problem;
+ const focusedEnemy=selectedProblem.startsWith("enemy:")?selectedProblem.slice(6):null;
+ const focusedGroup=focusedEnemy?threatGroups.filter(g=>g.items.some(x=>true)&&enemies.some(h=>h.name.endsWith(focusedEnemy)&&g.label.startsWith(h.localized_name))):[];
+ const focusedItems=focusedGroup.flatMap(g=>g.items.map(x=>({name:x[0],roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["save","control","magic","survival"],why:x[1]})));
+ focusedItems.forEach(x=>{if(!universalItems.some(y=>y.name===x.name))universalItems.push(x)});
+
  const selected=scores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
  const phase=live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada";
  const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
@@ -556,7 +593,8 @@ function analyze(){
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas reconocidas · reglas heurísticas';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
-$('myHero').onchange=()=>{updateRoleFit();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
+$('myHero').onchange=()=>{updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
+$('myRole').onchange=renderDynamicStateControls;
 $('analyze').onclick=analyze;
 $('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
