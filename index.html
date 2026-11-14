@@ -459,7 +459,9 @@ function renderDynamicStateControls(){
  enemies.forEach(h=>{
   const id=h.name.replace("npc_dota_hero_","");
   const specific=matchupRules[id];
+  const counter=counterRules.find(rule=>rule.match.includes(id));
   if(specific)add("enemy:"+id,h.localized_name+" · "+specific.title.split("·").slice(1).join("·").trim());
+  else if(counter)add("enemy:"+id,h.localized_name+" · "+counter.label.split("·").slice(1).join("·").trim());
  });
  const tags=new Set(enemies.flatMap(h=>h.roles||[]));
  if(tags.has("Initiator"))add("issue:initiation","Me están iniciando o saltando");
@@ -497,7 +499,13 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const enemyRoles=new Set(enemies.flatMap(h=>h.roles||[]));
  const threatMagic=enemyRoles.has("Nuker"),threatControl=enemyRoles.has("Disabler"),threatInitiation=enemyRoles.has("Initiator");
  const ranged=hero.attack_type==="Ranged",carry=role==="Carry",support=role.startsWith("Support"),off=role==="Offlane",mid=role==="Mid";
- const scores=universalItems.map(x=>{
+ const threatGroups=getDraftCounterRecommendations(enemies);
+ const selectedProblem=live.problem;
+ const focusedEnemy=selectedProblem.startsWith("enemy:")?selectedProblem.slice(6):null;
+ const focusedGroup=focusedEnemy?threatGroups.filter(g=>enemies.some(h=>h.name.endsWith(focusedEnemy)&&g.label.startsWith(h.localized_name))):[];
+ const focusedItems=focusedGroup.flatMap(g=>g.items.map(x=>({name:x[0],roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["save","control","magic","survival"],why:x[1]})));
+ const candidates=[...universalItems,...focusedItems].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
+ const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   const tags=x.tags;
   if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
@@ -521,12 +529,6 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(live.owned.includes(x.name))score=-100;
   return {...x,score,priority:false};
  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
- const threatGroups=getDraftCounterRecommendations(enemies);
- const selectedProblem=live.problem;
- const focusedEnemy=selectedProblem.startsWith("enemy:")?selectedProblem.slice(6):null;
- const focusedGroup=focusedEnemy?threatGroups.filter(g=>g.items.some(x=>true)&&enemies.some(h=>h.name.endsWith(focusedEnemy)&&g.label.startsWith(h.localized_name))):[];
- const focusedItems=focusedGroup.flatMap(g=>g.items.map(x=>({name:x[0],roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["save","control","magic","survival"],why:x[1]})));
- focusedItems.forEach(x=>{if(!universalItems.some(y=>y.name===x.name))universalItems.push(x)});
 
  const selected=scores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
  const phase=live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada";
