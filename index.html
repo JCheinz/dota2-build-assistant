@@ -134,7 +134,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.3</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.4</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -693,7 +693,7 @@ function analyze(){
  if(allyRoles.includes('Support'))synergies.push('Hay héroes de apoyo en tu equipo: aprovechá su visión, salvación y control; no los obligues a iniciar solos.');
  if(allies.some(h=>h.attack_type==='Ranged'&&h.id!==me.id))synergies.push('Tu equipo tiene daño a distancia: evitá iniciar demasiado lejos de tus aliados y buscá peleas donde puedan seguir tu entrada.');
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.3',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.4',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -712,7 +712,7 @@ function analyze(){
  html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><p class="hint"><b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p><h3>Ruta de objetos · '+esc(adaptive.phase)+'</h3><p class="hint"><span style="color:#71e6a3;font-weight:800">Verde: hasta 3 prioridades.</span> <span style="color:#82bfff;font-weight:800">Azul: complementos o respuestas condicionales.</span> Los objetos marcados como comprados se excluyen de la ruta pendiente.</p>'+renderItemCards(adaptive.selected)+'</div>');
  if(next){
   const goldNote=live.gold>0?live.gold.toLocaleString('es-AR')+' de oro disponible. El precio exacto no se estima porque puede variar por parche y componentes.':'Ingresá tu oro actual para evaluar tu capacidad de compra.';
-  html.push('<div class="result-section"><h3>Próxima prioridad sugerida</h3><div class="item-card priority"><span class="item-number">1</span><span class="item-icon-fallback">⚔</span><div class="item-copy"><b>'+esc(next.name)+'</b><span>'+esc(next.why||'Prioridad calculada para tu héroe, posición y draft.')+'</span><small class="item-priority-label">SIGUIENTE OBJETIVO · '+(next.heroSpecific?'PERFIL DEL HÉROE':next.roleBaseline?'RUTA DE POSICIÓN':'ADAPTACIÓN AL DRAFT')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p></div>');
+  html.push('<div class="result-section"><h3>Próxima prioridad sugerida</h3><div class="item-card priority"><span class="item-number">1</span><span class="item-icon-fallback">⚔</span><div class="item-copy"><b>'+esc(next.name)+'</b><span>'+esc(next.why||'Prioridad calculada para tu héroe, posición y draft.')+'</span><small class="item-priority-label">SIGUIENTE OBJETIVO · '+(next.heroSpecific?'PERFIL DEL HÉROE':next.roleBaseline?'RUTA DE POSICIÓN':'ADAPTACIÓN AL DRAFT')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">¿Cambió la partida? Actualizá el minuto, oro, inventario y problema en «Estado actual» y tocá Recalcular compras. Se actualizarán las prioridades con esos datos.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
  }else html.push('<div class="result-section"><h3>Próxima compra</h3><p class="hint">Marcaste como comprados todos los objetos de la ruta sugerida. Volvé a analizar si cambia el draft o tu inventario.</p></div>');
  if(adaptive.threatGroups.length){
   html.push('<div class="result-section"><h3>Respuestas situacionales al equipo enemigo</h3><p class="hint">No son compras obligatorias. Elegí solo las que resuelvan una amenaza real en esta partida.</p>');
@@ -721,13 +721,15 @@ function analyze(){
  }
  if(live.problem!=='none')html.push('<div class="warning"><b>Problema seleccionado:</b> '+esc(live.problem.replace('issue:','').replace('enemy:','').replaceAll('_',' '))+'. La selección aumenta el peso de respuestas relacionadas; no reemplaza el análisis del draft.</div>');
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 2.3 · motor unificado para todos los héroes y posiciones. Las prioridades combinan perfil disponible, rol, fase, amenazas e inventario. Son recomendaciones heurísticas, no estadísticas verificadas por posición ni precios en vivo.</div>');
+ html.push('<div class="warning">Versión 2.4 · motor unificado para todos los héroes y posiciones. Las prioridades combinan perfil disponible, rol, fase, amenazas e inventario. Son recomendaciones heurísticas, no estadísticas verificadas por posición ni precios en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas específicas · análisis adaptable';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
 $('myHero').onchange=()=>{updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
 $('myRole').onchange=renderDynamicStateControls;
 $('analyze').onclick=analyze;
+$('report').addEventListener('click',e=>{if(e.target&&e.target.id==='recalcLive'){analyze();}});
+
 $('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
 if('serviceWorker' in navigator){
