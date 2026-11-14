@@ -134,7 +134,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.5</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.7</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -427,6 +427,20 @@ const itemRecipes={
  "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}]
 };
 function getNextPurchase(build,state){
+ if(build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Manta Style"].includes(x.name))){
+  const order=["Power Treads","Battle Fury","Manta Style"];
+  for(const name of order){
+   if(state.owned.includes(name))continue;
+   const target=build.find(x=>x.name===name);
+   if(!target)continue;
+   const recipe=itemRecipes[name]||[];
+   if(!recipe.length)return {target,kind:"complete",name,cost:target.cost||0,remaining:Math.max(0,(target.cost||0)-state.gold),affordable:state.gold>=(target.cost||0),reason:target.why,routeReason:"Se respeta el núcleo de Anti-Mage: Power Treads → Battle Fury → Manta Style."};
+   const missing=recipe.filter(part=>!state.components.includes(part.name));
+   const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
+   if(!next)return {target,kind:"complete",name,cost:0,remaining:0,affordable:true,reason:"Marcaste todos los componentes de este objeto.",routeReason:"Se respeta el orden del núcleo de Anti-Mage."};
+   return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.why,routeReason:"Primero completá "+name+"; después se habilita el siguiente objeto del núcleo."};
+  }
+ }
  const options=build.filter(x=>!state.owned.includes(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
   const missing=recipe.filter(part=>!state.components.includes(part.name));
