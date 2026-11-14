@@ -1,6 +1,12 @@
-# Dota 2 Build Assistant — versión 2.8
+# Dota 2 Build Assistant — versión 2.9
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 2.9
+- Corregido el cálculo de próxima compra de Anti-Mage: ahora usa oro, componentes marcados y objetos completos.
+- Ruta principal secuencial Power Treads → Battle Fury → Yasha → Manta Style.
+- El informe se recalcula automáticamente al cambiar minuto, oro, problema, inventario o componentes.
+- Unificada la versión 2.9 en encabezado, informe y exportación.
 
 ## Novedades de la versión 2.8
 - Ruta de Anti-Mage actualizada para 7.41f: Power Treads → Battle Fury → Yasha → Manta Style.
@@ -43,8 +49,5 @@ Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar com
 Al publicar cambios del service worker, incrementá la versión de caché en `sw.js`.
 
 
-## Versión 2.5
-- Anti-Mage mantiene el núcleo Power Treads → Battle Fury → Manta Style.
-- Las defensas se priorizan solo ante amenazas concretas seleccionadas.
-- Se excluye Aeon Disk de la ruta automática de Anti-Mage.
-- Próxima compra muestra el componente de Battle Fury según oro y componentes marcados.
+## Historial
+- La versión 2.5 fue una etapa anterior; sus notas ya no describen el motor actual.
