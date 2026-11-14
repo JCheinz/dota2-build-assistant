@@ -36,3 +36,10 @@ Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar com
 3. Menú ⋮ → «Instalar aplicación» o «Añadir a pantalla de inicio».
 
 Al publicar cambios del service worker, incrementá la versión de caché en `sw.js`.
+
+
+## Versión 2.5
+- Anti-Mage mantiene el núcleo Power Treads → Battle Fury → Manta Style.
+- Las defensas se priorizan solo ante amenazas concretas seleccionadas.
+- Se excluye Aeon Disk de la ruta automática de Anti-Mage.
+- Próxima compra muestra el componente de Battle Fury según oro y componentes marcados.
