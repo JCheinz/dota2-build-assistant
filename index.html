@@ -92,7 +92,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 1.5</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.0</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -111,7 +111,7 @@
     <h2>Tu configuración</h2>
     <div class="controls">
       <div class="field"><label for="myHero">¿Cuál es tu héroe?</label><select id="myHero"><option value="">Seleccioná primero tu equipo</option></select></div>
-      <div class="field"><label for="myRole">Tu posición</label><select id="myRole"><option value="Carry">Carry (1)</option><option value="Mid">Mid (2)</option><option value="Offlane">Offlane (3)</option><option value="Support 4">Support (4)</option><option value="Support 5">Hard Support (5)</option></select></div><div class="field"><label for="gameMode">Modo de juego</label><select id="gameMode"><option value="Ranked">Ranked</option><option value="Turbo">Turbo</option></select></div><div class="field"><label for="rank">Rango / medalla</label><select id="rank"><option value="Heraldo">Heraldo</option><option value="Guardián">Guardián</option><option value="Cruzado">Cruzado</option><option value="Arconte">Arconte</option><option value="Leyenda">Leyenda</option><option value="Ancestro">Ancestro</option><option value="Divino">Divino</option><option value="Inmortal">Inmortal</option></select></div>
+      <div class="field"><label for="myRole">Tu posición</label><select id="myRole"><option value="Carry">Carry (1)</option><option value="Mid">Mid (2)</option><option value="Offlane">Offlane (3)</option><option value="Support 4">Support (4)</option><option value="Support 5">Hard Support (5)</option></select><small id="roleFitHint" class="hint">Las posiciones sugeridas se estiman según los roles del héroe.</small></div><div class="field"><label for="gameMode">Modo de juego</label><select id="gameMode"><option value="Ranked">Ranked</option><option value="Turbo">Turbo</option></select></div><div class="field"><label for="rank">Rango / medalla</label><select id="rank"><option value="Heraldo">Heraldo</option><option value="Guardián">Guardián</option><option value="Cruzado">Cruzado</option><option value="Arconte">Arconte</option><option value="Leyenda">Leyenda</option><option value="Ancestro">Ancestro</option><option value="Divino">Divino</option><option value="Inmortal">Inmortal</option></select></div>
     </div>
     <div class="result-section" style="margin-top:14px">
       <h3>Estado actual de la partida (opcional)</h3>
@@ -421,6 +421,82 @@ function pugnaFinalBuild(matchups,state){
  return timeAdjusted.map(x=>({...x,priority:top.has(x.name),affordable:state.gold>=x.cost}))
   .sort((a,b)=>{if(a.priority!==b.priority)return a.priority?-1:1;return b.score-a.score});
 }
+
+function heroPositionFit(hero){
+ const r=new Set(hero.roles||[]);
+ const scores={
+  "Carry":(r.has("Carry")?4:0)+(r.has("Escape")?1:0)+(r.has("Pusher")?1:0),
+  "Mid":(r.has("Nuker")?3:0)+(r.has("Carry")?2:0)+(r.has("Escape")?1:0)+(r.has("Pusher")?1:0),
+  "Offlane":(r.has("Initiator")?3:0)+(r.has("Durable")?3:0)+(r.has("Disabler")?1:0)+(r.has("Pusher")?1:0),
+  "Support 4":(r.has("Support")?2:0)+(r.has("Disabler")?2:0)+(r.has("Initiator")?2:0)+(r.has("Nuker")?1:0),
+  "Support 5":(r.has("Support")?4:0)+(r.has("Disabler")?1:0)+(r.has("Durable")?1:0)
+ };
+ if(hero.attack_type==="Ranged"){scores.Carry+=0.5;scores.Mid+=0.5}
+ return Object.entries(scores).sort((a,b)=>b[1]-a[1]).map(([role,score])=>({role,score}));
+}
+function updateRoleFit(){
+ const hero=ally.find(h=>String(h.id)===$("myHero").value);
+ const hint=$("roleFitHint");
+ if(!hero||!hint)return;
+ const fit=heroPositionFit(hero);
+ hint.textContent="Compatibilidad estimada por roles: "+fit.slice(0,3).map(x=>x.role+" ("+x.score+")").join(" · ")+". Podés elegir cualquier posición; no son estadísticas de lanes.";
+}
+const universalItems=[
+ {name:"Power Treads",roles:["Carry","Mid"],tags:["attack","farm"],why:"Atributos y velocidad de ataque para escalar; confirmá si tu héroe aprovecha botas de atributo."},
+ {name:"Phase Boots",roles:["Carry","Mid","Offlane"],tags:["physical","mobility"],why:"Movilidad y daño de ataque para héroes que aprovechan intercambios físicos."},
+ {name:"Arcane Boots",roles:["Mid","Offlane","Support 4","Support 5"],tags:["mana","team"],why:"Sustain de maná para vos y el equipo si la composición lo necesita."},
+ {name:"Magic Wand",roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["survival"],why:"Sustain eficiente contra rivales que generan cargas."},
+ {name:"Bottle",roles:["Mid"],tags:["mana","lane"],why:"Regeneración y control de runas; vale más si podés disputar runas."},
+ {name:"Black King Bar",roles:["Carry","Mid","Offlane"],tags:["magic","control"],why:"Si el control o daño mágico te impide ejecutar tu función."},
+ {name:"Blink Dagger",roles:["Mid","Offlane","Support 4"],tags:["initiation","mobility"],why:"Para héroes que necesitan iniciar o alcanzar un objetivo con una habilidad."},
+ {name:"Force Staff",roles:["Offlane","Support 4","Support 5"],tags:["save","mobility"],why:"Reposicionamiento para salvar aliados o salir de zonas peligrosas."},
+ {name:"Glimmer Cape",roles:["Support 4","Support 5","Offlane"],tags:["save","magic"],why:"Salvación y resistencia mágica situacional; pierde valor ante detección."},
+ {name:"Aether Lens",roles:["Mid","Support 4","Support 5"],tags:["range","spell"],why:"Alcance para contribuir desde una posición más segura si tus habilidades lo aprovechan."},
+ {name:"Pipe of Insight",roles:["Offlane","Support 4","Support 5"],tags:["team","magic"],why:"Mitigación grupal si el daño mágico enemigo es constante."},
+ {name:"Crimson Guard",roles:["Offlane"],tags:["team","physical"],why:"Defensa grupal contra presión de ataques físicos y unidades."},
+ {name:"Mekansm",roles:["Offlane","Support 4","Support 5"],tags:["team","save"],why:"Curación de equipo si tu composición necesita sostener peleas."},
+ {name:"Lotus Orb",roles:["Offlane","Support 4"],tags:["dispel","save"],why:"Dispel y respuesta a hechizos dirigidos cuando el efecto aplica."},
+ {name:"Aeon Disk",roles:["Mid","Offlane","Support 4","Support 5"],tags:["survival","burst"],why:"Si el burst te elimina antes de usar tus habilidades."},
+ {name:"Scythe of Vyse",roles:["Carry","Mid","Offlane"],tags:["control"],why:"Control fuerte para neutralizar temporalmente una amenaza."},
+ {name:"Satanic",roles:["Carry"],tags:["physical","survival"],why:"Sustain y supervivencia para un carry que puede mantener ataques."},
+ {name:"Daedalus",roles:["Carry"],tags:["physical","damage"],why:"Daño físico para escalar si tu héroe depende de ataques."},
+ {name:"Manta Style",roles:["Carry","Mid"],tags:["dispel","farm"],why:"Dispel, atributos y presión de líneas si tu héroe aprovecha ilusiones."},
+ {name:"Hurricane Pike",roles:["Carry","Mid"],tags:["range","save"],why:"Alcance y reposicionamiento para héroes de ataque a distancia."},
+ {name:"Dust of Appearance",roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["detection"],why:"Detección consumible ante invisibilidad; coordiná su uso con el equipo."},
+ {name:"Gem of True Sight",roles:["Offlane","Support 4","Support 5"],tags:["detection"],why:"Detección persistente si el equipo puede proteger al portador."},
+ {name:"Shiva’s Guard",roles:["Mid","Offlane"],tags:["armor","team"],why:"Armadura y utilidad contra daño físico y velocidad de ataque."}
+];
+function buildAdaptivePlan(hero,role,enemies,live){
+ const fit=heroPositionFit(hero),fitScore=(fit.find(x=>x.role===role)||{score:0}).score;
+ const enemyIds=new Set(enemies.map(h=>h.name.replace("npc_dota_hero_","")));
+ const enemyRoles=new Set(enemies.flatMap(h=>h.roles||[]));
+ const threatMagic=enemyRoles.has("Nuker"),threatControl=enemyRoles.has("Disabler"),threatInitiation=enemyRoles.has("Initiator");
+ const ranged=hero.attack_type==="Ranged",carry=role==="Carry",support=role.startsWith("Support"),off=role==="Offlane",mid=role==="Mid";
+ const scores=universalItems.map(x=>{
+  let score=x.roles.includes(role)?2.2:0.4;
+  const tags=x.tags;
+  if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
+  if(tags.includes("magic")&&threatMagic)score+=1.3;
+  if(tags.includes("control")&&threatInitiation)score+=0.8;
+  if(tags.includes("survival")&&threatControl)score+=0.8;
+  if(tags.includes("team")&&(off||support))score+=0.8;
+  if(tags.includes("range")&&ranged)score+=0.8;
+  if(tags.includes("physical")&&carry)score+=1.1;
+  if(tags.includes("mana")&&(mid||support))score+=0.7;
+  if(tags.includes("initiation")&&!off&&!mid)score-=0.4;
+  if(tags.includes("damage")&&!carry)score-=2;
+  if(live.minute<12&&["Bottle","Magic Wand","Arcane Boots","Phase Boots","Power Treads"].includes(x.name))score+=1;
+  if(live.minute>=28&&["Scythe of Vyse","Shiva’s Guard","Satanic","Daedalus","Aeon Disk"].includes(x.name))score+=0.8;
+  if(live.owned.includes(x.name))score=-100;
+  return {...x,score,priority:false};
+ }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+ const threatGroups=getDraftCounterRecommendations(enemies);
+ const selected=scores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
+ const phase=live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada";
+ const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
+ return {fit,fitScore,phase,selected,threatGroups,explanation,threatMagic,threatControl};
+}
+
 function analyze(){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean);
@@ -433,7 +509,7 @@ function analyze(){
  if(allies.some(h=>h.name==='npc_dota_hero_disruptor'))synergies.push('Disruptor puede mantener enemigos dentro de una zona; coordiná Nether Blast y Life Drain sin adelantarte.');
  if(allies.some(h=>h.name==='npc_dota_hero_lina'))synergies.push('Lina aporta daño mágico explosivo; Decrepify puede amplificarlo sobre un enemigo, pero impide que aliados le hagan ataques físicos.');
  const isPugnaMid=me.name==='npc_dota_hero_pugna'&&role==='Mid';
- const lines=['DOTA 2 BUILD ASSISTANT — ANÁLISIS v1.5','MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),'MINUTO: '+live.minute+' | ORO: '+live.gold+' | PROBLEMA: '+live.problem+' | OBJETOS COMPLETOS: '+live.owned.join(', ')+' | COMPONENTES: '+live.components.join(', '),'Analizá amenazas, plan y build sin inventar estadísticas. Diferenciá lo confirmado de lo condicional.'];
+ const lines=['DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.0','MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),'MINUTO: '+live.minute+' | ORO: '+live.gold+' | PROBLEMA: '+live.problem+' | OBJETOS COMPLETOS: '+live.owned.join(', ')+' | COMPONENTES: '+live.components.join(', '),'Analizá amenazas, plan y build sin inventar estadísticas. Diferenciá lo confirmado de lo condicional.'];
  lastReport=lines.join('\n');
  const html=[];
  html.push('<div class="result-section"><h3>Resumen del draft</h3><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
@@ -457,32 +533,22 @@ function analyze(){
   const avoid=matchups.some(m=>m.hero.name==='npc_dota_hero_bloodseeker');
   html.push('<div class="warning"><b>Qué evitar:</b> '+(avoid?'no priorices Force Staff como escape mientras Rupture esté activa: el desplazamiento puede hacerte recibir daño. Linken’s solo ayuda si el bloqueo sigue disponible. ':'no compres defensas por costumbre: primero identificá qué habilidad enemiga te está impidiendo jugar. ')+'BKB tampoco es una respuesta universal a todo el control.</div>');
  }else{
-  const plan=getHeroPlan(me,role);
-  if(plan){
-   const phase=live.minute<12?{label:"Inicio",items:plan.early}:live.minute<28?{label:"Medio",items:plan.core}:{label:"Avanzada",items:plan.situational};
-   const nextPhaseItem=phase.items[0];
-   const phaseNote=live.minute<12?"Enfoque: sobrevivir la línea y llegar a tus primeros tiempos.":live.minute<28?"Enfoque: completar el núcleo que habilita tu plan de juego.":"Enfoque: adaptar el cierre a la amenaza que más te limita.";
-   const combined=uniqueItems([...plan.early.map(x=>item(x[0],x[1])),...plan.core.map(x=>item(x[0],x[1]))]);
-   html.push('<div class="result-section"><h3>Plan por fase · '+esc(phase.label)+'</h3><div class="item-card priority"><span class="item-number">1</span><div class="item-copy"><b>'+esc(nextPhaseItem[0])+'</b><span>'+esc(nextPhaseItem[1])+'</span><small class="item-priority-label">ENFOQUE DE ESTA FASE</small></div></div><p class="hint">'+esc(phaseNote)+' Guía orientativa: revisá el draft y tu inventario.</p></div>');
-   html.push('<div class="result-section"><h3>Build base · '+esc(plan.title)+'</h3>'+renderItemCards(combined)+'</div><div class="result-section"><h3>Alternativas situacionales</h3>'+renderItemCards(plan.situational.map(x=>item(x[0],x[1])))+'</div><p class="hint">Perfil específico disponible. La próxima compra con componentes sigue especializada en Pugna Mid.</p>');
-  }else{
-   const phase=getUniversalRolePlan(role,live.minute);
-   const draftCounters=getDraftCounterRecommendations(enemies);
-   html.push('<div class="result-section"><h3>Plan general por posición · '+esc(role)+' · '+esc(phase.phase)+'</h3>'+renderItemCards(phase.items.map(x=>item(x[0],x[1])))+'<p class="hint">Base universal para esta posición. No reemplaza los objetos propios del héroe: adaptá botas, primer objeto grande y talentos a sus habilidades y estilo.</p></div>');
-   if(draftCounters.length){
-    html.push('<div class="result-section"><h3>Respuestas al draft enemigo</h3>');
-    draftCounters.forEach(group=>html.push('<h3 style="margin-top:10px">'+esc(group.label)+'</h3>'+renderItemCards(group.items.map(x=>item(x[0],x[1])))));
-    html.push('</div>');
-   }else html.push('<div class="result-section"><h3>Respuestas al draft</h3><p class="hint">No se activó una regla específica del catálogo actual. No significa que el enemigo no tenga amenazas; revisá habilidades y objetos de la partida.</p></div>');
-   html.push('<div class="warning">Motor general para cualquier héroe y posición. Las recomendaciones se basan en rol y amenazas reconocidas; todavía no son builds personalizadas por héroe ni estadísticas verificadas por rango.</div>');
-  }
+  const adaptive=buildAdaptivePlan(me,role,enemies,live);
+  const fitText=adaptive.fit.slice(0,3).map(x=>x.role).join(" · ");
+  html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><p class="hint"><b>Compatibilidad estimada:</b> '+esc(fitText)+'. '+esc(adaptive.explanation)+' Esta estimación usa roles generales del héroe, no tasas de victoria por posición.</p><h3>Ruta de objetos · '+esc(adaptive.phase)+'</h3>'+renderItemCards(adaptive.selected)+'<p class="hint">Verde: prioridades calculadas para esta combinación de héroe, posición, fase y draft. Azul: complementos. La puntuación es heurística, no una build estadística certificada.</p></div>');
+  if(adaptive.threatGroups.length){
+   html.push('<div class="result-section"><h3>Respuestas al draft enemigo</h3>');
+   adaptive.threatGroups.forEach(group=>html.push('<h3 style="margin-top:10px">'+esc(group.label)+'</h3>'+renderItemCards(group.items.map(x=>item(x[0],x[1])))));
+   html.push('</div>');
+  }else html.push('<div class="result-section"><h3>Lectura de amenazas</h3><p class="hint">No hay una regla específica para estos rivales en el catálogo. El motor considera sus roles generales, pero no inventa counters individuales.</p></div>');
+  html.push('<div class="warning">Motor adaptable para cualquier héroe y posición. Los roles OpenDota describen arquetipos generales, no confirman por sí solos una posición de lane. Validá los objetos según habilidades, parche y partida.</div>');
  }
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 1.5 · cobertura universal con perfil inicial de Techies y amenazas adicionales. Los perfiles genéricos siguen siendo orientativos. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
+ html.push('<div class="warning">Versión 2.0 · motor adaptable por héroe, posición, arquetipo, fase e indicios del draft. Compatibilidad de posición estimada, no estadísticas de lane. Confirmá los efectos y objetos del parche actual antes de tomar la decisión final.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas reconocidas · reglas heurísticas';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
-$('myHero').onchange=()=>{$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
+$('myHero').onchange=()=>{updateRoleFit();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
 $('analyze').onclick=analyze;
 $('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
