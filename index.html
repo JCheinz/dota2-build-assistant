@@ -134,7 +134,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.9</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.0</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -402,9 +402,64 @@ const matchupRules = {
  broodmother:{title:"Broodmother · presión de líneas y unidades",risk:"ALTA",advice:"Puede ocupar una línea rápidamente con unidades y obligarte a defender estructuras. No la persigas por telarañas sin visión ni gastes todos tus recursos en las arañas si hay una pelea importante en otro sector.",items:[item("Crimson Guard","opción de equipo si las unidades y ataques repetidos desgastan a tus aliados"),item("Shiva’s Guard","daño y ralentización en área para ayudar a controlar unidades y peleas"),item("Mjollnir","alternativa de daño en área si tu héroe aprovecha velocidad de ataque")],plan:"Defendé la línea con ayuda y visión; coordiná una respuesta antes de que acumule presión sobre una estructura."},
  alchemist:{title:"Alchemist · aceleración económica y sustain",risk:"ALTA",advice:"Si consigue espacio para farmear, puede alcanzar objetos importantes antes que el resto. No le regales líneas libres y coordiná presión sobre sus zonas de farmeo.",items:[item("Spirit Vessel","reduce curación y regeneración mientras tenga cargas; es más útil si el equipo puede mantenerlas"),item("Shiva’s Guard","reducción de curación en área y armadura si la partida lo justifica"),item("Black King Bar","respuesta condicional si el control y daño mágico rival te impiden pelear")],plan:"Buscá objetivos y peleas coordinadas antes de que complete su escalado; no lo persigas solo cuando tenga ventaja."}
 };
+// Motor universal de amenazas: combina reglas específicas con perfiles de roles
+// del catálogo OpenDota. No depende de tener una ficha manual para cada héroe.
+const threatHeroSets={
+ initiation:new Set("axe centaur magnus tidehunter earthshaker enigma legion_commander slardar tiny clockwerk tusk mars primal_beast dawnbreaker brewmaster batrider spirit_breaker".split(" ")),
+ burstMagic:new Set("zeus lina lion skywrath_mage nyx_assassin leshrac pugna invoker tinker necrophos shadow_fiend".split(" ")),
+ hardControl:new Set("lion shadow_shaman bane enigma disruptor rubick grimstroke shadow_demon oracle winter_wyvern".split(" ")),
+ invisibility:new Set("riki bounty_hunter clinkz nyx_assassin templar_assassin broodmother".split(" ")),
+ illusions:new Set("phantom_lancer naga_siren chaos_knight terrorblade".split(" ")),
+ healing:new Set("huskar alchemist morphling necrophos oracle warlock io abaddon omniknight".split(" ")),
+ rangedPhysical:new Set("sniper drow_ranger windranger templar_assassin medusa muerta".split(" ")),
+ summons:new Set("broodmother lycan beastmaster visage chen enigma nature_prophet lone_druid".split(" ")),
+ manaPressure:new Set("antimage invoker lion pugna nyx_assassin".split(" ")),
+ silence:new Set("silencer death_prophet night_stalker disruptor riki".split(" "))
+};
+function inferThreatProfile(hero){
+ const id=hero.name.replace("npc_dota_hero_","");
+ const roles=new Set(hero.roles||[]);
+ const tags=[];
+ if(threatHeroSets.initiation.has(id)||roles.has("Initiator"))tags.push("iniciación");
+ if(threatHeroSets.burstMagic.has(id)||roles.has("Nuker"))tags.push("daño explosivo / hechizos");
+ if(threatHeroSets.hardControl.has(id)||roles.has("Disabler"))tags.push("control / interrupciones");
+ if(threatHeroSets.invisibility.has(id))tags.push("invisibilidad / emboscadas");
+ if(threatHeroSets.illusions.has(id))tags.push("ilusiones / unidades");
+ if(threatHeroSets.healing.has(id))tags.push("curación / sustain");
+ if(threatHeroSets.rangedPhysical.has(id)||(hero.attack_type==="Ranged"&&roles.has("Carry")))tags.push("daño físico a distancia");
+ if(threatHeroSets.summons.has(id)||roles.has("Pusher"))tags.push("presión de líneas / unidades");
+ if(threatHeroSets.manaPressure.has(id))tags.push("presión sobre maná");
+ if(threatHeroSets.silence.has(id))tags.push("silencios / limitación de habilidades");
+ if(roles.has("Durable"))tags.push("primera línea / resistencia");
+ if(roles.has("Escape"))tags.push("movilidad / escape");
+ if(roles.has("Carry"))tags.push("escalado físico");
+ return [...new Set(tags)];
+}
+function genericThreatAdvice(hero,tags){
+ const id=hero.name.replace("npc_dota_hero_","");
+ const advice=[],plans=[],items=[];
+ const add=(name,why)=>{items.push(item(name,why))};
+ if(matchupRules[id])return {...matchupRules[id],hero};
+ if(tags.includes("iniciación")){advice.push("Puede iniciar sobre un objetivo mal posicionado y habilitar el seguimiento de su equipo.");plans.push("Mantené visión, respetá su rango de entrada y evitá mostrarte solo.");add("Aeon Disk","Solo si la iniciación seguida de daño te elimina antes de poder actuar.");add("Force Staff","Reposicionamiento preventivo; no elimina todos los controles.");}
+ if(tags.includes("daño explosivo / hechizos")){advice.push("Puede concentrar daño de habilidades y castigar a héroes frágiles.");plans.push("No gastes defensas antes de ver sus habilidades principales; jugá con visión y distancia.");add("Glimmer Cape","Salvación situacional si no hay detección que la neutralice.");add("Black King Bar","Solo si los efectos concretos del rival pueden ser evitados por BKB en este parche.");}
+ if(tags.includes("control / interrupciones")){advice.push("Su control puede impedir que uses habilidades, canalices o escapes.");plans.push("Identificá qué habilidad debe ser interrumpida o esquivada y no te muestres sin apoyo.");add("Aeon Disk","Si una cadena de control y daño te elimina antes de responder.");add("Lotus Orb","Solo contra hechizos dirigidos que Lotus pueda reflejar o disipar.");}
+ if(tags.includes("invisibilidad / emboscadas")){advice.push("Puede iniciar desde invisibilidad o seguir héroes aislados.");plans.push("Comprá detección con el equipo y evitá recorrer zonas oscuras solo.");add("Dust of Appearance","Detección inmediata para peleas y desplazamientos.");add("Gem of True Sight","Detección persistente si el equipo puede proteger al portador.");}
+ if(tags.includes("ilusiones / unidades")){advice.push("Puede generar múltiples unidades y saturar objetivos o líneas.");plans.push("Guardá daño en área y defendé con aliados; no gastes todo en una ilusión sin confirmar el objetivo.");add("Shiva’s Guard","Daño en área y utilidad contra grupos de unidades.");add("Mjollnir","Respuesta de daño en área si tu héroe aprovecha ataques.");}
+ if(tags.includes("curación / sustain")){advice.push("Puede sostenerse en intercambios y alargar peleas a su favor.");plans.push("Coordiná reducción de curación y evitá intercambios largos sin ventaja.");add("Spirit Vessel","Reduce curación y regeneración mientras tenga cargas; requiere aplicación constante.");add("Shiva’s Guard","Reducción de curación en área si el objeto encaja con tu héroe.");}
+ if(tags.includes("daño físico a distancia")){advice.push("Puede desgastar desde lejos y castigar si entrás sin cerrar distancia.");plans.push("Usá cobertura, visión y herramientas de acercamiento o protección.");add("Heaven’s Halberd","Desarme situacional si el objetivo depende de ataques y el efecto aplica.");add("Ghost Scepter","Defensa temporal contra ataques físicos; cuidado con daño mágico.");}
+ if(tags.includes("presión de líneas / unidades")){advice.push("Puede acelerar presión sobre torres o forzarte a defender líneas.");plans.push("No abandones estructuras sin intercambiar objetivos; defendé con visión y ayuda.");add("Crimson Guard","Si las unidades y ataques repetidos desgastan al equipo.");add("Shiva’s Guard","Daño y ralentización en área contra unidades.");}
+ if(tags.includes("presión sobre maná")){advice.push("Puede reducir tu maná o castigarte cuando dependés de habilidades.");plans.push("Administrá recursos, evitá intercambios innecesarios y conservá maná para responder.");add("Magic Wand","Ráfaga de maná y vida si genera cargas.");}
+ if(tags.includes("silencios / limitación de habilidades")){advice.push("Puede impedir que respondas con habilidades durante una ventana crítica.");plans.push("Anticipá el silencio, separá tu posición y evaluá un dispel válido para ese efecto.");add("Manta Style","Dispel situacional solo si el silencio es disipable y tu héroe aprovecha Manta.");add("Black King Bar","Solo si el silencio y control concreto son bloqueables por BKB.");}
+ if(tags.includes("primera línea / resistencia")){advice.push("Puede ocupar espacio y absorber recursos; no siempre conviene gastar todo sobre él.");plans.push("Priorizá objetivos alcanzables y coordiná reducción de sustain o daño sostenido.");}
+ if(!tags.length){advice.push("El catálogo no aporta una etiqueta táctica clara para este héroe; se muestra un análisis conservador, sin inventar habilidades.");plans.push("Observá sus habilidades en partida y actualizá el problema cuando identifiques la amenaza.");}
+ return {title:hero.localized_name+" · perfil táctico general",risk:tags.some(t=>["iniciación","control / interrupciones","daño explosivo / hechizos"].includes(t))?"ALTA":"MEDIA",advice:advice.join(" "),plan:plans.join(" "),items:uniqueItems(items),tags,source:"roles y clasificación táctica general"};
+}
 function getMatchupData(me,enemies){
- const ids=enemies.map(h=>h.name.replace("npc_dota_hero_",""));
- return ids.filter(id=>matchupRules[id]).map(id=>({...matchupRules[id],hero:enemies.find(h=>h.name.endsWith(id))}));
+ return enemies.map(hero=>{
+  const tags=inferThreatProfile(hero);
+  const profile=genericThreatAdvice(hero,tags);
+  return {...profile,hero,tags};
+ });
 }
 function uniqueItems(items){
  const seen=new Set();
@@ -739,7 +794,7 @@ function analyze(options={}){
  if(allyRoles.includes('Support'))synergies.push('Hay héroes de apoyo en tu equipo: aprovechá su visión, salvación y control; no los obligues a iniciar solos.');
  if(allies.some(h=>h.attack_type==='Ranged'&&h.id!==me.id))synergies.push('Tu equipo tiene daño a distancia: evitá iniciar demasiado lejos de tus aliados y buscá peleas donde puedan seguir tu entrada.');
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.9',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.0',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -767,7 +822,7 @@ function analyze(options={}){
  }
  if(live.problem!=='none')html.push('<div class="warning"><b>Problema seleccionado:</b> '+esc(live.problem.replace('issue:','').replace('enemy:','').replaceAll('_',' '))+'. La selección aumenta el peso de respuestas relacionadas; no reemplaza el análisis del draft.</div>');
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 2.9 · motor unificado para todos los héroes y posiciones. Las prioridades combinan perfil disponible, rol, fase, amenazas e inventario. Son recomendaciones heurísticas, no estadísticas verificadas por posición ni precios en vivo.</div>');
+ html.push('<div class="warning">Versión 3.0 · motor universal de amenazas para todos los héroes y posiciones. Las prioridades combinan perfil disponible, rol, fase, amenazas e inventario. Son recomendaciones heurísticas, no estadísticas verificadas por posición ni precios en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas específicas · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
