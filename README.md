@@ -27,3 +27,13 @@ Aplicación web progresiva (PWA) para preparar drafts y consultar builds situaci
 3. Menú ⋮ → «Instalar aplicación» o «Añadir a pantalla de inicio».
 
 Al publicar cambios, incrementá la versión de caché en `sw.js`.
+
+
+## Motor adaptable 2.0
+- Carga catálogo de héroes y estadísticas por rango desde OpenDota `/heroStats`.
+- Estima compatibilidad de las cinco posiciones usando los roles generales del héroe (Carry, Support, Nuker, Initiator, Durable, etc.).
+- Genera una ruta de objetos ponderada por posición, atributos generales, tipo de ataque, fase de partida y señales del draft rival.
+- Mantiene reglas de amenazas específicas cuando existen y evita inventar counters cuando no hay reglas.
+- Muestra contexto de victorias/partidas por rango del héroe, combinado entre posiciones.
+
+**Limitaciones transparentes:** los roles generales de OpenDota no son estadísticas de lane. La compatibilidad de posición y la selección de objetos son heurísticas; todavía no equivalen a builds verificadas por posición, parche y bracket. El motor no debe presentar una posición como meta confirmada sin datos de lane suficientes.
