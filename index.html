@@ -134,7 +134,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.2</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 2.3</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -397,7 +397,10 @@ const matchupRules = {
  viper:{title:"Viper · presión de línea y zona",risk:"ALTA",advice:"No prolongues intercambios dentro de su zona de daño. Priorizá posicionamiento, regeneración y ventanas cortas para usar tus habilidades; no dependas de ganar el intercambio directo.",items:[item("Magic Wand","carga útil ante intercambios frecuentes de hechizos"),item("Glimmer Cape","salvación situacional si el daño mágico rival te enfoca"),item("Black King Bar","considerala si el control y daño mágico te impiden actuar")],plan:"Jugá la línea con paciencia, aprovechá el alcance de tus habilidades y coordiná ganks; evitá quedarte intercambiando golpes."},
  centaur:{title:"Centaur Warrunner · iniciación directa",risk:"ALTA",advice:"Su iniciación puede alcanzar a héroes mal posicionados y habilitar el seguimiento del equipo. Mantené distancia de Blink y evitá quedar separado de tus aliados.",items:[item("Aether Lens","si tu héroe necesita lanzar habilidades desde más lejos"),item("Force Staff","reposicionamiento preventivo; no elimina todos los efectos de control"),item("Aeon Disk","respuesta si la iniciación seguida de daño te elimina antes de actuar")],plan:"Jugá cerca de tus aliados y esperá que Centaur muestre Blink o gaste su entrada antes de comprometerte."},
  dark_seer:{title:"Dark Seer · control de área",risk:"MEDIA",advice:"Vacuum y Wall of Replica castigan a los héroes agrupados. Separá ángulos de entrada y evitá pelear pegado a tus aliados.",items:[item("Aether Lens","permite contribuir desde una posición más segura si tu héroe aprovecha el alcance"),item("Glimmer Cape","salvación puntual si un aliado queda expuesto")],plan:"No se agrupen en pasillos estrechos. Buscá flancos y esperá Vacuum antes de comprometer habilidades importantes."},
- dawnbreaker:{title:"Dawnbreaker · contraataque global",risk:"MEDIA",advice:"Su llegada global puede cambiar una pelea que parecía ganada. No persigas demasiado lejos y observá cuándo puede apoyar a sus aliados.",items:[item("Aether Lens","más margen para contribuir sin quedar expuesto"),item("Scythe of Vyse","control situacional para impedir que una amenaza responda")],plan:"Forzá peleas cuando su ultimate no esté disponible o cuando el equipo pueda responder a su llegada."}
+ dawnbreaker:{title:"Dawnbreaker · contraataque global",risk:"MEDIA",advice:"Su llegada global puede cambiar una pelea que parecía ganada. No persigas demasiado lejos y observá cuándo puede apoyar a sus aliados.",items:[item("Aether Lens","más margen para contribuir sin quedar expuesto"),item("Scythe of Vyse","control situacional para impedir que una amenaza responda")],plan:"Forzá peleas cuando su ultimate no esté disponible o cuando el equipo pueda responder a su llegada."},
+ crystal_maiden:{title:"Crystal Maiden · control y daño mágico canalizado",risk:"MEDIA",advice:"Su control puede dejarte expuesto y su definitiva castiga a los equipos agrupados si no la interrumpen. Evitá perseguirla sin visión y guardá una interrupción para su canalización.",items:[item("Pipe of Insight","mitigación grupal si el daño mágico rival afecta a varios aliados"),item("Black King Bar","considerala si el control mágico te impide actuar; verificá qué efectos atraviesa en el parche"),item("Shiva’s Guard","armadura y utilidad si además necesitás responder a daño físico o curación")],plan:"No se agrupen durante su definitiva. Priorizá visión y una interrupción disponible antes de entrar."},
+ broodmother:{title:"Broodmother · presión de líneas y unidades",risk:"ALTA",advice:"Puede ocupar una línea rápidamente con unidades y obligarte a defender estructuras. No la persigas por telarañas sin visión ni gastes todos tus recursos en las arañas si hay una pelea importante en otro sector.",items:[item("Crimson Guard","opción de equipo si las unidades y ataques repetidos desgastan a tus aliados"),item("Shiva’s Guard","daño y ralentización en área para ayudar a controlar unidades y peleas"),item("Mjollnir","alternativa de daño en área si tu héroe aprovecha velocidad de ataque")],plan:"Defendé la línea con ayuda y visión; coordiná una respuesta antes de que acumule presión sobre una estructura."},
+ alchemist:{title:"Alchemist · aceleración económica y sustain",risk:"ALTA",advice:"Si consigue espacio para farmear, puede alcanzar objetos importantes antes que el resto. No le regales líneas libres y coordiná presión sobre sus zonas de farmeo.",items:[item("Spirit Vessel","reduce curación y regeneración mientras tenga cargas; es más útil si el equipo puede mantenerlas"),item("Shiva’s Guard","reducción de curación en área y armadura si la partida lo justifica"),item("Black King Bar","respuesta condicional si el control y daño mágico rival te impiden pelear")],plan:"Buscá objetivos y peleas coordinadas antes de que complete su escalado; no lo persigas solo cuando tenga ventaja."}
 };
 function getMatchupData(me,enemies){
  const ids=enemies.map(h=>h.name.replace("npc_dota_hero_",""));
@@ -608,6 +611,13 @@ function buildAdaptivePlan(hero,role,enemies,live){
   addArchetype("Crimson Guard","Si sufrís muchos ataques rápidos, unidades o ilusiones.",["Offlane"],["team","physical"]);
   addArchetype("Heart of Tarrasque","Si necesitás aguante para ocupar espacio en peleas largas.",["Offlane"],["survival"]);
  }
+ if(role==="Offlane"&&hero.name==="npc_dota_hero_bristleback"){
+  addArchetype("Pipe of Insight","Subila de prioridad si Crystal Maiden y Batrider aportan daño mágico que afecta al equipo.",["Offlane"],["team","magic"]);
+  addArchetype("Crimson Guard","Considerala si Broodmother y sus unidades generan presión física repetida.",["Offlane"],["team","physical"]);
+  addArchetype("Shiva’s Guard","Alternativa contra presión de unidades, velocidad de ataque y sustain.",["Offlane"],["armor","team"]);
+  addArchetype("Spirit Vessel","Respuesta contra la regeneración de Alchemist si el equipo puede aplicar cargas.",["Offlane"],["anti-heal","team"]);
+  addArchetype("Black King Bar","Solo si el control y daño mágico te impiden mantenerte en la pelea.",["Offlane"],["magic","control"]);
+ }
  if(role.startsWith("Support")){
   addArchetype("Glimmer Cape","Salvación si el rival no tiene detección suficiente.",[role],["save","magic"]);
   addArchetype("Force Staff","Reposicionamiento para salvar aliados o salir de zonas peligrosas.",[role],["save","mobility"]);
@@ -633,6 +643,13 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(tags.includes("control")&&threatInitiation)score+=0.8;
   if(tags.includes("survival")&&threatControl)score+=0.8;
   if(tags.includes("team")&&(off||support))score+=0.8;
+  if(hero.name==="npc_dota_hero_bristleback"&&off){
+   if(x.name==="Pipe of Insight"&&(enemyIds.has("crystal_maiden")||enemyIds.has("batrider")))score+=2;
+   if(x.name==="Crimson Guard"&&enemyIds.has("broodmother"))score+=2.4;
+   if(x.name==="Shiva’s Guard"&&(enemyIds.has("broodmother")||enemyIds.has("alchemist")))score+=1.5;
+   if(x.name==="Spirit Vessel"&&enemyIds.has("alchemist"))score+=2.2;
+   if(x.name==="Black King Bar"&&(enemyIds.has("batrider")||enemyIds.has("crystal_maiden")))score+=0.8;
+  }
   if(tags.includes("range")&&ranged)score+=0.8;
   if(tags.includes("physical")&&carry)score+=1.1;
   if(tags.includes("mana")&&(mid||support))score+=0.7;
@@ -676,7 +693,7 @@ function analyze(){
  if(allyRoles.includes('Support'))synergies.push('Hay héroes de apoyo en tu equipo: aprovechá su visión, salvación y control; no los obligues a iniciar solos.');
  if(allies.some(h=>h.attack_type==='Ranged'&&h.id!==me.id))synergies.push('Tu equipo tiene daño a distancia: evitá iniciar demasiado lejos de tus aliados y buscá peleas donde puedan seguir tu entrada.');
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.2',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.3',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -704,7 +721,7 @@ function analyze(){
  }
  if(live.problem!=='none')html.push('<div class="warning"><b>Problema seleccionado:</b> '+esc(live.problem.replace('issue:','').replace('enemy:','').replaceAll('_',' '))+'. La selección aumenta el peso de respuestas relacionadas; no reemplaza el análisis del draft.</div>');
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 2.2 · motor unificado para todos los héroes y posiciones. Las prioridades combinan perfil disponible, rol, fase, amenazas e inventario. Son recomendaciones heurísticas, no estadísticas verificadas por posición ni precios en vivo.</div>');
+ html.push('<div class="warning">Versión 2.3 · motor unificado para todos los héroes y posiciones. Las prioridades combinan perfil disponible, rol, fase, amenazas e inventario. Son recomendaciones heurísticas, no estadísticas verificadas por posición ni precios en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' amenazas específicas · análisis adaptable';$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
