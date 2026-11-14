@@ -8,7 +8,7 @@ Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar com
 - Elección del héroe propio y cualquiera de las cinco posiciones.
 - Modos Ranked y Turbo, con rango como contexto.
 - Motor de análisis unificado para todos los héroes y posiciones.
-- Perfiles específicos cuando están disponibles (Pugna Mid, Drow Carry, Luna Carry, Bristleback Offlane y Techies en las posiciones configuradas).
+- Perfiles específicos cuando están disponibles (Pugna Mid, Anti-Mage Mid/Carry, Drow Carry, Luna Carry, Bristleback Offlane y Techies en las posiciones configuradas).
 - Para el resto de combinaciones, una ruta heurística por rol, arquetipo, tipo de ataque, fase de partida y amenazas detectadas.
 - Recomendaciones situacionales separadas de la ruta principal.
 - Estado de partida: minuto, oro, problema actual, objetos completos y componentes.
