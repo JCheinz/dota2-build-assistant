@@ -427,19 +427,19 @@ const itemRecipes={
  "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}]
 };
 function getNextPurchase(build,state){
- if(build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Manta Style"].includes(x.name))){
-  const order=["Power Treads","Battle Fury","Manta Style"];
-  for(const name of order){
-   if(state.owned.includes(name))continue;
-   const target=build.find(x=>x.name===name);
-   if(!target)continue;
-   const recipe=itemRecipes[name]||[];
-   if(!recipe.length)return {target,kind:"complete",name,cost:target.cost||0,remaining:Math.max(0,(target.cost||0)-state.gold),affordable:state.gold>=(target.cost||0),reason:target.why,routeReason:"Se respeta el núcleo de Anti-Mage: Power Treads → Battle Fury → Manta Style."};
-   const missing=recipe.filter(part=>!state.components.includes(part.name));
-   const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
-   if(!next)return {target,kind:"complete",name,cost:0,remaining:0,affordable:true,reason:"Marcaste todos los componentes de este objeto.",routeReason:"Se respeta el orden del núcleo de Anti-Mage."};
-   return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.why,routeReason:"Primero completá "+name+"; después se habilita el siguiente objeto del núcleo."};
+ const isAntiMage=build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Manta Style"].includes(x.name));
+ if(isAntiMage){
+  const coreOrder=["Power Treads","Battle Fury","Manta Style"];
+  const owned=new Set(state.owned);
+  const coreTarget=coreOrder.find(name=>!owned.has(name));
+  if(coreTarget){
+   const target=build.find(x=>x.name===coreTarget);
+   if(target)return {target,kind:"complete",name:coreTarget,remaining:0,affordable:null,reason:target.why,routeReason:"Núcleo de Anti-Mage en orden: Power Treads → Battle Fury → Manta Style. Marcá un objeto como comprado cuando esté completo; el oro no se interpreta como componentes."};
   }
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name));
+  const chosen=situational[0];
+  if(chosen)return {target:chosen,kind:"complete",name:chosen.name,remaining:0,affordable:null,reason:chosen.why,routeReason:"El núcleo está completo. La siguiente compra se elige entre respuestas situacionales según el draft y el problema seleccionado."};
+  return {done:true};
  }
  const options=build.filter(x=>!state.owned.includes(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
@@ -459,12 +459,7 @@ function getNextPurchase(build,state){
  const chosen=options[0],alt=options[1];
  if(!chosen.recipe.length)return {target:chosen,kind:"complete",name:chosen.name,cost:chosen.cost,remaining:Math.max(0,chosen.cost-state.gold),affordable:state.gold>=chosen.cost,reason:chosen.condition,alternative:alt};
  if(!chosen.next)return {target:chosen,kind:"complete",name:chosen.name,cost:0,remaining:0,affordable:true,reason:"Todos los componentes marcados; verificá si el objeto ya está completado.",alternative:alt};
- return {
-  target:chosen,kind:"component",name:chosen.next.name,cost:chosen.next.cost,
-  remaining:Math.max(0,chosen.next.cost-state.gold),affordable:state.gold>=chosen.next.cost,
-  reason:chosen.condition,alternative:alt?{target:alt,name:alt.next?alt.next.name:alt.name,cost:alt.next?alt.next.cost:alt.cost,score:alt.decisionScore}:null,
-  routeReason:"La elección pondera urgencia del objeto, oro disponible, progreso de componentes y cercanía a completarlo."
- };
+ return {target:chosen,kind:"component",name:chosen.next.name,cost:chosen.next.cost,remaining:Math.max(0,chosen.next.cost-state.gold),affordable:state.gold>=chosen.next.cost,reason:chosen.condition,alternative:alt?{target:alt,name:alt.next?alt.next.name:alt.name,cost:alt.next?alt.next.cost:alt.cost,score:alt.decisionScore}:null,routeReason:"La elección pondera urgencia, oro disponible y progreso de componentes."};
 }
 function pugnaFinalBuild(matchups,state){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
