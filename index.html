@@ -191,12 +191,16 @@ async function loadHeroes(){
   if(heroLoadPromise)return heroLoadPromise;
   heroLoadPromise=(async function(){
     const status=$('loadStatus');
-    status.textContent='Cargando catálogo de héroes…';
+    status.textContent='Cargando catálogo de héroes… Si OpenDota tarda, se probará una fuente alternativa.';
     const endpoints=[API,'https://api.opendota.com/api/heroes'];
     let lastError=null, loadedFromStats=false;
     for(let i=0;i<endpoints.length;i++){
       try{
-        const response=await fetch(endpoints[i],{cache:'no-store'});
+        const controller=new AbortController();
+        const timeout=setTimeout(()=>controller.abort(),9000);
+        let response;
+        try{response=await fetch(endpoints[i],{cache:'no-store',signal:controller.signal});}
+        finally{clearTimeout(timeout)}
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();
         if(!Array.isArray(data)||data.length<100)throw Error('Catálogo incompleto');
@@ -216,7 +220,7 @@ async function loadHeroes(){
       renderSlots();renderHeroGrid();renderDynamicStateControls();
       return true;
     }
-    status.innerHTML='<span class="error">No se pudo cargar el catálogo ('+esc(lastError?lastError.message:'error de red')+').</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
+    status.innerHTML='<span class="error">No se pudo conectar con las fuentes de héroes ('+esc(lastError?lastError.message:'error de red')+'). Revisá la conexión y volvé a intentar.</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
     $('retryHeroes')?.addEventListener('click',loadHeroes);
     return false;
   })();
