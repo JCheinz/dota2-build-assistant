@@ -186,27 +186,41 @@ let heroes=[], ally=Array(5).fill(null), enemy=Array(5).fill(null), target={team
 const $=id=>document.getElementById(id);
 function heroImage(h){return IMG+h.name.replace('npc_dota_hero_','')+'.png'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let heroLoadPromise=null;
 async function loadHeroes(){
-  const status=$('loadStatus');
-  status.textContent='Cargando héroes desde OpenDota…';
-  const endpoints=[API,'https://api.opendota.com/api/heroes'];
-  let lastError=null;
-  for(const endpoint of endpoints){
-    try{
-      const r=await fetch(endpoint,{cache:'no-store'});
-      if(!r.ok)throw Error('HTTP '+r.status+' en '+endpoint.split('/').pop());
-      const data=await r.json();
-      if(!Array.isArray(data)||!data.length)throw Error('La API devolvió una lista vacía');
-      heroes=data;
-      heroes.sort((a,b)=>(a.localized_name||'').localeCompare(b.localized_name||'','es'));
-      status.textContent=heroes.length+' héroes cargados. Seleccioná los 10 de la partida.';
-      renderSlots(); renderHeroGrid(); renderDynamicStateControls();
-      return;
-    }catch(e){lastError=e}
-  }
-  status.innerHTML='<span class="error">No se pudo conectar con OpenDota ('+esc(lastError?.message||'error de red')+').</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
-  $('retryHeroes')?.addEventListener('click',loadHeroes);
-  $('heroGrid').innerHTML='<p class="hint">No se pudo obtener el catálogo. Revisá la conexión y tocá Reintentar.</p>';
+  if(heroLoadPromise)return heroLoadPromise;
+  heroLoadPromise=(async function(){
+    const status=$('loadStatus');
+    status.textContent='Cargando catálogo de héroes…';
+    const endpoints=[API,'https://api.opendota.com/api/heroes'];
+    let lastError=null, loadedFromStats=false;
+    for(let i=0;i<endpoints.length;i++){
+      try{
+        const response=await fetch(endpoints[i],{cache:'no-store'});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const data=await response.json();
+        if(!Array.isArray(data)||data.length<100)throw Error('Catálogo incompleto');
+        heroes=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&h.localized_name);
+        if(heroes.length<100)throw Error('Catálogo incompleto');
+        heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
+        loadedFromStats=(i===0);
+        renderSlots();
+        renderHeroGrid();
+        renderDynamicStateControls();
+        status.textContent=heroes.length+' héroes disponibles. '+(loadedFromStats?'Estadísticas de héroes cargadas.':'Catálogo cargado; estadísticas adicionales no disponibles por ahora.');
+        return true;
+      }catch(error){lastError=error}
+    }
+    if(heroes.length>=100){
+      status.textContent=heroes.length+' héroes disponibles. Algunas estadísticas no pudieron actualizarse.';
+      renderSlots();renderHeroGrid();renderDynamicStateControls();
+      return true;
+    }
+    status.innerHTML='<span class="error">No se pudo cargar el catálogo ('+esc(lastError?lastError.message:'error de red')+').</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
+    $('retryHeroes')?.addEventListener('click',loadHeroes);
+    return false;
+  })();
+  try{return await heroLoadPromise}finally{heroLoadPromise=null}
 }
 function renderSlots(){
   for(const [team,data] of [['ally',ally],['enemy',enemy]]){
