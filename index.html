@@ -157,7 +157,7 @@
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
 <script>
-const API='https://api.opendota.com/api/heroes';
+const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
 let heroes=[], ally=Array(5).fill(null), enemy=Array(5).fill(null), target={team:'ally',index:0}, lastReport='';
 const $=id=>document.getElementById(id);
@@ -204,7 +204,7 @@ const itemSlugs={
  'Satanic':'satanic','Silver Edge':'silver_edge','Swift Blink':'swift_blink','Mask of Madness':'mask_of_madness',
  'Aghanim’s Scepter':'ultimate_scepter','Monkey King Bar':'monkey_king_bar','Dust of Appearance':'dust',
  'Gem of True Sight':'gem','Mjollnir':'mjollnir','Shiva’s Guard':'shivas_guard','Battle Fury':'bfury',
- 'Pipe of Insight':'pipe','Spirit Vessel':'spirit_vessel','Assault Cuirass':'assault','Heaven’s Halberd':'heavens_halberd',
+ 'Pipe of Insight':'pipe','Crimson Guard':'crimson_guard','Spirit Vessel':'spirit_vessel','Assault Cuirass':'assault','Heaven’s Halberd':'heavens_halberd',
  'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
  'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots'
@@ -497,6 +497,12 @@ function buildAdaptivePlan(hero,role,enemies,live){
  return {fit,fitScore,phase,selected,threatGroups,explanation,threatMagic,threatControl};
 }
 
+function getRankHeroContext(hero,rank){
+ const tier={"Heraldo":"1","Guardián":"2","Crusader":"3","Archon":"4","Legend":"5","Leyenda":"5","Ancient":"6","Ancestro":"6","Divine":"7","Divino":"7","Immortal":"8","Inmortal":"8"}[rank];
+ if(!tier||!hero)return null;
+ const picks=Number(hero[tier+"_pick"]||0),wins=Number(hero[tier+"_win"]||0);
+ return picks>0?{picks,wins,rate:wins/picks*100}:null;
+}
 function analyze(){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean);
@@ -509,10 +515,12 @@ function analyze(){
  if(allies.some(h=>h.name==='npc_dota_hero_disruptor'))synergies.push('Disruptor puede mantener enemigos dentro de una zona; coordiná Nether Blast y Life Drain sin adelantarte.');
  if(allies.some(h=>h.name==='npc_dota_hero_lina'))synergies.push('Lina aporta daño mágico explosivo; Decrepify puede amplificarlo sobre un enemigo, pero impide que aliados le hagan ataques físicos.');
  const isPugnaMid=me.name==='npc_dota_hero_pugna'&&role==='Mid';
+ const rankContext=getRankHeroContext(me,$('rank').value);
+ const rankSummary=rankContext?('OpenDota · '+$('rank').value+': '+rankContext.rate.toFixed(1)+'% de victorias en '+rankContext.picks.toLocaleString('es-AR')+' partidas del héroe, todas las posiciones combinadas.'):('OpenDota: muestra insuficiente para este héroe en el rango seleccionado.');
  const lines=['DOTA 2 BUILD ASSISTANT — ANÁLISIS v2.0','MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),'MINUTO: '+live.minute+' | ORO: '+live.gold+' | PROBLEMA: '+live.problem+' | OBJETOS COMPLETOS: '+live.owned.join(', ')+' | COMPONENTES: '+live.components.join(', '),'Analizá amenazas, plan y build sin inventar estadísticas. Diferenciá lo confirmado de lo condicional.'];
  lastReport=lines.join('\n');
  const html=[];
- html.push('<div class="result-section"><h3>Resumen del draft</h3><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
+ html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(matchups.length){
   const ordered=[...matchups].sort((a,b)=>(a.risk==='ALTA'?-1:1)-(b.risk==='ALTA'?-1:1));
   html.push('<div class="result-section"><h3>Amenazas principales</h3>');
