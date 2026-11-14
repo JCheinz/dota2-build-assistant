@@ -1,24 +1,33 @@
-# Dota 2 Build Assistant — versión 0.5
+# Dota 2 Build Assistant — versión 2.2
 
-Aplicación web progresiva (PWA) para preparar drafts y consultar builds situacionales de Dota 2.
+Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
 
 ## Qué incluye
-- Catálogo de héroes desde la API pública de OpenDota.
+- Catálogo de héroes desde OpenDota.
 - Selección visual de 5 aliados y 5 enemigos.
-- Selección de héroe propio, posición, modo (Ranked/Turbo) y rango.
-- Interfaz renovada, adaptable a PC y Android.
-- Perfiles orientativos para Pugna Mid, Drow Carry y Luna Carry.
-- Iconos de objetos en una build final simplificada, con prioridades y compras condicionales.
-- Reglas heurísticas de amenazas específicas y sinergias para algunos drafts.
+- Elección del héroe propio y cualquiera de las cinco posiciones.
+- Modos Ranked y Turbo, con rango como contexto.
+- Motor de análisis unificado para todos los héroes y posiciones.
+- Perfiles específicos cuando están disponibles (Pugna Mid, Drow Carry, Luna Carry, Bristleback Offlane y Techies en las posiciones configuradas).
+- Para el resto de combinaciones, una ruta heurística por rol, arquetipo, tipo de ataque, fase de partida y amenazas detectadas.
+- Recomendaciones situacionales separadas de la ruta principal.
+- Estado de partida: minuto, oro, problema actual, objetos completos y componentes.
 - Exportación del draft y contexto para continuar el análisis con ChatGPT.
-- Service worker con comprobación de actualizaciones y limpieza de cachés anteriores.
+- Diseño adaptable a escritorio y Android; service worker con actualización de HTML y limpieza de cachés anteriores.
 
-## Limitaciones
-- Es una PWA, no un APK nativo.
-- Requiere conexión para cargar el catálogo e imágenes.
-- El análisis de amenazas y las builds son heurísticos; no son estadísticas verificadas por rango ni builds certificadas por parche.
-- La build específica adaptada al draft está disponible inicialmente para Pugna Mid; otros héroes conservan perfiles base o indicaciones generales.
-- El selector de rango contextualiza el análisis, pero todavía no filtra datos estadísticos por bracket.
+## Cómo interpretar las recomendaciones
+- Verde: hasta tres prioridades calculadas para la combinación actual.
+- Azul: complementos y respuestas situacionales; no son compras obligatorias.
+- Los objetos marcados como comprados se excluyen de la ruta pendiente.
+- La próxima prioridad es un objetivo estratégico, no una orden de compra ni una comprobación de precio en vivo.
+
+## Limitaciones transparentes
+- Las posiciones se estiman con roles generales de OpenDota; no son estadísticas de lane ni garantizan que una elección sea meta.
+- Las rutas son heurísticas y no builds certificadas por rango, posición o parche.
+- Los counters específicos solo aparecen cuando hay una regla táctica cargada; para otros rivales se muestran señales generales sin inventar counters.
+- El oro ingresado se muestra como contexto, pero la aplicación no consulta precios de objetos en vivo ni calcula todavía todas las recetas y componentes de cada objeto.
+- Los datos de victorias por rango, cuando están disponibles, son agregados del héroe y no están separados por posición.
+- Requiere conexión para cargar el catálogo e imágenes. No es un APK nativo.
 - No está afiliada a Valve ni a Dota 2.
 
 ## Publicar e instalar en Android
@@ -26,14 +35,4 @@ Aplicación web progresiva (PWA) para preparar drafts y consultar builds situaci
 2. Abrí la URL desde Chrome en Android.
 3. Menú ⋮ → «Instalar aplicación» o «Añadir a pantalla de inicio».
 
-Al publicar cambios, incrementá la versión de caché en `sw.js`.
-
-
-## Motor adaptable 2.0
-- Carga catálogo de héroes y estadísticas por rango desde OpenDota `/heroStats`.
-- Estima compatibilidad de las cinco posiciones usando los roles generales del héroe (Carry, Support, Nuker, Initiator, Durable, etc.).
-- Genera una ruta de objetos ponderada por posición, atributos generales, tipo de ataque, fase de partida y señales del draft rival.
-- Mantiene reglas de amenazas específicas cuando existen y evita inventar counters cuando no hay reglas.
-- Muestra contexto de victorias/partidas por rango del héroe, combinado entre posiciones.
-
-**Limitaciones transparentes:** los roles generales de OpenDota no son estadísticas de lane. La compatibilidad de posición y la selección de objetos son heurísticas; todavía no equivalen a builds verificadas por posición, parche y bracket. El motor no debe presentar una posición como meta confirmada sin datos de lane suficientes.
+Al publicar cambios del service worker, incrementá la versión de caché en `sw.js`.
