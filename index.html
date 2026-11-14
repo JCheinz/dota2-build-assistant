@@ -440,10 +440,10 @@ function getNextPurchase(build,state){
    if(!target)return {done:true};
    const recipe=itemRecipes[coreTarget]||[];
    const missing=recipe.filter(part=>!state.components.includes(part.name));
-   if(missing.length){
-    const next=missing[0];
-    const remaining=missing.reduce((sum,part)=>sum+part.cost,0);
-    return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,remainingCost:remaining,reason:target.why,routeReason:"Ruta de Anti-Mage en orden: Power Treads → Battle Fury → Yasha → Manta Style. Marcá los componentes que ya tenés y el objeto completo cuando lo termines."};
+   const remainingCost=missing.reduce((sum,part)=>sum+part.cost,0);
+   if(missing.length&&state.gold<remainingCost){
+    const next=missing.find(part=>state.gold>=part.cost)||missing[0];
+    return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,remainingCost,reason:target.why,routeReason:"Ruta de Anti-Mage en orden: Power Treads → Battle Fury → Yasha → Manta Style. Marcá los componentes que ya tenés y el objeto completo cuando lo termines."};
    }
    const remainingCost=Math.max(0,(target.cost||0)-recipe.reduce((sum,part)=>sum+part.cost,0));
    return {target,kind:"complete",name:coreTarget,cost:remainingCost,remaining:Math.max(0,remainingCost-state.gold),affordable:state.gold>=remainingCost,reason:target.why,routeReason:"Los componentes indicados están marcados. Completá el objeto y luego marcá el objeto entero como comprado para avanzar."};
