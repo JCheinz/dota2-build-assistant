@@ -1,6 +1,13 @@
-# Dota 2 Build Assistant — versión 3.5
+# Dota 2 Build Assistant — versión 3.6
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 3.6
+- Separación visual y lógica entre ruta principal del héroe y compras situacionales.
+- La compra de línea de Pugna (Bottle o Magic Wand) es condicional y solo una puede encabezar la ruta; Null Talisman deja de desplazar automáticamente el núcleo.
+- Arcane Boots y Aether Lens conservan prioridad de progresión para Pugna Mid; Aghanim’s Shard pasa a alternativa según situación.
+- Recalculo de próxima compra con orden de progresión para héroes con ruta definida, inventario y componentes marcados.
+- Evita mostrar cálculos de oro ficticios cuando el objeto no tiene receta/costo configurado.
 
 ## Novedades de la versión 3.5
 - Interacciones específicas entre héroe propio y enemigo para Pugna y Anti-Mage frente a Anti-Mage, Bristleback, Lion, Sniper y Tidehunter.
@@ -44,8 +51,9 @@ Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar com
 - Diseño adaptable a escritorio y Android; service worker con actualización de HTML y limpieza de cachés anteriores.
 
 ## Cómo interpretar las recomendaciones
-- Verde: hasta tres prioridades calculadas para la combinación actual.
-- Azul: complementos y respuestas situacionales; no son compras obligatorias.
+- Ruta principal: progresión del héroe y su posición; el orden se adapta a la fase de partida.
+- Compras situacionales: alternativas que solo se adelantan cuando una amenaza concreta o una necesidad del equipo lo justifica.
+- Verde: prioridades actuales. Azul: complementos o respuestas condicionales.
 - Los objetos marcados como comprados se excluyen de la ruta pendiente.
 - La próxima prioridad es un objetivo estratégico, no una orden de compra ni una comprobación de precio en vivo.
 
