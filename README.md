@@ -1,6 +1,11 @@
-# Dota 2 Build Assistant — versión 3.4
+# Dota 2 Build Assistant — versión 3.5
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 3.5
+- Interacciones específicas entre héroe propio y enemigo para Pugna y Anti-Mage frente a Anti-Mage, Bristleback, Lion, Sniper y Tidehunter.
+- El informe distingue amenazas generales de interacciones concretas del enfrentamiento y ajusta consejos de posicionamiento, uso de habilidades y ventanas de entrada.
+- Se aclaran límites de respuestas como Linken’s Sphere, Manta Style y Ethereal Blade para evitar tratarlas como counters universales.
 
 ## Novedades de la versión 3.4
 - Evaluación de amenazas personalizada según vulnerabilidades del héroe elegido y su posición.
