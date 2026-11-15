@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.13</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.14</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -303,6 +303,28 @@ const heroPlans = {
 "npc_dota_hero_bristleback|Offlane": {title:"Bristleback Offlane · resistencia y presión sostenida",early:[["Bracer","Atributos y resistencia para estabilizar la línea; ajustá la cantidad según el intercambio."],["Magic Wand","Sustain ante rivales que generan cargas."],["Soul Ring","Maná para mantener Quill Spray y Viscous Nasal Goo; no lo fuerces si la vida te queda demasiado baja."],["Power Treads","Botas de atributos y velocidad de ataque; cambiá a Phase Boots si necesitás más movilidad." ]],core:[["Vanguard","Mitigación contra ataques y daño repetido; priorizalo si la presión física de línea lo justifica."],["Aghanim’s Scepter","Mejora del kit para pelear y presionar; evaluá el timing frente a objetos defensivos."],["Lotus Orb","Dispel y respuesta situacional ante hechizos dirigidos."],["Sange and Yasha","Resistencia, movilidad y estadísticas para sostener peleas."]],situational:[["Blade Mail","Si los rivales te enfocan y te hacen daño mientras entrás primero."],["Pipe of Insight","Si el daño mágico en área amenaza a tu equipo."],["Crimson Guard","Si sufrís muchos ataques rápidos, unidades o ilusiones."],["Black King Bar","Si el control mágico impide que sigas peleando."],["Heart of Tarrasque","Si necesitás aguante y regeneración para ocupar espacio."],["Shiva’s Guard","Contra velocidad de ataque, curación o daño físico que justifique la armadura."]],note:"Ruta orientativa de Bristleback posición 3. No compres todo: elegí Vanguard/Blade Mail contra presión física, Pipe contra daño mágico grupal y Lotus contra hechizos dirigidos. La secuencia exacta depende de la línea y del draft."},
 };
 function getHeroPlan(hero,role){return heroPlans[hero.name+"|"+role]||null;}
+function getHeroSpecialization(hero,role){
+ const plan=getHeroPlan(hero,role),roles=new Set(hero.roles||[]),ranged=hero.attack_type==="Ranged";
+ const attr=({str:"Fuerza",agi:"Agilidad",int:"Inteligencia",all:"Universal"})[hero.primary_attr]||"atributo no informado";
+ const identity=[attr,ranged?"ataque a distancia":"ataque cuerpo a cuerpo",...(hero.roles||[])].filter(Boolean),strengths=[],risks=[];
+ if(roles.has("Carry"))strengths.push("escalado con objetos y daño sostenido");
+ if(roles.has("Nuker"))strengths.push("daño mediante habilidades");
+ if(roles.has("Disabler"))strengths.push("control o interrupción");
+ if(roles.has("Initiator"))strengths.push("capacidad de iniciar peleas");
+ if(roles.has("Durable"))strengths.push("resistencia para permanecer en combate");
+ if(roles.has("Escape"))strengths.push("movilidad o herramientas de escape");
+ if(roles.has("Support"))strengths.push("utilidad y apoyo al equipo");
+ if(roles.has("Pusher"))strengths.push("presión sobre líneas y estructuras");
+ if(!strengths.length)strengths.push("perfil táctico todavía poco definido por los datos disponibles");
+ if(role==="Carry")risks.push("necesita tiempo y espacio para alcanzar sus objetos clave");
+ if(role==="Mid")risks.push("la presión de línea y las rotaciones pueden alterar su ritmo");
+ if(role==="Offlane")risks.push("debe equilibrar iniciación, resistencia y utilidad");
+ if(role.startsWith("Support"))risks.push("recursos limitados: priorizá utilidad y supervivencia antes que acumular objetos caros");
+ risks.push(ranged?"si lo alcanzan, el posicionamiento puede ser más importante que el daño adicional":"necesita elegir bien cuándo entrar y cómo salir del combate");
+ const style=role==="Carry"?(ranged?"Carry a distancia":"Carry cuerpo a cuerpo"):role==="Mid"?(roles.has("Nuker")?"Mid de daño por habilidades":roles.has("Escape")?"Mid móvil":"Mid de perfil mixto"):role==="Offlane"?(roles.has("Initiator")?"Offlane iniciador":roles.has("Durable")?"Offlane resistente":"Offlane de utilidad"):roles.has("Disabler")?"Support de control":roles.has("Nuker")?"Support de daño y habilidades":"Support de utilidad";
+ return {heroId:hero.name.replace("npc_dota_hero_",""),heroName:hero.localized_name,role,identity,style,strengths:strengths.slice(0,4),risks:risks.slice(0,2),plan,level:plan?"ESPECIALIZACIÓN EXPLÍCITA":"PERFIL POR ARQUETIPO",source:plan?"Ruta individual cargada para este héroe y posición.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; todavía no equivale a una guía individual de habilidades.",principle:plan?plan.note:"La ruta de compra debe ajustarse a su función, fase de partida, draft e inventario. No se inventan habilidades, combos ni talentos cuando no hay un perfil verificado."};
+}
+
 function renderHeroPlan(plan){
  const section=(heading,items)=>'<div class="result-section"><h3>'+heading+'</h3>'+renderItemCards(items)+'</div>';
  return '<div class="result-section"><h3>'+esc(plan.title)+'</h3></div>'+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
@@ -1040,7 +1062,8 @@ function buildAdaptivePlan(hero,role,enemies,live){
  }));
  const threatItems=[...threatItemScores.entries()].sort((a,b)=>b[1].score-a[1].score).slice(0,6)
   .map(([name,data])=>({name,why:"Respuesta contextual: "+data.why.slice(0,2).join("; ")+". Confirmá que el efecto del objeto resuelva esa amenaza y que tu héroe lo aproveche.",roles:[role],tags:["threat-response"],threatSpecific:true,threatWeight:data.score}));
- const heroPlan=getHeroPlan(hero,role);
+ const specialization=getHeroSpecialization(hero,role);
+ const heroPlan=specialization.plan;
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada"}))]:[];
  const plannedItems=heroRoute.map(x=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true}));
  const heroRoles=new Set(hero.roles||[]);
@@ -1201,7 +1224,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
  const mainRoute=selected.filter(x=>(x.heroSpecific&&x.stage!=="Avanzada")||x.roleBaseline||(x.heroArchetype&&["Power Treads","Phase Boots","Arcane Boots","Vanguard","Blink Dagger","Dragon Lance","Battle Fury"].includes(x.name)));
  const situational=selected.filter(x=>!mainRoute.includes(x));
- return {fit,fitScore,phase,selected,mainRoute,situational,threatGroups,matchupContext,explanation,threatMagic,threatControl};
+ return {fit,fitScore,phase,selected,mainRoute,situational,threatGroups,matchupContext,explanation,threatMagic,threatControl,specialization};
 }
 
 function getRankHeroContext(hero,rank){
@@ -1223,11 +1246,12 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.13',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.14',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
   'ESTADO: minuto '+live.minute+' | oro '+live.gold+' | problema '+live.problem,
+  'PERFIL TÁCTICO: '+adaptive.specialization.style+' | '+adaptive.specialization.level+' | '+adaptive.specialization.source,
   'INVENTARIO: '+(live.owned.join(', ')||'no informado')+' | COMPONENTES: '+(live.components.join(', ')||'no informados'),
   'RUTA SUGERIDA: '+adaptive.selected.map(x=>x.name+(x.priority?' [PRIORIDAD]':' [SITUACIONAL]')).join(' → '),
   'AMENAZAS CONTEXTUALES: '+matchups.map(m=>m.hero.localized_name+' ('+m.risk+' '+m.threat.score.toFixed(1)+'/20; impacto: '+((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(', ')||'sin vulnerabilidad específica identificada')+')').join(' | '),
@@ -1251,7 +1275,7 @@ function analyze(options={}){
   matchups.forEach((m,index)=>html.push('<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · Amenaza '+esc(m.risk)+' · '+esc(m.threat.score.toFixed(1))+'/20</b><br><span style="color:#f0c46f">Mecánicas detectadas: '+esc((m.mechanics||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'evaluación general')+'</span><p style="margin:6px 0 0"><b>Qué la hace peligrosa:</b> '+esc(m.detail)+'</p><p style="margin:6px 0 0">'+esc(m.advice)+'</p><p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p>'+(m.pairSpecific?'<p style="margin:6px 0 0;color:#8fd6ad"><b>Interacción específica:</b> perfil ajustado para este enfrentamiento.</p>':'')+'<small>Prioridad relativa para '+esc(me.localized_name)+' · '+esc(role)+'. Vulnerabilidades coincidentes: '+esc((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'ninguna identificada')+'. Es una estimación táctica, no una predicción del resultado.</small></div>'));
   html.push('</div>');
  }else html.push('<div class="result-section"><h3>Amenazas</h3><p class="hint">No hay una regla táctica específica cargada para estos rivales. Se consideran sus arquetipos generales, pero no se inventa un counter individual.</p></div>');
- html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><p class="hint"><b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p><h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(adaptive.situational)+'</div>');
+ html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><div class="item-card" style="display:block;margin:8px 0"><div class="item-copy"><b>Perfil táctico · '+esc(adaptive.specialization.style)+'</b><small>'+esc(adaptive.specialization.level)+'</small><span>'+esc(adaptive.specialization.source)+'</span><span><b>Fortalezas:</b> '+esc(adaptive.specialization.strengths.join(' · '))+'</span><span><b>Atención:</b> '+esc(adaptive.specialization.risks.join(' · '))+'</span></div></div><p class="hint"><b>Identidad del héroe:</b> '+esc(adaptive.specialization.identity.join(' · '))+'. <b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p><h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(adaptive.situational)+'</div>');
  if(next){
   const goldNote=live.gold>0?live.gold.toLocaleString('es-AR')+' de oro disponible. La compra se calcula con los componentes marcados y los costos configurados en la ruta.':'Ingresá tu oro actual para evaluar tu capacidad de compra.';
   html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):(next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':'SIGUIENTE OBJETIVO')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">La recomendación pondera fase de partida, orden del perfil del héroe, urgencia contra el draft, componentes que ya tenés y oro disponible. No compra automáticamente una defensa por detectar una amenaza.</p><p class="hint">¿Cambió la partida? Actualizá minuto, oro, inventario y problema en «Estado actual» y recalculá.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
@@ -1267,7 +1291,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.13 · alinea la decisión defensiva con el problema seleccionado y prioriza respuestas condicionales verificables. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.14 · incorpora una capa común de especialización táctica por héroe y posición, con perfiles explícitos y fallback conservador por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
