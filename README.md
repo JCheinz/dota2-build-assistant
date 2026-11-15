@@ -1,4 +1,10 @@
-# Dota 2 Build Assistant — versión 3.14
+# Dota 2 Build Assistant — versión 3.15
+
+## Novedades de la versión 3.15
+- Se extraen las especializaciones individuales a `specializations.js`, separadas del motor común.
+- El motor consulta el registro por combinación héroe/posición y conserva el fallback general cuando no existe un perfil individual.
+- Pugna Mid es el primer perfil migrado; la interfaz y la guía existente se mantienen.
+
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
 
