@@ -1029,6 +1029,8 @@ function analyze(options={}){
   'ESTADO: minuto '+live.minute+' | oro '+live.gold+' | problema '+live.problem,
   'INVENTARIO: '+(live.owned.join(', ')||'no informado')+' | COMPONENTES: '+(live.components.join(', ')||'no informados'),
   'RUTA SUGERIDA: '+adaptive.selected.map(x=>x.name+(x.priority?' [PRIORIDAD]':' [SITUACIONAL]')).join(' → '),
+  'AMENAZAS CONTEXTUALES: '+matchups.map(m=>m.hero.localized_name+' ('+m.risk+' '+m.threat.score.toFixed(1)+'/20; impacto: '+((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(', ')||'sin vulnerabilidad específica identificada')+')').join(' | '),
+  'RESPUESTAS DE OBJETOS: '+adaptive.selected.filter(x=>x.threatSpecific).map(x=>x.name+' — '+x.why).join(' | '),
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
