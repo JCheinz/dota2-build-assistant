@@ -1057,7 +1057,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  }
  const phase=live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada";
  const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
- const mainRoute=selected.filter(x=>x.heroSpecific&&x.stage!=="Avanzada");
+ const mainRoute=selected.filter(x=>(x.heroSpecific&&x.stage!=="Avanzada")||x.roleBaseline||(x.heroArchetype&&["Power Treads","Phase Boots","Arcane Boots","Vanguard","Blink Dagger","Dragon Lance","Battle Fury"].includes(x.name)));
  const situational=selected.filter(x=>!mainRoute.includes(x));
  return {fit,fitScore,phase,selected,mainRoute,situational,threatGroups,matchupContext,explanation,threatMagic,threatControl};
 }
