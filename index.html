@@ -860,10 +860,23 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const threatMagic=enemyRoles.has("Nuker"),threatControl=enemyRoles.has("Disabler"),threatInitiation=enemyRoles.has("Initiator");
  const ranged=hero.attack_type==="Ranged",carry=role==="Carry",support=role.startsWith("Support"),off=role==="Offlane",mid=role==="Mid";
  const threatGroups=getDraftCounterRecommendations(enemies);
+ const matchupContext=getMatchupData(hero,enemies,role,live.minute);
  const selectedProblem=live.problem;
  const focusedEnemy=selectedProblem.startsWith("enemy:")?selectedProblem.slice(6):null;
  const focusedGroup=focusedEnemy?threatGroups.filter(g=>enemies.some(h=>h.name.endsWith(focusedEnemy)&&g.label.startsWith(h.localized_name))):[];
  const focusedItems=focusedGroup.flatMap(g=>g.items.map(x=>({name:x[0],roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["save","control","magic","survival"],why:x[1]})));
+ // Respuestas situacionales basadas en mecánicas que coinciden con debilidades del héroe.
+ const threatItemScores=new Map();
+ matchupContext.forEach(m=>(m.threat.matched||[]).slice(0,3).forEach(mechanic=>{
+  (mechanicCounters[mechanic]||[]).forEach((name,index)=>{
+   const weight=(m.threat.fit||0)*0.55+(m.threat.score||0)*0.12-index*0.7;
+   const prev=threatItemScores.get(name)||{score:0,why:[]};
+   prev.score+=Math.max(0.4,weight);prev.why.push(m.hero.localized_name+": "+(mechanicLabels[mechanic]||mechanic));
+   threatItemScores.set(name,prev);
+  });
+ }));
+ const threatItems=[...threatItemScores.entries()].sort((a,b)=>b[1].score-a[1].score).slice(0,6)
+  .map(([name,data])=>({name,why:"Respuesta contextual: "+data.why.slice(0,2).join("; ")+". Confirmá que el efecto del objeto resuelva esa amenaza y que tu héroe lo aproveche.",roles:[role],tags:["threat-response"],threatSpecific:true,threatWeight:data.score}));
  const heroPlan=getHeroPlan(hero,role);
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada"}))]:[];
  const plannedItems=heroRoute.map(x=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true}));
@@ -910,7 +923,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  }
  const rolePhase=getUniversalRolePlan(role,live.minute);
  const roleItems=rolePhase.items.map(x=>({name:x[0],why:x[1],stage:rolePhase.phase,roles:[role],tags:["role-baseline"],roleBaseline:true}));
- const candidates=[...(heroPlan?[]:roleItems),...plannedItems,...focusedItems,...archetypeItems,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const candidates=[...(heroPlan?[]:roleItems),...plannedItems,...focusedItems,...threatItems,...archetypeItems,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
@@ -919,6 +932,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
   if(x.heroArchetype)score+=2.6;
   if(x.roleBaseline)score+=1.35;
+  if(x.threatSpecific)score+=Math.min(4.2,x.threatWeight||0);
   const tags=x.tags;
   if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
   if(tags.includes("magic")&&threatMagic)score+=1.3;
@@ -972,7 +986,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  }
  const phase=live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada";
  const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
- return {fit,fitScore,phase,selected,threatGroups,explanation,threatMagic,threatControl};
+ return {fit,fitScore,phase,selected,threatGroups,matchupContext,explanation,threatMagic,threatControl};
 }
 
 function getRankHeroContext(hero,rank){
@@ -1009,7 +1023,7 @@ function analyze(options={}){
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(matchups.length){
   html.push('<div class="result-section"><h3>Amenazas detectadas</h3>');
-  matchups.forEach((m,index)=>html.push('<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · Amenaza '+esc(m.risk)+' · '+esc(m.threat.score.toFixed(1))+'/20</b><br><span style="color:#f0c46f">Mecánicas detectadas: '+esc((m.mechanics||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'evaluación general')+'</span><p style="margin:6px 0 0"><b>Qué la hace peligrosa:</b> '+esc(m.detail)+'</p><p style="margin:6px 0 0">'+esc(m.advice)+'</p><p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p><small>Prioridad relativa para '+esc(me.localized_name)+' · '+esc(role)+'. Es una estimación táctica, no una predicción del resultado.</small></div>'));
+  matchups.forEach((m,index)=>html.push('<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · Amenaza '+esc(m.risk)+' · '+esc(m.threat.score.toFixed(1))+'/20</b><br><span style="color:#f0c46f">Mecánicas detectadas: '+esc((m.mechanics||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'evaluación general')+'</span><p style="margin:6px 0 0"><b>Qué la hace peligrosa:</b> '+esc(m.detail)+'</p><p style="margin:6px 0 0">'+esc(m.advice)+'</p><p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p><small>Prioridad relativa para '+esc(me.localized_name)+' · '+esc(role)+'. Vulnerabilidades coincidentes: '+esc((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'ninguna identificada')+'. Es una estimación táctica, no una predicción del resultado.</small></div>'));
   html.push('</div>');
  }else html.push('<div class="result-section"><h3>Amenazas</h3><p class="hint">No hay una regla táctica específica cargada para estos rivales. Se consideran sus arquetipos generales, pero no se inventa un counter individual.</p></div>');
  html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><p class="hint"><b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p><h3>Ruta de objetos · '+esc(adaptive.phase)+'</h3><p class="hint"><span style="color:#71e6a3;font-weight:800">Verde: hasta 3 prioridades.</span> <span style="color:#82bfff;font-weight:800">Azul: complementos o respuestas condicionales.</span> Los objetos marcados como comprados se excluyen de la ruta pendiente.</p>'+renderItemCards(adaptive.selected)+'</div>');
