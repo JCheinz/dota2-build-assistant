@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.9</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.10</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -700,6 +700,8 @@ function getMatchupData(me,enemies,role="Mid",minute=0){
 function buildThreatPriority(matchups,me,role,allies){
  const hardControlCount=matchups.filter(m=>(m.mechanics||[]).includes("hard_control")).length;
  const initiationCount=matchups.filter(m=>(m.mechanics||[]).includes("initiation")).length;
+ const pickoffCount=matchups.filter(m=>(m.mechanics||[]).includes("pickoff")).length;
+ const engageCount=matchups.filter(m=>(m.mechanics||[]).some(x=>["initiation","pickoff","global_initiation"].includes(x))).length;
  const silenceCount=matchups.filter(m=>(m.mechanics||[]).includes("silence")).length;
  const controlSaturation=hardControlCount>=4?"MUY ALTA":hardControlCount>=3?"ALTA":hardControlCount>=2?"MEDIA":"LIMITADA";
  const hasOracle=allies.some(h=>h.name==="npc_dota_hero_oracle");
@@ -721,6 +723,9 @@ function buildThreatPriority(matchups,me,role,allies){
   if(mechanics.has("initiation")&&mechanics.has("hard_control")){
    focus="Puede iniciar la pelea y encadenar control; su primera entrada puede dejarte sin ventana para responder.";
    response="No te agrupes con todo el equipo. Esperá a que muestre su iniciación o que la gaste antes de avanzar.";
+  }else if(mechanics.has("pickoff")&&mechanics.has("hard_control")){
+   focus="Puede iniciar una captura desde un ángulo inesperado y mantenerte controlado; su amenaza depende mucho de la visión y de encontrar un objetivo aislado.";
+   response="Jugá detrás de la primera línea, mantené visión de los accesos y evitá caminar solo por zonas oscuras.";
   }else if(mechanics.has("hard_control")&&mechanics.has("burst")){
    focus="Puede fijarte con control y convertir esa ventana en daño explosivo.";
    response="Jugá detrás de la primera línea y reservá una respuesta defensiva para cuando aparezca.";
@@ -738,7 +743,7 @@ function buildThreatPriority(matchups,me,role,allies){
   if(hasMars&&mechanics.has("pickoff"))response+=" Mars puede ayudar a iniciar o cortar el acceso; coordiná la respuesta en vez de perseguir solo.";
   return {...m,priorityScore:Math.round(score*10)/10,priorityLabel:score>=13?"CRÍTICA":score>=10?"MUY ALTA":score>=8?"ALTA":score>=6?"MEDIA":"BAJA",focus,response};
  }).sort((a,b)=>b.priorityScore-a.priorityScore);
- return {ranked,hardControlCount,initiationCount,silenceCount,controlSaturation};
+ return {ranked,hardControlCount,initiationCount,pickoffCount,engageCount,silenceCount,controlSaturation};
 }
 function buildPurchaseDecision(me,role,matchups,priority,live){
  const id=me.name.replace("npc_dota_hero_","");
@@ -748,10 +753,10 @@ function buildPurchaseDecision(me,role,matchups,priority,live){
  const hasSilence=priority.ranked.some(m=>(m.mechanics||[]).includes("silence"));
  const hasZone=priority.ranked.some(m=>(m.mechanics||[]).includes("zone"));
  const hasBurst=priority.ranked.some(m=>(m.mechanics||[]).includes("burst"));
- const hasInitiation=priority.initiationCount>=2;
+ const hasEngage=priority.engageCount>=2;
  const candidates=[];
- if(hasBurst&&(ids.has("lion")||ids.has("shadow_shaman")||ids.has("tidehunter"))){
-  candidates.push({name:"Aeon Disk",status:"CONDICIONAL",reason:"Consideralo si la combinación de iniciación y daño te baja antes de que puedas responder. No lo compres solo porque haya mucho control: no elimina ni impide por sí mismo una cadena de disables.",trigger:"Morís por burst encadenado antes de lanzar Decrepify, Nether Blast o retirarte."});
+ if(hasBurst&&(ids.has("lion")||ids.has("shadow_shaman")||ids.has("tidehunter")||ids.has("pudge"))){
+  candidates.push({name:"Aeon Disk",status:"CONDICIONAL · NO PRIORITARIA POR DRAFT",reason:"El draft tiene herramientas de control y daño, pero eso no demuestra que Aeon Disk sea tu primera compra. Mantenelo como respuesta si el burst encadenado realmente te elimina antes de actuar.",trigger:"En varias peleas morís desde una cantidad alta de vida antes de poder usar Decrepify, Nether Blast o reposicionarte."});
  }
  if(hasSilence&&hasZone){
   candidates.push({name:"Black King Bar",status:"CONDICIONAL",reason:"Puede ser una respuesta si los silencios o zonas te impiden usar habilidades, pero primero verificá qué efectos concretos contrarresta la inmunidad vigente del objeto en el parche.",trigger:"Static Storm u otro efecto de zona te deja sin poder actuar y BKB sí cubre esa interacción."});
@@ -759,11 +764,10 @@ function buildPurchaseDecision(me,role,matchups,priority,live){
  if(ids.has("pudge")){
   candidates.push({name:"Linken’s Sphere",status:"NO AUTOMÁTICO",reason:"No la compres solo por Meat Hook: no resuelve todas las amenazas del draft y otros controles pueden consumir el bloqueo.",trigger:"Pudge te selecciona repetidamente con una habilidad bloqueable y el bloqueo cambia el resultado de la captura."});
  }
- if(hasControl&&hasInitiation){
-  candidates.push({name:"Force Staff",status:"ALTERNATIVA",reason:"Puede ayudar a reposicionarte fuera de algunos ángulos o zonas, pero no garantiza escapar de control y Glimpse puede revertir tu posición.",trigger:"La distancia o el reposicionamiento te permite evitar una entrada o salir de una zona antes de quedar controlado."});
+ if(hasControl&&hasEngage){
+  candidates.push({name:"Force Staff",status:"ALTERNATIVA",reason:"Puede ayudar a reposicionarte antes de que conecte una iniciación o captura, pero no garantiza escapar una vez que estás controlado y Glimpse puede revertir tu posición.",trigger:"Podés usarlo antes de recibir el control para romper línea de visión, salir de un ángulo de Hook o evitar quedar dentro de una zona."});
  }
- const primary=candidates.find(x=>x.name==="Aeon Disk"&&hasBurst)||candidates.find(x=>x.name==="Black King Bar")||candidates.find(x=>x.name==="Force Staff")||null;
- return {hasControl,hasSilence,hasZone,hasBurst,hasInitiation,candidates,primary,summary:hasControl?"El draft exige posicionamiento y respeto a las cadenas de control, pero el número de disables por sí solo no obliga a comprar una defensa.":"No se detecta una saturación de control que justifique alterar automáticamente el núcleo."};
+ return {hasControl,hasSilence,hasZone,hasBurst,hasEngage,candidates,primary:null,summary:hasControl?"Hay mucha capacidad de control, pero el draft por sí solo no justifica comprar automáticamente una defensa. La primera compra defensiva queda pendiente de lo que realmente te esté matando en partida.":"No se detecta una saturación de control que justifique alterar automáticamente el núcleo."};
 }
 function uniqueItems(items){
  const seen=new Set();
@@ -1189,7 +1193,7 @@ function analyze(options={}){
  if(allyRoles.includes('Support'))synergies.push('Hay héroes de apoyo en tu equipo: aprovechá su visión, salvación y control; no los obligues a iniciar solos.');
  if(allies.some(h=>h.attack_type==='Ranged'&&h.id!==me.id))synergies.push('Tu equipo tiene daño a distancia: evitá iniciar demasiado lejos de tus aliados y buscá peleas donde puedan seguir tu entrada.');
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.9',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.10',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1207,9 +1211,9 @@ function analyze(options={}){
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
-  html.push('<div class="result-section"><h3>Decisión de compra defensiva</h3><p class="hint">'+esc(purchaseDecision.summary)+'</p>'+(primary?'<div class="item-card priority">'+renderItemIcon(primary.name)+'<div class="item-copy"><b>'+esc(primary.name)+' · '+esc(primary.status)+'</b><span>'+esc(primary.reason)+'</span><small>Comprala solo si: '+esc(primary.trigger)+'</small></div></div>':'<p class="hint"><b>Decisión actual:</b> no alterar el núcleo con una defensa automática. Primero completá la progresión y observá qué control realmente te impide actuar.</p>')+purchaseDecision.candidates.filter(x=>!primary||x.name!==primary.name).map(x=>'<div class="item-card"><div class="item-copy"><b>'+esc(x.name)+' · '+esc(x.status)+'</b><span>'+esc(x.reason)+'</span><small>Condición: '+esc(x.trigger)+'</small></div></div>').join('')+'<p class="hint">Regla: una amenaza detectada no equivale automáticamente a una compra. Evitá acumular varias defensas que no resuelven el mismo problema.</p></div>');
+  html.push('<div class="result-section"><h3>Decisión de compra defensiva</h3><p class="hint">'+esc(purchaseDecision.summary)+'</p>'+(primary?'<div class="item-card priority">'+renderItemIcon(primary.name)+'<div class="item-copy"><b>'+esc(primary.name)+' · '+esc(primary.status)+'</b><span>'+esc(primary.reason)+'</span><small>Comprala solo si: '+esc(primary.trigger)+'</small></div></div>':'<p class="hint"><b>Decisión actual:</b> no hay una defensa prioritaria demostrada por el draft. Conservá el núcleo y registrá qué habilidad o combinación te elimina antes de elegir una respuesta.</p>')+purchaseDecision.candidates.filter(x=>!primary||x.name!==primary.name).map(x=>'<div class="item-card"><div class="item-copy"><b>'+esc(x.name)+' · '+esc(x.status)+'</b><span>'+esc(x.reason)+'</span><small>Condición: '+esc(x.trigger)+'</small></div></div>').join('')+'<p class="hint">Regla: una amenaza detectada no equivale automáticamente a una compra. Evitá acumular varias defensas que no resuelven el mismo problema.</p></div>');
  }
- html.push('<div class="result-section"><h3>Prioridad de amenazas · '+esc(threatPriority.controlSaturation)+' saturación de control</h3><p class="hint">El orden combina el riesgo individual con la capacidad de iniciar, encadenar control, silenciar o cerrar zonas. Es una prioridad táctica heurística, no una probabilidad de muerte.</p><div class="chips"><span class="chip">Control duro: '+threatPriority.hardControlCount+'/5</span><span class="chip">Iniciadores: '+threatPriority.initiationCount+'</span><span class="chip">Silencios: '+threatPriority.silenceCount+'</span></div>'+threatPriority.ranked.map((m,index)=>'<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · '+esc(m.priorityLabel)+' · '+esc(m.priorityScore.toFixed(1))+'</b><p style="margin:6px 0 0"><b>Por qué sube:</b> '+esc(m.focus)+'</p><p style="margin:6px 0 0"><b>Respuesta:</b> '+esc(m.response)+'</p></div>').join('')+'<p class="hint"><b>Apoyo aliado:</b> '+(allies.some(h=>h.name==="npc_dota_hero_oracle")?'Oracle aporta una salvación; coordiná su uso para la cadena de control más peligrosa. ':'')+(allies.some(h=>h.name==="npc_dota_hero_mars")?'Mars puede crear la primera entrada; Pugna debería seguirla desde una posición segura. ':'')+'</p></div>');
+ html.push('<div class="result-section"><h3>Prioridad de amenazas · '+esc(threatPriority.controlSaturation)+' saturación de control</h3><p class="hint">El orden combina el riesgo individual con la capacidad de iniciar, encadenar control, silenciar o cerrar zonas. Es una prioridad táctica heurística, no una probabilidad de muerte.</p><div class="chips"><span class="chip">Control duro: '+threatPriority.hardControlCount+'/5</span><span class="chip">Iniciación directa: '+threatPriority.initiationCount+'</span><span class="chip">Capturas / pickoff: '+threatPriority.pickoffCount+'</span><span class="chip">Entradas y capturas: '+threatPriority.engageCount+'</span><span class="chip">Silencios: '+threatPriority.silenceCount+'</span></div>'+threatPriority.ranked.map((m,index)=>'<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · '+esc(m.priorityLabel)+' · '+esc(m.priorityScore.toFixed(1))+'</b><p style="margin:6px 0 0"><b>Por qué sube:</b> '+esc(m.focus)+'</p><p style="margin:6px 0 0"><b>Respuesta:</b> '+esc(m.response)+'</p></div>').join('')+'<p class="hint"><b>Apoyo aliado:</b> '+(allies.some(h=>h.name==="npc_dota_hero_oracle")?'Oracle aporta una salvación; coordiná su uso para la cadena de control más peligrosa. ':'')+(allies.some(h=>h.name==="npc_dota_hero_mars")?'Mars puede crear la primera entrada; Pugna debería seguirla desde una posición segura. ':'')+'</p></div>');
  if(matchups.length){
   html.push('<div class="result-section"><h3>Amenazas detectadas</h3>');
   matchups.forEach((m,index)=>html.push('<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · Amenaza '+esc(m.risk)+' · '+esc(m.threat.score.toFixed(1))+'/20</b><br><span style="color:#f0c46f">Mecánicas detectadas: '+esc((m.mechanics||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'evaluación general')+'</span><p style="margin:6px 0 0"><b>Qué la hace peligrosa:</b> '+esc(m.detail)+'</p><p style="margin:6px 0 0">'+esc(m.advice)+'</p><p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p>'+(m.pairSpecific?'<p style="margin:6px 0 0;color:#8fd6ad"><b>Interacción específica:</b> perfil ajustado para este enfrentamiento.</p>':'')+'<small>Prioridad relativa para '+esc(me.localized_name)+' · '+esc(role)+'. Vulnerabilidades coincidentes: '+esc((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'ninguna identificada')+'. Es una estimación táctica, no una predicción del resultado.</small></div>'));
@@ -1227,7 +1231,7 @@ function analyze(options={}){
  }
  if(live.problem!=='none')html.push('<div class="warning"><b>Problema seleccionado:</b> '+esc(live.problem.replace('issue:','').replace('enemy:','').replaceAll('_',' '))+'. La selección aumenta el peso de respuestas relacionadas; no reemplaza el análisis del draft.</div>');
  if(synergies.length)html.push('<div class="result-section"><h3>Cómo aprovechar a tus aliados</h3><ul>'+synergies.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>');
- html.push('<div class="warning">Versión 3.9 · decisión de compra defensiva: separa amenazas detectadas, defensas condicionales y compras que no se justifican solo por el draft. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.10 · separa iniciación directa de capturas; ninguna defensa queda destacada automáticamente sin evidencia del problema en partida. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
