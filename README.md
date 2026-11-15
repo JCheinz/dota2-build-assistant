@@ -1,6 +1,12 @@
-# Dota 2 Build Assistant — versión 3.3
+# Dota 2 Build Assistant — versión 3.4
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 3.4
+- Evaluación de amenazas personalizada según vulnerabilidades del héroe elegido y su posición.
+- Priorización contextual: distingue peligro general del enemigo e impacto específico sobre el héroe propio.
+- Recomendaciones situacionales de objetos generadas a partir de mecánicas que coinciden con esas vulnerabilidades.
+- Modelo general por roles y tipo de ataque para que héroes sin perfil individual también reciban evaluación contextual.
 
 ## Novedades de la versión 3.3
 - Priorización de amenazas enemigas según mecánicas tácticas reconocibles, vulnerabilidad del héroe propio, posición y minuto de partida.
