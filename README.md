@@ -1,6 +1,12 @@
-# Dota 2 Build Assistant — versión 3.6
+# Dota 2 Build Assistant — versión 3.14
 
 Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+
+## Novedades de la versión 3.14
+- Nueva capa común de especialización táctica por héroe y posición: combina perfiles explícitos ya cargados con un fallback conservador por arquetipo para el resto del catálogo.
+- El informe muestra identidad disponible del héroe (atributo, alcance y roles), fortalezas y riesgos generales, e indica claramente si existe una ruta individual o una inferencia por arquetipo.
+- La exportación incluye el perfil táctico utilizado para que el análisis posterior conserve el nivel de evidencia y sus limitaciones.
+- Esta etapa establece la arquitectura común; no implica todavía que los 126 héroes tengan builds, habilidades, combos o talentos individualizados.
 
 ## Novedades de la versión 3.6
 - Separación visual y lógica entre ruta principal del héroe y compras situacionales.
