@@ -963,7 +963,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const rolePhase=getUniversalRolePlan(role,live.minute);
  const roleItems=rolePhase.items.map(x=>({name:x[0],why:x[1],stage:rolePhase.phase,roles:[role],tags:["role-baseline"],roleBaseline:true}));
  const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
- const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live):[];
+ const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live).map(x=>({...x,roles:[role],tags:["threat-response"],threatSpecific:true})):[];
  const candidates=[...(heroPlan?[]:roleItems),...plannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
