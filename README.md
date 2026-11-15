@@ -28,7 +28,7 @@ Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar com
 
 ## Novedades de la versión 3.3
 - Priorización de amenazas enemigas según mecánicas tácticas reconocibles, vulnerabilidad del héroe propio, posición y minuto de partida.
-- Perfiles específicos para 57 héroes frecuentes; los restantes conservan inferencia conservadora basada en roles.
+- Perfiles explícitos cargados para 8 combinaciones héroe/posición (Pugna Mid, Drow Carry, Luna Carry, Anti-Mage Mid/Carry, Bristleback Offlane y Techies Offlane/Support 4); el resto conserva inferencia conservadora basada en el catálogo.
 - Cada amenaza muestra prioridad relativa, mecánicas detectadas, motivo de peligro y pauta de juego.
 - Orden dinámico de amenazas de mayor a menor prioridad.
 
