@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.12</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.13</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -786,7 +786,18 @@ function buildPurchaseDecision(me,role,matchups,priority,live){
  if(hasControl&&hasEngage){
   candidates.push({name:"Force Staff",status:"ALTERNATIVA",reason:"Puede ayudar a reposicionarte antes de que conecte una iniciación o captura, pero no garantiza escapar una vez que estás controlado y Glimpse puede revertir tu posición.",trigger:"Podés usarlo antes de recibir el control para romper línea de visión, salir de un ángulo de Hook o evitar quedar dentro de una zona."});
  }
- return {hasControl,hasSilence,hasZone,hasBurst,hasEngage,candidates,primary:null,summary:hasControl?"Hay mucha capacidad de control, pero el draft por sí solo no justifica comprar automáticamente una defensa. La primera compra defensiva queda pendiente de lo que realmente te esté matando en partida.":"No se detecta una saturación de control que justifique alterar automáticamente el núcleo."};
+ let primary=null;
+ const selectedControl=live.problem==="issue:control";
+ if(selectedControl&&hasControl&&hasSilence&&hasZone){
+  primary=candidates.find(x=>x.name==="Black King Bar")||null;
+  if(primary){
+   primary.status="RESPUESTA CONDICIONAL AL PROBLEMA";
+   primary.reason="Seleccionaste que te encadenan controles y el draft combina silencio con control de zona. BKB pasa a ser el objetivo defensivo principal, pero no bloquea todos los controles: verificá qué habilidades concretas contrarresta en el parche.";
+   primary.trigger="Priorizala si Static Storm u otros efectos que te impiden actuar te están alcanzando y la inmunidad vigente de BKB cubre esas habilidades. No la compres a ciegas contra todo el draft.";
+  }
+ }
+ const summary=primary?"Marcaste que te encadenan controles. Por la combinación de silencio y control de zona, BKB es la respuesta condicional prioritaria; confirmá qué efectos concretos cubre y si realmente te están impidiendo jugar.":"Hay mucha capacidad de control, pero el draft por sí solo no demuestra qué defensa te hace falta. Usá el problema seleccionado y lo que realmente te elimina para decidir.";
+ return {hasControl,hasSilence,hasZone,hasBurst,hasEngage,candidates,primary,summary};
 }
 function uniqueItems(items){
  const seen=new Set();
@@ -1212,7 +1223,7 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.12',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.13',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1256,7 +1267,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.12 · mejora la secuencia de compra según fase, progreso de componentes, oro y urgencia del draft; aplica a todos los héroes con datos disponibles. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.13 · alinea la decisión defensiva con el problema seleccionado y prioriza respuestas condicionales verificables. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
