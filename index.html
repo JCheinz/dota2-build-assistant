@@ -1018,8 +1018,10 @@ function buildAdaptivePlan(hero,role,enemies,live){
     if(x.name==="Null Talisman")return false;
     return live.minute<=10;
    });
+   const optionalEarly=early.slice().sort((a,b)=>b.score-a.score).slice(1);
+   early=early.slice().sort((a,b)=>b.score-a.score).slice(0,1);
    core=core.filter(x=>x.name!=="Aghanim’s Shard");
-   situational=[...situational,...scores.filter(x=>["Aghanim’s Shard","Null Talisman"].includes(x.name)&&!situational.some(y=>y.name===x.name))];
+   situational=[...situational,...optionalEarly,...scores.filter(x=>["Aghanim’s Shard","Null Talisman"].includes(x.name)&&!situational.some(y=>y.name===x.name))];
   }else if(live.minute>=12){
    early=[];
   }
