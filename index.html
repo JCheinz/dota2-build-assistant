@@ -601,26 +601,63 @@ const heroThreatMechanics={
 };
 const mechanicLabels={mana_burn:"presión de maná",anti_mana:"castigo a héroes dependientes de maná",late:"escalado",durable:"resistencia",sustained:"daño sostenido",frontline:"primera línea",hard_control:"control",burst:"daño explosivo",channel:"canalización",ranged:"alcance",siege:"presión de estructuras",initiation:"iniciación",execute:"ejecución",purge:"dispel",mobility:"movilidad",physical_burst:"ráfaga física",physical:"daño físico",anti_tank:"daño contra héroes resistentes",pickoff:"captura de objetivos",global_initiation:"iniciación global",displacement:"desplazamiento",zone:"control de zona",silence:"silencio",anti_magic:"presión contra hechizos",lane:"presión de línea",push:"presión de estructuras",burst:"daño explosivo",global_reveal:"alcance/visión global",invisibility:"emboscada/invisibilidad",mana_burn:"presión de maná",illusions:"ilusiones",summons:"unidades invocadas",anti_carry:"reducción de daño de carry",save:"salvación",sustain:"curación/sustain",farm:"aceleración económica",snowball:"potencial de snowball",dispel:"dispel",teamfight:"pelea grupal",global_mobility:"presencia global"};
 const mechanicWeight={hard_control:3.2,initiation:3.1,global_initiation:3.2,burst:2.8,physical_burst:2.8,silence:2.6,pickoff:2.6,channel:2.2,invisibility:2.1,mana_burn:1.6,anti_mana:1.3,sustained:1.8,ranged:1.8,physical:1.8,illusions:2.0,summons:1.7,push:1.7,siege:1.5,displacement:2.1,zone:1.7,late:1.5,frontline:1.1,durable:1.0,anti_magic:1.5,anti_tank:1.6,global_reveal:1.0,save:1.0,sustain:1.0,farm:1.0,mobility:1.2,purge:1.0,execute:1.5,teamfight:1.5,anti_carry:1.7,physical_burst:2.8};
+// Vulnerabilidades funcionales del héroe elegido. Son inferencias por kit/rol,
+// no sustituyen la comprobación de habilidades, niveles y objetos en la partida.
+const heroThreatVulnerabilities={
+ pugna:{mana_burn:1.8,hard_control:1.8,silence:2.2,pickoff:1.6,physical_burst:1.5,initiation:1.5},
+ antimage:{hard_control:1.5,physical_burst:1.3,initiation:1.4,anti_carry:1.7,illusions:0.7},
+ bristleback:{anti_tank:1.7,break:2.2,anti_heal:1.4,magic:1.0,physical_burst:0.8},
+ sniper:{initiation:2.2,pickoff:2.1,global_initiation:2.0,hard_control:1.8,divers:2.0},
+ drow_ranger:{initiation:2.0,pickoff:1.8,displacement:1.7,physical_burst:1.5,divers:2.0},
+ luna:{illusions:0.4,hard_control:1.5,burst:1.4,initiation:1.3},
+ medusa:{mana_burn:2.3,anti_mana:2.0,anti_carry:1.5,break:1.2},
+ crystal_maiden:{pickoff:2.0,hard_control:1.7,burst:2.0,initiation:1.8},
+ lion:{pickoff:1.8,hard_control:1.5,burst:1.8},
+ witch_doctor:{pickoff:1.8,hard_control:1.7,burst:1.8,channel:2.0},
+ enigma:{silence:1.6,hard_control:1.4,pickoff:1.4,channel:2.0},
+ witch_doctor:{silence:1.4,hard_control:1.4,pickoff:1.8,channel:2.0}
+};
+const mechanicCounters={
+ hard_control:["Black King Bar","Aeon Disk","Lotus Orb"],
+ initiation:["Aeon Disk","Force Staff","Glimmer Cape"],
+ global_initiation:["Aeon Disk","Glimmer Cape"],
+ burst:["Glimmer Cape","Aeon Disk","Black King Bar"],
+ physical_burst:["Ghost Scepter","Heaven’s Halberd","Aeon Disk"],
+ silence:["Manta Style","Black King Bar","Lotus Orb"],
+ mana_burn:["Magic Wand","Linken’s Sphere"],
+ anti_mana:["Magic Wand","Linken’s Sphere"],
+ invisibility:["Dust of Appearance","Gem of True Sight"],
+ illusions:["Shiva’s Guard","Mjollnir","Crimson Guard"],
+ summons:["Shiva’s Guard","Crimson Guard","Mjollnir"],
+ push:["Shiva’s Guard","Crimson Guard"],
+ siege:["Shiva’s Guard","Crimson Guard"],
+ anti_heal:["Spirit Vessel","Shiva’s Guard"],
+ anti_tank:["Spirit Vessel","Shiva’s Guard"],
+ ranged:["Blink Dagger","Hurricane Pike","Glimmer Cape"],
+ pickoff:["Aeon Disk","Linken’s Sphere","Glimmer Cape"],
+ displacement:["Black King Bar","Aeon Disk"],
+ zone:["Black King Bar","Glimmer Cape"]
+};
 function scoreThreatAgainstHero(me,role,hero,profile,minute){
  const id=hero.name.replace("npc_dota_hero_","");
  const data=heroThreatMechanics[id];
  const mechanics=data?data.mechanics:profile.tags.map(t=>({"iniciación":"initiation","control / interrupciones":"hard_control","daño explosivo / hechizos":"burst","daño físico a distancia":"ranged","escalado / amenaza de late game":"late","ilusiones / unidades":"illusions","presión sobre maná":"mana_burn","silencios / limitación de habilidades":"silence","invisibilidad / emboscadas":"invisibility","presión de líneas / unidades":"push","daño sostenido":"sustained","primera línea / resistencia":"frontline"}[t])).filter(Boolean);
- const own=new Set(me.roles||[]);
- let score=mechanics.reduce((n,m)=>n+(mechanicWeight[m]||0),0);
- if((role.startsWith("Support")||own.has("Support"))&&mechanics.some(m=>["pickoff","burst","invisibility","global_initiation","hard_control"].includes(m)))score+=2.2;
- if((role==="Mid"||role==="Carry")&&mechanics.some(m=>["silence","hard_control","mana_burn","anti_mana"].includes(m)))score+=1.2;
- if((role==="Carry"||role==="Mid")&&mechanics.includes("anti_carry"))score+=1.5;
- if(me.attack_type==="Melee"&&mechanics.some(m=>["ranged","siege"].includes(m)))score+=0.8;
- if(mechanics.includes("late")&&minute>=25)score+=1.0;
- if(mechanics.includes("push")&&minute>=10)score+=0.6;
- if(id==="antimage"&&own.has("Nuker"))score+=1.5;
- if(id==="bristleback"&&own.has("Nuker"))score+=0.8;
- return {score:Math.round(score*10)/10,detail:data?.detail||"Perfil inferido desde roles y arquetipos generales; verificá en partida qué habilidad está generando el problema.",mechanics,source:data?"perfil táctico de habilidades":"perfil general por roles"};
+ const own=new Set(me.roles||[]),vuln=heroThreatVulnerabilities[me.name.replace("npc_dota_hero_","")]||{};
+ let base=mechanics.reduce((n,m)=>n+(mechanicWeight[m]||0),0);
+ let fit=0,matched=[];
+ mechanics.forEach(m=>{const v=vuln[m]||0;if(v){fit+=v;matched.push(m)}});
+ if((role.startsWith("Support")||own.has("Support"))&&mechanics.some(m=>["pickoff","burst","invisibility","global_initiation","hard_control"].includes(m)))fit+=1.2;
+ if((role==="Mid"||role==="Carry")&&mechanics.some(m=>["silence","hard_control","mana_burn","anti_mana"].includes(m)))fit+=0.7;
+ if(me.attack_type==="Melee"&&mechanics.some(m=>["ranged","siege"].includes(m)))fit+=0.5;
+ if(mechanics.includes("late")&&minute>=25)fit+=0.7;
+ if(mechanics.includes("push")&&minute>=10)fit+=0.4;
+ // Ajuste de perfil: se reduce el peso de amenazas que no explotan una debilidad concreta.
+ const score=Math.max(0,Math.min(20,base*0.42+fit*1.35));
+ return {score:Math.round(score*10)/10,base:Math.round(base*10)/10,fit:Math.round(fit*10)/10,matched,detail:data?.detail||"Perfil inferido desde roles y arquetipos generales; la prioridad sube cuando sus mecánicas coinciden con una vulnerabilidad conocida del héroe.",mechanics,source:data?"perfil táctico de habilidades":"perfil general por roles"};
 }
 function getMatchupData(me,enemies,role="Mid",minute=0){
  return enemies.map(hero=>{
-  const tags=inferThreatProfile(hero);
-  const profile=genericThreatAdvice(hero,tags);
+  const tags=inferThreatProfile(hero),profile=genericThreatAdvice(hero,tags);
   const threat=scoreThreatAgainstHero(me,role,hero,profile,minute);
   const risk=threat.score>=12?"CRÍTICA":threat.score>=9?"ALTA":threat.score>=6?"MEDIA":"BAJA";
   return {...profile,hero,tags,threat,risk,detail:threat.detail,mechanics:threat.mechanics};
