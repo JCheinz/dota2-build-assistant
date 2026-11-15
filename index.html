@@ -276,15 +276,21 @@ const itemSlugs={
  'Pipe of Insight':'pipe','Crimson Guard':'crimson_guard','Spirit Vessel':'spirit_vessel','Assault Cuirass':'assault','Heaven’s Halberd':'heavens_halberd',
  'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
- 'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots'
+ 'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots',
+ 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb',
+ 'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
+ 'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
+ 'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe'
 };
+function renderItemIcon(name){
+ const slug=itemSlugs[name];
+ return slug?'<img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'">':'<span class="item-icon-fallback">⚔</span>';
+}
 function renderItemCards(items){
  return '<div class="item-list">'+items.map((x,i)=>{
   const name=Array.isArray(x)?x[0]:x.name,why=Array.isArray(x)?x[1]:x.why;
   const priority=!Array.isArray(x)&&x.priority===true;
-  const slug=itemSlugs[name];
-  const image=slug?'<img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.outerHTML=\'<span class=&quot;item-icon-fallback&quot;>⚔</span>\'">':'<span class="item-icon-fallback">⚔</span>';
-  return '<div class="item-card '+(priority?'priority':'complement')+'"><span class="item-number">'+(i+1)+'</span>'+image+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(why||'Objeto situacional')+'</span><small class="item-priority-label">'+(priority?'PRIORIDAD PRINCIPAL':'COMPLEMENTO')+'</small></div></div>';
+  return '<div class="item-card '+(priority?'priority':'complement')+'"><span class="item-number">'+(i+1)+'</span>'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(why||'Objeto situacional')+'</span><small class="item-priority-label">'+(priority?'PRIORIDAD PRINCIPAL':'COMPLEMENTO')+'</small></div></div>';
  }).join('')+'</div>';
 }
 
@@ -1104,7 +1110,7 @@ function analyze(options={}){
  html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><p class="hint"><b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p><h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(adaptive.situational)+'</div>');
  if(next){
   const goldNote=live.gold>0?live.gold.toLocaleString('es-AR')+' de oro disponible. La compra se calcula con los componentes marcados y los costos configurados en la ruta.':'Ingresá tu oro actual para evaluar tu capacidad de compra.';
-  html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span><span class="item-icon-fallback">⚔</span><div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):(next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':'SIGUIENTE OBJETIVO')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">¿Cambió la partida? Actualizá el minuto, oro, inventario y problema en «Estado actual» y tocá Recalcular compras. Se actualizarán las prioridades con esos datos.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
+  html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):(next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':'SIGUIENTE OBJETIVO')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">¿Cambió la partida? Actualizá el minuto, oro, inventario y problema en «Estado actual» y tocá Recalcular compras. Se actualizarán las prioridades con esos datos.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
  }else html.push('<div class="result-section"><h3>Próxima compra</h3><p class="hint">Marcaste como comprados todos los objetos de la ruta sugerida. Volvé a analizar si cambia el draft o tu inventario.</p></div>');
  if(adaptive.threatGroups.length){
   html.push('<div class="result-section"><h3>Respuestas situacionales al equipo enemigo</h3><p class="hint">No son compras obligatorias. Elegí solo las que resuelvan una amenaza real en esta partida.</p>');
