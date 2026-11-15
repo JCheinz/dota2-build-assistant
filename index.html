@@ -751,7 +751,14 @@ function getNextPurchase(build,state){
   const decisionScore=urgency*0.72+componentScore+progress*0.65+completionBonus;
   return {...target,recipe,missing,next,remainingCost,decisionScore,progress};
  }).filter(x=>x.score>0);
- options.sort((a,b)=>b.decisionScore-a.decisionScore);
+ const hasOrderedRoute=options.some(x=>x.heroSpecific&&Number.isFinite(x.routeIndex));
+ if(hasOrderedRoute)options.sort((a,b)=>{
+  if(a.heroSpecific&&b.heroSpecific)return (a.routeIndex??999)-(b.routeIndex??999);
+  if(a.heroSpecific)return -1;
+  if(b.heroSpecific)return 1;
+  return b.decisionScore-a.decisionScore;
+ });
+ else options.sort((a,b)=>b.decisionScore-a.decisionScore);
  if(!options.length)return {done:true};
  const chosen=options[0],alt=options[1];
  if(!chosen.recipe.length)return {target:chosen,kind:"complete",name:chosen.name,cost:chosen.cost,remaining:Math.max(0,chosen.cost-state.gold),affordable:state.gold>=chosen.cost,reason:chosen.condition,alternative:alt};
@@ -951,7 +958,9 @@ function buildAdaptivePlan(hero,role,enemies,live){
  }
  const rolePhase=getUniversalRolePlan(role,live.minute);
  const roleItems=rolePhase.items.map(x=>({name:x[0],why:x[1],stage:rolePhase.phase,roles:[role],tags:["role-baseline"],roleBaseline:true}));
- const candidates=[...(heroPlan?[]:roleItems),...plannedItems,...focusedItems,...threatItems,...archetypeItems,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
+ const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live):[];
+ const candidates=[...(heroPlan?[]:roleItems),...plannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
@@ -991,7 +1000,35 @@ function buildAdaptivePlan(hero,role,enemies,live){
   return {...x,score,priority:false};
  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
 
- const selected=scores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
+ let selected;
+ if(heroPlan){
+  const byName=new Map(scores.map(x=>[x.name,x]));
+  let early=plannedItems.filter(x=>x.stage==="Inicio"&&byName.has(x.name)).map(x=>byName.get(x.name));
+  let core=plannedItems.filter(x=>x.stage==="Medio"&&byName.has(x.name)).map(x=>byName.get(x.name));
+  let situational=plannedItems.filter(x=>x.stage==="Avanzada"&&byName.has(x.name)).map(x=>byName.get(x.name));
+  // Pugna: Bottle y Wand son compras de línea condicionales; Null Talisman nunca desplaza automáticamente el núcleo.
+  if(pugnaMid){
+   early=early.filter(x=>{
+    if(x.name==="Bottle")return live.minute<=9&&!live.owned.includes("Bottle");
+    if(x.name==="Magic Wand")return live.minute<=11&&(threatMagic||threatControl||enemyRoles.has("Support"));
+    if(x.name==="Null Talisman")return false;
+    return live.minute<=10;
+   });
+   core=core.filter(x=>x.name!=="Aghanim’s Shard");
+   situational=[...situational,...scores.filter(x=>["Aghanim’s Shard","Null Talisman"].includes(x.name)&&!situational.some(y=>y.name===x.name))];
+  }else if(live.minute>=12){
+   early=[];
+  }
+  // Las respuestas de draft no desplazan los objetos de progresión salvo una amenaza concreta y activa.
+  const responses=scores.filter(x=>(x.threatSpecific||pugnaResponses.some(p=>p.name===x.name))&&!plannedItems.some(p=>p.name===x.name));
+  const route=[...early,...core].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
+  const extras=[...situational,...responses,...scores.filter(x=>!plannedItems.some(p=>p.name===x.name)&&!responses.some(r=>r.name===x.name))]
+   .filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i)
+   .sort((a,b)=>b.score-a.score);
+  selected=[...route,...extras].slice(0,7).map((x,i)=>({...x,priority:i<3,routeIndex:i}));
+ }else{
+  selected=scores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
+ }
  if(hero.name==="npc_dota_hero_antimage"){
   const coreOrder=["Power Treads","Battle Fury","Yasha","Manta Style"];
   const incomplete=coreOrder.filter(name=>!live.owned.includes(name));
