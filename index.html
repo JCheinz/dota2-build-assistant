@@ -638,11 +638,23 @@ const mechanicCounters={
  displacement:["Black King Bar","Aeon Disk"],
  zone:["Black King Bar","Glimmer Cape"]
 };
+function getHeroVulnerabilities(me,role){
+ const id=me.name.replace("npc_dota_hero_",""),roles=new Set(me.roles||[]);
+ const v={...(heroThreatVulnerabilities[id]||{})};
+ const put=(key,value)=>v[key]=Math.max(v[key]||0,value);
+ if(roles.has("Support")||role.startsWith("Support")){put("pickoff",1.5);put("burst",1.3);put("hard_control",1.0);put("global_initiation",0.8);}
+ if(roles.has("Nuker")){put("mana_burn",0.8);put("anti_mana",0.7);put("silence",1.0);}
+ if(roles.has("Carry")||role==="Carry"){put("hard_control",1.0);put("anti_carry",0.8);put("initiation",0.7);}
+ if(me.attack_type==="Melee"){put("ranged",0.6);put("siege",0.4);}
+ if(roles.has("Durable")){put("anti_tank",0.8);put("anti_heal",0.5);put("break",0.7);}
+ if(roles.has("Escape")){put("hard_control",0.7);put("silence",0.7);put("displacement",0.5);}
+ return v;
+}
 function scoreThreatAgainstHero(me,role,hero,profile,minute){
  const id=hero.name.replace("npc_dota_hero_","");
  const data=heroThreatMechanics[id];
  const mechanics=data?data.mechanics:profile.tags.map(t=>({"iniciación":"initiation","control / interrupciones":"hard_control","daño explosivo / hechizos":"burst","daño físico a distancia":"ranged","escalado / amenaza de late game":"late","ilusiones / unidades":"illusions","presión sobre maná":"mana_burn","silencios / limitación de habilidades":"silence","invisibilidad / emboscadas":"invisibility","presión de líneas / unidades":"push","daño sostenido":"sustained","primera línea / resistencia":"frontline"}[t])).filter(Boolean);
- const own=new Set(me.roles||[]),vuln=heroThreatVulnerabilities[me.name.replace("npc_dota_hero_","")]||{};
+ const own=new Set(me.roles||[]),vuln=getHeroVulnerabilities(me,role);
  let base=mechanics.reduce((n,m)=>n+(mechanicWeight[m]||0),0);
  let fit=0,matched=[];
  mechanics.forEach(m=>{const v=vuln[m]||0;if(v){fit+=v;matched.push(m)}});
