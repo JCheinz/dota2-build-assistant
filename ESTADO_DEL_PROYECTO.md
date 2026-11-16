@@ -53,8 +53,8 @@ Pendientes de calidad conocidos:
 - CI pasó y PR #4 fue integrado.
 - GitHub Pages terminó correctamente la publicación del commit `8ad26a5`.
 
-### Validación pendiente
-La matriz dinámica todavía requiere inspección visual en Android para Pugna Mid, Support 4 y Support 5. La validación automática no sustituye esa prueba. No declarar cerrada la etapa hasta recibir confirmación del usuario.
+### Validación visual
+El usuario confirmó que la aplicación y la matriz funcionan correctamente en Android para Pugna Mid, Support 4 y Support 5. La Etapa 2 queda validada visualmente. La validación automática no sustituye futuras pruebas si se modifica el renderizador.
 
 ## 5. Flujo de trabajo obligatorio
 
