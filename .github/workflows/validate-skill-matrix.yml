@@ -19,7 +19,7 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+          const scripts = [...html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
           if (!scripts.length) throw new Error('No inline scripts found');
           scripts.forEach((match, i) => {
             fs.writeFileSync('/tmp/inline-' + i + '.js', match[1]);
