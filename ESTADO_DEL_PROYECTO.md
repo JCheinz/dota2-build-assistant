@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.27 + Service Worker v73  
-**Etapa activa:** Etapa 3 — Techies Support 4 validado por el usuario en Android; Techies Support 5 integrado en `main` mediante PR #9; CI del PR aprobado, publicación pendiente de confirmar.
+**Etapa activa:** Etapa 3 — Techies Support 5 validado por el usuario en Android; corrección de sinergia genérica de PR #10 integrada, CI y GitHub Pages aprobados. Pendiente validación visual Android de la corrección.
 
 ## 1. Objetivo
 
@@ -126,3 +126,20 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadieron regresiones para evitar que textos globales genéricos vuelvan a quedar vinculados a Pugna.
 - Rama: `work/contextual-copy-cleanup`; respaldos previos: `backup/3.27-before-context-copy-fix` y `backup/estado-3.27-before-context-copy-fix`.
 - Estado: cambios preparados, pendiente CI, revisión y publicación.
+
+
+## 8. Actualización de continuidad — PR #10 integrado (16-11-2026)
+
+- PR #10: “Remove leftover Pugna-specific generic report text”; integrado mediante squash.
+- Commit de integración: `38ad59ef8854bc44dcb5f8b4a7470681e945861a`.
+- CI del PR #10: run `43923257604`, success.
+- CI posterior al merge: run `43923714561`, success.
+- GitHub Pages posterior al merge: run `43923713532`, success.
+- Se aisló el contenido de sinergia de Pugna Mid en `buildPugnaMidAllySynergy`; el generador genérico `buildAllySynergy` ya no contiene texto exclusivo de Pugna.
+- Se conservaron las sinergias específicas de Pugna Mid y se añadieron regresiones para comprobar el aislamiento.
+- Respaldo de código inmediatamente anterior al merge: `backup/pre-merge-2026-11-16`, commit `45e93cd8b106a532ac9e85e4a41981cee8ffeae7`.
+- Tras el merge se creó el registro duplicado temporal `PROJECT_STATUS.md`; se decidió mantener como única fuente de verdad este archivo `ESTADO_DEL_PROYECTO.md`. El duplicado se eliminará.
+- Respaldo previo a la unificación de documentación: `backup/estado-unificado-2026-11-16`, commit `0dd48e3f2b6db55350dd474e8b3d6b80fc2d0c46`.
+- Commit de documentación y limpieza de duplicado: se completará a continuación.
+- Pendiente manual: probar en Android la sección “Sinergia en equipo” con Techies y otros héroes; verificar que no aparezca texto de Pugna en héroes ajenos y que Pugna Mid conserve su contenido.
+- Regla de continuidad: actualizar exclusivamente `ESTADO_DEL_PROYECTO.md) tras cada hito. No crear otro archivo de estado salvo petición expresa del usuario.
