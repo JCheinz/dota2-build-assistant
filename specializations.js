@@ -468,7 +468,6 @@ window.DOTA_HERO_SPECIALIZATIONS = {
         source:[
           "https://statsdota.com/en/heroes/crystal-maiden/soft-support",
           "https://dotatrack.com/heroes/crystal-maiden/build/soft-support",
-          "https://builds.ru.spectral.gg/stats_crystal_maiden_hard_support",
           "https://liquipedia.net/dota2/Crystal_Maiden/Changelogs"
         ],
         confidence:"mixed"
@@ -520,7 +519,7 @@ window.DOTA_HERO_SPECIALIZATIONS = {
       ],
       positioning:"En línea, jugá detrás o al costado de tu carry, usando Frostbite para castigar acercamientos y Crystal Nova para frenar persecuciones o intercambios. No te adelantes por buscar un ataque: Crystal Maiden es frágil y depende de mantener distancia. En rotaciones, movete con visión y elegí objetivos que tus aliados puedan alcanzar. Antes de una pelea, buscá cobertura y una ruta de retirada; guardá Freezing Field para cuando las interrupciones rivales estén gastadas o tu equipo pueda proteger la canalización. Como posición 4, priorizá visión, detección y supervivencia antes que acelerar objetos personales.",
       mechanics:"Glacial Guard es la innata y no consume un punto de progresión: cada lanzamiento de habilidad genera una barrera de 8 s calculada con el coste de maná actual × (0,3 + 0,02 por nivel de héroe); las barreras se acumulan. Arcane Aura aporta regeneración de maná al equipo y amplificación de regeneración propia. Frostbite aplica raíz y daño; Crystal Nova ralentiza en área; Freezing Field es una canalización de daño en área que puede ser interrumpida. La definitiva necesita preparación, visión y protección.",
-      caveats:"Perfil separado de Soft Support/posición 4 para 7.41f. La prioridad de habilidades y las elecciones de talentos se contrastaron con StatsDota, DotaTrack y Spectral; las muestras y rangos de medalla difieren, por lo que las tasas no son una garantía para Herald. El nivel de talento en la matriz indica el desbloqueo, no obliga a elegirlo inmediatamente. Glacial Guard se documenta como innata independiente. Las compras reflejan tendencias de partidas de alto nivel: adaptá el inicio y la progresión al oro, al dúo de línea, al draft y a la amenaza concreta."
+      caveats:"Perfil separado de Soft Support/posición 4 para 7.41f. La prioridad de habilidades y las elecciones de talentos se contrastaron con StatsDota y DotaTrack; las muestras y rangos de medalla difieren, por lo que las tasas no son una garantía para Herald. El nivel de talento en la matriz indica el desbloqueo, no obliga a elegirlo inmediatamente. Glacial Guard se documenta como innata independiente. Las compras reflejan tendencias de partidas de alto nivel: adaptá el inicio y la progresión al oro, al dúo de línea, al draft y a la amenaza concreta."
     }
   },
 
