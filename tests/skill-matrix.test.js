@@ -423,7 +423,7 @@ for (const name of arbitraryItems.map(x => x.name)) {
     throw new Error("El inventario no muestra un objeto arbitrario: " + name);
   }
 }
-if (!arbitraryInventory.includes('data-remove-owned=')
+if ((!arbitraryInventory.includes('data-remove-owned=') && !arbitraryInventory.includes('data-sell-owned='))
     || !arbitraryInventory.includes('data-remove-component=')) {
   throw new Error("El inventario debe permitir retirar tanto objetos como componentes");
 }
