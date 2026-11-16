@@ -225,3 +225,16 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Respaldos: `backup/3.27-before-universal-sticky-skill-labels` y `backup/estado-3.27-before-universal-sticky-skill-labels`.
 - CI post-merge y publicación Pages iniciados, pendientes de confirmación al momento de esta actualización.
 - Próxima validación manual: probar desplazamiento de la matriz en Android con varios héroes/posiciones y comprobar que la columna de nombres permanece fija.
+
+
+## 15. Crystal Maiden Support 4 — matriz de habilidades y árbol de talentos (16-11-2026)
+
+- Se comprobó que el registro existente incluía únicamente `crystal_maiden|Support 5`; no había perfil `Support 4`. Esa ausencia explicaba que no aparecieran orden de habilidades ni talentos.
+- Se agregó un perfil individual `crystal_maiden|Support 4`, separado de Support 5 y basado en datos de soft support del parche 7.41f.
+- Progresión contrastada: Frostbite niveles 1/3/5/7; Arcane Aura 2/9/10/12; Crystal Nova 4/8/14/15; Freezing Field 6/13/17.
+- Talentos y alternativas: nivel 10 (+200 salud / +12 inteligencia); nivel 15 (+100 alcance de Frostbite / −4,5 s de recarga de Crystal Nova); nivel 20 (+50 daño de Freezing Field / opción de Glacial Guard sin muestra suficiente); nivel 25 (+1 s de Frostbite / +300 daño de Crystal Nova).
+- Fuentes consultadas para posición 4: StatsDota soft support y DotaTrack Crystal Maiden soft sup build. Los datos de hard support existentes no se sustituyeron ni se mezclaron como si fueran de posición 4.
+- Prueba de regresión añadida para progresión nivel por nivel, los cuatro tiers, renderizado de matriz/árbol y separación respecto de Support 5.
+- Versiones: `specializations.js?v=3278`, Service Worker `dota-build-v78`.
+- Rama `work/crystal-maiden-support4-guide`; respaldos previos `backup/3.27-before-crystal-maiden-support4` y `backup/estado-3.27-before-crystal-maiden-support4`.
+- Estado: rama en preparación de PR; pendiente CI y publicación.
