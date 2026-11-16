@@ -170,6 +170,23 @@
 .bought-chip{border-color:#4b9b72;color:#78c99a}
 .manual-owned{margin-top:8px}.manual-owned summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:8px 0}
 .purchase-workspace{border:1px solid rgba(91,173,125,.45)}
+
+.hero-inventory{margin:12px 0;padding:12px;background:#111923;border:1px solid #3b4b5d;border-radius:12px}
+.hero-inventory-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-size:.9rem}
+.hero-inventory-heading span{font-size:.75rem;color:var(--muted)}
+.hero-inventory-slots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.hero-inventory-slot{aspect-ratio:1/1;min-width:0;border:1px solid #465568;border-radius:8px;background:#202a37;display:flex;align-items:center;justify-content:center;position:relative;padding:4px;color:var(--txt)}
+.hero-inventory-slot.empty{border-style:dashed;background:#171e28;color:#68788b}
+.hero-inventory-slot.filled{flex-direction:column;gap:3px;cursor:pointer}
+.hero-inventory-slot img{width:34px;height:34px;object-fit:contain}
+.hero-inventory-slot span{font-size:.58rem;line-height:1.05;text-align:center;overflow-wrap:anywhere;max-height:2.1em;overflow:hidden}
+.hero-inventory-slot small{position:absolute;right:3px;top:0;color:#f2a6a0;font-weight:900}
+.inventory-overflow,.inventory-components{margin-top:10px}
+.inventory-overflow-item{display:inline-flex;align-items:center;gap:5px;margin:4px;padding:5px 8px;border:1px solid #465568;border-radius:8px;background:#202a37;color:var(--txt);font-size:.75rem}
+.inventory-overflow-item img,.inventory-component img{width:22px;height:22px;vertical-align:middle}
+.inventory-component{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.inventory-help{margin:8px 0 0;font-size:.72rem}
+@media(max-width:420px){.hero-inventory-slots{gap:5px}.hero-inventory-slot img{width:29px;height:29px}.hero-inventory-slot span{font-size:.53rem}}
 </style>
 </head>
 <body>
@@ -319,6 +336,18 @@ const itemSlugs={
 function renderItemIcon(name){
  const slug=itemSlugs[name];
  return slug?'<img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'">':'<span class="item-icon-fallback">⚔</span>';
+}
+function renderHeroInventory(state){
+ const owned=[...new Set(state.owned)],components=[...new Set(state.components)];
+ const slots=Array.from({length:6},(_,i)=>{
+  const name=owned[i];
+  return name
+   ? '<button type="button" class="hero-inventory-slot filled" data-remove-owned="'+esc(name)+'" title="Tocar para quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>×</small></button>'
+   : '<div class="hero-inventory-slot empty"><span>'+(i+1)+'</span></div>';
+ }).join('');
+ const overflow=owned.slice(6).map(name=>'<button type="button" class="inventory-overflow-item" data-remove-owned="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' <b>×</b></button>').join('');
+ const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
+ return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><span>'+owned.length+'/6 espacios principales</span></div><div class="hero-inventory-slots">'+slots+'</div>'+(overflow?'<div class="inventory-overflow"><b>Otros objetos</b>'+overflow+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario para quitarlo o corregir una compra. Los componentes se muestran por separado.</p></div>';
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
@@ -1469,7 +1498,7 @@ function analyze(options={}){
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
- html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se marcará como comprado y el motor actualizará la siguiente recomendación. Podés volver a tocarlo para deshacer.</p><div class="chips">'+(live.owned.length?live.owned.map(name=>'<span class="chip bought-chip">✓ '+esc(name)+'</span>').join(''):'<span class="chip">Todavía no registraste compras</span>')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span><small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
+ html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span><small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
@@ -1512,6 +1541,10 @@ $('toggleLiveState').onclick=()=>{
  button.textContent=expanded?'Maximizar':'Minimizar';
 };
 $('report').addEventListener('click',e=>{
+ const removeOwned=e.target.closest('[data-remove-owned]');
+ if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){input.checked=false;analyze({scroll:false});return;}}
+ const removeComponent=e.target.closest('[data-remove-component]');
+ if(removeComponent){const name=removeComponent.getAttribute('data-remove-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){input.checked=false;analyze({scroll:false});return;}}
  const component=e.target.closest('[data-buy-component]');
  if(component){const name=component.getAttribute('data-buy-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){input.checked=!input.checked;analyze({scroll:false});return;}}
  const buy=e.target.closest('[data-buy-item]');

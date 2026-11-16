@@ -365,3 +365,22 @@ if (!appHtml.includes(".item-buy-toggle.bought")) {
   throw new Error("Los objetos comprados deben tener un estado visual diferenciado");
 }
 console.log("OK: compra directa desde recomendaciones, deshacer compra y carga manual opcional");
+
+
+// Inventario visual del héroe: refleja compras y permite retirarlas del estado.
+const inventoryMarkers = [
+  "function renderHeroInventory(state)",
+  'class="hero-inventory-slots"',
+  "renderHeroInventory(live)",
+  'data-remove-owned=',
+  'data-remove-component=',
+  "Inventario del héroe",
+  "espacios principales"
+];
+for (const marker of inventoryMarkers) {
+  if (!appHtml.includes(marker)) throw new Error("Falta la interfaz de inventario: " + marker);
+}
+if (!appHtml.includes(".hero-inventory-slot.filled")) {
+  throw new Error("Los espacios ocupados del inventario deben tener estilo visual");
+}
+console.log("OK: inventario visual de seis espacios, objetos extra y componentes removibles");
