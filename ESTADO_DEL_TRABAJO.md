@@ -97,3 +97,13 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - PR #14 integrado por squash en `main` el 16-11-2026; commit `29d7a769ebeb2cbd364fcc83d0b861a488b55e34`.
 - CI del último commit de la rama antes del merge: run `43935068064`, success. CI post-merge de `main`: run `43935772107`, success.
 - GitHub Pages para el commit integrado: run `43935771590`, en ejecución al actualizar este registro.
+
+## Auditoría de especializaciones — 16-11-2026
+
+- Rama de trabajo: `work/audit-specialization-quality`.
+- Respaldos previos desde main `2c82a1b28fd07a836a19f48f4673e50ca6bbb108`: `backup/3.27-before-specialization-audit` y `backup/estado-3.27-before-specialization-audit`.
+- Alcance: siete perfiles (Pugna x3, Techies x2, Crystal Maiden x2).
+- Revisión inicial: los siete perfiles tienen `talentChoices` con niveles 10/15/20/25 y dos alternativas con explicación. El renderizador usa `talentChoices` como árbol principal; el campo auxiliar `talents` solo actúa como fallback, por lo que sus ausencias/parcialidades no rompen el árbol mostrado.
+- Se detectó cobertura de pruebas desigual: faltaba una comprobación común de progresión, iconos, tiers y render de ambas opciones para todos los perfiles.
+- Se añadió esa regresión transversal. No se modificaron las builds ni las especializaciones.
+- Pendiente: CI, revisión final y PR.
