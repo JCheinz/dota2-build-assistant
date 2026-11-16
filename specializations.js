@@ -3,14 +3,14 @@ window.DOTA_HERO_SPECIALIZATIONS = {
   "pugna|Mid": {
     guide: {
       title:"Pugna Mid · guía individual 7.41f",
-      skillBuild:[{"level":1,"code":"Q"},{"level":2,"code":"W"},{"level":3,"code":"Q"},{"level":4,"code":"E"},{"level":5,"code":"Q"},{"level":6,"code":"R"},{"level":7,"code":"Q"},{"level":8,"code":"W"},{"level":9,"code":"W"},{"level":10,"code":"T"},{"level":11,"code":"E"},{"level":12,"code":"R"},{"level":13,"code":"E"},{"level":14,"code":"E"},{"level":15,"code":"E"},{"level":16,"code":"T"},{"level":17,"code":"A"},{"level":18,"code":"R"}],
+      skillIcons:{Q:{name:"Nether Blast",slug:"pugna_nether_blast"},W:{name:"Decrepify",slug:"pugna_decrepify"},E:{name:"Nether Ward",slug:"pugna_nether_ward"},R:{name:"Life Drain",slug:"pugna_life_drain"}},
+      skillBuild:[{"level":1,"code":"Q"},{"level":2,"code":"W"},{"level":3,"code":"Q"},{"level":4,"code":"E"},{"level":5,"code":"Q"},{"level":6,"code":"R"},{"level":7,"code":"Q"},{"level":8,"code":"W"},{"level":9,"code":"W"},{"level":10,"code":"T"},{"level":11,"code":"E"},{"level":12,"code":"R"},{"level":13,"code":"E"},{"level":14,"code":"E"},{"level":15,"code":"E"},{"level":16,"code":"A"},{"level":17,"code":"A"},{"level":18,"code":"R"}],
       talentChoices:[{"level":10,"left":{"name":"−1 s recarga Nether Blast","reason":"Más limpieza de oleadas y presión frecuente."},"right":{"name":"+2 vida Nether Ward","reason":"Si los rivales destruyen la Ward demasiado rápido."}},{"level":15,"left":{"name":"+250 salud","reason":"Opción estable para sobrevivir a iniciaciones."},"right":{"name":"+30% velocidad Decrepify","reason":"Si tu equipo aprovecha persecuciones o reposicionamiento."}},{"level":20,"left":{"name":"+1,5 s Decrepify","reason":"Amplía la ventana de daño mágico o protección."},"right":{"name":"+15% curación Life Drain","reason":"Si necesitás sostenerte o salvar aliados."}},{"level":25,"left":{"name":"+200 daño Nether Blast","reason":"Daño directo y presión de estructuras."},"right":{"name":"+1,9 daño Nether Ward/maná","reason":"Contra equipos que lanzan muchos hechizos en su radio."}}],
       skillOrder:[
         "1: Nether Blast","2: Decrepify","3: Nether Blast","4: Nether Ward",
         "5: Nether Blast","6: Life Drain","7: Nether Blast",
         "8–9: Decrepify","10: talento","11: Nether Ward",
-        "12: Life Drain","13–15: Nether Ward","16: talento",
-        "17: atributo","18: Life Drain"
+        "12: Life Drain","13–15: Nether Ward","16–17: atributo","18: Life Drain"
       ],
       skillPriority:"Maximizá Nether Blast primero (nivel 7), Decrepify después (nivel 9) y Nether Ward a continuación (nivel 15). Life Drain en 6/12/18. La secuencia es la tendencia observada para Pugna Mid en 7.41f; adelantá Nether Ward si la línea o el draft exigen castigar mucho lanzamiento de hechizos, o Decrepify si necesitás defensa/daño mágico temprano.",
       talents:[
