@@ -537,7 +537,7 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
 
 
 (()=> {
-  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state){");
+  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\"){");
   const inventoryEnd=appHtml.indexOf("\nfunction renderItemCards(items){",inventoryStart);
   if(inventoryStart<0||inventoryEnd<0)throw new Error("No se encontró el inventario ampliado");
   const renderer=appHtml.slice(inventoryStart,inventoryEnd);
