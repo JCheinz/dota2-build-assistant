@@ -48,10 +48,13 @@ Especialización individual incorporada en 3.27: guía, matriz, talentos, combos
 
 ### Situación actual del código
 - La matriz visual está dentro de `renderSpecializationGuide(g)` en `index.html`.
-- El renderizador actual fija las filas de habilidades a `Q/W/E/R`, asume iconos de Pugna como fallback y crea una matriz de niveles 1–25.
-- Los metadatos de habilidades están en `g.skillIcons`; la progresión está en `g.skillBuild`; los talentos en `g.talentChoices`.
-- La implementación actual funciona para Pugna, pero no es todavía universal: otros héroes no tienen necesariamente los mismos nombres, claves, iconos ni progresiones.
-- `specializations.js` contiene guías individuales para Pugna Mid, Support 4 y Support 5; no existe todavía una guía verificada para cada héroe.
+- Se inició la generalización: las filas ahora se derivan de las claves de `g.skillIcons` y de los códigos presentes en `g.skillBuild`, en lugar de fijarse a `Q/W/E/R`.
+- Los niveles se calculan a partir de 25, `g.maxLevel` y los niveles definidos en la progresión/talentos.
+- Las columnas y el ancho de la matriz se generan según la cantidad de niveles.
+- Las filas de talentos y atributos solo aparecen cuando existen datos para ellas.
+- Se eliminó el fallback visual que inventaba habilidades de Pugna cuando faltan metadatos; si no hay habilidades definidas, se muestra una explicación de matriz no disponible.
+- Los metadatos siguen usando `g.skillIcons`; la progresión `g.skillBuild`; y los talentos `g.talentChoices`.
+- `specializations.js` contiene guías individuales verificadas solo para Pugna Mid, Support 4 y Support 5; esta generalización del renderizador no crea automáticamente guías ni datos de otros héroes.
 
 ### Objetivo de la matriz universal
 1. Renderizar las filas a partir de los metadatos de cada guía, no de Q/W/E/R codificados.
@@ -84,4 +87,4 @@ Especialización individual incorporada en 3.27: guía, matriz, talentos, combos
 
 ## 6. Próximo paso inmediato
 
-Implementar el renderizador universal de matriz en la rama `work/universal-skill-matrix`, derivando las filas de las definiciones de habilidades de cada guía y conservando compatibilidad con Pugna. Añadir una fixture de prueba sintética con claves diferentes de Q/W/E/R para validar el comportamiento, sin incorporarla como héroe real ni presentarla como dato de juego.
+Completar revisión del diff y validación de sintaxis JavaScript de `index.html`. Añadir una fixture de prueba sintética con claves diferentes de Q/W/E/R para validar el comportamiento, sin incorporarla como héroe real ni presentarla como dato de juego. Luego abrir PR, revisar que sea mergeable e integrar solo después de validar la regresión de Pugna.
