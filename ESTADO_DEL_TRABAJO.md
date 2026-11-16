@@ -94,4 +94,4 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Prueba nueva: comprueba la presencia del perfil, rol/parche, fuentes soft support, progresión exacta, render de matriz y cuatro tiers de talentos; comprueba independencia respecto de Support 5.
 - Referencias actualizadas: `specializations.js?v=3278`; Service Worker `dota-build-v78`.
 - Rama: `work/crystal-maiden-support4-guide`. Respaldos: `backup/3.27-before-crystal-maiden-support4` y `backup/estado-3.27-before-crystal-maiden-support4`.
-- Estado: implementado en rama; pendiente CI, revisión del diff, PR e integración.
+- Estado: PR #14 abierto y revisado; CI del último commit `237f3b5bffc1a62007ef9b12bf256ec61aac230d` aprobado (run `43934482854`); diff revisado y sin conflictos. Próximo paso: merge squash y verificación post-merge/Pages.
