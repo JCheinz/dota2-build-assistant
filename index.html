@@ -858,7 +858,7 @@ function buildAllySynergy(me,role,allies,enemies){
  const roleCounts={initiators:allies.filter(h=>(h.roles||[]).includes("Initiator")).length,disablers:allies.filter(h=>(h.roles||[]).includes("Disabler")).length,supports:allies.filter(h=>(h.roles||[]).includes("Support")).length};
  const generic=[];
  if(roleCounts.initiators)generic.push(roleCounts.initiators+" aliado(s) con rol Initiator: dejá que abran la pelea y seguí desde una posición que te permita lanzar hechizos.");
- if(roleCounts.disablers)generic.push(roleCounts.disablers+" aliado(s) con rol Disabler: coordiná Nether Blast y otros hechizos mientras el objetivo está controlado.");
+ if(roleCounts.disablers)generic.push(roleCounts.disablers+" aliado(s) con rol Disabler: coordiná tus habilidades de daño y control mientras el objetivo está incapacitado.");
  if(roleCounts.supports)generic.push(roleCounts.supports+" aliado(s) con rol Support: acordá quién aporta salvación, visión e interrupción; no asumas que todos pueden iniciar.");
  return {cards,generic,roleCounts};
 }
@@ -1436,7 +1436,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.27 · Pugna Mid, Support 4 y Support 5 con perfiles separados; matriz visual de habilidades por nivel e iconos oficiales; conserva las guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Asistente de builds Dota 2 · perfiles especializados por héroe y posición; matriz visual de habilidades por nivel e iconos oficiales; guías individuales y rutas de objetos adaptativas. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
