@@ -175,3 +175,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker actualizado a `dota-build-v81`. Sin cambios en perfiles, builds o criterios de recomendación.
 
 - Integrado por squash en main: commit `4a821e26311295be500993bcc36cc6f719a4eb49`. CI final de PR tras actualizar estados run `43976374141`, success. Pendiente confirmar CI y Pages post-merge.
+
+
+## Inventario con mochila y reserva vendible — PR #20 (16-11-2026)
+
+- Respaldos desde main `48aa1ee85f00cac61912793c9adb2198395113ce`: `backup/3.32-before-inventory-backpack-reserve` y `backup/estado-3.32-before-inventory-backpack-reserve`.
+- Inventario visual reorganizado en seis espacios principales, tres espacios de mochila y una reserva de capacidad no limitada.
+- Tocar un objeto de inventario/mochila lo mueve al otro sector si hay espacio; el control × lo quita/vende. Tocar un objeto en reserva lo vende/retira directamente, deja de contar como comprado y puede volver a aparecer como recomendación.
+- La ubicación se preserva al recalcular el análisis y reconstruir los controles. Componentes y consumo de recetas siguen funcionando aparte.
+- Se agregaron regresiones para seis slots, tres de mochila, reserva, movimiento, venta y persistencia de zona. CI run `43979583575`, success.
+- PR #20: https://github.com/JCheinz/dota2-build-assistant/pull/20. Service Worker `dota-build-v82`.
+- No se modificaron builds ni lógica de recomendaciones. Pendiente merge y Pages.
