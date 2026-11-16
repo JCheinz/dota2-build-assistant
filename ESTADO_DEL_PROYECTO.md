@@ -200,3 +200,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Service Worker incluido: `dota-build-v76`.
 - A partir del 16-11-2026, el usuario autoriza expresamente realizar merges automáticamente cuando el PR tenga CI aprobado, revisión de diff satisfactoria, sin conflictos y el archivo de estado esté actualizado. No hace falta pedir autorización individual para cada merge bajo esas condiciones.
 - Archivo operativo de continuidad: `ESTADO_DEL_TRABAJO.md`; mantenerlo actualizado en cada avance relevante, además de este historial de proyecto.
+
+
+## 13. Mejora transversal de accesibilidad horizontal — matrices de habilidades (16-11-2026)
+
+- El usuario solicitó que la columna con los nombres de las habilidades permanezca visible al desplazarse horizontalmente y confirmó expresamente que debe aplicarse a todos los héroes.
+- Se creó la rama `work/universal-sticky-skill-labels` desde el main publicado `546cd175f1b6c0dcce6e86cbf6e2638792d46996`, con respaldos `backup/3.27-before-universal-sticky-skill-labels` y `backup/estado-3.27-before-universal-sticky-skill-labels`.
+- Se ajustó el CSS común de `renderSpecializationGuide(g)`: etiquetas de primera columna con `position: sticky; left: 0`, fondo opaco, z-index superior y sombra divisoria; cabecera «HABILIDAD» en capa superior. Se eliminó el `overflow:hidden` interno que recortaba el sticky.
+- La modificación afecta a todas las matrices que genera el renderizador compartido, independientemente del héroe, posición o cantidad de niveles.
+- Se añadió prueba automatizada que recorre todos los perfiles con `skillBuild` e `skillIcons` y verifica que renderizan la estructura común con etiquetas fijas.
+- Se actualizó la referencia de especializaciones a `?v=3277` y Service Worker a `dota-build-v77`.
+- Estado: rama preparada; pendiente CI y revisión del diff antes de crear/integrar PR.
+- No se alteró la lógica ni los datos de las especializaciones validadas de Pugna, Techies Support 4/5 y Crystal Maiden Support 5.
