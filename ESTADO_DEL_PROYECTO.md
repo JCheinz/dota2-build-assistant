@@ -164,10 +164,17 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Próximo perfil seleccionado: `crystal_maiden|Support 5` (Hard Support/posición 5).
 - Criterio: en la muestra de Herald de 7.41f, Crystal Maiden figura entre los hard supports fuertes (54,0% de victorias y 8,9% de selección); StatsDota la muestra como tercera por volumen de partidas de hard support entre héroes, 66,1% de sus partidas en ese rol y 51,3% de victorias en la muestra global del rol.
 - Fuentes iniciales: StatsDota Crystal Maiden Hard Support 7.41f, DotaTrack Crystal Maiden build 7.41f, Spectral Hard Support 7.41f y Liquipedia changelog 7.41.
-- Skill build de referencia: Frostbite 1/3/5/7; Arcane Aura 2/9/11/12; Crystal Nova 4/8/14/15; Freezing Field 6/13/17. Los niveles de desbloqueo de talentos se representan separadamente en 10/15/20/25, sin inventar eventos T en la matriz.
+- Skill build de referencia: Frostbite 1/3/5/7; Arcane Aura 2/9/10/12; Crystal Nova 4/8/14/15; Freezing Field 6/13/17. Los niveles de desbloqueo de talentos se representan separadamente en 10/15/20/25, sin inventar eventos T en la matriz.
 - Innata Glacial Guard: barrera de daño de 8 segundos por lanzamiento de habilidad, con fórmula dependiente del coste de maná actual y nivel; se documentará separada de la progresión.
 - Talentos de referencia: nivel 10 +200 salud / +12 inteligencia; 15 +100 alcance de Frostbite / −4,5 s de recarga de Crystal Nova; 20 +50 daño de Freezing Field / +20% de maná gastado convertido en barrera de Glacial Guard (sin tasa fiable para la alternativa); 25 +1 s duración de Frostbite / +300 daño de Crystal Nova.
 - Objetos de referencia: Tango, Iron Branch, Blood Grenade, Enchanted Mango, Sentry Ward, Magic Stick; Magic Wand y Tranquil Boots como progresión temprana; Blink Dagger y Glimmer Cape como opciones posteriores. La compra será condicional al oro, draft y necesidad real; no se presentará como obligación.
 - Respaldo de código y estado creados antes del trabajo desde commit `346d6ab1504b7be0c459eb2f695853ec5210af1d`: `backup/3.27-before-crystal-maiden-support5` y `backup/estado-3.27-before-crystal-maiden-support5`.
 - Rama de trabajo: `work/etapa-3-crystal-maiden-support5`.
-- Estado: investigación inicial y estructura del perfil en curso; no integrado. No modificar Techies Support 4/5 ni Pugna.
+- Perfil agregado a `specializations.js` con Glacial Guard, habilidades Q/W/E/R, progresión de referencia, cuatro tiers de talentos, combos, mecánicas, posicionamiento y cautelas.
+- Ruta de objetos independiente agregada en `index.html`: consumibles de línea, Magic Wand, Wind Lace, Tranquil Boots, Infused Raindrops, Blink Dagger, Glimmer Cape y alternativas condicionales.
+- Se amplió `tests/skill-matrix.test.js` para verificar metadata, innata, iconos, niveles, talentos, renderizado, aislamiento de contenido Techies y ruta de objetos independiente.
+- Referencia de especializaciones actualizada a `?v=3276`; Service Worker actualizado a `dota-build-v75`.
+- PR #11 abierto: https://github.com/JCheinz/dota2-build-assistant/pull/11
+- Primer intento de CI run `43926257452` detectó un separador sintáctico sobrante antes del perfil; corregido en el commit `27bde04646bd74f5b74ab3a6b0d818382b0dea27`.
+- CI del commit corregido run `43926333308`, job `133506680152`: sintaxis y pruebas aprobadas.
+- Estado: PR abierto, no integrado ni desplegado; se está completando revisión y validación final. No modificar Techies Support 4/5 ni Pugna.
