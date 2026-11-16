@@ -237,4 +237,4 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Prueba de regresión añadida para progresión nivel por nivel, los cuatro tiers, renderizado de matriz/árbol y separación respecto de Support 5.
 - Versiones: `specializations.js?v=3278`, Service Worker `dota-build-v78`.
 - Rama `work/crystal-maiden-support4-guide`; respaldos previos `backup/3.27-before-crystal-maiden-support4` y `backup/estado-3.27-before-crystal-maiden-support4`.
-- Estado: rama en preparación de PR; pendiente CI y publicación.
+- Estado: PR #14 abierto y revisado; CI del último commit `237f3b5bffc1a62007ef9b12bf256ec61aac230d` aprobado (run `43934482854`); diff revisado y sin conflictos. Próximo paso: merge squash y verificación post-merge/Pages.
