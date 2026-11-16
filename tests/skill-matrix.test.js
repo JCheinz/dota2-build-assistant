@@ -369,7 +369,7 @@ console.log("OK: compra directa desde recomendaciones, deshacer compra y carga m
 
 // Inventario visual del héroe: refleja compras y permite retirarlas del estado.
 const inventoryMarkers = [
-  "function renderHeroInventory(state,hero=null,role="")",
+  'function renderHeroInventory(state,hero=null,role="")',
   'class="hero-inventory-slots"',
   "renderHeroInventory(live,me,role)",
   'data-remove-owned=',
@@ -384,13 +384,6 @@ if (!appHtml.includes(".hero-inventory-slot.filled")) {
   throw new Error("Los espacios ocupados del inventario deben tener estilo visual");
 }
 console.log("OK: inventario visual de seis espacios, objetos extra y componentes removibles");
-const coreOrderedInventory = purchaseContext.renderHeroInventory({owned:["Arcane Boots","Magic Wand","Bottle","Black King Bar","Blink Dagger","Glimmer Cape","Aether Lens","Aeon Disk","Kaya","Dagon","Aghanim’s Shard","Aghanim’s Scepter","Linken’s Sphere"],components:[],zones:{}},{name:"npc_dota_hero_pugna"},"Mid");
-const mainArea=coreOrderedInventory.split("Mochila · objetos para rotar")[0];
-if(!mainArea.includes("Arcane Boots")||!mainArea.includes("Aether Lens"))throw new Error("Los objetos core de Pugna deben priorizarse en los seis espacios principales");
-const iconStart=appHtml.indexOf("function renderItemIcon(name){");
-const iconEnd=appHtml.indexOf("\nfunction renderHeroInventory",iconStart);
-const iconSource=appHtml.slice(iconStart,iconEnd);
-if(!iconSource.includes("onerror=")||!iconSource.includes("item-icon-fallback"))throw new Error("Los iconos fallidos deben mostrar un fallback visual");
 
 
 (()=>{
@@ -435,6 +428,14 @@ if ((!arbitraryInventory.includes('data-remove-owned=') && !arbitraryInventory.i
     || !arbitraryInventory.includes('data-remove-component=')) {
   throw new Error("El inventario debe permitir retirar tanto objetos como componentes");
 }
+const coreOrderedInventory = purchaseContext.renderHeroInventory({owned:["Arcane Boots","Magic Wand","Bottle","Black King Bar","Blink Dagger","Glimmer Cape","Aether Lens","Aeon Disk","Kaya","Dagon","Aghanim’s Shard","Aghanim’s Scepter","Linken’s Sphere"],components:[],zones:{}},{name:"npc_dota_hero_pugna"},"Mid");
+const mainArea=coreOrderedInventory.split("Mochila · objetos para rotar")[0];
+if(!mainArea.includes("Arcane Boots")||!mainArea.includes("Aether Lens"))throw new Error("Los objetos core de Pugna deben priorizarse en los seis espacios principales");
+const iconStart=appHtml.indexOf("function renderItemIcon(name){");
+const iconEnd=appHtml.indexOf("\nfunction renderHeroInventory",iconStart);
+const iconSource=appHtml.slice(iconStart,iconEnd);
+if(!iconSource.includes("onerror=")||!iconSource.includes("item-icon-fallback"))throw new Error("Los iconos fallidos deben mostrar un fallback visual");
+
 
 // Todas las rutas individuales de objetos usan el mismo renderizador interactivo.
 const heroPlansStart = appHtml.indexOf("const heroPlans = {");
