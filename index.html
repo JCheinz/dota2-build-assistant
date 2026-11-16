@@ -365,7 +365,7 @@ function renderSpecializationGuide(g){
   const columns="150px repeat("+levels.length+",41px)";
   const matrixWidth=(150+levels.length*41)+"px";
   const rowStyle=' style="grid-template-columns:'+columns+'"';
-  const icon=(code)=>{const skill=skillIcons[code];return skill&&skill.slug?'<img class="skill-cell-icon" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(skill.slug)+'.png" alt="'+esc(skill.name||code)+'" title="'+esc(skill.name||code)+'" onerror="this.outerHTML=\\'<span class=&quot;skill-cell-fallback&quot;>'+esc(code)+'</span>\\'">':'<span class="skill-cell-fallback">'+esc(code)+'</span>'};
+  const icon=(code)=>{const skill=skillIcons[code];return skill&&skill.slug?'<img class="skill-cell-icon" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(skill.slug)+'.png" alt="'+esc(skill.name||code)+'" title="'+esc(skill.name||code)+'" onerror="this.outerHTML=\'<span class=&quot;skill-cell-fallback&quot;>'+esc(code)+'</span>\'">':'<span class="skill-cell-fallback">'+esc(code)+'</span>'};
   const cell=(content,active=false)=>'<div class="skill-matrix-cell'+(active?' active':'')+'">'+content+'</div>';
   const header='<div class="skill-matrix-row skill-matrix-head"'+rowStyle+'><b>HABILIDAD</b>'+levels.map(n=>'<span>'+n+'</span>').join('')+'</div>';
   const skillRows=codes.map(code=>'<div class="skill-matrix-row"'+rowStyle+'><b class="skill-row-label">'+(skillIcons[code]&&skillIcons[code].slug?'<span class="skill-row-icon">'+icon(code)+'</span>':'')+esc(skillIcons[code]?.name||code)+'</b>'+levels.map(level=>{const learned=skillBuild.some(x=>Number(x.level)===level&&x.code===code);return cell(learned?icon(code):"",learned)}).join('')+'</div>').join('');
