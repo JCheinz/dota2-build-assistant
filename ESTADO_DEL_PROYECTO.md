@@ -116,4 +116,4 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadió regresión específica para presencia del perfil, innata, iconos, cuatro tiers, independencia de Support 4 y renderizado.
 - Se incrementó la versión del archivo de especializaciones a `?v=3275` y Service Worker a `dota-build-v74`.
 - Fuentes: StatsDota Hard Support 7.41f (actualizado 15-11-2026), DotaTrack Hard Support 7.41f y Spectral Hard Support 7.41f (16-11-2026).
-- Estado: cambios preparados en rama de trabajo; pendiente ejecutar pruebas/CI, revisar diff y abrir PR. No declarar publicación ni validación Android hasta completar esos pasos.
+- Estado: cambios preparados en rama de trabajo; PR #9 abierto para revisión; CI de validación en ejecución. No declarar publicación ni validación Android hasta completar esos pasos.
