@@ -205,36 +205,40 @@ async function loadHeroes(){
   if(heroLoadPromise)return heroLoadPromise;
   heroLoadPromise=(async function(){
     const status=$('loadStatus');
-    status.textContent='Cargando catálogo de héroes… Si OpenDota tarda, se probará una fuente alternativa.';
-    const endpoints=[API,'https://api.opendota.com/api/heroes'];
-    let lastError=null, loadedFromStats=false;
-    for(let i=0;i<endpoints.length;i++){
+    status.textContent='Cargando catálogo de héroes… probando fuentes alternativas.';
+    const sources=[
+      {url:API,kind:'opendota',label:'OpenDota'},
+      {url:'https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json',kind:'constants',label:'catálogo de respaldo'}
+    ];
+    let lastError=null;
+    for(const source of sources){
       try{
         const controller=new AbortController();
-        const timeout=setTimeout(()=>controller.abort(),9000);
+        const timeout=setTimeout(()=>controller.abort(),12000);
         let response;
-        try{response=await fetch(endpoints[i],{cache:'no-store',signal:controller.signal});}
+        try{response=await fetch(source.url,{cache:'no-store',signal:controller.signal});}
         finally{clearTimeout(timeout)}
-        if(!response.ok)throw Error('HTTP '+response.status);
-        const data=await response.json();
-        if(!Array.isArray(data)||data.length<100)throw Error('Catálogo incompleto');
-        heroes=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&h.localized_name);
-        if(heroes.length<100)throw Error('Catálogo incompleto');
+        if(!response.ok)throw Error(source.label+': HTTP '+response.status);
+        const payload=await response.json();
+        let data;
+        if(Array.isArray(payload))data=payload;
+        else if(payload&&payload.result&&payload.result.data&&Array.isArray(payload.result.data.heroes)){
+          data=payload.result.data.heroes.map(h=>({...h,localized_name:h.localized_name||h.name_loc}));
+        }else if(payload&&typeof payload==='object'){
+          data=Object.values(payload);
+        }else throw Error('Formato de catálogo no reconocido');
+        heroes=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&(h.localized_name||h.name_loc));
+        heroes=heroes.map(h=>({...h,localized_name:h.localized_name||h.name_loc,roles:Array.isArray(h.roles)?h.roles:[]}));
+        if(heroes.length<100)throw Error('Catálogo incompleto ('+heroes.length+' héroes)');
         heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
-        loadedFromStats=(i===0);
         renderSlots();
         renderHeroGrid();
         renderDynamicStateControls();
-        status.textContent=heroes.length+' héroes disponibles. '+(loadedFromStats?'Estadísticas de héroes cargadas.':'Catálogo cargado; estadísticas adicionales no disponibles por ahora.');
+        status.textContent=heroes.length+' héroes disponibles. Catálogo cargado desde '+source.label+'.';
         return true;
       }catch(error){lastError=error}
     }
-    if(heroes.length>=100){
-      status.textContent=heroes.length+' héroes disponibles. Algunas estadísticas no pudieron actualizarse.';
-      renderSlots();renderHeroGrid();renderDynamicStateControls();
-      return true;
-    }
-    status.innerHTML='<span class="error">No se pudo conectar con las fuentes de héroes ('+esc(lastError?lastError.message:'error de red')+'). Revisá la conexión y volvé a intentar.</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
+    status.innerHTML='<span class="error">No se pudo cargar el catálogo ('+esc(lastError?lastError.message:'error de red')+'). Revisá la conexión y tocá Reintentar.</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
     $('retryHeroes')?.addEventListener('click',loadHeroes);
     return false;
   })();
