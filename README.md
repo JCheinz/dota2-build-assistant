@@ -119,3 +119,8 @@ Al publicar cambios del service worker, incrementá la versión de caché en `sw
 
 ## Historial
 - La versión 2.5 fue una etapa anterior; sus notas ya no describen el motor actual.
+
+### 3.20
+- Corrige la prioridad de compra defensiva: la respuesta indicada por el diagnóstico prevalece sobre alternativas situacionales después de completar el núcleo.
+- Ordena esa respuesta al inicio de las compras situacionales y alinea la explicación de próxima compra con el objeto realmente seleccionado.
+- Mantiene la ruta principal de Pugna y Anti-Mage.
