@@ -162,3 +162,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Pendiente integrar tras actualizar ambos archivos de estado y confirmar CI final.
 
 - Resultado final: PR #18 integrado en main por squash, commit `ae787e7bc51e128db5e5a3e3cea6827baac7f3f7`. CI de la rama con estado y pruebas finales run `43969996986`, success; Pages build y deploy post-merge run `43970058451`, success. Publicación confirmada.
+
+
+## Consumo de componentes al completar objetos — PR #19 (16-11-2026)
+
+- Respaldos desde main `b06b21e41c194a95fc0d321e4d4ed2b7864f19f4`: `backup/3.31-before-recipe-consumption` y `backup/estado-3.31-before-recipe-consumption`.
+- Se corrigió el inventario de recetas: al marcar como comprado un objeto completo, el motor desmarca/consume las piezas exactas de su receta. Ejemplo Pugna Mid: al completar Arcane Boots se consumen Boots of Speed, Ring of Basilius, Wizard Hat y Receta de Arcane Boots.
+- Solo se consumen los componentes de esa receta; las piezas no relacionadas quedan registradas.
+- Al cambiar el héroe o la posición elegida, se limpia el inventario de la configuración anterior para evitar que objetos de Axe Carry aparezcan como si fueran de Pugna Mid.
+- Se agregaron pruebas automatizadas para el consumo exacto de receta y el reinicio del inventario por héroe/posición.
+- PR #19: https://github.com/JCheinz/dota2-build-assistant/pull/19. CI inicial run `43976306859`: success.
+- Service Worker actualizado a `dota-build-v81`. Sin cambios en perfiles, builds o criterios de recomendación.
