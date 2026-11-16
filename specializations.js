@@ -76,6 +76,70 @@ window.DOTA_HERO_SPECIALIZATIONS = {
     }
   },
 
+
+  "techies|Support 5": {
+    guide: {
+      title:"Techies Support 5 · protección del carry, control de rutas y defensa · 7.41f",
+      metadata:{
+        heroKey:"npc_dota_hero_techies",
+        role:"Support 5",
+        patch:"7.41f",
+        source:[
+          "https://statsdota.com/en/heroes/techies/hard-support",
+          "https://dotatrack.com/heroes/techies/build/hard-support",
+          "https://builds.ru.spectral.gg/stats_techies_hard_support"
+        ],
+        confidence:"mixed"
+      },
+      innateAbilities:[
+        {
+          name:"M.A.D.",
+          description:"Pasiva innata: convierte el 0,1% del maná máximo en regeneración adicional. Al morir, Techies deja un barril que explota tras 1,5 s; inflige 50 + 30% del maná máximo como daño mágico en un radio de 400. El efecto del barril y la regeneración escalan con el maná máximo."
+        }
+      ],
+      skillIcons:{
+        Q:{name:"Sticky Bomb",slug:"techies_sticky_bomb"},
+        W:{name:"Reactive Tazer",slug:"techies_reactive_tazer"},
+        E:{name:"Blast Off!",slug:"techies_suicide"},
+        R:{name:"Proximity Mines",slug:"techies_land_mines"}
+      },
+      skillBuild:[
+        {level:1,code:"E"},{level:2,code:"W"},{level:3,code:"E"},{level:4,code:"W"},
+        {level:5,code:"E"},{level:6,code:"R"},{level:7,code:"E"},{level:8,code:"W"},
+        {level:9,code:"W"},{level:10,code:"Q"},{level:12,code:"Q"},{level:13,code:"R"},
+        {level:14,code:"Q"},{level:15,code:"Q"},{level:17,code:"R"}
+      ],
+      talentChoices:[
+        {level:10,left:{name:"−2 s de recarga de Proximity Mines",reason:"Elección predominante en los datos de Hard Support; mejora la preparación repetida de accesos y objetivos."},right:{name:"+15% resistencia mágica",reason:"Alternativa defensiva si el daño mágico rival te elimina antes de poder proteger o controlar la zona."}},
+        {level:15,left:{name:"+175 daño de Blast Off!",reason:"Opción predominante observada; aumenta el castigo de una iniciación o contraataque bien coordinado."},right:{name:"+25% duración de Reactive Tazer y desarme",reason:"Elegila si tu prioridad es proteger al carry o al aliado que recibe ataques físicos. La muestra no ofrece una tasa fiable para esta alternativa."}},
+        {level:20,left:{name:"−15 s de recarga de Blast Off!",reason:"Opción predominante; permite más interrupciones e iniciaciones cuando el salto es seguro."},right:{name:"+160 daño de Sticky Bomb",reason:"Alternativa para aportar daño a distancia sin comprometer tu posición."}},
+        {level:25,left:{name:"−0,8 s de activación de Proximity Mines",reason:"Elección predominante; reduce la ventana de reacción del rival al cruzar zonas preparadas."},right:{name:"+253 daño",reason:"Alternativa de daño directo; la muestra la elige mucho menos, pero puede servir si necesitás impacto inmediato."}}
+      ],
+      skillOrder:[
+        "1: Blast Off!","2: Reactive Tazer","3: Blast Off!","4: Reactive Tazer",
+        "5: Blast Off!","6: Proximity Mines","7: Blast Off!","8–9: Reactive Tazer",
+        "10: Sticky Bomb","12: Sticky Bomb","13: Proximity Mines","14–15: Sticky Bomb",
+        "17: Proximity Mines"
+      ],
+      skillPriority:"Referencia específica de Hard Support 7.41f: Blast Off! primero (4 puntos al nivel 7), Reactive Tazer después (4 puntos al nivel 9), Sticky Bomb a continuación y Proximity Mines en 6/13/17. La muestra de StatsDota ubica Sticky Bomb en 10/12/14/15; DotaTrack confirma el orden de máximos, aunque sus eventos de talento registrados no siempre coinciden con los niveles de desbloqueo. La innata M.A.D. no consume puntos.",
+      talents:[
+        ["Nivel 10","−2 s de recarga de Proximity Mines es la opción predominante; +15% resistencia mágica si el daño mágico te impide cumplir tu función."],
+        ["Nivel 15","+175 daño de Blast Off! es la referencia más elegida; +25% duración de Reactive Tazer y desarme si la protección del carry pesa más que el daño."],
+        ["Nivel 20","−15 s de recarga de Blast Off! es la opción predominante; +160 daño de Sticky Bomb si necesitás daño a distancia."],
+        ["Nivel 25","−0,8 s de activación de Proximity Mines domina la muestra; +253 daño es la alternativa de daño directo."]
+      ],
+      combos:[
+        ["Protección del carry con Reactive Tazer","Aplicalo sobre el carry o aliado que esté recibiendo ataques físicos. Conservá la detonación para cuando los enemigos estén comprometidos; no lo gastes por anticipado si el rival todavía puede esperar el efecto."],
+        ["Contraataque con Blast Off!","Saltá cuando el carry pueda seguir el aturdimiento y exista una salida o superioridad numérica. Blast Off! consume 20% de tu vida actual: no lo uses para iniciar si después quedás expuesto y sin recursos."],
+        ["Sticky Bomb para frenar persecuciones","Lanzala hacia el perseguidor o su ruta de escape para ralentizarlo y permitir que tu carry se reposicione. No persigas solo para conseguir una adhesión."],
+        ["Minas para defender objetivos","Prepará Proximity Mines en accesos a torre, Roshan y rutas de retirada antes de que el rival llegue. Priorizá información y control de terreno, no acumular minas en un único punto."],
+        ["M.A.D. y economía de maná","La innata escala con el maná máximo, pero no justifica comprar objetos de maná caros por sí sola. Elegí regeneración y atributos solo si sostienen tus lanzamientos y tu supervivencia."]
+      ],
+      positioning:"En línea, jugá cerca del carry sin robarle experiencia ni romper la oleada con Blast Off! innecesarios. Mantené Reactive Tazer disponible para el foco físico. En rotaciones, prepará minas en rutas y defendé la visión; como posición 5, evitá entrar primero a una pelea. Usá Blast Off! para contra-iniciar o interrumpir cuando el equipo pueda seguirte, y conservá una ruta de salida. En defensa de estructuras, colocá minas antes del asedio y hostigá desde una posición donde no te puedan eliminar gratis.",
+      mechanics:"M.A.D. es la habilidad innata y no consume un punto de progresión. Blast Off! aturde en área, destruye árboles y causa a Techies daño propio puro no letal equivalente al 20% de su vida actual. Reactive Tazer puede aplicarse sobre aliados; los atacantes del objetivo reciben daño y desarme. Proximity Mines preparan zonas y reducen resistencia mágica tras detonar; no deben tratarse como una garantía de detección o bloqueo de paso.",
+      caveats:"Perfil separado de Hard Support/posición 5 para 7.41f. La progresión de habilidades coincide en StatsDota y DotaTrack: Blast Off! primero, Reactive Tazer segundo, Sticky Bomb después y Proximity Mines como definitiva. Los talentos se contrastaron entre StatsDota y DotaTrack; en nivel 15 la alternativa defensiva tiene datos incompletos. Las compras son tendencias de partidas de alto nivel y no una obligación. Adaptá la ruta al oro, inventario, draft y amenaza concreta."
+    }
+  },
   "techies|Support 4": {
     guide: {
       title:"Techies Support 4 · presión, control de zona y protección · 7.41f",
