@@ -42,7 +42,12 @@ const fixture = {
     { level: 4, code: "ULTIMATE_OMEGA" },
     { level: 30, code: "ABILITY_BETA" }
   ],
-  talentChoices: []
+  talentChoices: [],
+  talents: [],
+  combos: [],
+  mechanics: "",
+  positioning: "",
+  caveats: ""
 };
 const fixtureOutput = context.renderSpecializationGuide(fixture);
 for (const name of ["Habilidad Alfa", "Habilidad Beta", "Habilidad Omega"]) {
