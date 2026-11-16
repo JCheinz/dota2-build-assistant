@@ -191,3 +191,38 @@ if (legacyOutput.includes("Datos de guía:") || legacyOutput.includes("Habilidad
   throw new Error("Los perfiles Pugna antiguos deben seguir funcionando sin bloques nuevos");
 }
 console.log("OK: Pugna x3 + matriz sintética 30 niveles + metadatos + innatas + compatibilidad legacy");
+
+// Regresiones de ruta de objetos Crystal Maiden Support 5.
+const iconStart=html.indexOf("const ITEM_IMG=");
+const iconEnd=html.indexOf("function renderItemCards",iconStart);
+if(iconStart<0||iconEnd<0)throw new Error("No se encontró el catálogo de iconos");
+vm.runInContext(html.slice(iconStart,iconEnd),context);
+for(const [name,slug] of [
+ ["Tango","tango"],["Iron Branch","branches"],["Blood Grenade","blood_grenade"],
+ ["Enchanted Mango","enchanted_mango"],["Sentry Ward","ward_sentry"],["Magic Stick","magic_stick"],
+ ["Wind Lace","wind_lace"],["Tranquil Boots","tranquil_boots"],["Infused Raindrops","infused_raindrop"]
+]){
+ const icon=context.renderItemIcon(name);
+ if(!icon.includes("/"+slug+".png"))throw new Error("Falta icono oficial de "+name);
+}
+const purchaseStart=html.indexOf("const itemRecipes=");
+const purchaseEnd=html.indexOf("\nfunction pugnaFinalBuild",purchaseStart);
+if(purchaseStart<0||purchaseEnd<0)throw new Error("No se encontró el motor de próxima compra");
+vm.runInContext(html.slice(purchaseStart,purchaseEnd),context);
+const cmRoute=[
+ {name:"Tango",heroSpecific:true,heroKey:"npc_dota_hero_crystal_maiden|Support 5",stage:"Inicio",why:"Consumible"},
+ {name:"Blink Dagger",heroSpecific:true,heroKey:"npc_dota_hero_crystal_maiden|Support 5",stage:"Medio",why:"Reposicionamiento"},
+ {name:"Glimmer Cape",heroSpecific:true,heroKey:"npc_dota_hero_crystal_maiden|Support 5",stage:"Medio",why:"Salvación"},
+ {name:"Aghanim’s Shard",heroSpecific:true,heroKey:"npc_dota_hero_crystal_maiden|Support 5",stage:"Medio",why:"Mejora"}
+];
+const noGold=context.getNextPurchase(cmRoute,{gold:0,minute:20,owned:[],components:[]});
+if(!noGold.done||!noGold.message.includes("Ingresá el oro"))throw new Error("No debe recomendar una compra sin conocer el oro disponible");
+const early=context.getNextPurchase(cmRoute,{gold:300,minute:8,owned:[],components:[]});
+if(!early.done||!early.message.includes("fase inicial"))throw new Error("La compra automática del núcleo no debe adelantarse a la fase de línea");
+const mid=context.getNextPurchase(cmRoute,{gold:300,minute:20,owned:[],components:[]});
+if(mid.done||mid.name!=="Blink Dagger"||mid.kind!=="goal")throw new Error("Crystal Maiden debe priorizar su primer objetivo de núcleo desde fase media");
+const afterBlink=context.getNextPurchase(cmRoute,{gold:300,minute:20,owned:["Blink Dagger"],components:[]});
+if(afterBlink.name!=="Glimmer Cape")throw new Error("La ruta debe avanzar al siguiente objetivo tras marcar Blink Dagger como comprado");
+if(!html.includes("Núcleo orientativo")||!html.includes("crystalPlan.situational"))throw new Error("El informe debe renderizar núcleo y compras situacionales aunque no entren en las primeras siete compras");
+console.log("OK: iconos CM + visibilidad de núcleo/situacionales + próxima compra condicionada por oro, fase e inventario");
+

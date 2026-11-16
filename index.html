@@ -288,7 +288,7 @@ function chooseHero(id){const h=heroes.find(x=>x.id===id);(target.team==='ally'?
 function item(name,why){return {name,why}}
 const ITEM_IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/';
 const itemSlugs={
- 'Bracer':'bracer','Soul Ring':'soul_ring','Vanguard':'vanguard','Blade Mail':'blade_mail','Sange and Yasha':'sange_and_yasha','Heart of Tarrasque':'heart','Aghanim’s Scepter':'ultimate_scepter','Consecrated Wraps':'consecrated_wraps',
+ 'Bracer':'bracer','Tango':'tango','Iron Branch':'branches','Blood Grenade':'blood_grenade','Enchanted Mango':'enchanted_mango','Sentry Ward':'ward_sentry','Magic Stick':'magic_stick','Wind Lace':'wind_lace','Tranquil Boots':'tranquil_boots','Infused Raindrops':'infused_raindrop','Soul Ring':'soul_ring','Vanguard':'vanguard','Blade Mail':'blade_mail','Sange and Yasha':'sange_and_yasha','Heart of Tarrasque':'heart','Aghanim’s Scepter':'ultimate_scepter','Consecrated Wraps':'consecrated_wraps',
  'Bottle':'bottle','Magic Wand':'magic_wand','Null Talisman':'null_talisman','Ring of Basilius':'ring_of_basilius','Arcane Boots':'arcane_boots','Aether Lens':'aether_lens',
  'Kaya':'kaya','Dagon':'dagon','Staff of Wizardry':'staff_of_wizardry','Robe of the Magi':'robe_of_the_magi','Crown':'crown','Point Booster':'point_booster','Ogre Axe':'ogre_axe','Blade of Alacrity':'blade_of_alacrity','Receta de Kaya':'recipe','Receta de Dagon':'recipe',
  'Aghanim’s Shard':'aghanims_shard','Glimmer Cape':'glimmer_cape','Force Staff':'force_staff',
@@ -997,6 +997,21 @@ const itemRecipes={
  "Aghanim’s Scepter":[{name:"Point Booster",cost:1200},{name:"Staff of Wizardry",cost:1000},{name:"Ogre Axe",cost:1000},{name:"Blade of Alacrity",cost:1000}]
 };
 function getNextPurchase(build,state,preferredName=null){
+ const isCrystalMaiden=build.some(x=>x.heroKey==="npc_dota_hero_crystal_maiden|Support 5");
+ if(isCrystalMaiden){
+  if(state.gold<=0)return {done:true,message:"Ingresá el oro disponible para calcular una compra. La guía mantiene visibles el núcleo y las alternativas, pero no recomienda comprar sin conocer tus recursos."};
+  if(state.minute<12)return {done:true,message:"En la fase inicial, priorizá los consumibles y la supervivencia de línea según el oro y el inventario. La compra automática de objetos principales se activa desde el minuto 12."};
+  const coreOrder=["Blink Dagger","Glimmer Cape","Aghanim’s Shard"];
+  const owned=new Set(state.owned);
+  const coreTarget=coreOrder.find(name=>!owned.has(name));
+  if(coreTarget){
+   const target=build.find(x=>x.name===coreTarget);
+   return target?{target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."}:{done:true,message:"No hay un objetivo de núcleo disponible en la ruta actual. Revisá el inventario y las compras situacionales."};
+  }
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&x.score>0).sort((a,b)=>(b.score||0)-(a.score||0));
+  const chosen=preferredName?situational.find(x=>x.name===preferredName)||situational[0]:situational[0];
+  return chosen?{target:chosen,kind:"goal",name:chosen.name,reason:chosen.why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
+ }
  const isAntiMage=build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Yasha","Manta Style"].includes(x.name));
  const isPugna=build.some(x=>x.heroSpecific&&["Arcane Boots","Aether Lens"].includes(x.name));
  if(isAntiMage||isPugna){
@@ -1238,7 +1253,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const specialization=getHeroSpecialization(hero,role);
  const heroPlan=specialization.plan;
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada"}))]:[];
- const plannedItems=heroRoute.map(x=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:undefined}));
+ const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:undefined}));
  const heroRoles=new Set(hero.roles||[]);
  const archetypeItems=[];
  const addArchetype=(name,why,roles,tags)=>archetypeItems.push({name,why,roles,tags,heroArchetype:true});
@@ -1399,7 +1414,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
  const mainRoute=selected.filter(x=>(x.heroSpecific&&x.stage!=="Avanzada")||x.roleBaseline||(x.heroArchetype&&["Power Treads","Phase Boots","Arcane Boots","Vanguard","Blink Dagger","Dragon Lance","Battle Fury"].includes(x.name)));
  const situational=selected.filter(x=>!mainRoute.includes(x));
- return {fit,fitScore,phase,selected,mainRoute,situational,threatGroups,matchupContext,explanation,threatMagic,threatControl,specialization};
+ return {fit,fitScore,phase,selected,mainRoute,situational,plannedItems,threatGroups,matchupContext,explanation,threatMagic,threatControl,specialization};
 }
 
 function getRankHeroContext(hero,rank){
@@ -1417,9 +1432,12 @@ function analyze(options={}){
  const purchaseDecision=buildPurchaseDecision(me,role,matchups,threatPriority,live);
  const rankContext=getRankHeroContext(me,$('rank').value);
  const rankSummary=rankContext?('OpenDota · '+$('rank').value+': '+rankContext.rate.toFixed(1)+'% de victorias en '+rankContext.picks.toLocaleString('es-AR')+' partidas. Dato agregado del héroe; no separa posiciones.'):'OpenDota: muestra insuficiente para este héroe en el rango seleccionado.';
- const purchasePool=[...adaptive.selected,...adaptive.situational].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
+ const purchasePool=[...adaptive.selected,...adaptive.situational,...(adaptive.specialization.heroId==="crystal_maiden"?adaptive.plannedItems:[])].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
  const nextPurchase=getNextPurchase(purchasePool,live,purchaseDecision&&purchaseDecision.primary?purchaseDecision.primary.name:null);
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
+ const crystalPlan=adaptive.specialization.heroId==="crystal_maiden"?adaptive.specialization.plan:null;
+ const crystalCore=crystalPlan?crystalPlan.core.filter(x=>!live.owned.includes(x[0])&&!adaptive.mainRoute.some(y=>y.name===x[0])):[];
+ const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
   'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.27',
@@ -1452,11 +1470,11 @@ function analyze(options={}){
   matchups.forEach((m,index)=>html.push('<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · Amenaza '+esc(m.risk)+' · '+esc(m.threat.score.toFixed(1))+'/20</b><br><span style="color:#f0c46f">Mecánicas detectadas: '+esc((m.mechanics||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'evaluación general')+'</span><p style="margin:6px 0 0"><b>Qué la hace peligrosa:</b> '+esc(m.detail)+'</p><p style="margin:6px 0 0">'+esc(m.advice)+'</p><p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p>'+(m.pairSpecific?'<p style="margin:6px 0 0;color:#8fd6ad"><b>Interacción específica:</b> perfil ajustado para este enfrentamiento.</p>':'')+'<small>Prioridad relativa para '+esc(me.localized_name)+' · '+esc(role)+'. Vulnerabilidades coincidentes: '+esc((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'ninguna identificada')+'. Es una estimación táctica, no una predicción del resultado.</small></div>'));
   html.push('</div>');
  }else html.push('<div class="result-section"><h3>Amenazas</h3><p class="hint">No hay una regla táctica específica cargada para estos rivales. Se consideran sus arquetipos generales, pero no se inventa un counter individual.</p></div>');
- html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><div class="item-card" style="display:block;margin:8px 0"><div class="item-copy"><b>Perfil táctico · '+esc(adaptive.specialization.style)+'</b><small>'+esc(adaptive.specialization.level)+'</small><span>'+esc(adaptive.specialization.source)+'</span><span><b>Fortalezas:</b> '+esc(adaptive.specialization.strengths.join(' · '))+'</span><span><b>Atención:</b> '+esc(adaptive.specialization.risks.join(' · '))+'</span></div></div><p class="hint"><b>Identidad del héroe:</b> '+esc(adaptive.specialization.identity.join(' · '))+'. <b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p>'+(adaptive.specialization.guide?renderSpecializationGuide(adaptive.specialization.guide):'')+'<h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(adaptive.situational)+'</div>');
- if(next){
+ html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><div class="item-card" style="display:block;margin:8px 0"><div class="item-copy"><b>Perfil táctico · '+esc(adaptive.specialization.style)+'</b><small>'+esc(adaptive.specialization.level)+'</small><span>'+esc(adaptive.specialization.source)+'</span><span><b>Fortalezas:</b> '+esc(adaptive.specialization.strengths.join(' · '))+'</span><span><b>Atención:</b> '+esc(adaptive.specialization.risks.join(' · '))+'</span></div></div><p class="hint"><b>Identidad del héroe:</b> '+esc(adaptive.specialization.identity.join(' · '))+'. <b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p>'+(adaptive.specialization.guide?renderSpecializationGuide(adaptive.specialization.guide):'')+'<h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+(crystalPlan?'<h3 style="margin-top:14px">Núcleo orientativo</h3><p class="hint">Objetivos principales de la especialización. El orden puede cambiar si una amenaza exige una compra defensiva.</p>'+renderItemCards(crystalCore):'')+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(crystalSituational)+'</div>');
+ if(next && !nextPurchase.done){
   const goldNote=live.gold>0?live.gold.toLocaleString('es-AR')+' de oro disponible. La compra se calcula con los componentes marcados y los costos configurados en la ruta.':'Ingresá tu oro actual para evaluar tu capacidad de compra.';
   html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):nextPurchase.kind==='goal'?(nextPurchase.routeReason||nextPurchase.reason||next.why): (nextPurchase.reason||nextPurchase.routeReason||next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':nextPurchase.kind==='goal'?'OBJETIVO DE PROGRESIÓN':'SIGUIENTE OBJETIVO')+'</small></div></div>'+(nextPurchase.alternatives&&nextPurchase.alternatives.length?'<h3 style="margin-top:12px">Otras rutas posibles</h3><p class="hint">Compará qué objeto resuelve mejor tu necesidad. Cada opción muestra el siguiente componente pendiente; no tenés que seguirlas todas.</p>'+nextPurchase.alternatives.map((alt,i)=>'<div class="item-card" style="margin:7px 0"><span class="item-number">'+(i+2)+'</span>'+renderItemIcon(alt.name)+'<div class="item-copy"><b>'+esc(alt.target.name)+'</b><span>'+esc(alt.kind==='component'?'Siguiente componente: '+alt.name+(alt.affordable?' · comprable ahora':' · faltan '+alt.remaining.toLocaleString('es-AR')+' de oro'):alt.kind==='goal'?'Objetivo: completar '+alt.name:'Objeto completo: '+alt.name)+'</span><small>'+esc(alt.reason||alt.target.why||'Alternativa contextual')+'</small></div></div>').join(''):'')+'<p class="hint">'+esc(goldNote)+'</p><p class="hint">La compra destacada orienta según fase, puntuación e inventario. Las otras rutas siguen disponibles para que elijas según cómo se desarrolla la partida.</p><p class="hint">¿Cambió la partida? Actualizá minuto, oro, inventario y problema en «Estado actual» y recalculá.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
- }else html.push('<div class="result-section"><h3>Próxima compra</h3><p class="hint">Marcaste como comprados todos los objetos de la ruta sugerida. Volvé a analizar si cambia el draft o tu inventario.</p></div>');
+ }else html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><p class="hint">'+esc(nextPurchase.message||'Marcaste como comprados los objetivos disponibles. Actualizá oro e inventario o revisá las alternativas situacionales.')+'</p></div>');
  if(adaptive.threatGroups.length){
   html.push('<div class="result-section"><h3>Respuestas situacionales al equipo enemigo</h3><p class="hint">No son compras obligatorias. Elegí solo las que resuelvan una amenaza real en esta partida.</p>');
   adaptive.threatGroups.forEach(group=>html.push('<h3 style="margin-top:10px">'+esc(group.label)+'</h3>'+renderItemCards(group.items.map(x=>item(x[0],x[1])))));
