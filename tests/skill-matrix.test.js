@@ -384,3 +384,90 @@ if (!appHtml.includes(".hero-inventory-slot.filled")) {
   throw new Error("Los espacios ocupados del inventario deben tener estilo visual");
 }
 console.log("OK: inventario visual de seis espacios, objetos extra y componentes removibles");
+
+
+// Auditoría transversal del seguimiento de compras para cualquier héroe/posición.
+const purchaseStart = appHtml.indexOf("function renderHeroInventory(state){");
+const purchaseEnd = appHtml.indexOf("\nconst heroPlans =", purchaseStart);
+if (purchaseStart < 0 || purchaseEnd < 0) {
+  throw new Error("No se encontró el bloque común de inventario y tarjetas de objetos");
+}
+const purchaseRenderSource = appHtml.slice(purchaseStart, purchaseEnd);
+const purchaseContext = {
+  esc: value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[ch])),
+  getLiveState: () => ({ owned: [], components: [] }),
+  renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
+};
+vm.createContext(purchaseContext);
+vm.runInContext(purchaseRenderSource, purchaseContext);
+const arbitraryItems = [
+  { name: "Objeto de héroe sin ruta individual", why: "Prueba genérica" },
+  { name: "Respuesta situacional generada por amenaza", why: "Prueba contextual" },
+  { name: "Componente no listado previamente", why: "Prueba de componente" }
+];
+const renderedArbitrary = purchaseContext.renderItemCards(arbitraryItems);
+for (const x of arbitraryItems) {
+  if (!renderedArbitrary.includes('data-buy-item="' + x.name + '"')) {
+    throw new Error("Una recomendación genérica no permite marcar compra: " + x.name);
+  }
+}
+const arbitraryInventory = purchaseContext.renderHeroInventory({
+  owned: arbitraryItems.map(x => x.name),
+  components: ["Componente no listado previamente"]
+});
+for (const name of arbitraryItems.map(x => x.name)) {
+  if (!arbitraryInventory.includes(name)) {
+    throw new Error("El inventario no muestra un objeto arbitrario: " + name);
+  }
+}
+if (!arbitraryInventory.includes('data-remove-owned=')
+    || !arbitraryInventory.includes('data-remove-component=')) {
+  throw new Error("El inventario debe permitir retirar tanto objetos como componentes");
+}
+
+// Todas las rutas individuales de objetos usan el mismo renderizador interactivo.
+const heroPlansStart = appHtml.indexOf("const heroPlans = {");
+const universalStart = appHtml.indexOf("const universalItems=[", heroPlansStart);
+if (heroPlansStart < 0 || universalStart < 0) {
+  throw new Error("No se encontró el catálogo común de rutas");
+}
+const planContext = {};
+vm.createContext(planContext);
+vm.runInContext(appHtml.slice(heroPlansStart, universalStart), planContext);
+const planEntries = Object.entries(planContext.heroPlans || {});
+if (!planEntries.length) throw new Error("No hay rutas individuales para auditar");
+for (const [profile, plan] of planEntries) {
+  for (const [stage, items] of [["early", plan.early], ["core", plan.core], ["situational", plan.situational]]) {
+    for (const item of items || []) {
+      const html = purchaseContext.renderItemCards([item]);
+      if (!html.includes('data-buy-item="' + item[0] + '"')) {
+        throw new Error("La ruta " + profile + " (" + stage + ") no genera un objeto comprable: " + item[0]);
+      }
+    }
+  }
+}
+
+// Las recomendaciones sin checkbox previo deben crear su estado antes de recalcular.
+const reportClickStart = appHtml.indexOf("$('report').addEventListener('click',e=>{");
+const reportClickEnd = appHtml.indexOf("\n});", reportClickStart);
+if (reportClickStart < 0 || reportClickEnd < 0) {
+  throw new Error("No se encontró el controlador delegado de compras");
+}
+const reportClickSource = appHtml.slice(reportClickStart, reportClickEnd);
+for (const marker of [
+  "closest('[data-buy-item]')",
+  "querySelectorAll('.owned-item')",
+  "appendChild(label)",
+  "input.checked=!input.checked",
+  "analyze({scroll:false})",
+  "closest('[data-buy-component]')",
+  "closest('[data-remove-owned]')",
+  "closest('[data-remove-component]')"
+]) {
+  if (!reportClickSource.includes(marker)) {
+    throw new Error("El flujo delegado no cubre " + marker);
+  }
+}
+console.log("OK: auditoría universal de compras — rutas individuales, recomendaciones dinámicas, inventario y componentes");
