@@ -215,7 +215,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3272"></script>
+<script src="./specializations.js?v=3273"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -430,22 +430,25 @@ heroPlans["npc_dota_hero_pugna|Support 5"]={
 };
 
 heroPlans["npc_dota_hero_techies|Support 4"]={
- title:"Techies · Support 4 · control de zonas y utilidad",
+ title:"Techies · Support 4 · presión, control de zona y protección · 7.41f",
  early:[
-  ["Arcane Boots","Sustain de maná para hostigar y usar habilidades; evaluá botas alternativas si tu equipo ya cubre maná."],
-  ["Magic Wand","Respuesta económica a intercambios frecuentes."]
+  ["Tranquil Boots","Botas más frecuentes en la muestra de Support; priorizalas si necesitás rotar y mantenerte fuera de combate entre hostigamientos."],
+  ["Ring of Basilius","Regeneración de maná para sostener el uso de habilidades y aportar aura al equipo."],
+  ["Soul Ring","Fuente adicional de maná si necesitás lanzar habilidades con frecuencia y podés asumir el coste de vida."],
+  ["Magic Wand","Respuesta económica si el dúo rival genera cargas frecuentes."]
  ],
  core:[
-  ["Aether Lens","Alcance para colocar habilidades desde una posición más segura."],
-  ["Force Staff","Reposicionamiento para salvar aliados o salir de posiciones peligrosas."]
+  ["Aether Lens","Alcance adicional para preparar minas y lanzar tus habilidades sin exponerte tanto."],
+  ["Consecrated Wraps","Aparece en rutas de soporte observadas; evaluá si el efecto y el coste encajan con la partida."],
+  ["Scythe of Vyse","Control de objetivo como opción de mayor inversión, no como compra obligatoria."]
  ],
  situational:[
-  ["Glimmer Cape","Salvación si el rival no puede revelar fácilmente al objetivo."],
-  ["Eul’s Scepter of Divinity","Herramienta defensiva y de control situacional."],
-  ["Aeon Disk","Si el burst te elimina antes de poder actuar."],
-  ["Aghanim’s Shard","Consideralo según el efecto vigente del parche y tu plan de juego."]
+  ["Force Staff","Reposicionamiento para salvar aliados o salir de zonas peligrosas."],
+  ["Glimmer Cape","Salvación cuando el rival no tiene detección disponible."],
+  ["Eul’s Scepter of Divinity","Dispel propio y control situacional si resuelve una amenaza concreta."],
+  ["Kaya","Aumenta el rendimiento de habilidades si ya cubriste las necesidades de utilidad."]
  ],
- note:"Techies Support 4 debe controlar espacios, aportar daño y utilidad sin exponerse. No acumules objetos de daño si tu equipo necesita detección, salvación o control."
+ note:"La muestra de Techies Support 7.41f sitúa Tranquil Boots, Ring of Basilius y Soul Ring entre las compras frecuentes; Aether Lens y Consecrated Wraps aparecen en rutas posteriores. Son tendencias agregadas, no un orden rígido. Elegí según oro, inventario, draft y problema actual."
 };
 
 heroPlans["npc_dota_hero_techies|Offlane"]={

@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.27 + Service Worker v71  
-**Etapa activa:** Etapa 3 — renderizado universal de metadatos e habilidades innatas; expansión gradual de perfiles.
+**Etapa activa:** Etapa 3 — primer perfil no-Pugna (Techies Support 4), con innata y progresión verificadas parcialmente.
 
 ## 1. Objetivo
 
@@ -29,8 +29,9 @@ Construir un asistente contextual de Dota 2, no un catálogo de builds estática
 - Publicación GitHub Pages del commit de continuidad: run `43820718390`, conclusion `success`.
 - PR #6 integró el renderizado opcional de metadatos e innatas. Merge squash: `a3a3d56952afca1e32f22b0a3cbf103f8834f216`.
 - CI del PR #6: run `43822711864`, success. CI del commit integrado: run `43822788779`, success.
-- GitHub Pages del commit `a3a3d56`: run `43822788109`; publicación en curso al momento de esta actualización.
-- Service Worker: `dota-build-v71`; JavaScript usa estrategia network-first con fallback offline.
+- GitHub Pages del commit `a3a3d56`: run `43822788109`; pendiente de confirmar al actualizar este registro.
+- Commit de documentación en main: `6ab85d1bebd41f23f1370ce7ad547583fa2996fa`.
+- Service Worker integrado: `dota-build-v71`; la rama de trabajo de Techies lo eleva a v72.
 - Respaldos históricos: `backup/3.26-before-pugna-support`, `backup/3.27-stable-before-universal-matrix` y `backup/estado-3.27-before-universal-matrix`. No sobrescribir.
 - Respaldos nuevos desde el main publicado `8ad26a5`: `backup/3.27-universal-matrix-deployed` y `backup/estado-3.27-universal-matrix-deployed`.
 - Respaldos posteriores a PR #5: `backup/3.27-etapa3-pugna-fix-integrated` y `backup/estado-3.27-etapa3-pugna-fix-integrated`, ambos creados desde `9e418f7f4334f2fc56e53b1bd4226c16ed4930d5`.
@@ -92,5 +93,9 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - PR #6 ya está integrado y publicado pendiente de confirmación final de Pages. El renderizador muestra `metadata` (parche, posición, confianza y fuentes declaradas) y `innateAbilities` en un bloque independiente de la matriz.
 - La ausencia de estos campos no altera los perfiles Pugna existentes. CI prueba metadatos, innatas, matriz dinámica de 30 niveles y compatibilidad legacy.
 - El Service Worker se actualizó a `dota-build-v71` y la referencia de `specializations.js` a `?v=3272`.
-- No se añadió aún un héroe nuevo. Próximo: elegir el primer perfil no-Pugna a partir de habilidades, roles y progresión verificables del parche vigente; documentar límites de fuentes estadísticas por posición.
+- Primer perfil no-Pugna en desarrollo: `techies|Support 4`, en rama `work/etapa-3-primer-perfil-no-pugna`. Se eligió por volumen de partidas de Support/Hard Support y evidencia separada de soft support en 7.41f.
+- Se incorporó M.A.D. como innata separada de la progresión; habilidades Q/W/E/R y orden de referencia se basan en StatsDota y DotaTrack, con mecánicas cotejadas en DotaCoach.
+- Se detectó una discrepancia en el registro de talentos: StatsDota muestra eventos `T` en niveles 11/16/18, mientras los niveles de talento del héroe son 10/15/20/25. Por rigor, el perfil no fuerza `talentChoices` ni eventos `T` hasta resolver esa discrepancia con datos más claros.
+- Se ajustó la ruta de objetos de Techies Support 4 a tendencias observadas: Tranquil Boots, Ring of Basilius, Soul Ring y alternativas de Aether Lens/Consecrated Wraps; se presentan como estadísticas orientativas.
+- La rama también actualiza `specializations.js` a `?v=3273` y Service Worker a `dota-build-v72`. Cambios aún no integrados; pendiente CI y revisión del diff.
 

@@ -76,4 +76,56 @@ window.DOTA_HERO_SPECIALIZATIONS = {
     }
   },
 
+  "techies|Support 4": {
+    guide: {
+      title:"Techies Support 4 · presión, control de zona y protección · 7.41f",
+      metadata:{
+        heroKey:"npc_dota_hero_techies",
+        role:"Support 4",
+        patch:"7.41f",
+        source:[
+          "https://dotacoach.gg/en/heroes/techies",
+          "https://statsdota.com/en/heroes/techies/soft-support",
+          "https://dotatrack.com/es/heroes/techies/build"
+        ],
+        confidence:"mixed"
+      },
+      innateAbilities:[
+        {
+          name:"M.A.D.",
+          description:"Pasiva innata: convierte el 0,1% del maná máximo en regeneración adicional. Al morir, Techies deja un barril que explota tras 1,5 s; inflige 50 + 30% del maná máximo como daño mágico en un radio de 400. El efecto de barril y la regeneración escalan con el maná máximo."
+        }
+      ],
+      skillIcons:{
+        Q:{name:"Sticky Bomb",slug:"techies_sticky_bomb"},
+        W:{name:"Reactive Tazer",slug:"techies_reactive_tazer"},
+        E:{name:"Blast Off!",slug:"techies_suicide"},
+        R:{name:"Proximity Mines",slug:"techies_land_mines"}
+      },
+      skillBuild:[
+        {level:1,code:"E"},{level:2,code:"W"},{level:3,code:"E"},{level:4,code:"W"},
+        {level:5,code:"E"},{level:6,code:"R"},{level:7,code:"E"},{level:8,code:"W"},
+        {level:9,code:"W"},{level:10,code:"Q"},{level:12,code:"Q"},{level:13,code:"R"},
+        {level:14,code:"Q"},{level:15,code:"Q"},{level:17,code:"R"}
+      ],
+      skillOrder:[
+        "1: Blast Off!","2: Reactive Tazer","3: Blast Off!","4: Reactive Tazer",
+        "5: Blast Off!","6: Proximity Mines","7: Blast Off!","8–9: Reactive Tazer",
+        "10: Sticky Bomb","12: Sticky Bomb","13: Proximity Mines","14–15: Sticky Bomb",
+        "17: Proximity Mines"
+      ],
+      skillPriority:"Referencia agregada de Techies Support en 7.41f: Blast Off! primero (4 puntos al nivel 7), Reactive Tazer después (4 puntos al nivel 9), Sticky Bomb a continuación y Proximity Mines en 6/13/17. La tabla de partidas consultada registra selecciones de talento como eventos separados en niveles 11/16/18; como no coincide limpiamente con los niveles de desbloqueo 10/15/20/25, no se fuerza una selección de talentos en esta matriz hasta corroborar el registro.",
+      combos:[
+        ["Hostigamiento de línea","Usá Blast Off! para castigar cuando tu compañero pueda seguir el aturdimiento. El daño propio es no letal, pero consume 20% de tu vida actual: no saltes si después quedás expuesto o sin recursos."],
+        ["Reactive Tazer para salvar","Aplicalo sobre el aliado que está recibiendo ataques. Los enemigos que lo golpean quedan desarmados; podés detonar el efecto antes para provocar la explosión en área."],
+        ["Sticky Bomb para persecución","Lanzala hacia la ruta de escape del rival. Si se adhiere, ralentiza y prepara daño en área; coordiná el impacto con el control de tu equipo."],
+        ["Proximity Mines para preparar terreno","Colocá minas en accesos, portales y rutas de objetivos antes de que empiece la pelea. No las amontones: respetá la distancia mínima entre minas y no supongas que bloquean campamentos neutrales."],
+        ["M.A.D. y maná","El maná máximo aporta regeneración y aumenta el daño del barril al morir. Es un beneficio pasivo, no una razón para comprar objetos de maná que no resuelvan una necesidad real."]
+      ],
+      positioning:"Como posición 4, buscá ángulos laterales para hostigar y preparar minas antes del enfrentamiento. No seas el primer cuerpo que entra: Blast Off! te deja dentro del equipo rival y reduce tu vida actual. Conservá Reactive Tazer para proteger al aliado que reciba foco y mantené rutas de retirada. En el mapa, prepará objetivos y pasos estrechos con antelación en lugar de perseguir kills sin visión.",
+      mechanics:"M.A.D. es la habilidad innata y no consume un punto de progresión. Blast Off! aturde en área, destruye árboles y causa a Techies daño propio puro no letal equivalente al 20% de su vida actual. Reactive Tazer puede lanzarse sobre aliados; los atacantes del objetivo reciben daño y desarme. Proximity Mines son invisibles fuera de su área de activación, detonan tras mantener un enemigo en el radio y reducen su resistencia mágica durante 4 s; también infligen daño reducido a edificios.",
+      caveats:"Perfil inicial de Support 4 basado en datos agregados de 7.41f, no en una muestra exclusiva de una sola liga. Las habilidades y el orden de referencia se contrastaron entre StatsDota y DotaTrack; las mecánicas de habilidades e innata se contrastaron con DotaCoach. Se omite el árbol de talentos por una discrepancia en el registro de niveles de selección de talentos. No se extrapola este perfil a Support 5. La ruta de objetos es estadística orientativa y debe ajustarse al draft, inventario y oro real."
+    }
+  },
+
 };
