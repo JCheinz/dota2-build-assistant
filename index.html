@@ -1093,7 +1093,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const specialization=getHeroSpecialization(hero,role);
  const heroPlan=specialization.plan;
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada"}))]:[];
- const plannedItems=heroRoute.map(x=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true}));
+ const plannedItems=heroRoute.map(x=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:undefined}));
  const heroRoles=new Set(hero.roles||[]);
  const archetypeItems=[];
  const addArchetype=(name,why,roles,tags)=>archetypeItems.push({name,why,roles,tags,heroArchetype:true});
@@ -1139,7 +1139,8 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const roleItems=rolePhase.items.map(x=>({name:x[0],why:x[1],stage:rolePhase.phase,roles:[role],tags:["role-baseline"],roleBaseline:true}));
  const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
  const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live).map(x=>({...x,roles:[role],tags:["threat-response"],threatSpecific:true})):[];
- const candidates=[...(heroPlan?[]:roleItems),...plannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const pugnaPlannedItems=pugnaMid?plannedItems.map(x=>{const response=pugnaResponses.find(p=>p.name===x.name);return response?{...x,pugnaScore:response.score,cost:response.cost,condition:response.condition,threatSpecific:true}:x;}):plannedItems;
+ const candidates=[...(heroPlan?[]:roleItems),...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
@@ -1148,6 +1149,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
   if(x.heroArchetype)score+=2.6;
   if(x.roleBaseline)score+=1.35;
+  if(Number.isFinite(x.pugnaScore))score+=x.pugnaScore;
   if(x.threatSpecific)score+=Math.min(4.2,x.threatWeight||0);
   const tags=x.tags;
   if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
