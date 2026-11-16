@@ -226,3 +226,33 @@ if(afterBlink.name!=="Glimmer Cape")throw new Error("La ruta debe avanzar al sig
 if(!html.includes("Núcleo orientativo")||!html.includes("crystalPlan.situational"))throw new Error("El informe debe renderizar núcleo y compras situacionales aunque no entren en las primeras siete compras");
 console.log("OK: iconos CM + visibilidad de núcleo/situacionales + próxima compra condicionada por oro, fase e inventario");
 
+
+
+// La primera columna de la matriz debe permanecer fija para TODAS las especializaciones.
+const matrixCssStart = html.indexOf(".skill-matrix-scroll{");
+const matrixCssEnd = html.indexOf("</style>", matrixCssStart);
+const matrixCss = html.slice(matrixCssStart, matrixCssEnd);
+if (!matrixCss.includes("position:sticky;left:0;z-index:3")) {
+  throw new Error("La columna de etiquetas de habilidades debe permanecer fija al desplazar la matriz");
+}
+if (!matrixCss.includes(".skill-matrix-head>b{z-index:4")) {
+  throw new Error("La etiqueta HABILIDAD debe quedar por encima de las celdas al desplazar horizontalmente");
+}
+if (matrixCss.includes(".skill-matrix{min-width:1180px;border:1px solid #3b4a5e;border-radius:12px;overflow:hidden")) {
+  throw new Error("El contenedor de matriz no debe recortar la columna sticky");
+}
+const allProfiles = Object.entries(context.window.DOTA_HERO_SPECIALIZATIONS || {});
+let checkedMatrices = 0;
+for (const [profileKey, profile] of allProfiles) {
+  const guide = profile && profile.guide;
+  if (!guide || !Array.isArray(guide.skillBuild) || !Object.keys(guide.skillIcons || {}).length) continue;
+  const output = context.renderSpecializationGuide(guide);
+  if (!output.includes('class="skill-matrix-scroll"') ||
+      !output.includes('class="skill-matrix-row skill-matrix-head"') ||
+      !output.includes('class="skill-row-label"')) {
+    throw new Error("La matriz no aplica la columna fija al perfil " + profileKey);
+  }
+  checkedMatrices++;
+}
+if (!checkedMatrices) throw new Error("No se encontraron matrices de héroes para validar el comportamiento universal");
+console.log("OK: columna de etiquetas sticky aplicada a " + checkedMatrices + " matrices de especialización");

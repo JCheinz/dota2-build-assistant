@@ -56,3 +56,16 @@ Procedimiento:
 ## Próximo paso
 
 Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348aa5632f839dd177106c975`. Si build/deploy finaliza correctamente, pedir al usuario probar Crystal Maiden Support 5 en Android y reportar cualquier diferencia visual o de compra.
+
+
+## Nueva etapa — Columna fija en matrices de habilidades para todos los héroes (16-11-2026)
+
+- Rama: `work/universal-sticky-skill-labels`, creada desde main commit `546cd175f1b6c0dcce6e86cbf6e2638792d46996`.
+- Respaldos previos: `backup/3.27-before-universal-sticky-skill-labels` y `backup/estado-3.27-before-universal-sticky-skill-labels`.
+- Cambio transversal en el renderizador común `renderSpecializationGuide(g)`: la primera columna de etiquetas queda fija al desplazar horizontalmente la matriz; la cabecera «HABILIDAD» usa una capa superior para no quedar tapada.
+- Se quitó el recorte `overflow:hidden` del contenedor interno que podía impedir el comportamiento sticky.
+- La modificación es común al renderizador, no específica de Crystal Maiden ni de un héroe concreto.
+- Pruebas agregadas: inspeccionan el contrato CSS sticky y recorren todas las especializaciones con matriz definida para comprobar que usan la misma estructura.
+- Cache actualizado a `dota-build-v77`; referencia de especializaciones a `?v=3277`.
+- Estado: implementado en rama; pendiente ejecutar CI, revisar diff/compatibilidad, integrar por PR y verificar deploy.
+- Preservación: no se modificaron los datos de perfiles Pugna, Techies ni Crystal Maiden; se probará su renderizado con la nueva columna común.
