@@ -192,7 +192,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=326"></script>
+<script src="./specializations.js?v=327"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -340,9 +340,9 @@ function renderSpecializationGuide(g){
   const info=iconMap[code]||{name:code,slug:""};
   const cells=levels.map(level=>{
    const learned=(g.skillBuild||[]).some(x=>x.level===level&&x.code===code);
-   return '<td style="min-width:34px;width:34px;text-align:center;padding:5px 2px;border-bottom:1px solid #344256">'+(learned?'<span style="display:inline-grid;place-items:center;width:29px;height:29px;border:2px solid #e7b95e;border-radius:6px;background:#273547"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(info.slug)+'.png" alt="'+esc(info.name)+'" title="'+esc(info.name)+'" style="width:25px;height:25px;object-fit:cover;border-radius:4px"></span>':'<span style="display:inline-block;width:29px;height:29px"></span>')+'</td>';
+   return '<td style="min-width:34px;width:34px;text-align:center;padding:5px 2px;border-bottom:1px solid #344256">'+(learned?'<span style="display:inline-grid;place-items:center;width:29px;height:29px;border:2px solid #e7b95e;border-radius:6px;background:#273547"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(info.slug)+'.png" onerror="this.onerror=null;this.src=this.src.replace('cdn.cloudflare.steamstatic.com','cdn.steamstatic.com')" alt="'+esc(info.name)+'" title="'+esc(info.name)+'" style="width:25px;height:25px;object-fit:cover;border-radius:4px"></span>':'<span style="display:inline-block;width:29px;height:29px"></span>')+'</td>';
   }).join('');
-  return '<tr><th style="position:sticky;left:0;z-index:1;background:#182330;text-align:left;padding:6px;min-width:116px;border-bottom:1px solid #344256"><div style="display:flex;align-items:center;gap:7px"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(info.slug)+'.png" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:6px"><span style="font-size:11px">'+esc(info.name)+'</span></div></th>'+cells+'</tr>';
+  return '<tr><th style="position:sticky;left:0;z-index:1;background:#182330;text-align:left;padding:6px;min-width:116px;border-bottom:1px solid #344256"><div style="display:flex;align-items:center;gap:7px"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(info.slug)+'.png" onerror="this.onerror=null;this.src=this.src.replace('cdn.cloudflare.steamstatic.com','cdn.steamstatic.com')" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:6px"><span style="font-size:11px">'+esc(info.name)+'</span></div></th>'+cells+'</tr>';
  }).join('');
  const specialRows=[{code:"T",label:"TALENTOS"},{code:"A",label:"ATRIBUTOS"}].map(row=>{
   const cells=levels.map(level=>{
