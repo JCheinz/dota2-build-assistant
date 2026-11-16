@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.27 + Service Worker v70  
-**Etapa activa:** Etapa 2 integrada; validación visual Android pendiente. Preparación de Etapa 3.
+**Etapa activa:** Etapa 3 — contrato universal de especializaciones y corrección de regresiones de progresión.
 
 ## 1. Objetivo
 
@@ -70,13 +70,17 @@ La matriz dinámica todavía requiere inspección visual en Android para Pugna M
 
 ## 6. Etapa 3 — Cobertura de especializaciones universales
 
-Aún no se incorporaron perfiles nuevos de héroes. La matriz universal solo permite representar datos; no genera guías automáticamente.
+### Inicio de etapa y cambios realizados en la rama de trabajo
+- Rama: `work/etapa-3-perfiles-universales`, creada desde el `main` publicado `8ad26a5bc65a5d1772478b06169499739475018e`.
+- Respaldos nuevos creados desde ese mismo commit: `backup/3.27-universal-matrix-deployed` y `backup/estado-3.27-universal-matrix-deployed`. Los respaldos anteriores permanecen intactos.
+- Se detectó una inconsistencia en Pugna Support 5: el `skillBuild` colocaba Nether Ward en nivel 10 y el talento en nivel 11, mientras `talentChoices` y `skillOrder` indicaban talento en nivel 10.
+- Se corrigió Support 5 para que nivel 10 sea talento y nivel 11 Decrepify, y se alineó el texto de progresión para indicar Nether Ward en niveles 8–9.
+- Se amplió `tests/skill-matrix.test.js` para verificar que cada talento declarado coincida con un evento `T` y que no existan eventos `T` sin metadatos de talento.
+- Se añadió `docs/SPECIALIZATION_SCHEMA.md`, contrato propuesto para metadatos, habilidades aprendibles, eventos de progresión, innatas y fuentes.
 
-Primer trabajo de la etapa:
-1. Auditar el esquema actual de `specializations.js` y el contrato que consume el motor.
-2. Definir un formato extensible para habilidades normales, innatas, talentos y puntos de atributo, sin asumir que todos los héroes comparten la misma progresión.
-3. Elegir el primer héroe/posición no-Pugna con información verificable de la versión objetivo y construir una especialización completa, no una plantilla vacía.
-4. Añadir pruebas de regresión para los tres perfiles Pugna y pruebas del nuevo perfil.
-5. Revisar la calidad del contenido y la UI antes de ampliar a más héroes.
+### Alcance y límites
+- Estos cambios están únicamente en la rama de trabajo; no se han integrado en `main` ni publicado.
+- La Etapa 3 todavía no incorpora perfiles de héroes nuevos. No se debe crear una guía de héroe real hasta verificar habilidades, talentos, roles y progresión para el parche objetivo.
+- El contrato de esquema documenta `metadata` e `innateAbilities` como campos propuestos; el renderizador todavía requiere implementarlos y probarlos.
+- Próximo: validar sintaxis y regresiones con GitHub Actions, revisar diff y luego elegir el primer perfil no-Pugna con fuentes verificables.
 
-No inventar orden de habilidades, talentos, objetos, precios, recetas ni roles. Distinguir datos comprobados de inferencias y recomendaciones situacionales.
