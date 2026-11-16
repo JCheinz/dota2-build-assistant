@@ -138,11 +138,34 @@
       .wrap{display:block;width:100%;max-width:760px;margin-inline:auto}
     }
 
+
+    /* Matriz de habilidades por nivel y árbol de talentos */
+    .skill-matrix-scroll{overflow-x:auto;max-width:100%;padding:4px 0 10px;overscroll-behavior-x:contain}
+    .skill-matrix{min-width:1180px;border:1px solid #3b4a5e;border-radius:12px;overflow:hidden;background:#17212d}
+    .skill-matrix-row{display:grid;grid-template-columns:150px repeat(25,41px);min-height:58px;border-bottom:1px solid #344153}
+    .skill-matrix-row:last-child{border-bottom:0}
+    .skill-matrix-row> b,.skill-matrix-row>span,.skill-matrix-cell{display:flex;align-items:center;justify-content:center;border-right:1px solid #293747}
+    .skill-matrix-row> b{position:sticky;left:0;z-index:1;justify-content:flex-start;padding:7px 9px;background:#1c2937;color:#dfe6ef;font-size:11px}
+    .skill-matrix-head{min-height:40px;background:#202d3c;color:#efbd62;font-size:11px;font-weight:800}
+    .skill-matrix-head>b{background:#202d3c}
+    .skill-matrix-cell{min-height:58px}
+    .skill-matrix-cell.active{background:#253447;box-shadow:inset 0 0 0 1px #e6b75d}
+    .skill-row-label{gap:6px}
+    .skill-row-icon .skill-cell-icon{width:27px;height:27px}
+    .skill-cell-icon{width:31px;height:31px;object-fit:cover;border-radius:6px;display:block}
+    .skill-cell-fallback{display:grid;place-items:center;width:29px;height:29px;border-radius:6px;background:#384454;color:#fff;font-size:11px;font-weight:800}
+    .skill-special-mark,.talent-tree-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#654c20;color:#ffd47a;font-size:18px;font-weight:900}
+    .skill-attribute-mark{font-size:22px;color:#aeb9c8;font-weight:800}
+    .talent-tree-heading{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+    .talent-tree-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .talent-option{background:#202a37;border:1px solid #3b4a5e;border-radius:10px;padding:10px;min-width:0}
+    .talent-option>b{color:#e8bd68;display:block}
+    @media(max-width:650px){.talent-tree-options{grid-template-columns:1fr 1fr}.skill-matrix{min-width:1180px}}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.25</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.26</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -332,14 +355,18 @@ function getHeroSpecialization(hero,role){
 
 function renderSpecializationGuide(g){
  const cards=(arr)=>arr.map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
- const skillIcons={Q:{name:"Nether Blast",slug:"pugna_nether_blast"},W:{name:"Decrepify",slug:"pugna_decrepify"},E:{name:"Nether Ward",slug:"pugna_nether_ward"},R:{name:"Life Drain",slug:"pugna_life_drain"}};
- const skillTrack=(g.skillBuild||[]).map(x=>{
-  const skill=skillIcons[x.code];
-  const marker=skill?'<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+skill.slug+'.png" alt="'+esc(skill.name)+'" title="'+esc(skill.name)+'" style="display:block;width:34px;height:34px;object-fit:cover;border-radius:7px;margin:3px auto">':'<span style="display:grid;place-items:center;width:34px;height:34px;margin:3px auto;border-radius:7px;background:'+(x.code==="T"?'#654c20':'#384454')+';color:#fff;font-size:10px;font-weight:700">'+(x.code==="T"?"TAL":"ATR")+'</span>';
-  return '<div style="min-width:48px;text-align:center;background:#202a37;border:1px solid #3b4a5e;border-radius:9px;padding:6px 3px"><small style="display:block;color:#aeb9c8">Nv. '+x.level+'</small>'+marker+'<small style="display:block;font-size:9px;line-height:1.1">'+esc(skill?skill.name:x.code==="T"?"Talento":"Atributo")+'</small></div>';
- }).join('');
- const talents=(g.talentChoices||[]).map(t=>'<div class="item-card" style="display:block;margin:8px 0"><b style="display:block;margin-bottom:7px">Nivel '+t.level+' · elegí según la partida</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><div style="background:#202a37;border:1px solid #3b4a5e;border-radius:9px;padding:9px"><b style="color:#e8bd68">◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div style="background:#202a37;border:1px solid #3b4a5e;border-radius:9px;padding:9px"><b style="color:#e8bd68">'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
- return '<div class="result-section"><h3>'+esc(g.title)+'</h3><h3>Orden de habilidades por nivel</h3><div style="display:flex;gap:5px;overflow-x:auto;padding:5px 0 10px">'+(skillTrack||'<span class="hint">Secuencia no disponible.</span>')+'</div><p class="hint">Los iconos muestran la habilidad aprendida en cada nivel. TAL = talento; ATR = atributo. La secuencia es orientativa y puede cambiar según la partida.</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Árbol de talentos</h3>'+(talents||cards(g.talents))+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
+ const skillIcons=g.skillIcons||{Q:{name:"Nether Blast",slug:"pugna_nether_blast"},W:{name:"Decrepify",slug:"pugna_decrepify"},E:{name:"Nether Ward",slug:"pugna_nether_ward"},R:{name:"Life Drain",slug:"pugna_life_drain"}};
+ const levels=Array.from({length:25},(_,i)=>i+1), codes=["Q","W","E","R"];
+ const icon=(code)=>{const skill=skillIcons[code];return skill?'<img class="skill-cell-icon" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+skill.slug+'.png" alt="'+esc(skill.name)+'" title="'+esc(skill.name)+'" onerror="this.outerHTML=\'<span class=&quot;skill-cell-fallback&quot;>'+code+'</span>\'">':""};
+ const cell=(content,active=false)=>'<div class="skill-matrix-cell'+(active?' active':'')+'">'+content+'</div>';
+ const header='<div class="skill-matrix-row skill-matrix-head"><b>HABILIDAD</b>'+levels.map(n=>'<span>'+n+'</span>').join('')+'</div>';
+ const skillRows=codes.map(code=>'<div class="skill-matrix-row"><b class="skill-row-label">'+(skillIcons[code]?'<span class="skill-row-icon">'+icon(code)+'</span>':'')+(skillIcons[code]?esc(skillIcons[code].name):code)+'</b>'+levels.map(level=>{const learned=(g.skillBuild||[]).some(x=>x.level===level&&x.code===code);return cell(learned?icon(code):"",learned)}).join('')+'</div>').join('');
+ const talentLevels=new Set((g.talentChoices||[]).map(t=>Number(t.level)));
+ const talentRow='<div class="skill-matrix-row"><b class="skill-row-label">TALENTOS</b>'+levels.map(level=>cell(talentLevels.has(level)?'<span class="skill-special-mark">✥</span>':"",talentLevels.has(level))).join('')+'</div>';
+ const attributeRow='<div class="skill-matrix-row"><b class="skill-row-label">ATRIBUTOS</b>'+levels.map(level=>{const learned=(g.skillBuild||[]).some(x=>x.level===level&&x.code==="A");return cell(learned?'<span class="skill-attribute-mark">+</span>':"",learned)}).join('')+'</div>';
+ const matrix='<div class="skill-matrix-scroll"><div class="skill-matrix">'+header+skillRows+talentRow+attributeRow+'</div></div>';
+ const talents=(g.talentChoices||[]).map(t=>'<div class="item-card talent-tree-card" style="display:block;margin:8px 0"><b class="talent-tree-heading"><span class="talent-tree-icon">✥</span>Nivel '+t.level+' · elegí según la partida</b><div class="talent-tree-options"><div class="talent-option"><b>◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div class="talent-option"><b>'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
+ return '<div class="result-section"><h3>'+esc(g.title)+'</h3><h3>Orden de habilidades por nivel</h3>'+(matrix||'<p class="hint">Secuencia no disponible.</p>')+'<p class="hint">Cada columna representa un nivel. El icono indica la habilidad aprendida; ✥ marca el nivel de talento y + los puntos de atributo. Deslizá horizontalmente para consultar todos los niveles.</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Árbol de talentos</h3>'+(talents||cards(g.talents))+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
 }
 
 function renderHeroPlan(plan){
@@ -1283,7 +1310,7 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.25',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.26',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1329,7 +1356,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.25 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.26 · matriz visual de habilidades por nivel e iconos de habilidades de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
