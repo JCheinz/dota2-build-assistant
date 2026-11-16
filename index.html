@@ -196,7 +196,7 @@
 .inventory-sell{position:absolute;right:1px;top:0;border:0;background:#273342;color:#f29b94;border-radius:50%;font-weight:900;width:21px;height:21px;line-height:18px;z-index:2}
 .inventory-reserve{display:flex;flex-wrap:wrap;gap:7px}
 .inventory-reserve-item{display:flex;align-items:center;gap:7px;max-width:100%;padding:6px 9px;border:1px solid #526174;border-radius:9px;background:#202a37;color:var(--txt);font-size:.75rem}
-.inventory-reserve-item img{width:42px;height:30px;object-fit:contain}
+.inventory-reserve-item img{width:42px;height:30px;object-fit:contain}.item-icon-wrap{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}.item-icon-fallback{align-items:center;justify-content:center;min-width:28px;min-height:28px;border-radius:7px;background:#273548;color:#e8b65a;font-weight:900}
 .inventory-reserve-item span{overflow-wrap:anywhere}
 .inventory-reserve-item b{color:#f29b94}
 @media(max-width:420px){.hero-backpack-slots{max-width:68%}.inventory-sell{width:18px;height:18px}}
@@ -348,18 +348,23 @@ const itemSlugs={
 };
 function renderItemIcon(name){
  const slug=itemSlugs[name];
- return slug?'<img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'">':'<span class="item-icon-fallback">⚔</span>';
+ const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">⚔</span>';
+ if(!slug)return fallback;
+ return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">⚔</span></span>';
 }
-function renderHeroInventory(state){
+function renderHeroInventory(state,hero=null,role=""){
  const owned=[...new Set(state.owned)],components=[...new Set(state.components)];
  const zones=state.zones||{};
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
- owned.forEach((name,index)=>{
+ const plan=hero?getHeroPlan(hero,role):null;
+ const coreNames=new Set(plan?(plan.core||[]).map(x=>Array.isArray(x)?x[0]:x.name):[]);
+ const manual=owned.filter(name=>["main","backpack","reserve"].includes(zones[name]));
+ const automatic=owned.filter(name=>!["main","backpack","reserve"].includes(zones[name]));
+ const ordered=[...manual,...automatic.sort((a,b)=>Number(coreNames.has(b))-Number(coreNames.has(a)))];
+ ordered.forEach(name=>{
   let zone=zones[name];
-  if(!["main","backpack","reserve"].includes(zone)){
-   zone=index<6?"main":index<9?"backpack":"reserve";
-  }
+  if(!["main","backpack","reserve"].includes(zone))zone=counts.main<6?"main":counts.backpack<3?"backpack":"reserve";
   if(zone==="main"&&counts.main>=6)zone=counts.backpack<3?"backpack":"reserve";
   if(zone==="backpack"&&counts.backpack>=3)zone=counts.main<6?"main":"reserve";
   if(zone==="main")counts.main++;
@@ -1538,7 +1543,7 @@ function analyze(options={}){
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
- html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span><small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
+ html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span><small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
