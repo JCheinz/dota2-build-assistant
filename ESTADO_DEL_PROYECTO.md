@@ -178,3 +178,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Primer intento de CI run `43926257452` detectó un separador sintáctico sobrante antes del perfil; corregido en el commit `27bde04646bd74f5b74ab3a6b0d818382b0dea27`.
 - CI del commit corregido run `43926333308`, job `133506680152`: sintaxis y pruebas aprobadas.
 - Estado: PR abierto, no integrado ni desplegado; se está completando revisión y validación final. No modificar Techies Support 4/5 ni Pugna.
+
+## 11. Corrección de ruta de objetos — Crystal Maiden Support 5 (16-11-2026)
+
+- Rama de trabajo: `work/etapa-3-crystal-maiden-item-route-fix`; respaldos previos de código y estado: `backup/3.27-before-crystal-maiden-item-route-fix` y `backup/estado-3.27-before-crystal-maiden-item-route-fix`.
+- Las capturas Android mostraron que la selección inicial de siete objetos podía llenar el bloque principal con consumibles y dejar fuera de vista el núcleo y las alternativas situacionales del perfil.
+- El informe ahora presenta un bloque separado de `Núcleo orientativo` y conserva visibles las compras situacionales de Crystal Maiden aunque no entren entre las primeras siete recomendaciones. Los objetos ya marcados como comprados se ocultan de esos bloques.
+- La próxima compra de Crystal Maiden Support 5 ya no propone automáticamente Tango con cero oro. Solicita registrar el oro; antes del minuto 12 orienta sobre la fase de línea; desde el minuto 12 sigue el orden de núcleo Blink Dagger → Glimmer Cape → Aghanim’s Shard, avanzando según el inventario marcado. Si el núcleo está cubierto, solo propone una alternativa situacional si el análisis la puntúa.
+- Se agregaron iconos oficiales para Tango, Iron Branch, Blood Grenade, Enchanted Mango, Sentry Ward, Magic Stick, Wind Lace, Tranquil Boots e Infused Raindrops.
+- Se añadieron regresiones para iconos, visibilidad del núcleo y alternativas, guardas de oro/fase y avance de la ruta según inventario.
+- Service Worker actualizado a `dota-build-v76`.
+- Estado: cambios en revisión automática; no integrar hasta que CI y diff estén aprobados y el usuario autorice el merge.
