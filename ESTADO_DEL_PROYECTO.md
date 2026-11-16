@@ -251,3 +251,8 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadió una regresión transversal para exigir los siete perfiles conocidos, progresión con niveles válidos y no duplicados, referencias de iconos válidas, cuatro tiers con dos opciones explicadas y renderizado efectivo de todas las elecciones. También verifica rol/parche en metadata cuando está declarada.
 - No se cambiaron datos de builds, talentos, compras ni lógica del motor. Perfiles validados por el usuario permanecen intactos.
 - Estado: pruebas ampliadas en rama; pendiente CI, revisión del diff y PR. No integrado ni desplegado.
+- PR #15 integrado por squash en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/15.
+- Commit de integración: `c8abc5f9aefe09a9e25d94b8e49885a700d0d8c9`.
+- CI del PR #15: run `43942313191`, success. CI post-merge: run `43942370008`, success.
+- GitHub Pages post-merge: run `43942368681`, build y deploy success.
+- La auditoría transversal quedó integrada; no cambió datos de builds ni lógica del motor.
