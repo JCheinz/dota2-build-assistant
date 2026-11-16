@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.17</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.18</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -296,7 +296,7 @@ function renderItemCards(items){
 }
 
 const heroPlans = {
-"npc_dota_hero_pugna|Mid": {title:"Pugna Mid · presión de línea, alcance y control",early:[["Bottle","Comprala si podés disputar runas y necesitás sustain; omitila si la línea no permite aprovecharla."],["Magic Wand","Prioridad contra rivales que generan cargas; si no, no retrases botas."]],core:[["Arcane Boots","Ruta base para sostener el uso de habilidades; reevaluá si tu equipo ya cubre maná."],["Aether Lens","Núcleo de alcance para lanzar habilidades desde una posición más segura."],["Aghanim’s Shard","Compra de mitad de partida solo después de comprobar el efecto y valor del parche actual."]],situational:[["Black King Bar","Si los controles concretos te impiden lanzar hechizos o canalizar; no asumas que bloquea todo."],["Aeon Disk","Contra iniciación y burst que te eliminan antes de responder; no evita por sí solo el control."],["Linken’s Sphere","Solo ante un hechizo unitario decisivo como Rupture; puede ser consumida por otro hechizo."],["Glimmer Cape","Salvación para vos o un aliado si la detección rival no la neutraliza."],["Force Staff","Reposicionamiento; evitá activarlo durante Rupture si el movimiento aumenta el daño."],["Scythe of Vyse","Control de cierre si necesitás detener a un héroe móvil o interrumpir su entrada."]],note:"Orden orientativo: sustain de línea si hace falta → Arcane Boots → Aether Lens. Contra saltos, posicionamiento primero; elegí una defensa según la habilidad que realmente te esté afectando. Decrepify puede impedir ataques físicos al objetivo, así que no lo lances sobre un enemigo que tus aliados necesitan golpear."},
+"npc_dota_hero_pugna|Mid": {title:"Pugna Mid · presión de línea, alcance y control",early:[["Bottle","Comprala si podés disputar runas y necesitás sustain; omitila si la línea no permite aprovecharla."],["Magic Wand","Prioridad contra rivales que generan cargas; si no, no retrases botas."]],core:[["Arcane Boots","Ruta base para sostener maná y aportar aura al equipo."],["Aether Lens","Núcleo de alcance para lanzar habilidades desde una posición más segura."]],situational:[["Blink Dagger","Adelantala si necesitás reposicionamiento y mejores ángulos para lanzar hechizos."],["Kaya","Daño mágico y amplificación de maná cuando el alcance y la supervivencia ya están resueltos."],["Dagon","Ráfaga para rematar objetivos aislados; no la fuerces si necesitás utilidad o defensa."],["Aghanim’s Shard","Evaluá el efecto actual y su valor concreto antes de priorizarlo."],["Aghanim’s Scepter","Mejora específica de Pugna para una fase avanzada; comprobá su valor en la partida."],["Black King Bar","Si los controles concretos te impiden lanzar hechizos o canalizar; no asumas que bloquea todo."],["Aeon Disk","Contra iniciación y burst que te eliminan antes de responder; no evita por sí solo el control."],["Linken’s Sphere","Solo ante un hechizo unitario decisivo como Rupture; puede ser consumida por otro hechizo."],["Glimmer Cape","Salvación para vos o un aliado si la detección rival no la neutraliza."],["Force Staff","Reposicionamiento; evaluá el efecto concreto antes de comprarlo."],["Scythe of Vyse","Control de cierre si necesitás detener a un héroe móvil o interrumpir su entrada."]],note:"Orden orientativo: sustain de línea si hace falta → Arcane Boots → Aether Lens. Contra saltos, posicionamiento primero; elegí una defensa según la habilidad que realmente te esté afectando. Decrepify puede impedir ataques físicos al objetivo, así que no lo lances sobre un enemigo que tus aliados necesitan golpear."},
 "npc_dota_hero_drow_ranger|Carry": {title:"Drow Ranger Carry · distancia, posicionamiento y daño sostenido",early:[["Power Treads","Botas de atributos para ajustar estadísticas; priorizalas antes de acumular objetos pequeños."],["Wraith Band","Compra económica si la línea exige atributos; no la fuerces si retrasa Dragon Lance."],["Dragon Lance","Primer objetivo de alcance y atributos para mantener distancia en la fase media."]],core:[["Hurricane Pike","Reposicionamiento y alcance: sube de prioridad si varios enemigos pueden saltarte."],["Manta Style","Atributos, presión de líneas y dispel solo contra efectos que Manta pueda disipar."],["Black King Bar","Adelantala si controles o daño mágico concretos te impiden atacar; no es obligatoria siempre."]],situational:[["Butterfly","Contra daño físico basado en ataques; pierde valor frente a fuentes fiables de precisión."],["Satanic","Sustain para sobrevivir al foco cuando podés mantener ataques."],["Daedalus","Daño para cerrar partidas cuando ya podés pegar con seguridad."],["Silver Edge","Solo si necesitás aplicar Break a una pasiva que cambia la pelea."],["Swift Blink","Movilidad tardía; no reemplaza protección contra iniciación."]],note:"Secuencia base: Power Treads → Dragon Lance → Hurricane Pike o Manta según el problema → BKB si el control te impide atacar → daño o sustain. Si te saltan, resolvé primero el acceso enemigo; no compres daño adicional esperando sobrevivir por sí solo."},
 "npc_dota_hero_luna|Carry": {title:"Luna Carry · velocidad de farmeo, daño en área y ventana de pelea",early:[["Power Treads","Botas de atributos para velocidad de ataque y eficiencia de farmeo."],["Mask of Madness","Acelera farmeo y daño físico; al activarla silencia tus habilidades, así que no la uses antes de necesitar Eclipse."],["Magic Wand","Sustain económico si los enemigos generan cargas; opcional si no hay intercambios frecuentes."]],core:[["Manta Style","Atributos, ilusiones para farmear/presionar y dispel cuando el efecto sea disipable."],["Black King Bar","Prioridad si el control o daño mágico impide mantenerte pegando."],["Hurricane Pike","Alternativa defensiva si te alcanzan antes de poder atacar."]],situational:[["Butterfly","Contra daño físico de ataques si el rival no tiene suficiente precisión."],["Satanic","Sustain para aguantar foco y recuperar vida mientras atacás."],["Daedalus","Daño físico para cerrar partidas cuando ya sobrevivís a la entrada."],["Aghanim’s Scepter","Solo si la mejora vigente y el draft justifican su efecto; no es núcleo automático."],["Mjollnir","Daño y velocidad de ataque; opción contextual, no respuesta universal a ilusiones."],["Swift Blink","Movilidad tardía para reposicionamiento y acceso a objetivos."]],note:"Secuencia base: Power Treads → Mask of Madness si podés farmear seguro → Manta → BKB según controles → daño o sustain. No fuerces peleas tempranas sin objetos ni actives Mask of Madness justo antes de necesitar habilidades."},
 "npc_dota_hero_antimage|Carry": {title:"Anti-Mage Carry · farmeo, movilidad y daño físico",early:[["Power Treads","Botas de atributo para acelerar el farmeo; completalas antes de retrasar demasiado tu primer objeto grande."],["Magic Wand","Comprala si los rivales generan cargas; si no, no retrases el núcleo por ella."]],core:[["Battle Fury","Núcleo de farmeo: acelera el ritmo de objetos. Priorizala si podés farmear con seguridad."],["Yasha","Componente de progresión hacia Manta Style: aporta agilidad y velocidad de ataque; evitá saltarla si seguís la ruta estándar."],["Manta Style","Completa el núcleo: atributos, ilusiones, presión de líneas y dispel cuando corresponda."]],situational:[["Linken’s Sphere","Solo si un hechizo unitario decisivo como Flaming Lasso te está atrapando y el bloqueo puede cambiar esa pelea."],["Black King Bar","Solo si controles o daño mágico concretos te impiden atacar o escapar."],["Skull Basher","Control adicional cuando ya tenés tu economía y núcleo."],["Abyssal Blade","Cierre de control sobre una amenaza prioritaria."],["Butterfly","Daño y evasión si el daño físico rival lo justifica."],["Satanic","Supervivencia si podés mantener ataques."],["Nullifier","Respuesta contra salvaciones o efectos disipables concretos."]],note:"Anti-Mage suele rendir mejor como Carry (posición 1). Orden base: Power Treads → Battle Fury → Yasha → Manta Style. La defensa solo adelanta el núcleo si hay una amenaza concreta que realmente te impide jugar."},
@@ -851,12 +851,16 @@ const itemRecipes={
  "Aether Lens":[{name:"Energy Booster",cost:800},{name:"Void Stone",cost:700},{name:"Receta de Aether Lens",cost:775}],
  "Linken’s Sphere":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700},{name:"Ultimate Orb",cost:2800},{name:"Receta de Linken’s Sphere",cost:600}],
  "Aeon Disk":[{name:"Vitality Booster",cost:1000},{name:"Energy Booster",cost:800},{name:"Receta de Aeon Disk",cost:1200}],
- "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}]
+ "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}],
+ "Kaya":[{name:"Staff of Wizardry",cost:1000},{name:"Robe of the Magi",cost:450},{name:"Receta de Kaya",cost:650}],
+ "Dagon":[{name:"Point Booster",cost:1200},{name:"Crown",cost:450},{name:"Wizard Hat",cost:250},{name:"Receta de Dagon",cost:1100}],
+ "Aghanim’s Scepter":[{name:"Point Booster",cost:1200},{name:"Staff of Wizardry",cost:1000},{name:"Ogre Axe",cost:1000},{name:"Blade of Alacrity",cost:1000}]
 };
 function getNextPurchase(build,state){
  const isAntiMage=build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Yasha","Manta Style"].includes(x.name));
- if(isAntiMage){
-  const coreOrder=["Power Treads","Battle Fury","Yasha","Manta Style"];
+ const isPugna=build.some(x=>x.heroSpecific&&["Arcane Boots","Aether Lens"].includes(x.name));
+ if(isAntiMage||isPugna){
+  const coreOrder=isAntiMage?["Power Treads","Battle Fury","Yasha","Manta Style"]:["Arcane Boots","Aether Lens"];
   const owned=new Set(state.owned);
   const coreTarget=coreOrder.find(name=>!owned.has(name));
   if(coreTarget){
@@ -873,7 +877,14 @@ function getNextPurchase(build,state){
   }
   const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0);
   const chosen=situational[0];
-  if(chosen)return {target:chosen,kind:"complete",name:chosen.name,cost:chosen.cost||0,remaining:Math.max(0,(chosen.cost||0)-state.gold),affordable:state.gold>=(chosen.cost||0),reason:chosen.why,routeReason:"El núcleo está completo. La siguiente compra se elige entre respuestas situacionales según el draft y el problema seleccionado."};
+  if(chosen){
+   const recipe=itemRecipes[chosen.name]||[];
+   const missing=recipe.filter(part=>!state.components.includes(part.name));
+   const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
+   if(missing.length&&next)return {target:chosen,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:chosen.condition||chosen.why,routeReason:"El núcleo está completo. Esta respuesta situacional se elige por el draft y el problema seleccionado; se muestra un componente por vez."};
+   if(recipe.length&&!missing.length)return {target:chosen,kind:"goal",name:chosen.name,reason:chosen.condition||chosen.why,routeReason:"Los componentes figuran completos. Completá el objeto y marcá el objeto entero como comprado; no se muestra un costo ficticio."};
+   return {target:chosen,kind:"complete",name:chosen.name,cost:Number.isFinite(chosen.cost)?chosen.cost:0,remaining:Math.max(0,(chosen.cost||0)-state.gold),affordable:state.gold>=(chosen.cost||0),reason:chosen.condition||chosen.why,routeReason:"El núcleo está completo. La siguiente compra responde a una necesidad situacional."};
+  }
   return {done:true};
  }
  const options=build.filter(x=>!state.owned.includes(x.name)).map(target=>{
@@ -917,13 +928,19 @@ function pugnaFinalBuild(matchups,state){
  const candidates=[
   {name:"Bottle",stage:"Inicio",cost:675,score:1.2,why:"Regeneración y control de runas.",condition:"Si todavía necesitás sustain de línea y podés disputar runas."},
   {name:"Magic Wand",stage:"Inicio",cost:460,score:2.5,why:"Ráfaga de vida y maná en intercambios.",condition:"Sube de valor si los rivales generan cargas frecuentes."},
-  {name:"Arcane Boots",stage:"Núcleo",cost:1500,score:2.6,why:"Sostienen el maná de Pugna y pueden ayudar al equipo.",condition:"Ruta base razonable; reconsiderá si tu equipo ya cubre el maná."},
-  {name:"Aether Lens",stage:"Núcleo",cost:2275,score:4.0,why:"Más alcance para lanzar habilidades desde una posición segura.",condition:"Prioridad de núcleo si necesitás jugar fuera del alcance de iniciación."},
+  {name:"Arcane Boots",stage:"Núcleo",cost:1500,score:2.6,why:"Sostienen el maná de Pugna y aportan regeneración al equipo.",condition:"Ruta base; comprá Ring of Basilius como componente si todavía no lo tenés."},
+  {name:"Aether Lens",stage:"Núcleo",cost:2275,score:4.0,why:"Más alcance para lanzar habilidades desde una posición segura.",condition:"Núcleo de alcance; adelantala si necesitás jugar fuera del rango de iniciación."},
+  {name:"Kaya",stage:"Avanzada",cost:2100,score:2.1,why:"Amplificación de hechizos y mejor rendimiento de maná.",condition:"Daño mágico como prioridad cuando ya tenés alcance y no necesitás resolver primero supervivencia o movilidad."},
+  {name:"Dagon",stage:"Avanzada",cost:3000,score:2.0,why:"Ráfaga adicional para rematar objetivos; su coste escala por nivel.",condition:"Elegila si tu equipo puede asegurar objetivos aislados y la ráfaga cambia el resultado; no la fuerces por daño teórico."},
+  {name:"Blink Dagger",stage:"Avanzada",cost:2250,score:2.4,why:"Reposicionamiento y acceso a ángulos para Decrepify y Nether Blast.",condition:"Adelantala si necesitás reposicionarte o encontrar ángulos de lanzamiento; no reemplaza una defensa contra control."},
+  {name:"Aghanim’s Scepter",stage:"Avanzada",cost:4200,score:1.7,why:"Mejora específica de Pugna; inversión de cierre.",condition:"Comprala cuando hayas comprobado el valor de la mejora en la partida y no estés postergando una respuesta urgente."},
+  {name:"Aghanim’s Shard",stage:"Avanzada",cost:1400,score:1.5,why:"Mejora de habilidad por un coste menor que un objeto grande.",condition:"Evaluá el efecto actual de Shard y su impacto concreto antes de priorizarlo."},
   {name:"Linken’s Sphere",stage:"Defensa",cost:4800,score:has("bloodseeker")?1.2:0,why:"Su bloqueo de hechizo puede bloquear Rupture si está disponible.",condition:"Contra Bloodseeker cuando Rupture sea la amenaza real; el rival puede consumir el bloqueo con otro hechizo."},
-  {name:"Aeon Disk",stage:"Defensa",cost:3000,score:(has("centaur")||has("dawnbreaker")||has("tidehunter")||has("lion"))?3.8:0,why:"Puede darte una ventana para sobrevivir a una cadena de iniciación y burst.",condition:"Si Lion o una iniciación como Ravage te elimina antes de que puedas responder; no evita el control por sí solo."},
-  {name:"Glimmer Cape",stage:"Defensa",cost:2150,score:(has("viper")||has("dark_seer"))?1.5:0,why:"Herramienta de salvación para vos o un aliado.",condition:"Si tu equipo necesita una salvación y el rival no puede revelar o seguir fácilmente al objetivo."},
-  {name:"Black King Bar",stage:"Defensa",cost:4050,score:0,why:"No se recomienda automáticamente para este draft.",condition:"Evaluá solo tras identificar qué controles concretos te afectan y si BKB los contrarresta en el parche."},
-  {name:"Scythe of Vyse",stage:"Cierre",cost:5200,score:1.0,why:"Control fuerte para neutralizar temporalmente una amenaza.",condition:"Objeto de cierre si necesitás control adicional."}
+  {name:"Aeon Disk",stage:"Defensa",cost:3000,score:(has("centaur")||has("dawnbreaker")||has("tidehunter")||has("lion"))?3.8:0,why:"Puede darte una ventana para sobrevivir a una cadena de iniciación y burst.",condition:"Si una iniciación con burst te elimina antes de responder; no evita el control por sí solo."},
+  {name:"Glimmer Cape",stage:"Defensa",cost:2150,score:0,why:"Herramienta de salvación para vos o un aliado.",condition:"Si tu equipo necesita una salvación y el rival no puede revelar o seguir fácilmente al objetivo."},
+  {name:"Black King Bar",stage:"Defensa",cost:4050,score:0,why:"Defensa condicional frente a determinados silencios, controles o daño mágico.",condition:"Comprala solo si verificaste que la inmunidad vigente cubre las habilidades que te impiden jugar."},
+  {name:"Force Staff",stage:"Defensa",cost:2200,score:0,why:"Reposicionamiento antes de que conecte una iniciación o captura.",condition:"Si podés usarlo antes del control para salir de un ángulo peligroso; no garantiza escapar una vez controlado."},
+  {name:"Scythe of Vyse",stage:"Cierre",cost:5200,score:0,why:"Control fuerte para neutralizar temporalmente una amenaza.",condition:"Objeto de cierre si necesitás control adicional."}
  ];
  if(problem==="rupture"&&has("bloodseeker"))candidates.find(x=>x.name==="Linken’s Sphere").score=6;
  if(problem==="initiation"&&(has("centaur")||has("dawnbreaker")||has("tidehunter")))candidates.find(x=>x.name==="Aeon Disk").score=5.8;
@@ -931,23 +948,26 @@ function pugnaFinalBuild(matchups,state){
  if(problem==="lane"&&has("viper"))candidates.find(x=>x.name==="Magic Wand").score=4.8;
  if(problem==="teamfight"&&has("dark_seer"))candidates.find(x=>x.name==="Glimmer Cape").score=2.8;
  if(problem==="magic")candidates.find(x=>x.name==="Glimmer Cape").score=3.6;
+ if(problem==="mobility")candidates.find(x=>x.name==="Blink Dagger").score=5.2;
  const controlCount=matchups.filter(m=>(m.mechanics||[]).includes("hard_control")).length;
  const initiationCount=matchups.filter(m=>(m.mechanics||[]).includes("initiation")).length;
  if(controlCount>=3){
   const aeon=candidates.find(x=>x.name==="Aeon Disk");
   if(aeon){aeon.score=Math.max(aeon.score,3.0);aeon.condition="Solo si el burst de una iniciación te elimina antes de responder; el control por sí solo no justifica esta compra.";}
   const bkb=candidates.find(x=>x.name==="Black King Bar");
-  if(bkb){bkb.score=Math.max(bkb.score,2.2);bkb.why="Defensa condicional frente a determinados silencios, controles o daño mágico; no es una respuesta universal.";bkb.condition="Comprala únicamente si verificaste que la inmunidad vigente cubre las habilidades que te están impidiendo jugar.";}
+  if(bkb){bkb.score=Math.max(bkb.score,2.2);bkb.condition="Comprala únicamente si verificaste que la inmunidad vigente cubre las habilidades que te impiden jugar.";}
  }
  if(initiationCount>=2&&controlCount>=3){
   const force=candidates.find(x=>x.name==="Force Staff");
-  if(force){force.score=Math.max(force.score,2.0);force.why="Alternativa de reposicionamiento si podés usarla antes del control; no evita todas las iniciaciones y Glimpse puede revertir tu posición.";}
+  if(force){force.score=Math.max(force.score,2.0);}
  }
  const remaining=candidates.filter(x=>x.score>0&&!state.owned.includes(x.name));
  const timeAdjusted=remaining.map(x=>{
   let score=x.score;
   if(state.minute<8&&["Bottle","Magic Wand"].includes(x.name))score+=1.2;
   if(state.minute>=12&&["Aether Lens","Linken’s Sphere","Aeon Disk"].includes(x.name))score+=0.6;
+  if(state.minute>=18&&x.name==="Blink Dagger")score+=0.7;
+  if(state.minute>=25&&["Kaya","Dagon","Aghanim’s Scepter"].includes(x.name))score+=0.5;
   if(state.minute>=30&&x.name==="Scythe of Vyse")score+=1.0;
   return {...x,score};
  });
@@ -955,7 +975,6 @@ function pugnaFinalBuild(matchups,state){
  return timeAdjusted.map(x=>({...x,priority:top.has(x.name),affordable:state.gold>=x.cost}))
   .sort((a,b)=>{if(a.priority!==b.priority)return a.priority?-1:1;return b.score-a.score});
 }
-
 function heroPositionFit(hero){
  const r=new Set(hero.roles||[]);
  const scores={
@@ -1254,7 +1273,7 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.17',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.18',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1300,7 +1319,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.17 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.18 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
