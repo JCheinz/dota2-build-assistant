@@ -95,7 +95,7 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - El Service Worker se actualizó a `dota-build-v71` y la referencia de `specializations.js` a `?v=3272`.
 - Primer perfil no-Pugna en desarrollo: `techies|Support 4`, en rama `work/etapa-3-primer-perfil-no-pugna`. Se eligió por volumen de partidas de Support/Hard Support y evidencia separada de soft support en 7.41f.
 - Se incorporó M.A.D. como innata separada de la progresión; habilidades Q/W/E/R y orden de referencia se basan en StatsDota y DotaTrack, con mecánicas cotejadas en DotaCoach.
-- Se detectó una discrepancia en el registro de talentos: StatsDota muestra eventos `T` en niveles 11/16/18, mientras los niveles de talento del héroe son 10/15/20/25. Por rigor, el perfil no fuerza `talentChoices` ni eventos `T` hasta resolver esa discrepancia con datos más claros.
+- Se detectó que una fuente registra la selección de talentos como eventos posteriores al nivel de desbloqueo. Se contrastó con DotaTrack y DotaCoach: el perfil ahora muestra las opciones de talentos en sus tiers 10/15/20/25, sin duplicarlos como eventos `T` de habilidad.
 - Se ajustó la ruta de objetos de Techies Support 4 a tendencias observadas: Tranquil Boots, Ring of Basilius, Soul Ring y alternativas de Aether Lens/Consecrated Wraps; se presentan como estadísticas orientativas.
-- La rama también actualiza `specializations.js` a `?v=3273` y Service Worker a `dota-build-v72`. Cambios aún no integrados; pendiente CI y revisión del diff.
+- La rama también actualiza `specializations.js` a `?v=3273` y Service Worker a `dota-build-v73`. Cambios de talentos y aclaración de matriz en nueva rama `work/etapa-3-techies-talentos`, pendientes CI y revisión del diff.
 
