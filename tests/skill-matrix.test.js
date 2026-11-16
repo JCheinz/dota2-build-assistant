@@ -287,3 +287,62 @@ if (crystalMaiden4 === crystalMaiden5 || crystalMaiden4.metadata.role === crysta
   throw new Error("Crystal Maiden Support 4 debe ser un perfil independiente de Support 5");
 }
 console.log("OK: Crystal Maiden Support 4 — matriz por nivel y cuatro tiers de talentos");
+
+// Auditoría transversal: contrato común de los siete perfiles integrados.
+const expectedProfiles = [
+  "pugna|Mid", "pugna|Support 4", "pugna|Support 5",
+  "techies|Support 4", "techies|Support 5",
+  "crystal_maiden|Support 4", "crystal_maiden|Support 5"
+];
+const registeredProfiles = Object.keys(context.window.DOTA_HERO_SPECIALIZATIONS).sort();
+if (expectedProfiles.slice().sort().join("|") !== registeredProfiles.join("|")) {
+  throw new Error("La cobertura de especializaciones cambió: revisar altas/bajas de perfiles antes de integrar");
+}
+for (const profileKey of expectedProfiles) {
+  const guide = context.window.DOTA_HERO_SPECIALIZATIONS[profileKey]?.guide;
+  if (!guide) throw new Error("Falta la guía " + profileKey);
+  if (!Array.isArray(guide.skillBuild) || !guide.skillBuild.length) {
+    throw new Error("Falta la progresión de habilidades en " + profileKey);
+  }
+  if (!guide.skillIcons || !Object.keys(guide.skillIcons).length) {
+    throw new Error("Faltan iconos/metadatos de habilidades en " + profileKey);
+  }
+  const seenLevels = new Set();
+  for (const event of guide.skillBuild) {
+    const level = Number(event.level);
+    if (!Number.isInteger(level) || level < 1 || level > 30) {
+      throw new Error("Nivel de progresión inválido en " + profileKey + ": " + event.level);
+    }
+    if (seenLevels.has(level)) {
+      throw new Error("Hay más de un evento de progresión en nivel " + level + " para " + profileKey);
+    }
+    seenLevels.add(level);
+    if (!event.code || !["A", "T"].includes(event.code) && !guide.skillIcons[event.code]) {
+      throw new Error("Evento sin habilidad/icono válido en " + profileKey + " nivel " + level);
+    }
+  }
+  const tiers = (guide.talentChoices || []).map(t => Number(t.level));
+  if (tiers.join(",") !== "10,15,20,25") {
+    throw new Error("El árbol de " + profileKey + " debe tener exactamente los tiers 10/15/20/25");
+  }
+  for (const tier of guide.talentChoices) {
+    for (const side of ["left", "right"]) {
+      if (!tier[side]?.name || !tier[side]?.reason) {
+        throw new Error("Falta nombre o explicación de talento en " + profileKey + " nivel " + tier.level);
+      }
+    }
+  }
+  const rendered = context.renderSpecializationGuide(guide);
+  if (!rendered.includes("Árbol de talentos") || !rendered.includes("Nivel 25")) {
+    throw new Error("No se renderiza el árbol completo de " + profileKey);
+  }
+  for (const tier of guide.talentChoices) {
+    if (!rendered.includes(tier.left.name) || !rendered.includes(tier.right.name)) {
+      throw new Error("No se muestran ambas elecciones del nivel " + tier.level + " en " + profileKey);
+    }
+  }
+  if (guide.metadata && (guide.metadata.role !== profileKey.split("|")[1] || guide.metadata.patch !== "7.41f")) {
+    throw new Error("Metadata de rol/parche inconsistente en " + profileKey);
+  }
+}
+console.log("OK: auditoría transversal de siete perfiles — progresión, iconos, cuatro tiers y render del árbol");
