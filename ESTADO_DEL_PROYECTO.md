@@ -4,7 +4,7 @@
 **Repositorio:** [JCheinz/dota2-build-assistant](https://github.com/JCheinz/dota2-build-assistant)  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión de referencia actual:** 3.26
+**Versión de referencia actual:** 3.27 (en rama de trabajo; pendiente de integrar)
 
 Este documento es el punto de continuidad del proyecto. Si una conversación termina, abrir este archivo y continuar desde la sección **Próximo paso**. Actualizarlo al cerrar cada etapa importante.
 
@@ -24,7 +24,7 @@ Construir un asistente contextual para Dota 2, no un catálogo de builds fijas. 
 
 - Aplicación publicada mediante GitHub Pages desde `main`, raíz del repositorio.
 - PWA instalable en Android.
-- La versión 3.26 es la versión actual de referencia.
+- La versión 3.26 fue la base estable de esta etapa; la 3.27 está preparada en una rama de trabajo y todavía no está integrada en `main`.
 - El usuario confirmó visualmente que la matriz de habilidades y talentos 3.26 funciona en su dispositivo.
 - Esa confirmación no equivale a una batería completa de pruebas automatizadas ni certifica todas las funciones.
 
@@ -35,6 +35,7 @@ Construir un asistente contextual para Dota 2, no un catálogo de builds fijas. 
 - PR #1: https://github.com/JCheinz/dota2-build-assistant/pull/1
 - Merge commit de PR #1: `eb47ba34bcc4a8431c6b6ddeadf699c45bc8be72`
 - Service Worker de 3.26: caché `dota-build-v68`.
+- Respaldo previo a la etapa Pugna Support: `backup/3.26-before-pugna-support` (creado desde el HEAD de `main` del 16/11/2026).
 
 No volver a usar 3.25 como base para cambios nuevos: continuar desde el estado vigente de `main` (3.26), salvo que se solicite explícitamente restaurar una versión anterior.
 
@@ -74,6 +75,19 @@ Cambios integrados en `main`:
 
 Archivos modificados en esa etapa: `index.html`, `specializations.js`, `sw.js` y `README.md`.
 
+### 3.4 Especializaciones Pugna Support 4 y Support 5 — versión 3.27 (en rama de trabajo)
+
+Se añadieron en `specializations.js` dos perfiles separados:
+
+- `pugna|Support 4`: presión de línea, control, rotaciones y utilidad.
+- `pugna|Support 5`: protección del carry, sustain y defensa de objetivos.
+
+Ambos perfiles incluyen iconos Q/W/E/R, progresión de habilidades, talentos contextuales, combos, posicionamiento, mecánicas específicas de Pugna y rutas individuales de compra en `index.html`. Comparten la progresión de habilidades de referencia para Pugna support en 7.41f; se diferencian en ejecución, prioridades y criterios de uso según la posición. La secuencia se debe adaptar a la línea y al draft.
+
+Las rutas de compra separan la presión/rotación de posición 4 de la protección del carry de posición 5. Se añadieron referencias de Ring of Basilius, Magic Wand, Arcane Boots, Aether Lens y Glimmer Cape, más respuestas situacionales como Force Staff, Ghost Scepter y Aeon Disk. No se presentan precios ni recetas como verificados.
+
+La versión visible se actualizó a 3.27 y el Service Worker a `dota-build-v69`. Estos cambios están en `work/pugna-support-4-5`; todavía no se consideran desplegados ni validados en Android.
+
 ## 4. Limitaciones técnicas conocidas
 
 La matriz todavía no es universal:
@@ -91,12 +105,12 @@ Antes de escalar, convertir el renderer en dinámico: generar filas desde los da
 
 ### Etapa 1 — Completar Pugna
 
-Crear perfiles separados y genuinos para:
+- [x] Crear perfil separado Pugna Support 4.
+- [x] Crear perfil separado Pugna Support 5.
+- [ ] Validar selección de perfiles desde la interfaz y probarlos en Android.
+- [ ] Completar revisión de compras específicas por posición con escenarios reales.
 
-- Pugna Support 4.
-- Pugna Support 5.
-
-No copiar sin cambios la guía Mid. Adaptar progresión, economía, prioridades, objetos y función a cada posición, validando las decisiones con el parche vigente.
+Los dos perfiles se añadieron en la rama `work/pugna-support-4-5`, pero aún esperan revisión e integración.
 
 ### Etapa 2 — Universalizar la matriz
 
@@ -150,14 +164,15 @@ Probar primero héroes con estructuras de habilidades distintas. Validar secuenc
 
 ## 7. Próximo paso acordado
 
-**Continuar desde la versión 3.26 de `main`.**
+**Etapa actual: revisar e integrar Pugna Support 4/5.**
 
-1. Antes de editar, crear un respaldo nuevo de 3.26 (sin tocar `backup/3.25-stable`).
-2. Desarrollar Pugna Support 4 y Support 5 como perfiles independientes.
-3. Validar sintaxis y conservar los perfiles existentes.
-4. Después abordar la matriz universal.
+1. Revisar que el selector de posición encuentre ambos perfiles y que no se altere Pugna Mid.
+2. Validar sintaxis de JavaScript y coherencia de la matriz.
+3. Abrir PR desde `work/pugna-support-4-5` hacia `main`.
+4. Tras integrar, probar ambos perfiles en Android.
+5. Luego abordar la matriz universal.
 
-No se ha autorizado todavía una nueva modificación de código posterior a la versión 3.26; este documento registra el plan, no afirma que las etapas pendientes ya estén implementadas.
+La etapa 1 está implementada en la rama de trabajo, pero todavía no integrada ni validada en el dispositivo.
 
 ---
 

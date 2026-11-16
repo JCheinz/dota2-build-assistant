@@ -165,7 +165,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.26</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.27</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -374,6 +374,46 @@ function renderHeroPlan(plan){
  return '<div class="result-section"><h3>'+esc(plan.title)+'</h3></div>'+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
 }
 
+
+heroPlans["npc_dota_hero_pugna|Support 4"]={
+ title:"Pugna · Support 4 · presión de línea y utilidad ofensiva",
+ early:[
+  ["Ring of Basilius","Sustain de maná para mantener hostigamiento y uso de habilidades; priorizalo si tu línea necesita regeneración."],
+  ["Magic Wand","Compra situacional de bajo costo cuando el dúo rival genera cargas."],
+  ["Arcane Boots","Botas de referencia para aportar maná al equipo y sostener rotaciones."]
+ ],
+ core:[
+  ["Aether Lens","Alcance adicional para aplicar Decrepify, Life Drain y habilidades desde una posición más segura."],
+  ["Glimmer Cape","Salvación y reposicionamiento defensivo cuando el equipo necesita proteger al objetivo enfocado."]
+ ],
+ situational:[
+  ["Force Staff","Si necesitás sacar aliados de trampas o corregir posicionamiento."],
+  ["Eul’s Scepter of Divinity","Herramienta defensiva y de control situacional; evaluá si resuelve el problema real."],
+  ["Aeon Disk","Si recibís el primer foco y morís antes de poder lanzar tus recursos."],
+  ["Aghanim’s Scepter","Solo si el efecto vigente y la partida justifican la inversión."]
+ ],
+ note:"La referencia estadística de Pugna support 7.41f muestra Ring of Basilius, Arcane Boots y Aether Lens como progresión frecuente; Glimmer Cape y Force Staff son respuestas situacionales. Como posición 4, no conviertas esa secuencia en compra rígida: priorizá detección, salvación o control si el draft lo exige."
+};
+
+heroPlans["npc_dota_hero_pugna|Support 5"]={
+ title:"Pugna · Support 5 · protección del carry y defensa",
+ early:[
+  ["Magic Wand","Sustain eficiente si el rival intercambia habilidades con frecuencia."],
+  ["Ring of Basilius","Regeneración de maná para sostener la defensa de línea cuando el equipo necesita ese recurso."],
+  ["Arcane Boots","Opción de botas de equipo para mantener maná disponible durante defensa y peleas."]
+ ],
+ core:[
+  ["Aether Lens","Permite proteger o drenar desde más distancia y reduce la exposición al iniciar una acción."],
+  ["Glimmer Cape","Herramienta de salvación para el carry o para vos si no hay detección enemiga inmediata."]
+ ],
+ situational:[
+  ["Force Staff","Prioridad si el carry necesita ser desplazado fuera de una iniciación o zona peligrosa."],
+  ["Ghost Scepter","Contra foco físico directo cuando necesitás sobrevivir para seguir protegiendo."],
+  ["Aeon Disk","Si el burst enemigo te elimina antes de que puedas usar Decrepify o Life Drain."],
+  ["Aghanim’s Shard","Evaluá su efecto vigente y su impacto real antes de comprarlo."]
+ ],
+ note:"Como posición 5, la prioridad es que tu carry sobreviva y que el equipo conserve recursos para defender objetivos. Arcane Boots, Aether Lens y Glimmer Cape son referencias de utilidad; cambiá el orden si una amenaza concreta exige Force Staff, Ghost Scepter u otra respuesta."
+};
 
 heroPlans["npc_dota_hero_techies|Support 4"]={
  title:"Techies · Support 4 · control de zonas y utilidad",
@@ -1310,7 +1350,7 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.26',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.27',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1356,7 +1396,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.26 · matriz visual de habilidades por nivel e iconos oficiales; conserva las guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.27 · Pugna Mid, Support 4 y Support 5 con perfiles separados; matriz visual de habilidades por nivel e iconos oficiales; conserva las guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});

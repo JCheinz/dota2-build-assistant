@@ -1,3 +1,12 @@
+# Dota 2 Build Assistant — versión 3.27
+
+## Novedades de la versión 3.27
+- Añadidas especializaciones individuales de Pugna Support 4 y Support 5, separadas de Pugna Mid.
+- Las dos guías incluyen progresión de habilidades, talentos contextuales, combos, posicionamiento y mecánicas del héroe.
+- La secuencia de soporte se basa en tendencias agregadas de Pugna support del parche 7.41f; debe adaptarse al draft y a la línea.
+- Se conserva Pugna Mid y la matriz visual de habilidades/talentos.
+- Service Worker actualizado a caché v69.
+
 # Dota 2 Build Assistant — versión 3.26
 
 ## Novedades de la versión 3.26
