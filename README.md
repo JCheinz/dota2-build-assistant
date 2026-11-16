@@ -1,4 +1,10 @@
-# Dota 2 Build Assistant — versión 3.15
+# Dota 2 Build Assistant — versión 3.16
+
+## Novedades de la versión 3.16
+- Corregida la progresión de compra de Anti-Mage: recomienda componentes pendientes uno por vez y no informa costo cero ficticio al completar el objeto.
+- La interfaz distingue guía individual completa, ruta individual de objetos y perfil inferido por arquetipo.
+- Se mantiene el motor común y el registro modular de especializaciones.
+
 
 ## Novedades de la versión 3.15
 - Se extraen las especializaciones individuales a `specializations.js`, separadas del motor común.
