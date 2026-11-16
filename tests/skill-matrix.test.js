@@ -39,7 +39,8 @@ const fixture = {
     { level: 1, code: "ABILITY_ALPHA" },
     { level: 2, code: "ABILITY_BETA" },
     { level: 3, code: "ABILITY_ALPHA" },
-    { level: 4, code: "ULTIMATE_OMEGA" },\n    { level: 30, code: "ABILITY_BETA" }
+    { level: 4, code: "ULTIMATE_OMEGA" },
+    { level: 30, code: "ABILITY_BETA" }
   ],
   talentChoices: []
 };
