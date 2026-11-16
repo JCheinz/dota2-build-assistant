@@ -331,7 +331,7 @@ function getHeroSpecialization(hero,role){
 
 function renderSpecializationGuide(g){
  const cards=(arr)=>arr.map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
- return '<div class="result-section"><h3>'+esc(g.title)+'</h3><p class="hint"><b>Orden de habilidades observado:</b> '+esc(g.skillOrder.join(' · '))+'</p><p class="hint">La prioridad general es maximizar Nether Blast primero, tomar Life Drain en 6/12/18 cuando esté disponible y desarrollar Nether Ward antes de completar Decrepify, salvo que la partida exija otra cosa.</p><h3>Talentos: decisión contextual</h3>'+cards(g.talents)+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
+ return '<div class="result-section"><h3>'+esc(g.title)+'</h3><p class="hint"><b>Orden de habilidades observado:</b> '+esc(g.skillOrder.join(' · '))+'</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Talentos: decisión contextual</h3>'+cards(g.talents)+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
 }
 
 function renderHeroPlan(plan){
