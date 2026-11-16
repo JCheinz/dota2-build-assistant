@@ -1,4 +1,4 @@
-const CACHE = 'dota-build-v76';
+const CACHE = 'dota-build-v77';
 const CORE = ['./', './index.html', './manifest.webmanifest', './heroes.json', './hero-fallback.js'];
 
 self.addEventListener('install', event => {
