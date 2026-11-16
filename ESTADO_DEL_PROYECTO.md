@@ -300,3 +300,5 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Cambiar héroe o posición reinicia el inventario previo, evitando mezclar las compras de dos configuraciones diferentes.
 - Pruebas de regresión para consumo de receta y aislamiento de inventario. PR #19: https://github.com/JCheinz/dota2-build-assistant/pull/19; CI inicial `43976306859`, success.
 - Service Worker `dota-build-v81`. Pendiente merge y verificación de Pages.
+
+- Integrado por squash en main: commit `4a821e26311295be500993bcc36cc6f719a4eb49`. CI final de PR tras actualizar estados run `43976374141`, success. Pendiente confirmar CI y Pages post-merge.
