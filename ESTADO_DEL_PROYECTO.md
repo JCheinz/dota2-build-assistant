@@ -302,3 +302,13 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Service Worker `dota-build-v81`. Pendiente merge y verificación de Pages.
 
 - Integrado por squash en main: commit `4a821e26311295be500993bcc36cc6f719a4eb49`. CI final de PR tras actualizar estados run `43976374141`, success. Pendiente confirmar CI y Pages post-merge.
+
+
+## 21. Inventario con mochila y reserva vendible — PR #20 (16-11-2026)
+
+- Respaldos: `backup/3.32-before-inventory-backpack-reserve` y `backup/estado-3.32-before-inventory-backpack-reserve`, desde main `48aa1ee85f00cac61912793c9adb2198395113ce`.
+- Interfaz de inventario ampliada: seis espacios principales, tres espacios de mochila para rotar objetos y zona de reserva sin límite fijo.
+- Tocar un objeto de inventario/mochila permite moverlo entre sectores si existe espacio; × lo retira/vende. En reserva, tocar directamente el objeto lo vende y lo descuenta de los comprados.
+- Se preserva la asignación de sectores al recalcular y reconstruir los controles. Componentes y consumo de recetas conservados.
+- Regresiones automáticas añadidas; CI run `43979583575`, success. PR #20: https://github.com/JCheinz/dota2-build-assistant/pull/20.
+- Service Worker actualizado a `dota-build-v82`. Pendiente merge y verificación de publicación.
