@@ -1271,6 +1271,11 @@ function analyze(options={}){
  const matchups=getMatchupData(me,enemies,role,live.minute),adaptive=buildAdaptivePlan(me,role,enemies,live);
  const threatPriority=buildThreatPriority(matchups,me,role,allies);
  const purchaseDecision=buildPurchaseDecision(me,role,matchups,threatPriority,live);
+ if(purchaseDecision&&purchaseDecision.primary&&!adaptive.selected.some(x=>x.name===purchaseDecision.primary.name)){
+  const defensive=purchaseDecision.primary;
+  adaptive.selected.push({name:defensive.name,why:defensive.reason,condition:defensive.reason,stage:"Defensa",cost:defensive.name==="Black King Bar"?4050:undefined,score:8,priority:false,roles:[role],tags:["threat-response"],threatSpecific:true});
+  adaptive.situational.push(adaptive.selected[adaptive.selected.length-1]);
+ }
  const rankContext=getRankHeroContext(me,$('rank').value);
  const rankSummary=rankContext?('OpenDota · '+$('rank').value+': '+rankContext.rate.toFixed(1)+'% de victorias en '+rankContext.picks.toLocaleString('es-AR')+' partidas. Dato agregado del héroe; no separa posiciones.'):'OpenDota: muestra insuficiente para este héroe en el rango seleccionado.';
  const nextPurchase=getNextPurchase(adaptive.selected,live,purchaseDecision&&purchaseDecision.primary?purchaseDecision.primary.name:null);
