@@ -188,4 +188,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se agregaron iconos oficiales para Tango, Iron Branch, Blood Grenade, Enchanted Mango, Sentry Ward, Magic Stick, Wind Lace, Tranquil Boots e Infused Raindrops.
 - Se añadieron regresiones para iconos, visibilidad del núcleo y alternativas, guardas de oro/fase y avance de la ruta según inventario.
 - Service Worker actualizado a `dota-build-v76`.
-- Estado: cambios en revisión automática; no integrar hasta que CI y diff estén aprobados y el usuario autorice el merge.
+- Estado actualizado: PR #12 integrado por squash en `main` el 16-11-2026. Commit: `af5dbca8e8d3d79348aa5632f839dd177106c975`. CI previo al merge aprobado; validación post-merge y despliegue de Pages iniciados y pendientes al momento de esta actualización.
+
+## 12. Integración y autorización operativa permanente (16-11-2026)
+
+- PR #12 — Fix Crystal Maiden Support 5 item route and icons: https://github.com/JCheinz/dota2-build-assistant/pull/12
+- Integrado por squash en `main`; commit: `af5dbca8e8d3d79348aa5632f839dd177106c975`.
+- CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
+- Validación post-merge: run `43929105992`, iniciada y pendiente de resultado en el momento de esta actualización.
+- GitHub Pages build/deploy: run `43929102880`, iniciado y pendiente de resultado en el momento de esta actualización.
+- Service Worker incluido: `dota-build-v76`.
+- A partir del 16-11-2026, el usuario autoriza expresamente realizar merges automáticamente cuando el PR tenga CI aprobado, revisión de diff satisfactoria, sin conflictos y el archivo de estado esté actualizado. No hace falta pedir autorización individual para cada merge bajo esas condiciones.
+- Archivo operativo de continuidad: `ESTADO_DEL_TRABAJO.md`; mantenerlo actualizado en cada avance relevante, además de este historial de proyecto.
