@@ -1,90 +1,82 @@
 # Estado del proyecto — Dota 2 Build Assistant
 
 **Última actualización:** 16 de noviembre de 2026  
-**Repositorio:** [JCheinz/dota2-build-assistant](https://github.com/JCheinz/dota2-build-assistant)  
+**Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada de referencia:** 3.27 + Service Worker v70  
-**Etapa activa:** Etapa 2 — matriz universal dinámica de habilidades.
-
-Este archivo es el registro de continuidad del proyecto. Actualizarlo al cerrar cada etapa importante. No declarar pruebas o despliegues que no se hayan verificado.
+**Versión integrada:** 3.27 + Service Worker v70  
+**Etapa activa:** Etapa 2 integrada; validación visual Android pendiente. Preparación de Etapa 3.
 
 ## 1. Objetivo
 
-Construir un asistente contextual de Dota 2, no un catálogo de builds estáticas. Debe combinar:
+Construir un asistente contextual de Dota 2, no un catálogo de builds estáticas:
 1. Motor común: draft, amenazas individuales y combinadas, sinergias, fase/minuto, oro, inventario, componentes y problema actual.
 2. Especializaciones por héroe y posición: habilidades, talentos, mecánicas, combos, posicionamiento y objetos.
 3. Decisión adaptativa: identidad del héroe + posición + contexto real de partida, con explicaciones.
 4. Cobertura progresiva de los 126 héroes en las posiciones que realmente desempeñan, sin inventar datos.
 
-## 2. Estado de versiones y respaldos
+## 2. Versiones, integraciones y respaldos
 
-- La versión 3.27 está integrada en `main`.
+- Versión 3.27 integrada en `main`.
 - PR #2 integró Pugna Support 4 y Support 5. Merge: `bf381b7466d2036339668e958c57b89055ef5917`.
-- PR #3 integró la corrección de carga de especializaciones. Merge: `f71d2c8243946493c98f0ee9b37feb55252dbe0c`.
-- Service Worker actual: `dota-build-v70`; JavaScript usa estrategia network-first con fallback offline.
-- Respaldo anterior: `backup/3.26-before-pugna-support`.
-- Respaldo 3.27 anterior a la matriz universal: `backup/3.27-stable-before-universal-matrix`.
-- Respaldo independiente del estado del proyecto: `backup/estado-3.27-before-universal-matrix`.
-- Ambos respaldos nuevos apuntan al commit `02da391c48f9e37931a1a554248c108a1f8d80cb`, antes de iniciar la Etapa 2. No sobrescribirlos.
+- PR #3 corrigió la carga de especializaciones. Merge: `f71d2c8243946493c98f0ee9b37feb55252dbe0c`.
+- PR #4 integró la matriz dinámica universal. Merge: `0fd92b385bbd4744cdaef5c5ae6668514e640c3f`.
+- Commit de continuidad en `main`: `8ad26a5bc65a5d1772478b06169499739475018e`.
+- Validación CI de PR #4: run `43820657158`, success; sintaxis de especializaciones y pruebas de matriz/regresiones aprobadas.
+- Publicación GitHub Pages del commit de continuidad: run `43820718390`, conclusion `success`.
+- Service Worker: `dota-build-v70`; JavaScript usa estrategia network-first con fallback offline.
+- Respaldos históricos: `backup/3.26-before-pugna-support`, `backup/3.27-stable-before-universal-matrix` y `backup/estado-3.27-before-universal-matrix`. No sobrescribir.
+- Respaldos nuevos desde el main publicado `8ad26a5`: `backup/3.27-universal-matrix-deployed` y `backup/estado-3.27-universal-matrix-deployed`.
+- Rama de trabajo actual: `work/etapa-3-perfiles-universales`, creada desde el mismo commit publicado.
 
-## 3. Etapa 1 — Pugna (funcionalmente completada)
+## 3. Etapa 1 — Pugna
 
-### Pugna Mid
-Primer perfil especializado desarrollado en etapas anteriores. Incluye progresión de habilidades, talentos, combos, posicionamiento, mecánicas y compras adaptativas. Se conserva como referencia histórica y funcional; no pedir repetir pruebas ya realizadas salvo que un cambio posterior pueda afectarlo.
+Funcionalmente completada y validada previamente por el usuario en Android:
+- Pugna Mid: guía individual, progresión, talentos, combos, posicionamiento, mecánicas y compras adaptativas.
+- Pugna Support 4: guía individual y ruta de compras propia.
+- Pugna Support 5: guía individual y ruta de compras diferenciada.
+- No reabrir esta etapa salvo que una regresión posterior lo justifique.
 
-### Pugna Support 4
-Especialización individual incorporada en 3.27: progresión de habilidades, talentos, combos, posicionamiento, mecánicas y ruta de compras propia. El usuario confirmó en Android que aparece GUÍA INDIVIDUAL COMPLETA y la matriz.
+Pendientes de calidad conocidos:
+- Mejorar el texto de compatibilidad para distinguir la posición seleccionada de los roles generales del catálogo.
+- Auditar explicaciones de objetos situacionales y su relación con amenazas concretas.
 
-### Pugna Support 5
-Especialización individual incorporada en 3.27: guía, matriz, talentos, combos y ruta de compras diferenciada. El usuario confirmó en Android que aparece GUÍA INDIVIDUAL COMPLETA y su ruta propia.
+## 4. Etapa 2 — Matriz universal dinámica
 
-### Pendientes de calidad conocidos
-- Mejorar el texto de compatibilidad para que distinga la posición seleccionada de los roles generales del catálogo. Actualmente puede mostrar Carry/Mid/Offlane como compatibilidades estimadas aunque la guía seleccionada sea Support.
-- Auditar explicaciones de objetos situacionales y su relación con amenazas concretas; no confundir nombres de enemigos con errores de perfil.
-- No reabrir la etapa Pugna sin una regresión que lo justifique.
+### Implementación integrada
+- En `index.html`, `renderSpecializationGuide(g)` deriva filas desde las claves de `g.skillIcons` y los códigos de `g.skillBuild`, sin fijar Q/W/E/R.
+- Niveles, columnas y ancho de matriz son dinámicos; las filas de talentos y atributos aparecen solo si existen datos.
+- Se eliminó el fallback que inventaba habilidades de Pugna cuando faltan metadatos; se informa que la matriz no está disponible.
+- `cards(arr)` tolera listas opcionales ausentes.
+- Se agregó `tests/skill-matrix.test.js`, con pruebas para los tres perfiles Pugna y una fixture sintética con claves distintas de Q/W/E/R y progresión de 30 niveles.
+- Se agregó `.github/workflows/validate-skill-matrix.yml` para validar sintaxis y ejecutar pruebas.
+- CI pasó y PR #4 fue integrado.
+- GitHub Pages terminó correctamente la publicación del commit `8ad26a5`.
 
-## 4. Etapa 2 — Matriz universal dinámica (en curso)
-
-### Situación actual del código
-- La matriz visual está dentro de `renderSpecializationGuide(g)` en `index.html`.
-- Se inició la generalización: las filas ahora se derivan de las claves de `g.skillIcons` y de los códigos presentes en `g.skillBuild`, en lugar de fijarse a `Q/W/E/R`.
-- Los niveles se calculan a partir de 25, `g.maxLevel` y los niveles definidos en la progresión/talentos.
-- Las columnas y el ancho de la matriz se generan según la cantidad de niveles.
-- Las filas de talentos y atributos solo aparecen cuando existen datos para ellas.
-- Se eliminó el fallback visual que inventaba habilidades de Pugna cuando faltan metadatos; si no hay habilidades definidas, se muestra una explicación de matriz no disponible.
-- Los metadatos siguen usando `g.skillIcons`; la progresión `g.skillBuild`; y los talentos `g.talentChoices`.
-- `specializations.js` contiene guías individuales verificadas solo para Pugna Mid, Support 4 y Support 5; esta generalización del renderizador no crea automáticamente guías ni datos de otros héroes.
-
-### Objetivo de la matriz universal
-1. Renderizar las filas a partir de los metadatos de cada guía, no de Q/W/E/R codificados.
-2. Admitir códigos de habilidad variables y filas especiales (innata/puntos de atributo/talentos) solo cuando los datos las definan.
-3. Mantener iconos, nombres, tooltip y fallback visual sin inventar habilidades.
-4. Mantener niveles, orden de aprendizaje y puntos especiales derivados de los datos explícitos.
-5. Conservar el diseño móvil con desplazamiento horizontal y encabezados legibles.
-6. Si faltan datos, mostrar claramente “matriz no disponible” en lugar de fabricar una progresión.
-7. Mantener compatibilidad hacia atrás con los tres perfiles de Pugna existentes.
-
-### Criterios de aceptación
-- Pugna Mid, Support 4 y Support 5 mantienen exactamente su progresión, iconos, talentos y contenido.
-- El renderizador no presupone que todos los héroes tienen las mismas claves de habilidad.
-- Una guía de prueba con claves de habilidad distintas de Q/W/E/R puede producir matriz correcta.
-- No se agregan perfiles ni progresiones de héroes sin datos verificados.
-- Se valida sintaxis JS y se revisa el diff antes de integrar.
-- Prueba Android posterior a la integración antes de cerrar la etapa.
+### Validación pendiente
+La matriz dinámica todavía requiere inspección visual en Android para Pugna Mid, Support 4 y Support 5. La validación automática no sustituye esa prueba. No declarar cerrada la etapa hasta recibir confirmación del usuario.
 
 ## 5. Flujo de trabajo obligatorio
 
-1. Crear respaldo de versión y estado antes de cambios estructurales importantes.
+1. Crear respaldos separados de código y estado antes de cambios estructurales.
 2. Crear rama de trabajo desde el `main` vigente.
-3. Trabajar en etapas pequeñas; no sobrescribir respaldos.
-4. Revisar código existente y compatibilidad antes de cambiar.
+3. Trabajar por etapas pequeñas; no sobrescribir respaldos.
+4. Revisar código y compatibilidad antes de cambiar.
 5. Actualizar Service Worker cuando cambien recursos cacheados.
-6. Validar sintaxis, revisar diff y registrar limitaciones.
-7. Integrar mediante PR solo cuando el diff esté revisado y mergeable.
-8. Confirmar publicación y pedir al usuario únicamente las pruebas reales que falten.
-9. Actualizar este documento al cerrar cada etapa.
+6. Validar sintaxis, pruebas y diff antes de integrar.
+7. Integrar mediante PR cuando el cambio esté revisado y mergeable.
+8. Confirmar publicación y solicitar solo las pruebas reales que dependan del usuario.
+9. Actualizar este documento tras cada hito importante.
 
-## 6. Próximo paso inmediato
+## 6. Etapa 3 — Cobertura de especializaciones universales
 
-La validación de `specializations.js` pasó en GitHub Actions. La primera ejecución de la fixture detectó que el renderizador asumía listas `talents/combos` aunque fueran opcionales; se robusteció `cards()` para tolerar listas ausentes y se completaron datos mínimos de fixture. La última ejecución observada todavía corresponde al commit anterior a esa corrección y falló por ese motivo; los commits correctivos posteriores aún no tienen resultado CI confirmado. Próximo: confirmar CI verde para el HEAD actual, revisar diff y solicitar validación visual Android antes de integrar. La fixture es sintética y no representa un héroe real.
+Aún no se incorporaron perfiles nuevos de héroes. La matriz universal solo permite representar datos; no genera guías automáticamente.
+
+Primer trabajo de la etapa:
+1. Auditar el esquema actual de `specializations.js` y el contrato que consume el motor.
+2. Definir un formato extensible para habilidades normales, innatas, talentos y puntos de atributo, sin asumir que todos los héroes comparten la misma progresión.
+3. Elegir el primer héroe/posición no-Pugna con información verificable de la versión objetivo y construir una especialización completa, no una plantilla vacía.
+4. Añadir pruebas de regresión para los tres perfiles Pugna y pruebas del nuevo perfil.
+5. Revisar la calidad del contenido y la UI antes de ampliar a más héroes.
+
+No inventar orden de habilidades, talentos, objetos, precios, recetas ni roles. Distinguir datos comprobados de inferencias y recomendaciones situacionales.
