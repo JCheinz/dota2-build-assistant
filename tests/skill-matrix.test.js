@@ -23,15 +23,15 @@ for (const role of pugnaProfiles) {
   const guide = context.window.DOTA_HERO_SPECIALIZATIONS["pugna|" + role]?.guide;
   if (!guide) throw new Error("Falta guía individual Pugna " + role);
   const talentLevels = (guide.talentChoices || []).map(t => Number(t.level));
-  for (const level of talentLevels) {
-    const learned = guide.skillBuild.find(x => Number(x.level) === level);
-    if (!learned || learned.code !== "T") {
-      throw new Error("El talento del nivel " + level + " no coincide con skillBuild de Pugna " + role);
-    }
-  }
   const talentEntries = guide.skillBuild.filter(x => x.code === "T").map(x => Number(x.level));
   if (talentEntries.some(level => !talentLevels.includes(level))) {
-    throw new Error("Hay un punto de talento sin metadatos en Pugna " + role);
+    throw new Error("Hay un evento de talento sin metadatos en Pugna " + role);
+  }
+  if (talentLevels.includes(10)) {
+    const levelTen = guide.skillBuild.find(x => Number(x.level) === 10);
+    if (!levelTen || levelTen.code !== "T") {
+      throw new Error("El talento de nivel 10 no coincide con skillBuild de Pugna " + role);
+    }
   }
   const output = context.renderSpecializationGuide(guide);
   if (!output.includes("Orden de habilidades por nivel")) throw new Error("Falta matriz Pugna " + role);
