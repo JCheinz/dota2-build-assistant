@@ -1356,7 +1356,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.26 · matriz visual de habilidades por nivel e iconos de habilidades de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.26 · matriz visual de habilidades por nivel e iconos oficiales; conserva las guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
