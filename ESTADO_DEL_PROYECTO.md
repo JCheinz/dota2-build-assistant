@@ -212,3 +212,16 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se actualizó la referencia de especializaciones a `?v=3277` y Service Worker a `dota-build-v77`.
 - Estado: rama preparada; pendiente CI y revisión del diff antes de crear/integrar PR.
 - No se alteró la lógica ni los datos de las especializaciones validadas de Pugna, Techies Support 4/5 y Crystal Maiden Support 5.
+
+
+## 14. Integración — columna fija universal de matrices de habilidades (16-11-2026)
+
+- PR #13 «Keep skill matrix labels fixed for every hero»: https://github.com/JCheinz/dota2-build-assistant/pull/13
+- Integrado por squash en `main`; commit `aa746438c3d799e63f6eba4fe9a240986cdd6030`.
+- CI del PR #13 run `43933110575`: success; sintaxis y regresiones aprobadas.
+- Cambio en el renderizador compartido: primera columna de nombres fija durante el desplazamiento horizontal, cabecera HABILIDAD por encima de las celdas y sombra divisoria. Se eliminó el overflow interno que recortaba sticky.
+- Regresión automatizada añadida para todas las especializaciones que declaran matriz; no se modificaron los datos ni las lógicas individuales de Pugna, Techies Support 4/5 o Crystal Maiden Support 5.
+- Cache Service Worker: `dota-build-v77`; referencia de especializaciones: `?v=3277`.
+- Respaldos: `backup/3.27-before-universal-sticky-skill-labels` y `backup/estado-3.27-before-universal-sticky-skill-labels`.
+- CI post-merge y publicación Pages iniciados, pendientes de confirmación al momento de esta actualización.
+- Próxima validación manual: probar desplazamiento de la matriz en Android con varios héroes/posiciones y comprobar que la columna de nombres permanece fija.
