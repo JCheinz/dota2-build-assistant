@@ -38,6 +38,28 @@ for (const role of pugnaProfiles) {
   if (!output.includes("Nether Blast")) throw new Error("Falta habilidad de Pugna " + role);
 }
 
+const techies = context.window.DOTA_HERO_SPECIALIZATIONS["techies|Support 4"]?.guide;
+if (!techies) throw new Error("Falta la especialización Techies Support 4");
+if (techies.metadata?.patch !== "7.41f" || techies.metadata?.role !== "Support 4") {
+  throw new Error("Techies debe identificar parche y posición");
+}
+if (!Array.isArray(techies.innateAbilities) || !techies.innateAbilities.some(x => x.name === "M.A.D.")) {
+  throw new Error("Falta M.A.D. como habilidad innata independiente");
+}
+if (techies.skillBuild.some(x => x.code === "M.A.D." || x.code === "INNATE")) {
+  throw new Error("La habilidad innata no debe consumir un punto de progresión");
+}
+for (const entry of techies.skillBuild) {
+  if (!techies.skillIcons[entry.code]) throw new Error("Techies usa una habilidad sin icono: " + entry.code);
+}
+if (techies.talentChoices?.length) {
+  throw new Error("No se deben publicar talentos mientras la discrepancia de niveles siga sin resolver");
+}
+const techiesOutput = context.renderSpecializationGuide(techies);
+for (const value of ["M.A.D.", "Habilidades innatas", "Blast Off!", "Reactive Tazer", "Proximity Mines"]) {
+  if (!techiesOutput.includes(value)) throw new Error("La guía Techies no muestra " + value);
+}
+
 const fixture = {
   title: "Fixture sintética — no representa un héroe real",
   metadata: {
