@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.27 + Service Worker v73  
-**Etapa activa:** Etapa 3 — primer perfil no-Pugna (Techies Support 4), con innata y progresión verificadas parcialmente.
+**Etapa activa:** Etapa 3 — Techies Support 4 validado por el usuario en Android; Techies Support 5 integrado en rama de trabajo, pendiente de CI y revisión.
 
 ## 1. Objetivo
 
@@ -43,7 +43,7 @@ Construir un asistente contextual de Dota 2, no un catálogo de builds estática
 - Respaldos posteriores a PR #5: `backup/3.27-etapa3-pugna-fix-integrated` y `backup/estado-3.27-etapa3-pugna-fix-integrated`, ambos creados desde `9e418f7f4334f2fc56e53b1bd4226c16ed4930d5`.
 - Respaldos posteriores a PR #6: `backup/3.27-etapa3-innate-renderer-integrated` y `backup/estado-3.27-etapa3-innate-renderer-integrated`, ambos creados desde `a3a3d56952afca1e32f22b0a3cbf103f8834f216`.
 - Respaldo de código posterior a PR #8: `backup/3.27-techies-talents-integrated`, creado desde `27278b84f018b4ee6d900aab1a2ed81f835ef6b8`. El respaldo del estado se crea tras esta actualización.
-- Próxima rama de trabajo: pendiente de crear desde el `main` actualizado.
+- Rama de trabajo Techies Support 5: `work/etapa-3-techies-support5-profile`, creada desde `main` tras respaldar el estado previo.\n- Respaldos previos a Techies Support 5: `backup/3.27-before-techies-support5` y `backup/estado-3.27-before-techies-support5`.
 
 ## 3. Etapa 1 — Pugna
 
@@ -106,3 +106,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se ajustó la ruta de objetos de Techies Support 4 a tendencias observadas: Tranquil Boots, Ring of Basilius, Soul Ring y alternativas de Aether Lens/Consecrated Wraps; se presentan como estadísticas orientativas.
 - La rama también actualiza `specializations.js` a `?v=3273` y Service Worker a `dota-build-v73`. Cambios de talentos y aclaración de matriz en nueva rama `work/etapa-3-techies-talentos`, pendientes CI y revisión del diff.
 
+
+## 6. Etapa 3 — Techies Support 5 (en revisión)
+
+- Se añadió el perfil independiente `techies|Support 5`, sin reutilizar la guía de Support 4.
+- La progresión de habilidades se contrastó con StatsDota y DotaTrack para Hard Support 7.41f: Blast Off! primero, Reactive Tazer segundo, Sticky Bomb después y Proximity Mines en 6/13/17.
+- Los cuatro tiers de talentos se incorporaron desde las fuentes de 7.41f; la alternativa de nivel 15 tiene datos incompletos y se marca como tal.
+- Se añadió una ruta de objetos de Hard Support diferenciada: Magic Wand, Tranquil Boots, Ring of Basilius, Soul Ring; luego Aether Lens y Consecrated Wraps como referencias frecuentes. Los objetos son orientativos.
+- Se añadió regresión específica para presencia del perfil, innata, iconos, cuatro tiers, independencia de Support 4 y renderizado.
+- Se incrementó la versión del archivo de especializaciones a `?v=3275` y Service Worker a `dota-build-v74`.
+- Fuentes: StatsDota Hard Support 7.41f (actualizado 15-11-2026), DotaTrack Hard Support 7.41f y Spectral Hard Support 7.41f (16-11-2026).
+- Estado: cambios preparados en rama de trabajo; pendiente ejecutar pruebas/CI, revisar diff y abrir PR. No declarar publicación ni validación Android hasta completar esos pasos.
