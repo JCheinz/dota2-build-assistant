@@ -117,3 +117,12 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se incrementó la versión del archivo de especializaciones a `?v=3275` y Service Worker a `dota-build-v74`.
 - Fuentes: StatsDota Hard Support 7.41f (actualizado 15-11-2026), DotaTrack Hard Support 7.41f y Spectral Hard Support 7.41f (16-11-2026).
 - Estado: cambios preparados en rama de trabajo; PR #9 integrado por squash en `main` (merge `52185eb2e22a23de6a7fa334c873ec998dee658e`). CI del PR #9 run `43913242668`, job `validate`, success (sintaxis y pruebas). Publicación Pages y prueba Android pendientes de confirmación.
+
+## 7. Corrección de textos contextuales tras prueba Android de Techies Support 5
+
+- El usuario compartió capturas Android que confirman que el perfil Support 5 carga con metadata, M.A.D., iconos, matriz de niveles 1–25, talentos y secciones posteriores.
+- En la captura del informe se detectó texto heredado de Pugna en la sinergia genérica ("Nether Blast") y en el pie global de versión.
+- Se corrigió la sinergia genérica para referirse a las habilidades del héroe seleccionado y se sustituyó el pie por una descripción neutral del asistente.
+- Se añadieron regresiones para evitar que textos globales genéricos vuelvan a quedar vinculados a Pugna.
+- Rama: `work/contextual-copy-cleanup`; respaldos previos: `backup/3.27-before-context-copy-fix` y `backup/estado-3.27-before-context-copy-fix`.
+- Estado: cambios preparados, pendiente CI, revisión y publicación.

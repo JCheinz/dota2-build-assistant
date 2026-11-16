@@ -90,6 +90,25 @@ for (const value of ["Techies Support 5", "M.A.D.", "Blast Off!", "Reactive Taze
   if (!techies5Output.includes(value)) throw new Error("La guía Techies Support 5 no muestra " + value);
 }
 
+
+const pugnaHelperStart = html.indexOf("function buildPugnaMidAllySynergy");
+const genericHelperStart = html.indexOf("function buildAllySynergy");
+const threatHelperStart = html.indexOf("function buildThreatPriority", genericHelperStart);
+if (pugnaHelperStart < 0 || genericHelperStart < 0 || threatHelperStart < 0) {
+  throw new Error("No se encontraron los generadores de sinergia");
+}
+const pugnaSynergyCopy = html.slice(pugnaHelperStart, genericHelperStart);
+const genericSynergyCopy = html.slice(genericHelperStart, threatHelperStart);
+if (genericSynergyCopy.includes("Nether Blast")) {
+  throw new Error("El generador genérico no debe contener texto exclusivo de Pugna");
+}
+if (!pugnaSynergyCopy.includes('ownId==="pugna"&&role==="Mid"') || !pugnaSynergyCopy.includes("Nether Blast")) {
+  throw new Error("La sinergia específica de Pugna Mid debe permanecer aislada y condicionada");
+}
+if (html.includes("Versión 3.27 · Pugna Mid")) {
+  throw new Error("El pie del informe no debe presentar Pugna como único perfil");
+}
+
 const fixture = {
   title: "Fixture sintética — no representa un héroe real",
   metadata: {
