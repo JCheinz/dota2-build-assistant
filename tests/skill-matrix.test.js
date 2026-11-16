@@ -488,3 +488,40 @@ for (const role of universalRoles) {
 console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 4 y Support 5");
 
 })();
+
+
+(()=> {
+  // Completar un objeto consume solo los componentes de su receta.
+  const recipeStart = appHtml.indexOf("const itemRecipes={");
+  const recipeEnd = appHtml.indexOf("\nfunction getNextPurchase(", recipeStart);
+  if (recipeStart < 0 || recipeEnd < 0) throw new Error("No se encontró el catálogo de recetas");
+  const recipeSource = appHtml.slice(recipeStart, recipeEnd);
+  const componentInputs = [
+    "Boots of Speed", "Ring of Basilius", "Wizard Hat",
+    "Receta de Arcane Boots", "Energy Booster", "Void Stone"
+  ].map(value => ({ value, checked: true }));
+  const recipeContext = {
+    document: { querySelectorAll: selector => selector === ".owned-component" ? componentInputs : [] }
+  };
+  vm.createContext(recipeContext);
+  vm.runInContext(recipeSource, recipeContext);
+  vm.runInContext("consumeRecipeComponents('Arcane Boots')", recipeContext);
+  for (const part of ["Boots of Speed","Ring of Basilius","Wizard Hat","Receta de Arcane Boots"]) {
+    const input = componentInputs.find(x => x.value === part);
+    if (input.checked) throw new Error("Arcane Boots no consumió " + part);
+  }
+  for (const part of ["Energy Booster","Void Stone"]) {
+    const input = componentInputs.find(x => x.value === part);
+    if (!input.checked) throw new Error("Se consumió un componente ajeno a Arcane Boots: " + part);
+  }
+  console.log("OK: completar Arcane Boots consume sus cuatro piezas y conserva las de otras recetas");
+
+  if (!appHtml.includes("if(markingBought)consumeRecipeComponents(name)")) {
+    throw new Error("La compra de un objeto completo no consume su receta");
+  }
+  if (!appHtml.includes("clearTrackedPurchases();updateRoleFit()")
+      || !appHtml.includes("clearTrackedPurchases();renderDynamicStateControls()")) {
+    throw new Error("El inventario no se reinicia al cambiar de héroe o posición");
+  }
+  console.log("OK: inventario aislado por héroe/posición al cambiar la configuración");
+})();
