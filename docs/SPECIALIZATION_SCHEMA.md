@@ -1,6 +1,6 @@
 # Contrato de datos para especializaciones
 
-**Estado:** propuesta de esquema para Etapa 3. No implica que el renderizador ya soporte todos los campos descritos ni que existan perfiles poblados para otros héroes.
+**Estado:** contrato en implementación incremental. La matriz universal ya está integrada; metadatos e innatas cuentan ahora con renderizado y pruebas, pendientes de integrar en la rama principal.
 
 ## Principios
 
@@ -86,5 +86,8 @@
 
 - La matriz dinámica actual ya admite claves de habilidad arbitrarias mediante `skillIcons` y `skillBuild`.
 - Las filas de talentos y atributos se generan desde los eventos `T` y `A`.
-- `innateAbilities` y el bloque `metadata` son parte del contrato propuesto; aún requieren implementación y pruebas en el renderizador.
+- `metadata` se muestra como parche, posición, nivel de confianza y fuentes declaradas.
+- `innateAbilities` se muestra en un bloque separado de la matriz y no consume puntos de habilidad.
+- Las pruebas cubren metadatos, innatas y compatibilidad con perfiles antiguos de Pugna.
+- Los campos opcionales ausentes se omiten; no se fabrican habilidades innatas para perfiles que no las declaran.
 - No se incorpora aquí un héroe ficticio ni una progresión de ejemplo como si fuera real. El bloque anterior es únicamente una especificación de formato.
