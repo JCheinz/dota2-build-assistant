@@ -107,3 +107,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Se detectó cobertura de pruebas desigual: faltaba una comprobación común de progresión, iconos, tiers y render de ambas opciones para todos los perfiles.
 - Se añadió esa regresión transversal. No se modificaron las builds ni las especializaciones.
 - Pendiente: CI, revisión final y PR.
+
+## Resultado de auditoría — PR #15 integrado (16-11-2026)
+
+- PR #15: https://github.com/JCheinz/dota2-build-assistant/pull/15 — integrado por squash.
+- Commit: `c8abc5f9aefe09a9e25d94b8e49885a700d0d8c9`.
+- CI PR run `43942313191`: success.
+- CI post-merge run `43942370008`: success.
+- GitHub Pages run `43942368681`: build y deploy success.
+- Las pruebas ahora auditan en conjunto los siete perfiles integrados: progresión, iconos, cuatro tiers de talentos, dos alternativas con explicación y renderizado.
+- No se modificaron builds ni rutas de objetos; Pugna, Techies y Crystal Maiden permanecen sin cambios de contenido.
+- Próximo paso: revisión factual de fuentes/parche y consistencia de órdenes de habilidades para cada rol, antes de incorporar nuevos héroes.
