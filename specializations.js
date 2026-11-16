@@ -197,5 +197,73 @@ window.DOTA_HERO_SPECIALIZATIONS = {
       caveats:"Perfil inicial de Support 4 basado en datos agregados de 7.41f, no en una muestra exclusiva de una sola liga. Las habilidades y el orden de referencia se contrastaron entre StatsDota y DotaTrack; las mecánicas de habilidades e innata se contrastaron con DotaCoach. El árbol muestra las opciones y tiers de talento de 7.41f; los eventos de selección observados en algunos registros pueden aparecer en niveles posteriores al desbloqueo. No se extrapola este perfil a Support 5. La ruta de objetos es estadística orientativa y debe ajustarse al draft, inventario y oro real."
     }
   },
+,
+
+  "crystal_maiden|Support 5": {
+    guide: {
+      title:"Crystal Maiden Support 5 · control, maná y protección de equipo · 7.41f",
+      metadata:{
+        heroKey:"npc_dota_hero_crystal_maiden",
+        role:"Support 5",
+        patch:"7.41f",
+        source:[
+          "https://statsdota.com/en/heroes/crystal-maiden/hard-support",
+          "https://dotatrack.com/heroes/crystal-maiden/build",
+          "https://builds.ru.spectral.gg/stats_crystal_maiden_hard_support",
+          "https://liquipedia.net/dota2/Crystal_Maiden/Changelogs"
+        ],
+        confidence:"mixed"
+      },
+      innateAbilities:[
+        {
+          name:"Glacial Guard",
+          description:"Habilidad innata: cada vez que Crystal Maiden lanza una habilidad, obtiene una barrera contra daño durante 8 s. La barrera equivale al coste actual de maná de la habilidad × (0,3 + 0,02 por nivel de héroe); las barreras se acumulan y cada una conserva su propia duración. No consume puntos de habilidad."
+        }
+      ],
+      skillIcons:{
+        Q:{name:"Crystal Nova",slug:"crystal_maiden_crystal_nova"},
+        W:{name:"Frostbite",slug:"crystal_maiden_frostbite"},
+        E:{name:"Arcane Aura",slug:"crystal_maiden_brilliance_aura"},
+        R:{name:"Freezing Field",slug:"crystal_maiden_freezing_field"}
+      },
+      skillBuild:[
+        {level:1,code:"W"},{level:2,code:"E"},{level:3,code:"W"},{level:4,code:"Q"},
+        {level:5,code:"W"},{level:6,code:"R"},{level:7,code:"W"},{level:8,code:"Q"},
+        {level:9,code:"E"},{level:11,code:"E"},{level:12,code:"E"},{level:13,code:"R"},
+        {level:14,code:"Q"},{level:15,code:"Q"},{level:17,code:"R"}
+      ],
+      talentChoices:[
+        {level:10,left:{name:"+200 salud",reason:"Opción predominante en hard support; te da margen para sobrevivir al daño de entrada y seguir aportando control."},right:{name:"+12 inteligencia",reason:"Alternativa si podés mantenerte fuera de peligro y necesitás más maná y daño mágico."}},
+        {level:15,left:{name:"+100 alcance de lanzamiento de Frostbite",reason:"La opción más elegida; permite aplicar la raíz desde una distancia más segura."},right:{name:"−4,5 s de recarga de Crystal Nova",reason:"Alternativa para aportar más ralentización y daño en peleas extendidas o defensa de oleadas."}},
+        {level:20,left:{name:"+50 daño de Freezing Field",reason:"La opción más frecuente en la muestra; aumenta el daño si podés canalizar sin interrupciones."},right:{name:"+20% del maná gastado convertido en barrera de Glacial Guard",reason:"La muestra no ofrece una tasa fiable para esta alternativa. Considerala solo si el escudo adicional cambia tu supervivencia."}},
+        {level:25,left:{name:"+1 s de duración de Frostbite",reason:"Opción predominante; amplía la ventana de control sobre el objetivo prioritario."},right:{name:"+300 daño de Crystal Nova",reason:"Alternativa para aumentar el daño en área y la presión de oleadas."}}
+      ],
+      skillOrder:[
+        "1: Frostbite","2: Arcane Aura","3: Frostbite","4: Crystal Nova",
+        "5: Frostbite","6: Freezing Field","7: Frostbite","8: Crystal Nova",
+        "9: Arcane Aura","10: talento","11–12: Arcane Aura",
+        "13: Freezing Field","14–15: Crystal Nova","16: talento",
+        "17: Freezing Field","18: atributo o talento pendiente según partida"
+      ],
+      skillPriority:"Referencia de Hard Support 7.41f: maximizá Frostbite primero (1/3/5/7), Arcane Aura después (2/9/11/12) y Crystal Nova a continuación (4/8/14/15); Freezing Field en 6/13/17. La matriz separa los tiers de talentos en 10/15/20/25 y no los cuenta como habilidades. Si necesitás ralentización de área para asegurar intercambios, podés adelantar Crystal Nova; no sacrifiques Frostbite si tu equipo depende de la raíz para castigar una entrada.",
+      talents:[
+        ["Nivel 10","+200 de salud es la elección más frecuente; +12 de inteligencia es una alternativa para sostener maná y daño si no estás siendo alcanzado."],
+        ["Nivel 15","+100 de alcance de Frostbite facilita controlar desde más lejos; −4,5 s de recarga de Crystal Nova sirve si necesitás ralentizar y hostigar más seguido."],
+        ["Nivel 20","+50 de daño de Freezing Field es la opción predominante; +20% del maná gastado convertido en barrera de Glacial Guard tiene datos insuficientes y debe tratarse como situacional."],
+        ["Nivel 25","+1 s de duración de Frostbite es la opción más elegida; +300 de daño de Crystal Nova aporta daño en área y limpieza de oleadas."]
+      ],
+      combos:[
+        ["Frostbite para asegurar una captura","Aplicá Frostbite cuando un aliado pueda seguir con daño o control. Priorizá héroes sin movilidad disponible y evitá gastar la raíz sobre un objetivo que tu equipo no puede alcanzar."],
+        ["Crystal Nova antes del seguimiento","Abrí con Crystal Nova cuando el rival esté agrupado o vaya a cruzar una zona estrecha; la ralentización facilita que tu equipo conecte otras habilidades. No la uses solo para empujar si eso deja a tu carry expuesto."],
+        ["Frostbite + Crystal Nova","En una captura, encadená Frostbite y Crystal Nova para extender el tiempo de control y ayudar a que tus aliados conecten sus habilidades. Coordiná el orden con el iniciador para no solapar controles innecesariamente."],
+        ["Arcane Aura y economía de maná","Tu aura ayuda a sostener el uso de habilidades del equipo. No confundas regeneración global con maná infinito: controlá tus propios lanzamientos y guardá recursos para defender al carry."],
+        ["Freezing Field desde una posición segura","Canalizá la definitiva después de que el rival haya gastado interrupciones o cuando un aliado te cubra. Si te pueden cancelar de inmediato, reposicionate o esperá otra ventana en vez de regalar la canalización."],
+        ["Glacial Guard y lanzamientos frecuentes","Cada habilidad activa una barrera temporal; encadenar hechizos puede acumular protección, pero no compensa quedar expuesta. Usá el escudo como margen adicional para reposicionarte, no como permiso para iniciar."]
+      ],
+      positioning:"En línea, jugá detrás o al costado de tu carry, usando Frostbite para castigar acercamientos y Crystal Nova para frenar persecuciones o intercambios. No te adelantes por buscar un ataque: Crystal Maiden es frágil y depende de mantener distancia. En rotaciones, movete con visión y elegí objetivos que tus aliados puedan alcanzar. Antes de una pelea, buscá cobertura y una ruta de retirada; guardá Freezing Field para cuando las interrupciones rivales estén gastadas o tu equipo pueda proteger la canalización. Como posición 5, priorizá visión, detección y supervivencia antes que acelerar objetos personales.",
+      mechanics:"Glacial Guard es la innata y no consume un punto de progresión: cada lanzamiento de habilidad genera una barrera de 8 s calculada con el coste de maná actual × (0,3 + 0,02 por nivel de héroe); las barreras se acumulan. Arcane Aura aporta regeneración de maná al equipo y amplificación de regeneración propia. Frostbite aplica raíz y daño; Crystal Nova ralentiza en área; Freezing Field es una canalización de daño en área que puede ser interrumpida. La definitiva necesita preparación, visión y protección.",
+      caveats:"Perfil separado de Hard Support/posición 5 para 7.41f. La prioridad de habilidades y las elecciones de talentos se contrastaron con StatsDota, DotaTrack y Spectral; las muestras y rangos de medalla difieren, por lo que las tasas no son una garantía para Herald. El nivel de talento en la matriz indica el desbloqueo, no obliga a elegirlo inmediatamente. Glacial Guard se documenta como innata independiente. Las compras reflejan tendencias de partidas de alto nivel: adaptá el inicio y la progresión al oro, al dúo de línea, al draft y a la amenaza concreta."
+    }
+  },
 
 };
