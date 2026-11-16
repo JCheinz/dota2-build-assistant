@@ -40,6 +40,16 @@ for (const role of pugnaProfiles) {
 
 const fixture = {
   title: "Fixture sintética — no representa un héroe real",
+  metadata: {
+    heroKey: "fixture_hero",
+    role: "Support 4",
+    patch: "fixture-patch",
+    source: ["https://example.invalid/source"],
+    confidence: "verified"
+  },
+  innateAbilities: [
+    { name: "Innate Fixture", description: "Descripción sintética de habilidad innata." }
+  ],
   maxLevel: 30,
   skillIcons: {
     ABILITY_ALPHA: { name: "Habilidad Alfa", slug: "fixture_alpha" },
@@ -67,4 +77,14 @@ for (const name of ["Habilidad Alfa", "Habilidad Beta", "Habilidad Omega"]) {
 if (!fixtureOutput.includes("grid-template-columns:150px repeat(30,41px)")) {
   throw new Error("La matriz no generó columnas dinámicas desde los niveles esperados");
 }
-console.log("OK: Pugna Mid/Support 4/Support 5 + fixture sintética con claves no Q/W/E/R");
+for (const value of ["Datos de guía:", "fixture-patch", "Support 4", "Innate Fixture", "Descripción sintética de habilidad innata."]) {
+  if (!fixtureOutput.includes(value)) throw new Error("El renderizador omitió metadatos/habilidad innata: " + value);
+}
+if (fixtureOutput.indexOf("Innate Fixture") > fixtureOutput.indexOf("Orden de habilidades por nivel")) {
+  throw new Error("Las habilidades innatas deben aparecer separadas antes de la matriz de progresión");
+}
+const legacyOutput = context.renderSpecializationGuide(context.window.DOTA_HERO_SPECIALIZATIONS["pugna|Mid"].guide);
+if (legacyOutput.includes("Datos de guía:") || legacyOutput.includes("Habilidades innatas")) {
+  throw new Error("Los perfiles Pugna antiguos deben seguir funcionando sin bloques nuevos");
+}
+console.log("OK: Pugna x3 + matriz sintética 30 niveles + metadatos + innatas + compatibilidad legacy");

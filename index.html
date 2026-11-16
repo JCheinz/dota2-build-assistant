@@ -215,7 +215,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3271"></script>
+<script src="./specializations.js?v=3272"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -375,7 +375,12 @@ function renderSpecializationGuide(g){
   const attributeRow=hasAttributes?'<div class="skill-matrix-row"'+rowStyle+'><b class="skill-row-label">ATRIBUTOS</b>'+levels.map(level=>{const learned=skillBuild.some(x=>Number(x.level)===level&&x.code==="A");return cell(learned?'<span class="skill-attribute-mark">+</span>':"",learned)}).join('')+'</div>':"";
   const matrix=codes.length?'<div class="skill-matrix-scroll"><div class="skill-matrix" style="min-width:'+matrixWidth+'">'+header+skillRows+talentRow+attributeRow+'</div></div>':'<p class="hint">Matriz no disponible: esta guía todavía no define metadatos y progresión de habilidades verificadas.</p>';
   const talents=(g.talentChoices||[]).map(t=>'<div class="item-card talent-tree-card" style="display:block;margin:8px 0"><b class="talent-tree-heading"><span class="talent-tree-icon">✥</span>Nivel '+t.level+' · elegí según la partida</b><div class="talent-tree-options"><div class="talent-option"><b>◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div class="talent-option"><b>'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
- return '<div class="result-section"><h3>'+esc(g.title)+'</h3><h3>Orden de habilidades por nivel</h3>'+(matrix||'<p class="hint">Secuencia no disponible.</p>')+'<p class="hint">Cada columna representa un nivel. El icono indica la habilidad aprendida; ✥ marca el nivel de talento y + los puntos de atributo. Deslizá horizontalmente para consultar todos los niveles.</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Árbol de talentos</h3>'+(talents||cards(g.talents))+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
+ const metadata=g.metadata&&typeof g.metadata==="object"?g.metadata:null;
+ const metadataSources=Array.isArray(metadata?.source)?metadata.source:[metadata?.source].filter(Boolean);
+ const metadataBlock=metadata?'<div class="hint" style="margin:5px 0 12px;padding:8px 10px;border:1px solid #344153;border-radius:9px;background:#111a24"><b>Datos de guía:</b> '+esc(metadata.patch||"Parche no especificado")+(metadata.role?' · '+esc(metadata.role):'')+(metadata.confidence?' · confianza: '+esc(metadata.confidence):'')+(metadataSources.length?'<br><b>Fuentes:</b> '+metadataSources.map(esc).join(' · '):'')+'</div>':"";
+ const innateAbilities=Array.isArray(g.innateAbilities)?g.innateAbilities:[];
+ const innateBlock=innateAbilities.length?'<h3>Habilidades innatas</h3>'+innateAbilities.map(a=>'<div class="item-card" style="margin:7px 0"><div class="item-icon-fallback">✦</div><div class="item-copy"><b>'+esc(a.name||"Habilidad innata")+'</b><span>'+esc(a.description||"Descripción no disponible.")+'</span></div></div>').join(''):"";
+ return '<div class="result-section"><h3>'+esc(g.title)+'</h3>'+metadataBlock+innateBlock+'<h3>Orden de habilidades por nivel</h3>'+(matrix||'<p class="hint">Secuencia no disponible.</p>')+'<p class="hint">Cada columna representa un nivel. El icono indica la habilidad aprendida; ✥ marca el nivel de talento y + los puntos de atributo. Deslizá horizontalmente para consultar todos los niveles.</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Árbol de talentos</h3>'+(talents||cards(g.talents))+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
 }
 
 function renderHeroPlan(plan){
