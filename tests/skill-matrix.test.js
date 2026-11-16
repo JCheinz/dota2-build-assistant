@@ -525,3 +525,34 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
   }
   console.log("OK: inventario aislado por héroe/posición al cambiar la configuración");
 })();
+
+
+(()=> {
+  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state){");
+  const inventoryEnd=appHtml.indexOf("\nfunction renderItemCards(items){",inventoryStart);
+  if(inventoryStart<0||inventoryEnd<0)throw new Error("No se encontró el inventario ampliado");
+  const renderer=appHtml.slice(inventoryStart,inventoryEnd);
+  for(const marker of [
+    'renderSlots("main",6)',
+    'renderSlots("backpack",3)',
+    'assigned.reserve.map',
+    'data-move-owned=',
+    'data-sell-owned=',
+    'data-remove-owned=',
+    'state.zones||{}'
+  ])if(!renderer.includes(marker))throw new Error("Inventario sin soporte para: "+marker);
+  if(!appHtml.includes('data-inventory-zone="'+esc(zones[x.name]||"")+'"')) {
+    // The literal template is checked below without evaluating its browser expressions.
+    if(!appHtml.includes("zones[x.name]||"))throw new Error("No se preservan las zonas al reconstruir los controles");
+  }
+  const clickStart=appHtml.indexOf("$('report').addEventListener('click'");
+  const clickEnd=appHtml.indexOf("\n});",clickStart);
+  const handler=appHtml.slice(clickStart,clickEnd);
+  for(const marker of ["[data-move-owned]","[data-sell-owned]","[data-remove-owned]","input.dataset.inventoryZone=next","input.checked=false"]) {
+    if(!handler.includes(marker))throw new Error("Falta acción de inventario: "+marker);
+  }
+  for(const marker of [".hero-backpack-slots",".inventory-reserve",".inventory-reserve-item"]) {
+    if(!appHtml.includes(marker))throw new Error("Falta estilo de sector de inventario: "+marker);
+  }
+  console.log("OK: seis slots principales, tres de mochila, reserva ilimitada vendible y movimiento entre sectores");
+})();
