@@ -192,7 +192,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js"></script>
+<script src="./specializations.js?v=326"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -332,7 +332,8 @@ function getHeroSpecialization(hero,role){
 
 function renderSpecializationGuide(g){
  const cards=(arr)=>arr.map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
- const iconMap=g.abilityIcons||{};
+ const pugnaIcons={Q:{name:"Nether Blast",slug:"pugna_nether_blast"},W:{name:"Decrepify",slug:"pugna_decrepify"},E:{name:"Nether Ward",slug:"pugna_nether_ward"},R:{name:"Life Drain",slug:"pugna_life_drain"}};
+ const iconMap=(g.abilityIcons&&Object.keys(g.abilityIcons).length)?g.abilityIcons:(String(g.title||"").toLowerCase().includes("pugna")?pugnaIcons:{});
  const levels=Array.from({length:18},(_,i)=>i+1);
  const codes=[...new Set((g.skillBuild||[]).filter(x=>!["T","A"].includes(x.code)).map(x=>x.code))];
  const abilityRows=codes.map(code=>{
