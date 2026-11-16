@@ -162,7 +162,15 @@
     .talent-option{background:#202a37;border:1px solid #3b4a5e;border-radius:10px;padding:10px;min-width:0}
     .talent-option>b{color:#e8bd68;display:block}
     @media(max-width:650px){.talent-tree-options{grid-template-columns:1fr 1fr}.skill-matrix{min-width:1180px}}
-  </style>
+  
+.item-buy-toggle{width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit;display:flex;align-items:center;gap:10px;}
+.item-buy-toggle:focus-visible{outline:3px solid var(--accent,#8ab4f8);outline-offset:2px}
+.item-buy-toggle.bought{opacity:.62;border-color:#4b9b72;background:rgba(55,145,95,.10)}
+.item-buy-toggle.bought .item-copy b{text-decoration:line-through}
+.bought-chip{border-color:#4b9b72;color:#78c99a}
+.manual-owned{margin-top:8px}.manual-owned summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:8px 0}
+.purchase-workspace{border:1px solid rgba(91,173,125,.45)}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -313,10 +321,11 @@ function renderItemIcon(name){
  return slug?'<img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'">':'<span class="item-icon-fallback">⚔</span>';
 }
 function renderItemCards(items){
+ const owned=new Set(getLiveState().owned);
  return '<div class="item-list">'+items.map((x,i)=>{
   const name=Array.isArray(x)?x[0]:x.name,why=Array.isArray(x)?x[1]:x.why;
-  const priority=!Array.isArray(x)&&x.priority===true;
-  return '<div class="item-card '+(priority?'priority':'complement')+'"><span class="item-number">'+(i+1)+'</span>'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(why||'Objeto situacional')+'</span><small class="item-priority-label">'+(priority?'PRIORIDAD PRINCIPAL':'COMPLEMENTO')+'</small></div></div>';
+  const priority=!Array.isArray(x)&&x.priority===true, bought=owned.has(name);
+  return '<button type="button" class="item-card item-buy-toggle '+(priority?'priority':'complement')+(bought?' bought':'')+'" data-buy-item="'+esc(name)+'" aria-pressed="'+bought+'" title="'+(bought?'Tocar para desmarcar como comprado':'Tocar cuando lo compres')+'"><span class="item-number">'+(i+1)+'</span>'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(why||'Objeto situacional')+'</span><small class="item-priority-label">'+(bought?'✓ COMPRADO · TOCÁ PARA DESHACER':priority?'PRIORIDAD PRINCIPAL':'TOCÁ AL COMPRAR')+'</small></div></button>';
  }).join('')+'</div>';
 }
 
@@ -1216,7 +1225,7 @@ function renderDynamicStateControls(){
  const ownedRoot=$("ownedItems");
  if(ownedRoot){
   const checked=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
-  ownedRoot.innerHTML=candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("");
+  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
  }
  const parts=new Set();
  Object.values(itemRecipes).flat().forEach(x=>parts.add(x.name));
@@ -1460,6 +1469,7 @@ function analyze(options={}){
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
+ html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se marcará como comprado y el motor actualizará la siguiente recomendación. Podés volver a tocarlo para deshacer.</p><div class="chips">'+(live.owned.length?live.owned.map(name=>'<span class="chip bought-chip">✓ '+esc(name)+'</span>').join(''):'<span class="chip">Todavía no registraste compras</span>')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span><small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
@@ -1501,11 +1511,23 @@ $('toggleLiveState').onclick=()=>{
  button.setAttribute('aria-expanded',String(!expanded));
  button.textContent=expanded?'Maximizar':'Minimizar';
 };
-$('report').addEventListener('click',e=>{if(e.target&&e.target.id==='recalcLive'){analyze({scroll:false});}});
+$('report').addEventListener('click',e=>{
+ const component=e.target.closest('[data-buy-component]');
+ if(component){const name=component.getAttribute('data-buy-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){input.checked=!input.checked;analyze({scroll:false});return;}}
+ const buy=e.target.closest('[data-buy-item]');
+ if(buy){
+  const name=buy.getAttribute('data-buy-item');
+  if(name){let input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);
+   if(!input){const root=$('ownedItems');if(root){const label=document.createElement('label');label.className='chip';label.innerHTML='<input type="checkbox" class="owned-item" value="'+esc(name)+'"> '+esc(name);root.querySelector('.controls')?.appendChild(label);input=label.querySelector('input');}}
+   if(input){input.checked=!input.checked;analyze({scroll:false});return;}
+  }
+ }
+ if(e.target&&e.target.id==='recalcLive'){analyze({scroll:false});}
+});
 ['gameMinute','currentGold','currentProblem','myRole','gameMode','rank'].forEach(id=>$(id).addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});}));
 $('gameMinute').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 $('currentGold').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
-$('ownedItems').addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
+$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')&&$('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 
 $('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};

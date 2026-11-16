@@ -346,3 +346,22 @@ for (const profileKey of expectedProfiles) {
   }
 }
 console.log("OK: auditoría transversal de siete perfiles — progresión, iconos, cuatro tiers y render del árbol");
+
+
+// Flujo de compras: los objetos recomendados se pueden marcar desde su propia tarjeta.
+const appHtml = fs.readFileSync("index.html", "utf8");
+for (const marker of [
+  'data-buy-item=',
+  'data-buy-component=',
+  'item-buy-toggle',
+  'bought-chip',
+  'Carga manual opcional de objetos comprados',
+  'Tocá cualquier objeto recomendado cuando lo compres',
+  "input.checked=!input.checked;analyze({scroll:false})"
+]) {
+  if (!appHtml.includes(marker)) throw new Error("Falta el flujo de compra directa: " + marker);
+}
+if (!appHtml.includes(".item-buy-toggle.bought")) {
+  throw new Error("Los objetos comprados deben tener un estado visual diferenciado");
+}
+console.log("OK: compra directa desde recomendaciones, deshacer compra y carga manual opcional");
