@@ -173,3 +173,5 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Se agregaron pruebas automatizadas para el consumo exacto de receta y el reinicio del inventario por héroe/posición.
 - PR #19: https://github.com/JCheinz/dota2-build-assistant/pull/19. CI inicial run `43976306859`: success.
 - Service Worker actualizado a `dota-build-v81`. Sin cambios en perfiles, builds o criterios de recomendación.
+
+- Integrado por squash en main: commit `4a821e26311295be500993bcc36cc6f719a4eb49`. CI final de PR tras actualizar estados run `43976374141`, success. Pendiente confirmar CI y Pages post-merge.
