@@ -240,3 +240,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - PR #14 integrado por squash en `main` el 16-11-2026; commit `29d7a769ebeb2cbd364fcc83d0b861a488b55e34`.
 - CI del último commit de la rama antes del merge: run `43935068064`, success. CI post-merge de `main`: run `43935772107`, success.
 - GitHub Pages para el commit integrado: run `43935771590`, en ejecución al actualizar este registro.
+
+## 16. Auditoría transversal de especializaciones (16-11-2026)
+
+- Rama: `work/audit-specialization-quality`, creada desde `main` commit `2c82a1b28fd07a836a19f48f4673e50ca6bbb108`.
+- Respaldos previos: `backup/3.27-before-specialization-audit` y `backup/estado-3.27-before-specialization-audit`.
+- Alcance: siete perfiles existentes — Pugna Mid/Support 4/Support 5; Techies Support 4/Support 5; Crystal Maiden Support 4/Support 5.
+- Hallazgo verificado: todos los perfiles contienen `talentChoices` con cuatro tiers (10/15/20/25), y el renderizador utiliza ese campo como fuente principal del árbol. Por eso, que algunos perfiles tengan un campo auxiliar `talents` incompleto o ausente no implica que el árbol visible esté incompleto; no se duplicarán ni modificarán datos redundantes sin necesidad.
+- Hallazgo de calidad: las pruebas previas cubrían cada perfil de manera desigual y no verificaban de forma transversal los siete árboles completos, las dos opciones y sus explicaciones, niveles válidos/únicos de progresión ni coherencia de metadata cuando existe.
+- Se añadió una regresión transversal para exigir los siete perfiles conocidos, progresión con niveles válidos y no duplicados, referencias de iconos válidas, cuatro tiers con dos opciones explicadas y renderizado efectivo de todas las elecciones. También verifica rol/parche en metadata cuando está declarada.
+- No se cambiaron datos de builds, talentos, compras ni lógica del motor. Perfiles validados por el usuario permanecen intactos.
+- Estado: pruebas ampliadas en rama; pendiente CI, revisión del diff y PR. No integrado ni desplegado.
