@@ -160,3 +160,5 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - No se modificó lógica de recomendaciones, builds, talentos ni especializaciones; se amplió la suite de regresión.
 - PR #18: https://github.com/JCheinz/dota2-build-assistant/pull/18. Primeros intentos de CI detectaron colisiones de nombres de variables y dependencias de fixtures en el harness; corregidos. CI del commit `20913dbfaa796e6ea3e12c921f34b255fb792139`, run `43969922879`: success.
 - Pendiente integrar tras actualizar ambos archivos de estado y confirmar CI final.
+
+- Resultado final: PR #18 integrado en main por squash, commit `ae787e7bc51e128db5e5a3e3cea6827baac7f3f7`. CI de la rama con estado y pruebas finales run `43969996986`, success; Pages build y deploy post-merge run `43970058451`, success. Publicación confirmada.
