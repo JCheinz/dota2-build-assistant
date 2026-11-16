@@ -256,3 +256,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI del PR #15: run `43942313191`, success. CI post-merge: run `43942370008`, success.
 - GitHub Pages post-merge: run `43942368681`, build y deploy success.
 - La auditoría transversal quedó integrada; no cambió datos de builds ni lógica del motor.
+
+
+## 17. Seguimiento de compras por toque — PR #16 (16-11-2026)
+
+- El usuario solicitó acercar las recomendaciones al panel de estado/compras y poder descontar un objeto con un toque, sin cargarlo previamente en una lista manual.
+- Se creó `work/purchase-workspace-click-to-buy` desde main `435348f0af9abaffef66d98b231c7b833cf9455c`; se conservaron los respaldos `backup/3.28-before-performance-optimization` y `backup/estado-3.28-before-performance-optimization`.
+- Se añadió un bloque compacto «Compras y seguimiento» al inicio del informe. Las tarjetas de rutas y recomendaciones permiten marcar/desmarcar compras; el informe se recalcula sin desplazar al usuario al inicio.
+- El toque en un componente registra ese componente, mientras que el toque en un objeto completo registra el objeto entero. La lista manual sigue disponible de forma opcional y desplegable.
+- El estado de comprado se distingue visualmente y las recomendaciones se recalculan usando el inventario actualizado. No se alteraron datos de builds ni especializaciones.
+- Se añadieron regresiones automatizadas de interacción/estado visual. PR #16: https://github.com/JCheinz/dota2-build-assistant/pull/16; CI del PR run `43947885373`, success.
+- Integrado por squash en main: `cc5e0941b70ea0b506bfced24bc7ef832a187e9c`. CI post-merge run `43947959482` y Pages run `43947959522` quedaron iniciados; confirmar resultados antes de solicitar prueba Android.
+- Service Worker actualizado a `dota-build-v79`.
