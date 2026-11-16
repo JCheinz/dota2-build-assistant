@@ -52,11 +52,15 @@ if (techies.skillBuild.some(x => x.code === "M.A.D." || x.code === "INNATE")) {
 for (const entry of techies.skillBuild) {
   if (!techies.skillIcons[entry.code]) throw new Error("Techies usa una habilidad sin icono: " + entry.code);
 }
-if (techies.talentChoices?.length) {
-  throw new Error("No se deben publicar talentos mientras la discrepancia de niveles siga sin resolver");
+const talentTiers = (techies.talentChoices || []).map(x => Number(x.level));
+if (talentTiers.join(",") !== "10,15,20,25") {
+  throw new Error("Techies debe mostrar los tiers de talento del parche en niveles 10/15/20/25");
+}
+if (techies.skillBuild.some(x => x.code === "T")) {
+  throw new Error("No se deben confundir niveles de desbloqueo con eventos de selección de talento");
 }
 const techiesOutput = context.renderSpecializationGuide(techies);
-for (const value of ["M.A.D.", "Habilidades innatas", "Blast Off!", "Reactive Tazer", "Proximity Mines"]) {
+for (const value of ["M.A.D.", "Habilidades innatas", "Blast Off!", "Reactive Tazer", "Proximity Mines", "−2 s de recarga de Proximity Mines", "−0,8 s de activación de Proximity Mines"]) {
   if (!techiesOutput.includes(value)) throw new Error("La guía Techies no muestra " + value);
 }
 
