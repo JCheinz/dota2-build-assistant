@@ -256,3 +256,31 @@ for (const [profileKey, profile] of allProfiles) {
 }
 if (!checkedMatrices) throw new Error("No se encontraron matrices de héroes para validar el comportamiento universal");
 console.log("OK: columna de etiquetas sticky aplicada a " + checkedMatrices + " matrices de especialización");
+
+
+// Crystal Maiden Support 4 debe tener guía independiente de habilidades y talentos.
+const crystalMaiden4 = context.window.DOTA_HERO_SPECIALIZATIONS["crystal_maiden|Support 4"]?.guide;
+if (!crystalMaiden4) throw new Error("Falta la especialización Crystal Maiden Support 4");
+if (crystalMaiden4.metadata?.patch !== "7.41f" || crystalMaiden4.metadata?.role !== "Support 4") {
+  throw new Error("Crystal Maiden Support 4 debe identificar parche y posición");
+}
+if (!crystalMaiden4.metadata.source.some(x => x.includes("soft-support"))) {
+  throw new Error("Crystal Maiden Support 4 debe citar fuentes específicas de soft support");
+}
+if ((crystalMaiden4.talentChoices || []).map(x => Number(x.level)).join(",") !== "10,15,20,25") {
+  throw new Error("Crystal Maiden Support 4 debe incluir los cuatro tiers de talentos");
+}
+const expectedCM4 = [[1,"W"],[2,"E"],[3,"W"],[4,"Q"],[5,"W"],[6,"R"],[7,"W"],[8,"Q"],[9,"E"],[10,"E"],[12,"E"],[13,"R"],[14,"Q"],[15,"Q"],[17,"R"]];
+for (const [level, code] of expectedCM4) {
+  if (!crystalMaiden4.skillBuild.some(x => Number(x.level) === level && x.code === code)) {
+    throw new Error("Crystal Maiden Support 4: orden de habilidades incorrecto en nivel " + level);
+  }
+}
+const cm4Output = context.renderSpecializationGuide(crystalMaiden4);
+for (const value of ["Orden de habilidades por nivel", "Árbol de talentos", "Frostbite", "Arcane Aura", "Crystal Nova", "Freezing Field", "+200 salud", "+100 alcance de lanzamiento de Frostbite", "+50 daño de Freezing Field", "+1 s de duración de Frostbite"]) {
+  if (!cm4Output.includes(value)) throw new Error("Crystal Maiden Support 4 no muestra " + value);
+}
+if (crystalMaiden4 === crystalMaiden5 || crystalMaiden4.metadata.role === crystalMaiden5.metadata.role) {
+  throw new Error("Crystal Maiden Support 4 debe ser un perfil independiente de Support 5");
+}
+console.log("OK: Crystal Maiden Support 4 — matriz por nivel y cuatro tiers de talentos");
