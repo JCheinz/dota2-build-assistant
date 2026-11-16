@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.27</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.28</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -205,40 +205,34 @@ async function loadHeroes(){
   if(heroLoadPromise)return heroLoadPromise;
   heroLoadPromise=(async function(){
     const status=$('loadStatus');
-    status.textContent='Cargando catálogo de héroes… probando fuentes alternativas.';
+    status.textContent='Consultando OpenDota y preparando catálogo local…';
     const sources=[
-      {url:API,kind:'opendota',label:'OpenDota'},
-      {url:'https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json',kind:'constants',label:'catálogo de respaldo'}
+      {url:API,label:'OpenDota'},
+      {url:'./heroes.json',label:'catálogo local de respaldo'}
     ];
-    let lastError=null;
+    let errors=[];
     for(const source of sources){
       try{
         const controller=new AbortController();
-        const timeout=setTimeout(()=>controller.abort(),12000);
+        const timeout=setTimeout(()=>controller.abort(),source.label==='OpenDota'?7000:10000);
         let response;
         try{response=await fetch(source.url,{cache:'no-store',signal:controller.signal});}
         finally{clearTimeout(timeout)}
-        if(!response.ok)throw Error(source.label+': HTTP '+response.status);
+        if(!response.ok)throw Error(source.label+' respondió HTTP '+response.status);
         const payload=await response.json();
-        let data;
-        if(Array.isArray(payload))data=payload;
-        else if(payload&&payload.result&&payload.result.data&&Array.isArray(payload.result.data.heroes)){
-          data=payload.result.data.heroes.map(h=>({...h,localized_name:h.localized_name||h.name_loc}));
-        }else if(payload&&typeof payload==='object'){
-          data=Object.values(payload);
-        }else throw Error('Formato de catálogo no reconocido');
-        heroes=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&(h.localized_name||h.name_loc));
-        heroes=heroes.map(h=>({...h,localized_name:h.localized_name||h.name_loc,roles:Array.isArray(h.roles)?h.roles:[]}));
-        if(heroes.length<100)throw Error('Catálogo incompleto ('+heroes.length+' héroes)');
-        heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
+        const data=Array.isArray(payload)?payload:(payload&&typeof payload==='object'?Object.values(payload):[]);
+        const normalized=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&h.localized_name)
+          .map(h=>({...h,id:Number(h.id),roles:Array.isArray(h.roles)?h.roles:[]}));
+        if(normalized.length<100)throw Error(source.label+' devolvió '+normalized.length+' héroes válidos');
+        heroes=normalized.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
         renderSlots();
         renderHeroGrid();
         renderDynamicStateControls();
-        status.textContent=heroes.length+' héroes disponibles. Catálogo cargado desde '+source.label+'.';
+        status.textContent=heroes.length+' héroes disponibles · fuente: '+source.label+'.';
         return true;
-      }catch(error){lastError=error}
+      }catch(error){errors.push(error&&error.message?error.message:String(error))}
     }
-    status.innerHTML='<span class="error">No se pudo cargar el catálogo ('+esc(lastError?lastError.message:'error de red')+'). Revisá la conexión y tocá Reintentar.</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
+    status.innerHTML='<span class="error">No se pudo cargar el catálogo. '+esc(errors.join(' · '))+'</span> <button class="btn secondary" id="retryHeroes" type="button">Reintentar</button>';
     $('retryHeroes')?.addEventListener('click',loadHeroes);
     return false;
   })();
@@ -1303,7 +1297,7 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.27',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.28',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1349,7 +1343,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.27 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.28 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
