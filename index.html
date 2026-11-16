@@ -192,7 +192,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=327"></script>
+<script src="./specializations.js?v=328"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -1381,6 +1381,8 @@ if('serviceWorker' in navigator){
       .catch(()=>{});
   });
 }
+// Mostrar los diez espacios desde el inicio, incluso mientras carga OpenDota.
+renderSlots();
 loadHeroes();
 </script>
 </body></html>
