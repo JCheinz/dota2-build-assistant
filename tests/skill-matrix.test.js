@@ -91,10 +91,14 @@ for (const value of ["Techies Support 5", "M.A.D.", "Blast Off!", "Reactive Taze
 }
 
 
-const genericSynergyCopy = html.match(/function buildAllySynergy[\s\S]*?return \{cards,generic,roleCounts\};/);
+const genericSynergyCopy = html.match(/function buildAllySynergy[\\s\\S]*?return \\{cards,generic,roleCounts\\};/);
 if (!genericSynergyCopy) throw new Error("No se encontró el generador de sinergias genéricas");
-if (genericSynergyCopy[0].includes("Nether Blast")) {
-  throw new Error("La sinergia genérica no debe mencionar habilidades exclusivas de Pugna");
+if (genericSynergyCopy[0].includes("Nether Blast") || genericSynergyCopy[0].includes("Pugna")) {
+  throw new Error("El generador genérico no debe contener texto exclusivo de Pugna");
+}
+const pugnaSynergyCopy = html.match(/function buildPugnaMidAllySynergy[\\s\\S]*?\\n}/);
+if (!pugnaSynergyCopy || !pugnaSynergyCopy[0].includes('ownId==="pugna"&&role==="Mid"') || !pugnaSynergyCopy[0].includes("Nether Blast")) {
+  throw new Error("La sinergia específica de Pugna Mid debe permanecer aislada y condicionada");
 }
 if (html.includes("Versión 3.27 · Pugna Mid")) {
   throw new Error("El pie del informe no debe presentar Pugna como único perfil");
