@@ -386,6 +386,7 @@ if (!appHtml.includes(".hero-inventory-slot.filled")) {
 console.log("OK: inventario visual de seis espacios, objetos extra y componentes removibles");
 
 
+(()=>{
 // Auditoría transversal del seguimiento de compras para cualquier héroe/posición.
 const purchaseStart = appHtml.indexOf("function renderHeroInventory(state){");
 const purchaseEnd = appHtml.indexOf("\nconst heroPlans =", purchaseStart);
@@ -485,3 +486,5 @@ for (const role of universalRoles) {
   }
 }
 console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 4 y Support 5");
+
+})();
