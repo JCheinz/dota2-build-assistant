@@ -187,6 +187,19 @@
 .inventory-component{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
 .inventory-help{margin:8px 0 0;font-size:.72rem}
 @media(max-width:420px){.hero-inventory-slots{gap:5px}.hero-inventory-slot img{width:29px;height:29px}.hero-inventory-slot span{font-size:.53rem}}
+
+.inventory-zone-title{margin:12px 0 7px;font-size:.78rem;font-weight:800;color:var(--muted)}
+.hero-inventory-slots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.hero-backpack-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;max-width:52%}
+.hero-inventory-cell{position:relative;min-width:0}
+.hero-inventory-cell .hero-inventory-slot{width:100%}
+.inventory-sell{position:absolute;right:1px;top:0;border:0;background:#273342;color:#f29b94;border-radius:50%;font-weight:900;width:21px;height:21px;line-height:18px;z-index:2}
+.inventory-reserve{display:flex;flex-wrap:wrap;gap:7px}
+.inventory-reserve-item{display:flex;align-items:center;gap:7px;max-width:100%;padding:6px 9px;border:1px solid #526174;border-radius:9px;background:#202a37;color:var(--txt);font-size:.75rem}
+.inventory-reserve-item img{width:42px;height:30px;object-fit:contain}
+.inventory-reserve-item span{overflow-wrap:anywhere}
+.inventory-reserve-item b{color:#f29b94}
+@media(max-width:420px){.hero-backpack-slots{max-width:68%}.inventory-sell{width:18px;height:18px}}
 </style>
 </head>
 <body>
@@ -339,15 +352,29 @@ function renderItemIcon(name){
 }
 function renderHeroInventory(state){
  const owned=[...new Set(state.owned)],components=[...new Set(state.components)];
- const slots=Array.from({length:6},(_,i)=>{
-  const name=owned[i];
+ const zones=state.zones||{};
+ const assigned={main:[],backpack:[],reserve:[]};
+ const counts={main:0,backpack:0};
+ owned.forEach((name,index)=>{
+  let zone=zones[name];
+  if(!["main","backpack","reserve"].includes(zone)){
+   zone=index<6?"main":index<9?"backpack":"reserve";
+  }
+  if(zone==="main"&&counts.main>=6)zone=counts.backpack<3?"backpack":"reserve";
+  if(zone==="backpack"&&counts.backpack>=3)zone=counts.main<6?"main":"reserve";
+  if(zone==="main")counts.main++;
+  if(zone==="backpack")counts.backpack++;
+  assigned[zone].push(name);
+ });
+ const renderSlots=(zone,total,label)=>Array.from({length:total},(_,i)=>{
+  const name=assigned[zone][i];
   return name
-   ? '<button type="button" class="hero-inventory-slot filled" data-remove-owned="'+esc(name)+'" title="Tocar para quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>×</small></button>'
+   ? '<div class="hero-inventory-cell"><button type="button" class="hero-inventory-slot filled" data-move-owned="'+esc(name)+'" title="Tocar para mover '+esc(name)+' entre inventario y mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>↔</small></button><button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button></div>'
    : '<div class="hero-inventory-slot empty"><span>'+(i+1)+'</span></div>';
  }).join('');
- const overflow=owned.slice(6).map(name=>'<button type="button" class="inventory-overflow-item" data-remove-owned="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' <b>×</b></button>').join('');
+ const reserve=assigned.reserve.map(name=>'<button type="button" class="inventory-reserve-item" data-remove-owned="'+esc(name)+'" title="Tocar para vender / quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><b>×</b></button>').join('');
  const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
- return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><span>'+owned.length+'/6 espacios principales</span></div><div class="hero-inventory-slots">'+slots+'</div>'+(overflow?'<div class="inventory-overflow"><b>Otros objetos</b>'+overflow+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario para quitarlo o corregir una compra. Los componentes se muestran por separado.</p></div>';
+ return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario o la mochila para moverlo entre sectores. Usá × para venderlo; en reserva, tocá directamente el objeto. Los componentes se muestran por separado.</p></div>';
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
@@ -1019,6 +1046,7 @@ function getLiveState(){
   gold:Math.max(0,Number($('currentGold').value)||0),
   problem:$('currentProblem').value,
   owned:[...document.querySelectorAll('.owned-item:checked')].map(x=>x.value),
+  zones:Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone])),
   components:[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value)
  };
 }
@@ -1263,8 +1291,10 @@ function renderDynamicStateControls(){
  getDraftCounterRecommendations(enemies).forEach(g=>g.items.forEach(x=>addItem({name:x[0],why:x[1]})));
  const ownedRoot=$("ownedItems");
  if(ownedRoot){
-  const checked=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
-  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
+  const previousInputs=[...document.querySelectorAll(".owned-item")];
+  const checked=new Set(previousInputs.filter(x=>x.checked).map(x=>x.value));
+  const zones=Object.fromEntries(previousInputs.filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]));
+  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
  }
  const parts=new Set();
  Object.values(itemRecipes).flat().forEach(x=>parts.add(x.name));
@@ -1551,8 +1581,11 @@ $('toggleLiveState').onclick=()=>{
  button.textContent=expanded?'Maximizar':'Minimizar';
 };
 $('report').addEventListener('click',e=>{
- const removeOwned=e.target.closest('[data-remove-owned]');
- if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){input.checked=false;analyze({scroll:false});return;}}
+ const moveOwned=e.target.closest('[data-move-owned]');
+ if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;analyze({scroll:false});}return;}}
+ const sellOwned=e.target.closest('[data-sell-owned]');
+ const removeOwned=e.target.closest('[data-remove-owned]')||sellOwned;
+ if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned')||removeOwned.getAttribute('data-sell-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){input.checked=false;input.dataset.inventoryZone="";analyze({scroll:false});return;}}
  const removeComponent=e.target.closest('[data-remove-component]');
  if(removeComponent){const name=removeComponent.getAttribute('data-remove-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){input.checked=false;analyze({scroll:false});return;}}
  const component=e.target.closest('[data-buy-component]');
