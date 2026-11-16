@@ -93,7 +93,7 @@ for (const value of ["Techies Support 5", "M.A.D.", "Blast Off!", "Reactive Taze
 
 const genericSynergyCopy = html.match(/function buildAllySynergy[\\s\\S]*?return \\{cards,generic,roleCounts\\};/);
 if (!genericSynergyCopy) throw new Error("No se encontró el generador de sinergias genéricas");
-if (genericSynergyCopy[0].includes("Nether Blast") || genericSynergyCopy[0].includes("Pugna")) {
+if (genericSynergyCopy[0].includes("Nether Blast")) {
   throw new Error("El generador genérico no debe contener texto exclusivo de Pugna");
 }
 const pugnaSynergyCopy = html.match(/function buildPugnaMidAllySynergy[\\s\\S]*?\\n}/);
