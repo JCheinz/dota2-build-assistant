@@ -69,3 +69,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Cache actualizado a `dota-build-v77`; referencia de especializaciones a `?v=3277`.
 - Estado: implementado en rama; pendiente ejecutar CI, revisar diff/compatibilidad, integrar por PR y verificar deploy.
 - Preservación: no se modificaron los datos de perfiles Pugna, Techies ni Crystal Maiden; se probará su renderizado con la nueva columna común.
+
+
+## Integración — columna fija universal de matrices (16-11-2026)
+
+- PR #13: https://github.com/JCheinz/dota2-build-assistant/pull/13
+- Integrado por squash en `main`; commit: `aa746438c3d799e63f6eba4fe9a240986cdd6030`.
+- CI del PR #13: run `43933110575`, success (sintaxis y regresiones).
+- El diff modifica el renderizador común, CSS, pruebas, Service Worker y documentación; no cambia datos de especializaciones.
+- La prueba nueva recorre todos los perfiles que tienen matriz y valida que usan la estructura con columna fija.
+- GitHub Pages y validación post-merge del commit integrado iniciados; pendientes de confirmar.
+- Versiones: `dota-build-v77` y `specializations.js?v=3277`.
+- Respaldos previos: `backup/3.27-before-universal-sticky-skill-labels`, `backup/estado-3.27-before-universal-sticky-skill-labels`.
+- Pendiente de esta etapa: verificar CI y deploy post-merge; luego prueba visual en Android del desplazamiento horizontal con distintos héroes.
