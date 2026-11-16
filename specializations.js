@@ -243,7 +243,7 @@ window.DOTA_HERO_SPECIALIZATIONS = {
         "9–10: Arcane Aura","12: Arcane Aura",
         "13: Freezing Field","14–15: Crystal Nova","17: Freezing Field"
       ],
-      skillPriority:"Referencia de Hard Support 7.41f: maximizá Frostbite primero (1/3/5/7), Arcane Aura después (2/9/11/12) y Crystal Nova a continuación (4/8/14/15); Freezing Field en 6/13/17. La matriz separa los tiers de talentos en 10/15/20/25 y no los cuenta como habilidades. Si necesitás ralentización de área para asegurar intercambios, podés adelantar Crystal Nova; no sacrifiques Frostbite si tu equipo depende de la raíz para castigar una entrada.",
+      skillPriority:"Referencia de Hard Support 7.41f: maximizá Frostbite primero (1/3/5/7), Arcane Aura después (2/9/10/12) y Crystal Nova a continuación (4/8/14/15); Freezing Field en 6/13/17. La matriz separa los tiers de talentos en 10/15/20/25 y no los cuenta como habilidades. Si necesitás ralentización de área para asegurar intercambios, podés adelantar Crystal Nova; no sacrifiques Frostbite si tu equipo depende de la raíz para castigar una entrada.",
       talents:[
         ["Nivel 10","+200 de salud es la elección más frecuente; +12 de inteligencia es una alternativa para sostener maná y daño si no estás siendo alcanzado."],
         ["Nivel 15","+100 de alcance de Frostbite facilita controlar desde más lejos; −4,5 s de recarga de Crystal Nova sirve si necesitás ralentizar y hostigar más seguido."],
