@@ -1,5 +1,5 @@
-const CACHE = 'dota-build-v75';
-const CORE = ['./', './index.html', './manifest.webmanifest'];
+const CACHE = 'dota-build-v76';
+const CORE = ['./', './index.html', './manifest.webmanifest', './heroes.json', './hero-fallback.js'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
