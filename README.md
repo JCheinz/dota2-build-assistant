@@ -1,3 +1,7 @@
+### 3.25
+- Se reemplazan las iniciales Q/W/E/R por los iconos oficiales de las habilidades en la progresión por nivel de Pugna Mid.
+- Se mantiene el árbol de talentos y los indicadores diferenciados para talento y atributo.
+
 # Dota 2 Build Assistant — versión 3.19
 
 ## Novedades de la versión 3.19
