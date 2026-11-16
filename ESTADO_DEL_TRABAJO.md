@@ -186,3 +186,5 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Se agregaron regresiones para seis slots, tres de mochila, reserva, movimiento, venta y persistencia de zona. CI run `43979583575`, success.
 - PR #20: https://github.com/JCheinz/dota2-build-assistant/pull/20. Service Worker `dota-build-v82`.
 - No se modificaron builds ni lógica de recomendaciones. Pendiente merge y Pages.
+
+- Resultado final: PR #20 integrado por squash en main, commit `31fbcd2a5d7ac94ca1f0d6d9ecb0de2dde155008`. CI post-merge run `43979731552`, success. GitHub Pages build/deploy run `43979731165`, success; publicación confirmada.
