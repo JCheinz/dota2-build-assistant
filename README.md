@@ -138,3 +138,9 @@ Al publicar cambios del service worker, incrementá la versión de caché en `sw
 - Para Pugna Mid y Anti-Mage, la próxima compra presenta una opción orientativa y hasta tres rutas alternativas.
 - Cada alternativa muestra el siguiente componente pendiente, disponibilidad según oro y motivo contextual.
 - La puntuación ordena opciones, pero no obliga a seguir una única ruta; se preserva la progresión de núcleo.
+
+
+## v3.26 — matriz de habilidades y talentos
+- La guía individual representa las habilidades en filas y los niveles en columnas, con iconos oficiales de habilidades.
+- Talentos y atributos se distinguen en filas propias; el árbol de talentos conserva las dos elecciones y sus condiciones.
+- Pugna Mid incorpora el mapa de iconos de sus cuatro habilidades.
