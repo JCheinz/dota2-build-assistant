@@ -354,18 +354,27 @@ function getHeroSpecialization(hero,role){
 }
 
 function renderSpecializationGuide(g){
- const cards=(arr)=>arr.map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
- const skillIcons=g.skillIcons||{Q:{name:"Nether Blast",slug:"pugna_nether_blast"},W:{name:"Decrepify",slug:"pugna_decrepify"},E:{name:"Nether Ward",slug:"pugna_nether_ward"},R:{name:"Life Drain",slug:"pugna_life_drain"}};
- const levels=Array.from({length:25},(_,i)=>i+1), codes=["Q","W","E","R"];
- const icon=(code)=>{const skill=skillIcons[code];return skill?'<img class="skill-cell-icon" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+skill.slug+'.png" alt="'+esc(skill.name)+'" title="'+esc(skill.name)+'" onerror="this.outerHTML=\'<span class=&quot;skill-cell-fallback&quot;>'+code+'</span>\'">':""};
- const cell=(content,active=false)=>'<div class="skill-matrix-cell'+(active?' active':'')+'">'+content+'</div>';
- const header='<div class="skill-matrix-row skill-matrix-head"><b>HABILIDAD</b>'+levels.map(n=>'<span>'+n+'</span>').join('')+'</div>';
- const skillRows=codes.map(code=>'<div class="skill-matrix-row"><b class="skill-row-label">'+(skillIcons[code]?'<span class="skill-row-icon">'+icon(code)+'</span>':'')+(skillIcons[code]?esc(skillIcons[code].name):code)+'</b>'+levels.map(level=>{const learned=(g.skillBuild||[]).some(x=>x.level===level&&x.code===code);return cell(learned?icon(code):"",learned)}).join('')+'</div>').join('');
- const talentLevels=new Set((g.talentChoices||[]).map(t=>Number(t.level)));
- const talentRow='<div class="skill-matrix-row"><b class="skill-row-label">TALENTOS</b>'+levels.map(level=>cell(talentLevels.has(level)?'<span class="skill-special-mark">✥</span>':"",talentLevels.has(level))).join('')+'</div>';
- const attributeRow='<div class="skill-matrix-row"><b class="skill-row-label">ATRIBUTOS</b>'+levels.map(level=>{const learned=(g.skillBuild||[]).some(x=>x.level===level&&x.code==="A");return cell(learned?'<span class="skill-attribute-mark">+</span>':"",learned)}).join('')+'</div>';
- const matrix='<div class="skill-matrix-scroll"><div class="skill-matrix">'+header+skillRows+talentRow+attributeRow+'</div></div>';
- const talents=(g.talentChoices||[]).map(t=>'<div class="item-card talent-tree-card" style="display:block;margin:8px 0"><b class="talent-tree-heading"><span class="talent-tree-icon">✥</span>Nivel '+t.level+' · elegí según la partida</b><div class="talent-tree-options"><div class="talent-option"><b>◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div class="talent-option"><b>'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
+ const cards=(arr)=>(arr||[]).map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
+ const skillIcons=g.skillIcons&&typeof g.skillIcons==="object"?g.skillIcons:{};
+  const skillBuild=Array.isArray(g.skillBuild)?g.skillBuild:[];
+  const talentChoices=Array.isArray(g.talentChoices)?g.talentChoices:[];
+  const maxLevel=Math.max(25,Number(g.maxLevel)||0,...skillBuild.map(x=>Number(x.level)||0),...talentChoices.map(x=>Number(x.level)||0));
+  const levels=Array.from({length:maxLevel},(_,i)=>i+1);
+  const learnedCodes=[...new Set(skillBuild.map(x=>x.code).filter(code=>code&&code!=="A"&&code!=="T"))];
+  const codes=[...Object.keys(skillIcons),...learnedCodes.filter(code=>!Object.prototype.hasOwnProperty.call(skillIcons,code))];
+  const columns="150px repeat("+levels.length+",41px)";
+  const matrixWidth=(150+levels.length*41)+"px";
+  const rowStyle=' style="grid-template-columns:'+columns+'"';
+  const icon=(code)=>{const skill=skillIcons[code];return skill&&skill.slug?'<img class="skill-cell-icon" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/'+esc(skill.slug)+'.png" alt="'+esc(skill.name||code)+'" title="'+esc(skill.name||code)+'" onerror="this.outerHTML=\'<span class=&quot;skill-cell-fallback&quot;>'+esc(code)+'</span>\'">':'<span class="skill-cell-fallback">'+esc(code)+'</span>'};
+  const cell=(content,active=false)=>'<div class="skill-matrix-cell'+(active?' active':'')+'">'+content+'</div>';
+  const header='<div class="skill-matrix-row skill-matrix-head"'+rowStyle+'><b>HABILIDAD</b>'+levels.map(n=>'<span>'+n+'</span>').join('')+'</div>';
+  const skillRows=codes.map(code=>'<div class="skill-matrix-row"'+rowStyle+'><b class="skill-row-label">'+(skillIcons[code]&&skillIcons[code].slug?'<span class="skill-row-icon">'+icon(code)+'</span>':'')+esc(skillIcons[code]?.name||code)+'</b>'+levels.map(level=>{const learned=skillBuild.some(x=>Number(x.level)===level&&x.code===code);return cell(learned?icon(code):"",learned)}).join('')+'</div>').join('');
+  const talentLevels=new Set(talentChoices.map(t=>Number(t.level)));
+  const talentRow=talentChoices.length?'<div class="skill-matrix-row"'+rowStyle+'><b class="skill-row-label">TALENTOS</b>'+levels.map(level=>cell(talentLevels.has(level)?'<span class="skill-special-mark">✥</span>':"",talentLevels.has(level))).join('')+'</div>':"";
+  const hasAttributes=skillBuild.some(x=>x.code==="A");
+  const attributeRow=hasAttributes?'<div class="skill-matrix-row"'+rowStyle+'><b class="skill-row-label">ATRIBUTOS</b>'+levels.map(level=>{const learned=skillBuild.some(x=>Number(x.level)===level&&x.code==="A");return cell(learned?'<span class="skill-attribute-mark">+</span>':"",learned)}).join('')+'</div>':"";
+  const matrix=codes.length?'<div class="skill-matrix-scroll"><div class="skill-matrix" style="min-width:'+matrixWidth+'">'+header+skillRows+talentRow+attributeRow+'</div></div>':'<p class="hint">Matriz no disponible: esta guía todavía no define metadatos y progresión de habilidades verificadas.</p>';
+  const talents=(g.talentChoices||[]).map(t=>'<div class="item-card talent-tree-card" style="display:block;margin:8px 0"><b class="talent-tree-heading"><span class="talent-tree-icon">✥</span>Nivel '+t.level+' · elegí según la partida</b><div class="talent-tree-options"><div class="talent-option"><b>◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div class="talent-option"><b>'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
  return '<div class="result-section"><h3>'+esc(g.title)+'</h3><h3>Orden de habilidades por nivel</h3>'+(matrix||'<p class="hint">Secuencia no disponible.</p>')+'<p class="hint">Cada columna representa un nivel. El icono indica la habilidad aprendida; ✥ marca el nivel de talento y + los puntos de atributo. Deslizá horizontalmente para consultar todos los niveles.</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Árbol de talentos</h3>'+(talents||cards(g.talents))+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
 }
 
