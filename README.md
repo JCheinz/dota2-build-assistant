@@ -129,3 +129,8 @@ Al publicar cambios del service worker, incrementá la versión de caché en `sw
 - Las respuestas defensivas de Pugna Mid se presentan como alternativas condicionales comparadas; el draft o el selector de problema no fuerzan una compra única.
 - La próxima compra sigue calculándose por progresión, inventario, componentes y oro, separada del análisis comparativo de defensas.
 - Se elimina la inyección automática de BKB como compra prioritaria sin evidencia de la habilidad concreta que está afectando al jugador.
+
+### 3.22
+- Para Pugna Mid y Anti-Mage, la próxima compra presenta una opción orientativa y hasta tres rutas alternativas.
+- Cada alternativa muestra el siguiente componente pendiente, disponibilidad según oro y motivo contextual.
+- La puntuación ordena opciones, pero no obliga a seguir una única ruta; se preserva la progresión de núcleo.
