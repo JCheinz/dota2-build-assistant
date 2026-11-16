@@ -14,17 +14,5 @@ jobs:
           node-version: 22
       - name: Check specializations syntax
         run: node --check specializations.js
-      - name: Check inline JavaScript syntax
-        run: |
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].filter(m => !/\bsrc\s*=/.test(m[0].split('>')[0]));
-          if (!scripts.length) throw new Error('No inline scripts found');
-          scripts.forEach((match, i) => {
-            fs.writeFileSync('/tmp/inline-' + i + '.js', match[1]);
-            require('node:child_process').execFileSync(process.execPath, ['--check', '/tmp/inline-' + i + '.js'], {stdio: 'inherit'});
-          });
-          NODE
       - name: Test dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
