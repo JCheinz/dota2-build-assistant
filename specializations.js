@@ -229,7 +229,7 @@ window.DOTA_HERO_SPECIALIZATIONS = {
       skillBuild:[
         {level:1,code:"W"},{level:2,code:"E"},{level:3,code:"W"},{level:4,code:"Q"},
         {level:5,code:"W"},{level:6,code:"R"},{level:7,code:"W"},{level:8,code:"Q"},
-        {level:9,code:"E"},{level:11,code:"E"},{level:12,code:"E"},{level:13,code:"R"},
+        {level:9,code:"E"},{level:10,code:"E"},{level:12,code:"E"},{level:13,code:"R"},
         {level:14,code:"Q"},{level:15,code:"Q"},{level:17,code:"R"}
       ],
       talentChoices:[
@@ -241,9 +241,8 @@ window.DOTA_HERO_SPECIALIZATIONS = {
       skillOrder:[
         "1: Frostbite","2: Arcane Aura","3: Frostbite","4: Crystal Nova",
         "5: Frostbite","6: Freezing Field","7: Frostbite","8: Crystal Nova",
-        "9: Arcane Aura","10: talento","11–12: Arcane Aura",
-        "13: Freezing Field","14–15: Crystal Nova","16: talento",
-        "17: Freezing Field","18: atributo o talento pendiente según partida"
+        "9–10: Arcane Aura","12: Arcane Aura",
+        "13: Freezing Field","14–15: Crystal Nova","17: Freezing Field"
       ],
       skillPriority:"Referencia de Hard Support 7.41f: maximizá Frostbite primero (1/3/5/7), Arcane Aura después (2/9/11/12) y Crystal Nova a continuación (4/8/14/15); Freezing Field en 6/13/17. La matriz separa los tiers de talentos en 10/15/20/25 y no los cuenta como habilidades. Si necesitás ralentización de área para asegurar intercambios, podés adelantar Crystal Nova; no sacrifiques Frostbite si tu equipo depende de la raíz para castigar una entrada.",
       talents:[
