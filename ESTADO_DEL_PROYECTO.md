@@ -279,3 +279,13 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Las recomendaciones siguen admitiendo compra por toque y actualizan este inventario. La lógica de builds y especializaciones no se modificó.
 - Se agregaron pruebas de regresión. PR #17 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/17; CI del PR run `43950311869`, success.
 - Commit integrado: `d86f9f451f4d40fc6e55ea3ec739ff7834e6b3d0`. Service Worker `dota-build-v80`. CI post-merge y Pages pendientes de confirmación.
+
+
+## 19. Auditoría universal de compras e inventario — PR #18 (16-11-2026)
+
+- Se respaldó main `506bb61fc4749aca0d413fb48ecf52faaced54fd` en `backup/3.30-before-universal-purchase-audit` y `backup/estado-3.30-before-universal-purchase-audit`.
+- La auditoría confirmó un mecanismo común: las rutas individuales y las recomendaciones usan `renderItemCards`; la delegación de eventos admite objetos dinámicos no presentes en la lista manual; el inventario visual refleja objetos completos y componentes y permite retirarlos.
+- Se reforzaron regresiones para recorrer todas las rutas declaradas en `heroPlans` (inicio, núcleo y situacionales), probar recomendaciones arbitrarias no precargadas, render del inventario, retirada de objetos/componentes y catálogo común para Carry/Mid/Offlane/Support 4/Support 5.
+- No se alteraron las builds, las especializaciones ni el criterio de compra; solo se fortaleció la validación transversal.
+- PR #18: https://github.com/JCheinz/dota2-build-assistant/pull/18. CI aprobado en run `43969922879`, commit `20913dbfaa796e6ea3e12c921f34b255fb792139`.
+- Estado: pendiente actualizar los registros finales, integrar y confirmar CI/Pages post-merge.

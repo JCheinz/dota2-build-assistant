@@ -148,3 +148,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - CI del PR run `43950311869`: success. CI post-merge y Pages: verificar.
 - Service Worker actualizado a `dota-build-v80`.
 - Próxima validación Android: comprar un objeto desde una recomendación, confirmar que aparece en el inventario, probar más de seis objetos y quitar uno desde el inventario para confirmar que vuelve a estar disponible en las recomendaciones.
+
+
+## Auditoría universal del inventario y compras — PR #18 (16-11-2026)
+
+- Objetivo: comprobar que el registro por toque y el inventario visual funcionan con las recomendaciones de cualquier héroe/posición, no solo con Crystal Maiden.
+- Respaldos desde main `506bb61fc4749aca0d413fb48ecf52faaced54fd`: `backup/3.30-before-universal-purchase-audit` y `backup/estado-3.30-before-universal-purchase-audit`.
+- Rama: `work/universal-purchase-audit`.
+- Auditoría del código: las tarjetas de ruta, situacionales y las recomendaciones dinámicas usan el renderizador común `renderItemCards`; el controlador delegado del informe permite marcar un objeto aunque no estuviera en la lista manual, creando su checkbox de estado y recalculando sin scroll. El inventario muestra los objetos registrados y permite retirarlos; los componentes tienen un flujo separado.
+- La cobertura automática ahora recorre todas las rutas individuales declaradas en `heroPlans` (inicio, núcleo y situacionales), prueba objetos genéricos no precargados, verifica render y retirada de objetos/componentes y confirma cobertura del catálogo universal para Carry, Mid, Offlane, Support 4 y Support 5.
+- No se modificó lógica de recomendaciones, builds, talentos ni especializaciones; se amplió la suite de regresión.
+- PR #18: https://github.com/JCheinz/dota2-build-assistant/pull/18. Primeros intentos de CI detectaron colisiones de nombres de variables y dependencias de fixtures en el harness; corregidos. CI del commit `20913dbfaa796e6ea3e12c921f34b255fb792139`, run `43969922879`: success.
+- Pendiente integrar tras actualizar ambos archivos de estado y confirmar CI final.
