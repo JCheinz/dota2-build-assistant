@@ -354,7 +354,7 @@ for (const marker of [
   'data-buy-item=',
   'data-buy-component=',
   'item-buy-toggle',
-  'class="bought-chip"',
+  'bought-chip',
   'Carga manual opcional de objetos comprados',
   'Tocá cualquier objeto recomendado cuando lo compres',
   "input.checked=!input.checked;analyze({scroll:false})"
