@@ -73,7 +73,7 @@
 
 1. Cada código de habilidad usado en `skillBuild` debe existir en `skillIcons`, salvo códigos especiales reservados documentados.
 2. Los niveles deben ser enteros positivos, únicos y no superar `maxLevel` cuando se define.
-3. Cada entrada `talentChoices.level` debe coincidir con un evento `T` en `skillBuild`; cada evento `T` debe tener su elección de talento.
+3. Cada evento `T` explícito en `skillBuild` debe tener metadatos de talento correspondientes. `talentChoices` también puede declarar los niveles de talento posteriores sin duplicarlos como eventos de habilidad en `skillBuild`; el renderizador debe mostrarlos a partir de `talentChoices`.
 4. Los eventos `A` solo se permiten cuando el sistema de progresión del parche y el héroe los contempla.
 5. `innateAbilities` no consume un punto de habilidad ni se debe presentar como una mejora elegible por nivel.
 6. Los nombres e iconos deben corresponder a la habilidad real del héroe; los slugs se verifican contra los recursos del juego.
