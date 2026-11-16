@@ -268,3 +268,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadieron regresiones automatizadas de interacción/estado visual. PR #16: https://github.com/JCheinz/dota2-build-assistant/pull/16; CI del PR run `43947885373`, success.
 - Integrado por squash en main: `cc5e0941b70ea0b506bfced24bc7ef832a187e9c`. CI post-merge run `43947959482` y Pages run `43947959522` quedaron iniciados; confirmar resultados antes de solicitar prueba Android.
 - Service Worker actualizado a `dota-build-v79`.
+
+
+## 18. Inventario visual del héroe — PR #17 (16-11-2026)
+
+- Se creó la rama `work/hero-inventory-visual` desde main `376a1703bb27a57178d728840dfbbb13f8f5dabc`; respaldos: `backup/3.29-before-hero-inventory-ui` y `backup/estado-3.29-before-hero-inventory-ui`.
+- La sección de compras ahora contiene un inventario visual de seis espacios principales, inspirado en el HUD de Dota 2. Cada objeto completo comprado aparece allí con icono y nombre.
+- Los objetos que exceden seis espacios se conservan en un apartado adicional; los componentes se listan por separado.
+- Los elementos del inventario son interactivos: tocar un objeto lo retira del inventario y recalcula el informe; lo mismo ocurre con los componentes.
+- Las recomendaciones siguen admitiendo compra por toque y actualizan este inventario. La lógica de builds y especializaciones no se modificó.
+- Se agregaron pruebas de regresión. PR #17 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/17; CI del PR run `43950311869`, success.
+- Commit integrado: `d86f9f451f4d40fc6e55ea3ec739ff7834e6b3d0`. Service Worker `dota-build-v80`. CI post-merge y Pages pendientes de confirmación.
