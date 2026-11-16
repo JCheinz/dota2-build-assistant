@@ -1,4 +1,13 @@
-# Dota 2 Build Assistant — versión 3.16
+# Dota 2 Build Assistant — versión 3.17
+
+## Novedades de la versión 3.17
+- Actualizada la guía individual de Pugna Mid para 7.41f: prioridad Nether Blast → Decrepify → Nether Ward, con Life Drain en 6/12/18.
+- Corregida la explicación de habilidades: la guía ya no afirma que Nether Ward debe maximizarse antes de Decrepify.
+- Añadidas decisiones contextuales de talentos, combos que aprovechan Oblivion Savant, posicionamiento y mecánicas actuales (amplificación por torres y daño de Nether Blast a estructuras).
+- El renderizador muestra la prioridad de habilidades y las mecánicas específicas definidas por cada especialización.
+- No se modificó el motor de compras ni se añadieron precios o recetas no verificados.
+
+
 
 ## Novedades de la versión 3.16
 - Corregida la progresión de compra de Anti-Mage: recomienda componentes pendientes uno por vez y no informa costo cero ficticio al completar el objeto.
