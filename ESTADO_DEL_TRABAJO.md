@@ -82,3 +82,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Versiones: `dota-build-v77` y `specializations.js?v=3277`.
 - Respaldos previos: `backup/3.27-before-universal-sticky-skill-labels`, `backup/estado-3.27-before-universal-sticky-skill-labels`.
 - Pendiente de esta etapa: verificar CI y deploy post-merge; luego prueba visual en Android del desplazamiento horizontal con distintos héroes.
+
+
+## Nueva corrección — Crystal Maiden Support 4 (16-11-2026)
+
+- Se detectó que no existía el perfil `crystal_maiden|Support 4`; por eso el informe no podía mostrar la matriz de habilidades ni el árbol de talentos.
+- Se creó el perfil Support 4 de forma independiente, sin modificar `crystal_maiden|Support 5`.
+- Orden contrastado para soft support 7.41f: Frostbite 1/3/5/7; Arcane Aura 2/9/10/12; Crystal Nova 4/8/14/15; Freezing Field 6/13/17.
+- Árbol de talentos agregado en niveles 10/15/20/25, con las opciones y razones en español.
+- Fuentes de Support 4: StatsDota soft support y DotaTrack soft sup build; no se reutiliza una URL de datos de hard support.
+- Prueba nueva: comprueba la presencia del perfil, rol/parche, fuentes soft support, progresión exacta, render de matriz y cuatro tiers de talentos; comprueba independencia respecto de Support 5.
+- Referencias actualizadas: `specializations.js?v=3278`; Service Worker `dota-build-v78`.
+- Rama: `work/crystal-maiden-support4-guide`. Respaldos: `backup/3.27-before-crystal-maiden-support4` y `backup/estado-3.27-before-crystal-maiden-support4`.
+- Estado: PR #14 abierto y revisado; CI del último commit `237f3b5bffc1a62007ef9b12bf256ec61aac230d` aprobado (run `43934482854`); diff revisado y sin conflictos. Próximo paso: merge squash y verificación post-merge/Pages.
