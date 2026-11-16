@@ -353,7 +353,7 @@ const appHtml = fs.readFileSync("index.html", "utf8");
 for (const marker of [
   'data-buy-item=',
   'data-buy-component=',
-  'class="item-buy-toggle',
+  'item-buy-toggle',
   'class="bought-chip"',
   'Carga manual opcional de objetos comprados',
   'Tocá cualquier objeto recomendado cuando lo compres',
