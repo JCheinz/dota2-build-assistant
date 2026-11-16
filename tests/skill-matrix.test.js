@@ -471,3 +471,17 @@ for (const marker of [
   }
 }
 console.log("OK: auditoría universal de compras — rutas individuales, recomendaciones dinámicas, inventario y componentes");
+
+
+const universalContext = {};
+vm.createContext(universalContext);
+const universalEnd = appHtml.indexOf("\nfunction renderDynamicStateControls(){", universalStart);
+vm.runInContext(appHtml.slice(universalStart, universalEnd), universalContext);
+const universalRoles = ["Carry", "Mid", "Offlane", "Support 4", "Support 5"];
+const universalCatalog = vm.runInContext("universalItems", universalContext);
+for (const role of universalRoles) {
+  if (!universalCatalog.some(item => item.roles.includes(role))) {
+    throw new Error("El catálogo común no contempla el rol " + role);
+  }
+}
+console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 4 y Support 5");
