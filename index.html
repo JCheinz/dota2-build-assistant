@@ -215,7 +215,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3274"></script>
+<script src="./specializations.js?v=3275"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -449,6 +449,29 @@ heroPlans["npc_dota_hero_techies|Support 4"]={
   ["Kaya","Aumenta el rendimiento de habilidades si ya cubriste las necesidades de utilidad."]
  ],
  note:"La muestra de Techies Support 7.41f sitúa Tranquil Boots, Ring of Basilius y Soul Ring entre las compras frecuentes; Aether Lens y Consecrated Wraps aparecen en rutas posteriores. Son tendencias agregadas, no un orden rígido. Elegí según oro, inventario, draft y problema actual."
+};
+
+
+heroPlans["npc_dota_hero_techies|Support 5"]={
+ title:"Techies · Support 5 · protección del carry y defensa de objetivos · 7.41f",
+ early:[
+  ["Magic Wand","Compra económica frecuente; priorizala si el dúo rival genera cargas y necesitás sobrevivir a intercambios."],
+  ["Tranquil Boots","Botas más frecuentes en la muestra de Hard Support; ayudan a rotar y recuperar vida fuera de combate."],
+  ["Ring of Basilius","Regeneración de maná y aura para sostener habilidades y aportar recursos al equipo."],
+  ["Soul Ring","Compra frecuente en la muestra; usala si necesitás maná para defender línea y podés asumir el coste de vida."]
+ ],
+ core:[
+  ["Aether Lens","Objetivo frecuente de posición 5: aumenta el alcance para lanzar habilidades y proteger desde segunda línea."],
+  ["Consecrated Wraps","Aparece en rutas de Hard Support; consideralo si su efecto y coste encajan con la partida."],
+  ["Kaya","Compra posterior observada; solo después de cubrir supervivencia y utilidad básica."]
+ ],
+ situational:[
+  ["Glimmer Cape","Salvá al carry o a otro aliado bajo foco; su valor depende de que el rival no tenga detección preparada."],
+  ["Force Staff","Sacá a un aliado de una zona peligrosa o corregí posicionamiento; no elimina todos los controles."],
+  ["Eul’s Scepter of Divinity","Dispel y pausa defensiva situacional si resuelve una amenaza concreta."],
+  ["Scythe of Vyse","Control de objetivo de alto coste; no debe desplazar una compra de salvación necesaria."]
+ ],
+ note:"Ruta específica de Hard Support 7.41f: Magic Wand, Tranquil Boots, Ring of Basilius y Soul Ring aparecen entre las compras tempranas; Aether Lens y Consecrated Wraps son referencias posteriores. Los datos de DotaTrack muestran Tranquil Boots como primera bota predominante. No es una secuencia obligatoria: el oro, el inventario y la necesidad de salvar al carry determinan el orden."
 };
 
 heroPlans["npc_dota_hero_techies|Offlane"]={
