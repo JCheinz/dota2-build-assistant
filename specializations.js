@@ -197,7 +197,6 @@ window.DOTA_HERO_SPECIALIZATIONS = {
       caveats:"Perfil inicial de Support 4 basado en datos agregados de 7.41f, no en una muestra exclusiva de una sola liga. Las habilidades y el orden de referencia se contrastaron entre StatsDota y DotaTrack; las mecánicas de habilidades e innata se contrastaron con DotaCoach. El árbol muestra las opciones y tiers de talento de 7.41f; los eventos de selección observados en algunos registros pueden aparecer en niveles posteriores al desbloqueo. No se extrapola este perfil a Support 5. La ruta de objetos es estadística orientativa y debe ajustarse al draft, inventario y oro real."
     }
   },
-,
 
   "crystal_maiden|Support 5": {
     guide: {
