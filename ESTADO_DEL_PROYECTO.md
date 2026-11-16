@@ -4,7 +4,7 @@
 **Repositorio:** [JCheinz/dota2-build-assistant](https://github.com/JCheinz/dota2-build-assistant)  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión de referencia actual:** 3.27 (integrada en `main`; pendiente de validación final en Android)
+**Versión de referencia actual:** 3.27 + corrección de carga en preparación (rama `work/specialization-loader-cache-fix`)
 
 Este documento es el punto de continuidad del proyecto. Si una conversación termina, abrir este archivo y continuar desde la sección **Próximo paso**. Actualizarlo al cerrar cada etapa importante.
 
@@ -166,7 +166,7 @@ Probar primero héroes con estructuras de habilidades distintas. Validar secuenc
 
 ## 7. Próximo paso acordado
 
-**Etapa actual: validar la versión 3.27 integrada.**
+**Etapa actual: corregir la caché de especializaciones y validar 3.27.**
 
 1. Abrir la app publicada y confirmar que muestra versión 3.27.
 2. Probar Pugna Support 4: debe mostrar guía individual, matriz, talentos, combos y ruta propia.
@@ -177,7 +177,9 @@ Probar primero héroes con estructuras de habilidades distintas. Validar secuenc
 PR #2 integrado en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/2
 Merge commit: `bf381b7466d2036339668e958c57b89055ef5917`
 
-La revisión visual aportada por el usuario era de la versión 3.26. El selector de la rama 3.27 usa valores `Support 4`/`Support 5`, que coinciden con las claves de las especializaciones. No se ejecutó `node --check` ni una prueba automatizada del navegador en este entorno; tampoco se ha confirmado todavía el despliegue en el dispositivo.
+Corrección de caché en preparación: rama `work/specialization-loader-cache-fix`; commits `771b16e2ac8ec99c9a4f33b54a7c87cce94caaff` (URL versionada) y `e0559c669e5583e5500dcae9e0ac377000fb0d88` (SW v70 y JS network-first).
+
+La captura más reciente confirma que 3.27 está publicada y selecciona Pugna Support 4, pero el motor sigue mostrando perfil por arquetipo. El código en `main` sí contiene la clave `pugna|Support 4` y el objeto `guide`; por tanto, la hipótesis prioritaria es que el navegador recibió una copia anterior de `specializations.js` por la política cache-first del Service Worker. En la rama `work/specialization-loader-cache-fix` se versionó la URL del script (`?v=3271`), se cambió el caché a `dota-build-v70` y se estableció estrategia network-first para archivos `.js`, con fallback offline. Respaldo previo: `backup/3.27-before-specialization-loader-fix` desde `5f169cf1aad2445c45b97ceb4c568c9f48b21b68`. No se ejecutó `node --check` ni prueba automatizada del navegador en este entorno; la hipótesis debe confirmarse en Android.
 
 ---
 
