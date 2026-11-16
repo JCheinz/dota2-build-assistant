@@ -215,7 +215,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3275"></script>
+<script src="./specializations.js?v=3276"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -472,6 +472,35 @@ heroPlans["npc_dota_hero_techies|Support 5"]={
   ["Scythe of Vyse","Control de objetivo de alto coste; no debe desplazar una compra de salvación necesaria."]
  ],
  note:"Ruta específica de Hard Support 7.41f: Magic Wand, Tranquil Boots, Ring of Basilius y Soul Ring aparecen entre las compras tempranas; Aether Lens y Consecrated Wraps son referencias posteriores. Los datos de DotaTrack muestran Tranquil Boots como primera bota predominante. No es una secuencia obligatoria: el oro, el inventario y la necesidad de salvar al carry determinan el orden."
+};
+
+heroPlans["npc_dota_hero_crystal_maiden|Support 5"]={
+ title:"Crystal Maiden · Support 5 · control, maná y protección de equipo · 7.41f",
+ early:[
+  ["Tango","Regeneración básica para sostener la línea; compartí consumibles si tu carry necesita sobrevivir a hostigamiento."],
+  ["Iron Branch","Atributos económicos para completar el inicio y mejorar la eficiencia de consumibles."],
+  ["Blood Grenade","Herramienta de hostigamiento y ralentización para que tu dúo conecte Frostbite."],
+  ["Enchanted Mango","Reserva de maná para sostener una habilidad decisiva o responder a una entrada."],
+  ["Sentry Ward","Detección y control de visión; la compra depende de invisibilidad, bloqueo de campamentos y disputa de visión."],
+  ["Magic Stick","Sustain inmediato si el dúo rival usa habilidades con frecuencia."],
+  ["Magic Wand","Compra frecuente en hard support; priorizala si el dúo rival genera cargas y necesitás sobrevivir a intercambios."],
+  ["Wind Lace","Componente económico para compensar la movilidad baja y reposicionarte después de lanzar habilidades."],
+  ["Tranquil Boots","Primera bota predominante en la muestra; ayuda a rotar y recuperar vida fuera de combate."],
+  ["Infused Raindrops","Defensa económica contra hostigamiento mágico; compralas si el daño rival activa su valor."]
+ ],
+ core:[
+  ["Blink Dagger","Permite encontrar un ángulo de Freezing Field o reposicionarte para aplicar control; comprala solo si podés canalizar con cobertura."],
+  ["Glimmer Cape","Salvación para el carry o para vos; especialmente útil si el rival no tiene detección preparada."],
+  ["Aghanim’s Shard","Mejora situacional de habilidades; evaluá su efecto vigente y si el equipo necesita esa utilidad antes de priorizarlo."]
+ ],
+ situational:[
+  ["Force Staff","Reposicionamiento para sacar a un aliado de una zona peligrosa o corregir tu propia posición."],
+  ["Ghost Scepter","Contra foco físico directo cuando necesitás sobrevivir para seguir controlando."],
+  ["Black King Bar","Si las interrupciones y el daño mágico te impiden canalizar Freezing Field; no evita todos los controles."],
+  ["Aghanim’s Scepter","Inversión tardía solo si su mejora de Freezing Field resuelve una necesidad concreta de la partida."],
+  ["Aeon Disk","Si el primer control y burst enemigo te eliminan antes de lanzar tus habilidades."]
+ ],
+ note:"Referencia de Hard Support 7.41f: Magic Wand y Tranquil Boots aparecen entre las compras tempranas más frecuentes; Blink Dagger es un objetivo posterior habitual y Glimmer Cape/Force Staff son opciones de utilidad. La muestra de StatsDota refleja partidas de alto nivel y no debe trasladarse como orden fijo a Herald. Priorizá visión, detección, consumibles y supervivencia antes que acelerar Blink; comprá cada objeto según oro, inventario y amenaza real."
 };
 
 heroPlans["npc_dota_hero_techies|Offlane"]={
