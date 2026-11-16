@@ -291,3 +291,12 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Estado: pendiente actualizar los registros finales, integrar y confirmar CI/Pages post-merge.
 
 - Resultado final: PR #18 integrado en main por squash, commit `ae787e7bc51e128db5e5a3e3cea6827baac7f3f7`. CI de la rama con estado y pruebas finales run `43969996986`, success; Pages build y deploy post-merge run `43970058451`, success. Publicación confirmada.
+
+
+## 20. Consumo de componentes y aislamiento del inventario — PR #19 (16-11-2026)
+
+- Se crearon respaldos `backup/3.31-before-recipe-consumption` y `backup/estado-3.31-before-recipe-consumption` desde main `b06b21e41c194a95fc0d321e4d4ed2b7864f19f4`.
+- Al marcar un objeto completo como comprado, ahora se consumen sus componentes declarados en `itemRecipes`. En el caso de Arcane Boots se retiran Boots of Speed, Ring of Basilius, Wizard Hat y Receta de Arcane Boots; los componentes ajenos permanecen.
+- Cambiar héroe o posición reinicia el inventario previo, evitando mezclar las compras de dos configuraciones diferentes.
+- Pruebas de regresión para consumo de receta y aislamiento de inventario. PR #19: https://github.com/JCheinz/dota2-build-assistant/pull/19; CI inicial `43976306859`, success.
+- Service Worker `dota-build-v81`. Pendiente merge y verificación de Pages.
