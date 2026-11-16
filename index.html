@@ -354,7 +354,7 @@ function getHeroSpecialization(hero,role){
 }
 
 function renderSpecializationGuide(g){
- const cards=(arr)=>arr.map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
+ const cards=(arr)=>(arr||[]).map(x=>'<div class="item-card" style="display:block;margin:7px 0"><div class="item-copy"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div></div>').join('');
  const skillIcons=g.skillIcons&&typeof g.skillIcons==="object"?g.skillIcons:{};
   const skillBuild=Array.isArray(g.skillBuild)?g.skillBuild:[];
   const talentChoices=Array.isArray(g.talentChoices)?g.talentChoices:[];
