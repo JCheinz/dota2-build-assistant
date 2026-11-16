@@ -124,3 +124,8 @@ Al publicar cambios del service worker, incrementá la versión de caché en `sw
 - Corrige la prioridad de compra defensiva: la respuesta indicada por el diagnóstico prevalece sobre alternativas situacionales después de completar el núcleo.
 - Ordena esa respuesta al inicio de las compras situacionales y alinea la explicación de próxima compra con el objeto realmente seleccionado.
 - Mantiene la ruta principal de Pugna y Anti-Mage.
+
+### 3.21
+- Las respuestas defensivas de Pugna Mid se presentan como alternativas condicionales comparadas; el draft o el selector de problema no fuerzan una compra única.
+- La próxima compra sigue calculándose por progresión, inventario, componentes y oro, separada del análisis comparativo de defensas.
+- Se elimina la inyección automática de BKB como compra prioritaria sin evidencia de la habilidad concreta que está afectando al jugador.
