@@ -140,6 +140,20 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Respaldo de código inmediatamente anterior al merge: `backup/pre-merge-2026-11-16`, commit `45e93cd8b106a532ac9e85e4a41981cee8ffeae7`.
 - Tras el merge se creó el registro duplicado temporal `PROJECT_STATUS.md`; se decidió mantener como única fuente de verdad este archivo `ESTADO_DEL_PROYECTO.md`. El duplicado se eliminará.
 - Respaldo previo a la unificación de documentación: `backup/estado-unificado-2026-11-16`, commit `0dd48e3f2b6db55350dd474e8b3d6b80fc2d0c46`.
-- Commit de documentación y limpieza de duplicado: se completará a continuación.
-- Pendiente manual: probar en Android la sección “Sinergia en equipo” con Techies y otros héroes; verificar que no aparezca texto de Pugna en héroes ajenos y que Pugna Mid conserve su contenido.
-- Regla de continuidad: actualizar exclusivamente `ESTADO_DEL_PROYECTO.md) tras cada hito. No crear otro archivo de estado salvo petición expresa del usuario.
+- Commit de documentación y limpieza del duplicado: registrado en el historial de `main`; el archivo `PROJECT_STATUS.md` fue eliminado.
+- Validación manual Android: completada con capturas del usuario el 16-11-2026. Techies Support 5 carga correctamente y la sección «Sinergias entre aliados» muestra pautas genéricas por roles, sin texto exclusivo de Pugna. La captura confirma la vista de Techies Support 5; queda pendiente una comprobación visual específica de Pugna Mid para confirmar su contenido individual.
+- Regla de continuidad: actualizar exclusivamente `ESTADO_DEL_PROYECTO.md` tras cada hito. No crear otro archivo de estado salvo petición expresa del usuario.
+
+
+## 9. Validación final Android de PR #10 y Techies Support 5 (16-11-2026)
+
+- El usuario compartió una serie de capturas desde Android con Techies seleccionado y posición Hard Support (5), contra Bristleback, Centaur Warrunner, Broodmother, Anti-Mage y Hoodwink.
+- Se confirma que el informe identifica correctamente «Análisis adaptable · Techies · Support 5» y carga la guía individual completa.
+- Se visualizan metadata de la guía 7.41f, innata M.A.D., matriz de habilidades por niveles 1–25, talentos de niveles 10/15/20/25, combos, mecánicas, posicionamiento y ruta de objetos.
+- La ruta de objetos muestra Magic Wand, Tranquil Boots, Ring of Basilius, Soul Ring, Aether Lens, Consecrated Wraps y Kaya; se presentan como guía orientativa.
+- En «Sinergias entre aliados» aparecen recomendaciones agregadas por roles (Initiator, Disabler y Support), sin referencias a Pugna ni Nether Blast. El usuario confirmó visualmente la sección tras el despliegue de PR #10.
+- Resultado: prueba manual Android de Techies Support 5 y corrección genérica de sinergias aprobadas por el usuario.
+- Se observa en la interfaz el aviso de compatibilidad estimada baja de Techies para los roles generales del catálogo; la especialización individual de Support 5 sí está cargada. Se conserva como información explicativa, no como fallo.
+- Próximo paso: continuar la expansión de especializaciones por héroe/posición siguiendo el flujo de respaldo, rama de trabajo, pruebas, PR, despliegue y actualización de este documento.
+- Respaldo previo a este registro: `backup/estado-android-validado-2026-11-16`, creado desde el commit estable anterior `32b8ec3c60b6e16aacd26f9c2b6fa7f10e687564`.
+- Regla permanente: este archivo `ESTADO_DEL_PROYECTO.md` es la única fuente de continuidad. Actualizarlo después de cada cambio relevante, integración, validación o modificación del estado; no crear archivos paralelos de estado.
