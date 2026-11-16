@@ -141,13 +141,14 @@
 
     /* Matriz de habilidades por nivel y árbol de talentos */
     .skill-matrix-scroll{overflow-x:auto;max-width:100%;padding:4px 0 10px;overscroll-behavior-x:contain}
-    .skill-matrix{min-width:1180px;border:1px solid #3b4a5e;border-radius:12px;overflow:hidden;background:#17212d}
+    .skill-matrix{min-width:1180px;border:1px solid #3b4a5e;border-radius:12px;background:#17212d}
     .skill-matrix-row{display:grid;grid-template-columns:150px repeat(25,41px);min-height:58px;border-bottom:1px solid #344153}
     .skill-matrix-row:last-child{border-bottom:0}
     .skill-matrix-row> b,.skill-matrix-row>span,.skill-matrix-cell{display:flex;align-items:center;justify-content:center;border-right:1px solid #293747}
-    .skill-matrix-row> b{position:sticky;left:0;z-index:1;justify-content:flex-start;padding:7px 9px;background:#1c2937;color:#dfe6ef;font-size:11px}
+    .skill-matrix-row> b{position:sticky;left:0;z-index:3;min-width:0;justify-content:flex-start;padding:7px 9px;background:#1c2937;color:#dfe6ef;font-size:11px;box-shadow:2px 0 5px #0005}
+    .skill-matrix-head>b{z-index:4;background:#202d3c;color:#efbd62}
+    .skill-row-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .skill-matrix-head{min-height:40px;background:#202d3c;color:#efbd62;font-size:11px;font-weight:800}
-    .skill-matrix-head>b{background:#202d3c}
     .skill-matrix-cell{min-height:58px}
     .skill-matrix-cell.active{background:#253447;box-shadow:inset 0 0 0 1px #e6b75d}
     .skill-row-label{gap:6px}
@@ -215,7 +216,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3276"></script>
+<script src="./specializations.js?v=3277"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
