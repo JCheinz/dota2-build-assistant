@@ -90,6 +90,16 @@ for (const value of ["Techies Support 5", "M.A.D.", "Blast Off!", "Reactive Taze
   if (!techies5Output.includes(value)) throw new Error("La guía Techies Support 5 no muestra " + value);
 }
 
+
+const genericSynergyCopy = context.source.match(/function buildAllySynergy[\\s\\S]*?return \\{cards,generic,roleCounts\\};/);
+if (!genericSynergyCopy) throw new Error("No se encontró el generador de sinergias genéricas");
+if (genericSynergyCopy[0].includes("Nether Blast")) {
+  throw new Error("La sinergia genérica no debe mencionar habilidades exclusivas de Pugna");
+}
+if (context.source.includes("Versión 3.27 · Pugna Mid")) {
+  throw new Error("El pie del informe no debe presentar Pugna como único perfil");
+}
+
 const fixture = {
   title: "Fixture sintética — no representa un héroe real",
   metadata: {
