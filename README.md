@@ -1,4 +1,12 @@
-# Dota 2 Build Assistant — versión 3.17
+# Dota 2 Build Assistant — versión 3.18
+
+## Novedades de la versión 3.18
+- Auditoría de la progresión de compras de Pugna Mid para 7.41f: Arcane Boots → Aether Lens quedan como núcleo ordenado; Bottle y Magic Wand siguen siendo compras tempranas condicionales.
+- Incorporadas como opciones situacionales Kaya, Dagon, Blink Dagger y Aghanim’s Scepter, con criterios de uso y sin convertir las tendencias estadísticas en compras obligatorias.
+- La próxima compra de Pugna respeta el núcleo antes de pasar a respuestas situacionales; muestra un componente pendiente por vez y no inventa un costo de receta cuando los componentes aparecen completos.
+- Añadidas recetas verificadas para Kaya, Dagon y Aghanim’s Scepter; Blink Dagger se trata como compra directa. Se mantiene la receta actualizada de Arcane Boots de 7.41.
+- Añadidos iconos para los objetos y componentes incorporados.
+- El motor común y la ruta corregida de Anti-Mage se conservan.
 
 ## Novedades de la versión 3.17
 - Actualizada la guía individual de Pugna Mid para 7.41f: prioridad Nether Blast → Decrepify → Nether Ward, con Life Drain en 6/12/18.
