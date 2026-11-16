@@ -82,7 +82,9 @@ Se añadieron en `specializations.js` dos perfiles separados:
 - `pugna|Support 4`: presión de línea, control, rotaciones y utilidad.
 - `pugna|Support 5`: protección del carry, sustain y defensa de objetivos.
 
-Ambos perfiles incluyen iconos Q/W/E/R, progresión de habilidades, talentos contextuales, combos, posicionamiento y mecánicas específicas de Pugna. Comparten la progresión de habilidades de referencia para Pugna support en 7.41f; se diferencian en ejecución, prioridades y criterios de uso según la posición. La secuencia se debe adaptar a la línea y al draft.
+Ambos perfiles incluyen iconos Q/W/E/R, progresión de habilidades, talentos contextuales, combos, posicionamiento, mecánicas específicas de Pugna y rutas individuales de compra en `index.html`. Comparten la progresión de habilidades de referencia para Pugna support en 7.41f; se diferencian en ejecución, prioridades y criterios de uso según la posición. La secuencia se debe adaptar a la línea y al draft.
+
+Las rutas de compra separan la presión/rotación de posición 4 de la protección del carry de posición 5. Se añadieron referencias de Ring of Basilius, Magic Wand, Arcane Boots, Aether Lens y Glimmer Cape, más respuestas situacionales como Force Staff, Ghost Scepter y Aeon Disk. No se presentan precios ni recetas como verificados.
 
 La versión visible se actualizó a 3.27 y el Service Worker a `dota-build-v69`. Estos cambios están en `work/pugna-support-4-5`; todavía no se consideran desplegados ni validados en Android.
 
