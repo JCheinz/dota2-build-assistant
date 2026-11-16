@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.19</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.20</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -877,7 +877,7 @@ function getNextPurchase(build,state,preferredName=null){
    return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Los componentes registrados están completos. Completá el objeto en la partida y marcá el objeto entero como comprado para avanzar. No se muestra un costo de receta no verificado."};
   }
   const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0);
-  const preferred=preferredName?build.find(x=>x.name===preferredName&&!owned.has(x.name)&&x.score>0):null;
+  const preferred=preferredName?build.find(x=>x.name===preferredName&&!owned.has(x.name)):null;
   const chosen=preferred||situational[0];
   if(chosen){
    const recipe=itemRecipes[chosen.name]||[];
@@ -1276,13 +1276,20 @@ function analyze(options={}){
   adaptive.selected.push({name:defensive.name,why:defensive.reason,condition:defensive.reason,stage:"Defensa",cost:defensive.name==="Black King Bar"?4050:undefined,score:8,priority:false,roles:[role],tags:["threat-response"],threatSpecific:true});
   adaptive.situational.push(adaptive.selected[adaptive.selected.length-1]);
  }
+ if(purchaseDecision&&purchaseDecision.primary){
+  const preferred=adaptive.selected.find(x=>x.name===purchaseDecision.primary.name&&!live.owned.includes(x.name));
+  if(preferred&&!adaptive.mainRoute.includes(preferred)){
+   if(!adaptive.situational.includes(preferred))adaptive.situational.push(preferred);
+   adaptive.situational.sort((a,b)=>a===preferred?-1:b===preferred?1:0);
+  }
+ }
  const rankContext=getRankHeroContext(me,$('rank').value);
  const rankSummary=rankContext?('OpenDota · '+$('rank').value+': '+rankContext.rate.toFixed(1)+'% de victorias en '+rankContext.picks.toLocaleString('es-AR')+' partidas. Dato agregado del héroe; no separa posiciones.'):'OpenDota: muestra insuficiente para este héroe en el rango seleccionado.';
  const nextPurchase=getNextPurchase(adaptive.selected,live,purchaseDecision&&purchaseDecision.primary?purchaseDecision.primary.name:null);
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.19',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.20',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1315,7 +1322,7 @@ function analyze(options={}){
  html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><div class="item-card" style="display:block;margin:8px 0"><div class="item-copy"><b>Perfil táctico · '+esc(adaptive.specialization.style)+'</b><small>'+esc(adaptive.specialization.level)+'</small><span>'+esc(adaptive.specialization.source)+'</span><span><b>Fortalezas:</b> '+esc(adaptive.specialization.strengths.join(' · '))+'</span><span><b>Atención:</b> '+esc(adaptive.specialization.risks.join(' · '))+'</span></div></div><p class="hint"><b>Identidad del héroe:</b> '+esc(adaptive.specialization.identity.join(' · '))+'. <b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p>'+(adaptive.specialization.guide?renderSpecializationGuide(adaptive.specialization.guide):'')+'<h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(adaptive.situational)+'</div>');
  if(next){
   const goldNote=live.gold>0?live.gold.toLocaleString('es-AR')+' de oro disponible. La compra se calcula con los componentes marcados y los costos configurados en la ruta.':'Ingresá tu oro actual para evaluar tu capacidad de compra.';
-  html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):nextPurchase.kind==='goal'?(nextPurchase.routeReason||nextPurchase.reason||next.why): (next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':nextPurchase.kind==='goal'?'OBJETIVO DE PROGRESIÓN':'SIGUIENTE OBJETIVO')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">La recomendación pondera fase de partida, orden del perfil del héroe, urgencia contra el draft, componentes que ya tenés y oro disponible. No compra automáticamente una defensa por detectar una amenaza.</p><p class="hint">¿Cambió la partida? Actualizá minuto, oro, inventario y problema en «Estado actual» y recalculá.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
+  html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):nextPurchase.kind==='goal'?(nextPurchase.routeReason||nextPurchase.reason||next.why): (nextPurchase.reason||nextPurchase.routeReason||next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':nextPurchase.kind==='goal'?'OBJETIVO DE PROGRESIÓN':'SIGUIENTE OBJETIVO')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">La recomendación pondera fase de partida, orden del perfil del héroe, urgencia contra el draft, componentes que ya tenés y oro disponible. No compra automáticamente una defensa por detectar una amenaza.</p><p class="hint">¿Cambió la partida? Actualizá minuto, oro, inventario y problema en «Estado actual» y recalculá.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
  }else html.push('<div class="result-section"><h3>Próxima compra</h3><p class="hint">Marcaste como comprados todos los objetos de la ruta sugerida. Volvé a analizar si cambia el draft o tu inventario.</p></div>');
  if(adaptive.threatGroups.length){
   html.push('<div class="result-section"><h3>Respuestas situacionales al equipo enemigo</h3><p class="hint">No son compras obligatorias. Elegí solo las que resuelvan una amenaza real en esta partida.</p>');
@@ -1328,7 +1335,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.19 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.20 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
