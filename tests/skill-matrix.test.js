@@ -541,10 +541,7 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
     'data-remove-owned=',
     'state.zones||{}'
   ])if(!renderer.includes(marker))throw new Error("Inventario sin soporte para: "+marker);
-  if(!appHtml.includes('data-inventory-zone="'+esc(zones[x.name]||"")+'"')) {
-    // The literal template is checked below without evaluating its browser expressions.
-    if(!appHtml.includes("zones[x.name]||"))throw new Error("No se preservan las zonas al reconstruir los controles");
-  }
+  if(!appHtml.includes("zones[x.name]||"))throw new Error("No se preservan las zonas al reconstruir los controles");
   const clickStart=appHtml.indexOf("$('report').addEventListener('click'");
   const clickEnd=appHtml.indexOf("\n});",clickStart);
   const handler=appHtml.slice(clickStart,clickEnd);
