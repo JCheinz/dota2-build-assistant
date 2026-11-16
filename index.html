@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.21</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.22</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
     <div class="teams">
@@ -869,16 +869,21 @@ function getNextPurchase(build,state,preferredName=null){
    }
    return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Los componentes registrados están completos. Completá el objeto en la partida y marcá el objeto entero como comprado para avanzar. No se muestra un costo de receta no verificado."};
   }
-  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0);
-  const preferred=preferredName?build.find(x=>x.name===preferredName&&!owned.has(x.name)):null;
-  const chosen=preferred||situational[0];
-  if(chosen){
-   const recipe=itemRecipes[chosen.name]||[];
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0).sort((a,b)=>(b.score||0)-(a.score||0));
+  const toOption=target=>{
+   const recipe=itemRecipes[target.name]||[];
    const missing=recipe.filter(part=>!state.components.includes(part.name));
    const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
-   if(missing.length&&next)return {target:chosen,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:chosen.condition||chosen.why,routeReason:"El núcleo está completo. Esta respuesta situacional se elige por el draft y el problema seleccionado; se muestra un componente por vez."};
-   if(recipe.length&&!missing.length)return {target:chosen,kind:"goal",name:chosen.name,reason:chosen.condition||chosen.why,routeReason:"Los componentes figuran completos. Completá el objeto y marcá el objeto entero como comprado; no se muestra un costo ficticio."};
-   return {target:chosen,kind:"complete",name:chosen.name,cost:Number.isFinite(chosen.cost)?chosen.cost:0,remaining:Math.max(0,(chosen.cost||0)-state.gold),affordable:state.gold>=(chosen.cost||0),reason:chosen.condition||chosen.why,routeReason:"El núcleo está completo. La siguiente compra responde a una necesidad situacional."};
+   if(missing.length&&next)return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.condition||target.why};
+   if(recipe.length&&!missing.length)return {target,kind:"goal",name:target.name,reason:target.condition||target.why};
+   return {target,kind:"complete",name:target.name,cost:Number.isFinite(target.cost)?target.cost:0,remaining:Math.max(0,(target.cost||0)-state.gold),affordable:state.gold>=(target.cost||0),reason:target.condition||target.why};
+  };
+  const preferred=preferredName?situational.find(x=>x.name===preferredName):null;
+  const chosen=preferred||situational[0];
+  if(chosen){
+   const primary=toOption(chosen);
+   const alternatives=situational.filter(x=>x.name!==chosen.name).slice(0,3).map(toOption);
+   return {...primary,alternatives,routeReason:"El núcleo está completo. Esta es la opción mejor puntuada; abajo se comparan otras alternativas y sus próximos componentes. La puntuación orienta, no obliga a comprar."};
   }
   return {done:true};
  }
@@ -1270,7 +1275,7 @@ function analyze(options={}){
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.21',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.22',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1303,7 +1308,7 @@ function analyze(options={}){
  html.push('<div class="result-section"><h3>Análisis adaptable · '+esc(me.localized_name)+' · '+esc(role)+'</h3><div class="item-card" style="display:block;margin:8px 0"><div class="item-copy"><b>Perfil táctico · '+esc(adaptive.specialization.style)+'</b><small>'+esc(adaptive.specialization.level)+'</small><span>'+esc(adaptive.specialization.source)+'</span><span><b>Fortalezas:</b> '+esc(adaptive.specialization.strengths.join(' · '))+'</span><span><b>Atención:</b> '+esc(adaptive.specialization.risks.join(' · '))+'</span></div></div><p class="hint"><b>Identidad del héroe:</b> '+esc(adaptive.specialization.identity.join(' · '))+'. <b>Compatibilidad estimada:</b> '+esc(adaptive.fit.slice(0,3).map(x=>x.role).join(' · '))+'. '+esc(adaptive.explanation)+'</p>'+(adaptive.specialization.guide?renderSpecializationGuide(adaptive.specialization.guide):'')+'<h3>Ruta principal · '+esc(adaptive.phase)+'</h3><p class="hint">Objetos de progresión del héroe. Los primeros tres resaltados son los objetivos principales de esta fase; las compras de línea dejan de desplazar el núcleo cuando avanza la partida.</p>'+renderItemCards(adaptive.mainRoute)+'<h3 style="margin-top:14px">Compras situacionales y alternativas</h3><p class="hint">No son obligatorias. Elegí una solo cuando resuelva una amenaza concreta o una necesidad de tu equipo.</p>'+renderItemCards(adaptive.situational)+'</div>');
  if(next){
   const goldNote=live.gold>0?live.gold.toLocaleString('es-AR')+' de oro disponible. La compra se calcula con los componentes marcados y los costos configurados en la ruta.':'Ingresá tu oro actual para evaluar tu capacidad de compra.';
-  html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):nextPurchase.kind==='goal'?(nextPurchase.routeReason||nextPurchase.reason||next.why): (nextPurchase.reason||nextPurchase.routeReason||next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':nextPurchase.kind==='goal'?'OBJETIVO DE PROGRESIÓN':'SIGUIENTE OBJETIVO')+'</small></div></div><p class="hint">'+esc(goldNote)+'</p><p class="hint">La próxima compra sigue la progresión del héroe y el estado del inventario. Las defensas se presentan como alternativas comparadas: el motor no fuerza una sola por el draft ni por el problema seleccionado.</p><p class="hint">¿Cambió la partida? Actualizá minuto, oro, inventario y problema en «Estado actual» y recalculá.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
+  html.push('<div class="result-section"><h3>Próxima compra recomendada</h3><div class="item-card priority"><span class="item-number">1</span>'+renderItemIcon(nextPurchase.name||next.name)+'<div class="item-copy"><b>'+esc(nextPurchase.name||next.name)+'</b><span>'+esc(nextPurchase.kind==='component'?'Componente para avanzar hacia '+nextPurchase.target.name+'. '+(nextPurchase.affordable?'Podés comprarlo con el oro indicado.':'Te faltan '+nextPurchase.remaining.toLocaleString('es-AR')+' de oro.'):nextPurchase.kind==='goal'?(nextPurchase.routeReason||nextPurchase.reason||next.why): (nextPurchase.reason||nextPurchase.routeReason||next.why||'Prioridad calculada para tu héroe y draft.'))+'</span><small class="item-priority-label">'+(nextPurchase.kind==='component'?'SIGUIENTE COMPONENTE':nextPurchase.kind==='goal'?'OBJETIVO DE PROGRESIÓN':'SIGUIENTE OBJETIVO')+'</small></div></div>'+(nextPurchase.alternatives&&nextPurchase.alternatives.length?'<h3 style="margin-top:12px">Otras rutas posibles</h3><p class="hint">Compará qué objeto resuelve mejor tu necesidad. Cada opción muestra el siguiente componente pendiente; no tenés que seguirlas todas.</p>'+nextPurchase.alternatives.map((alt,i)=>'<div class="item-card" style="margin:7px 0"><span class="item-number">'+(i+2)+'</span>'+renderItemIcon(alt.name)+'<div class="item-copy"><b>'+esc(alt.target.name)+'</b><span>'+esc(alt.kind==='component'?'Siguiente componente: '+alt.name+(alt.affordable?' · comprable ahora':' · faltan '+alt.remaining.toLocaleString('es-AR')+' de oro'):alt.kind==='goal'?'Objetivo: completar '+alt.name:'Objeto completo: '+alt.name)+'</span><small>'+esc(alt.reason||alt.target.why||'Alternativa contextual')+'</small></div></div>').join(''):'')+'<p class="hint">'+esc(goldNote)+'</p><p class="hint">La compra destacada orienta según fase, puntuación e inventario. Las otras rutas siguen disponibles para que elijas según cómo se desarrolla la partida.</p><p class="hint">¿Cambió la partida? Actualizá minuto, oro, inventario y problema en «Estado actual» y recalculá.</p><button class="btn" id="recalcLive" type="button">Recalcular compras con el estado actual</button></div>');
  }else html.push('<div class="result-section"><h3>Próxima compra</h3><p class="hint">Marcaste como comprados todos los objetos de la ruta sugerida. Volvé a analizar si cambia el draft o tu inventario.</p></div>');
  if(adaptive.threatGroups.length){
   html.push('<div class="result-section"><h3>Respuestas situacionales al equipo enemigo</h3><p class="hint">No son compras obligatorias. Elegí solo las que resuelvan una amenaza real en esta partida.</p>');
@@ -1316,7 +1321,7 @@ function analyze(options={}){
   const genericTips=allySynergy.generic.length?'<ul>'+allySynergy.generic.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'';
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
- html.push('<div class="warning">Versión 3.21 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ html.push('<div class="warning">Versión 3.22 · mejora la progresión de compra de Anti-Mage y distingue guías individuales, rutas de objetos y perfiles por arquetipo. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
