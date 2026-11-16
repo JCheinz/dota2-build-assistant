@@ -474,7 +474,7 @@ for (const marker of [
 console.log("OK: auditoría universal de compras — rutas individuales, recomendaciones dinámicas, inventario y componentes");
 
 
-const universalContext = {};
+const universalContext = { item: (name, why) => ({ name, why }) };
 vm.createContext(universalContext);
 const universalEnd = appHtml.indexOf("\nfunction renderDynamicStateControls(){", universalStart);
 vm.runInContext(appHtml.slice(universalStart, universalEnd), universalContext);
