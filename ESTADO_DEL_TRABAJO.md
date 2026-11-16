@@ -134,3 +134,17 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - CI post-merge `43947959482` y GitHub Pages `43947959522`: en ejecución al momento de esta actualización.
 - Service Worker: `dota-build-v79`. No se modificaron perfiles, builds, órdenes de habilidades ni árboles de talentos.
 - Próxima validación: prueba práctica en Android de marcar/desmarcar un objeto, confirmar que la próxima compra cambia y que los componentes siguen su ruta correctamente.
+
+
+## Inventario visual del héroe — PR #17 (16-11-2026)
+
+- Se añadió una interfaz inspirada en el inventario de Dota 2, con seis espacios principales para objetos completos, iconos y nombres.
+- Si hay más de seis objetos completos registrados, se muestran en una sección adicional para no perderlos del seguimiento.
+- Los componentes de recetas se muestran separados de los objetos completos.
+- Tocar un objeto del inventario lo quita del estado de compras; tocar un componente lo quita de la lista de componentes. En ambos casos se recalcula el informe y las recomendaciones.
+- Las tarjetas de recomendaciones mantienen la acción de marcar como comprado y ahora alimentan el inventario visual.
+- Se agregaron pruebas de regresión para los seis espacios, objetos adicionales y eliminación de objetos/componentes.
+- PR #17 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/17. Commit: `d86f9f451f4d40fc6e55ea3ec739ff7834e6b3d0`.
+- CI del PR run `43950311869`: success. CI post-merge y Pages: verificar.
+- Service Worker actualizado a `dota-build-v80`.
+- Próxima validación Android: comprar un objeto desde una recomendación, confirmar que aparece en el inventario, probar más de seis objetos y quitar uno desde el inventario para confirmar que vuelve a estar disponible en las recomendaciones.
