@@ -1,3 +1,12 @@
+# Dota 2 Build Assistant — versión 3.26
+
+## Novedades de la versión 3.26
+- La guía individual muestra una matriz de habilidades por nivel (1–25), con filas separadas por habilidad e iconos en los niveles aprendidos.
+- Los niveles de talento y los puntos de atributo quedan identificados en filas propias; el árbol de talentos mantiene las dos alternativas y su explicación contextual.
+- Los metadatos de iconos pasan a formar parte de cada guía individual, para permitir especializaciones visuales distintas por héroe.
+- Se conserva el catálogo, análisis de draft, rutas de compra y la guía de Pugna Mid de la versión estable 3.25.
+- Service Worker actualizado a caché v68.
+
 # Dota 2 Build Assistant — versión 3.19
 
 ## Novedades de la versión 3.19
