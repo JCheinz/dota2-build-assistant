@@ -113,6 +113,12 @@ const cmOutput = context.renderSpecializationGuide(crystalMaiden5);
 for (const value of ["Crystal Maiden Support 5", "Glacial Guard", "Frostbite", "Arcane Aura", "Crystal Nova", "Freezing Field", "+200 salud", "+1 s de duración de Frostbite"]) {
   if (!cmOutput.includes(value)) throw new Error("La guía Crystal Maiden Support 5 no muestra " + value);
 }
+if (!html.includes('heroPlans["npc_dota_hero_crystal_maiden|Support 5"]')) {
+  throw new Error("Falta la ruta de objetos independiente de Crystal Maiden Support 5");
+}
+for (const item of ["Tango", "Blood Grenade", "Magic Wand", "Tranquil Boots", "Blink Dagger", "Glimmer Cape"]) {
+  if (!html.includes('["' + item + '"')) throw new Error("Falta el objeto de referencia para Crystal Maiden: " + item);
+}
 if (cmOutput.includes("M.A.D.") || cmOutput.includes("Blast Off!")) {
   throw new Error("Crystal Maiden no debe heredar contenido específico de Techies");
 }
