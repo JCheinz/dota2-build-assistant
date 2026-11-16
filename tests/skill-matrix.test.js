@@ -64,6 +64,32 @@ for (const value of ["M.A.D.", "Habilidades innatas", "Blast Off!", "Reactive Ta
   if (!techiesOutput.includes(value)) throw new Error("La guía Techies no muestra " + value);
 }
 
+
+const techies5 = context.window.DOTA_HERO_SPECIALIZATIONS["techies|Support 5"]?.guide;
+if (!techies5) throw new Error("Falta la especialización Techies Support 5");
+if (techies5.metadata?.patch !== "7.41f" || techies5.metadata?.role !== "Support 5") {
+  throw new Error("Techies Support 5 debe identificar parche y posición");
+}
+if (!Array.isArray(techies5.innateAbilities) || !techies5.innateAbilities.some(x => x.name === "M.A.D.")) {
+  throw new Error("Techies Support 5 debe mostrar M.A.D. como innata");
+}
+for (const entry of techies5.skillBuild) {
+  if (!techies5.skillIcons[entry.code]) throw new Error("Techies Support 5 usa una habilidad sin icono: " + entry.code);
+}
+if ((techies5.talentChoices || []).map(x => Number(x.level)).join(",") !== "10,15,20,25") {
+  throw new Error("Techies Support 5 debe incluir los cuatro tiers de talentos");
+}
+if (techies5.skillBuild.some(x => x.code === "T")) {
+  throw new Error("Techies Support 5 no debe inventar eventos de talento incompatibles con los tiers");
+}
+if (techies5.skillPriority === techies.skillPriority || techies5.positioning === techies.positioning) {
+  throw new Error("Techies Support 5 debe tener prioridad y posicionamiento independientes de Support 4");
+}
+const techies5Output = context.renderSpecializationGuide(techies5);
+for (const value of ["Techies Support 5", "M.A.D.", "Blast Off!", "Reactive Tazer", "−0,8 s de activación de Proximity Mines"]) {
+  if (!techies5Output.includes(value)) throw new Error("La guía Techies Support 5 no muestra " + value);
+}
+
 const fixture = {
   title: "Fixture sintética — no representa un héroe real",
   metadata: {
