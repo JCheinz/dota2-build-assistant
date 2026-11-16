@@ -434,7 +434,7 @@ const universalStart = appHtml.indexOf("const universalItems=[", heroPlansStart)
 if (heroPlansStart < 0 || universalStart < 0) {
   throw new Error("No se encontró el catálogo común de rutas");
 }
-const planContext = {};
+const planContext = { item: (name, why) => ({ name, why }) };
 vm.createContext(planContext);
 vm.runInContext(appHtml.slice(heroPlansStart, universalStart), planContext);
 const planEntries = vm.runInContext('Object.entries(heroPlans)', planContext);
