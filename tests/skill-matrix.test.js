@@ -267,6 +267,10 @@ if (crystalMaiden4.metadata?.patch !== "7.41f" || crystalMaiden4.metadata?.role 
 if (!crystalMaiden4.metadata.source.some(x => x.includes("soft-support"))) {
   throw new Error("Crystal Maiden Support 4 debe citar fuentes específicas de soft support");
 }
+if (crystalMaiden4.metadata.source.some(x => x.includes("hard_support"))) {
+  throw new Error("Crystal Maiden Support 4 no debe atribuir fuentes exclusivas de hard support");
+}
+*/
 if ((crystalMaiden4.talentChoices || []).map(x => Number(x.level)).join(",") !== "10,15,20,25") {
   throw new Error("Crystal Maiden Support 4 debe incluir los cuatro tiers de talentos");
 }
