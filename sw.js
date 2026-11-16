@@ -1,4 +1,4 @@
-const CACHE = 'dota-build-v69';
+const CACHE = 'dota-build-v70';
 const CORE = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
@@ -48,7 +48,25 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Recursos estáticos: caché primero y actualización en segundo plano.
+  // JavaScript: red primero para evitar ejecutar especializaciones antiguas.
+  // Si no hay conexión, se conserva el último archivo válido en caché.
+  if (url.pathname.endsWith('.js')) {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request, { cache: 'no-store' });
+        if (response && response.ok) {
+          const cache = await caches.open(CACHE);
+          await cache.put(request, response.clone());
+        }
+        return response;
+      } catch (error) {
+        return (await caches.match(request)) || Response.error();
+      }
+    })());
+    return;
+  }
+
+  // Otros recursos estáticos: caché primero y actualización en segundo plano.
   event.respondWith((async () => {
     const cached = await caches.match(request);
     const network = fetch(request).then(async response => {
