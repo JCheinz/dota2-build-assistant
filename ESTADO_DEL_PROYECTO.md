@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.27 + Service Worker v73  
-**Etapa activa:** Etapa 3 — Techies Support 4 validado por el usuario en Android; Techies Support 5 integrado en rama de trabajo, pendiente de CI y revisión.
+**Etapa activa:** Etapa 3 — Techies Support 4 validado por el usuario en Android; Techies Support 5 integrado en `main` mediante PR #9; CI del PR aprobado, publicación pendiente de confirmar.
 
 ## 1. Objetivo
 
@@ -116,4 +116,4 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadió regresión específica para presencia del perfil, innata, iconos, cuatro tiers, independencia de Support 4 y renderizado.
 - Se incrementó la versión del archivo de especializaciones a `?v=3275` y Service Worker a `dota-build-v74`.
 - Fuentes: StatsDota Hard Support 7.41f (actualizado 15-11-2026), DotaTrack Hard Support 7.41f y Spectral Hard Support 7.41f (16-11-2026).
-- Estado: cambios preparados en rama de trabajo; PR #9 abierto para revisión; CI de validación en ejecución. No declarar publicación ni validación Android hasta completar esos pasos.
+- Estado: cambios preparados en rama de trabajo; PR #9 integrado por squash en `main` (merge `52185eb2e22a23de6a7fa334c873ec998dee658e`). CI del PR #9 run `43913242668`, job `validate`, success (sintaxis y pruebas). Publicación Pages y prueba Android pendientes de confirmación.
