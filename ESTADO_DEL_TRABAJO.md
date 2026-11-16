@@ -118,3 +118,19 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Las pruebas ahora auditan en conjunto los siete perfiles integrados: progresión, iconos, cuatro tiers de talentos, dos alternativas con explicación y renderizado.
 - No se modificaron builds ni rutas de objetos; Pugna, Techies y Crystal Maiden permanecen sin cambios de contenido.
 - Próximo paso: revisión factual de fuentes/parche y consistencia de órdenes de habilidades para cada rol, antes de incorporar nuevos héroes.
+
+
+## Mejora de flujo de compras — PR #16 (16-11-2026)
+
+- Objetivo: acercar el seguimiento de compras a las recomendaciones y evitar cargar manualmente cada objeto comprado.
+- Rama: `work/purchase-workspace-click-to-buy`, creada desde main `435348f0af9abaffef66d98b231c7b833cf9455c`.
+- Respaldos previos conservados: `backup/3.28-before-performance-optimization` y `backup/estado-3.28-before-performance-optimization`.
+- La sección «Compras y seguimiento» aparece al comienzo del informe, antes del análisis extenso, con la próxima compra y el inventario ya marcado.
+- Las tarjetas de objetos recomendados ahora son tocables: un toque registra el objeto como comprado y recalcula el informe; otro toque deshace la marca. Los componentes de una ruta se registran en «Componentes que ya tenés», sin confundirlos con el objeto completo.
+- La carga manual de objetos comprados queda disponible como alternativa desplegable, ya no como paso obligatorio.
+- El estado comprado queda visible y tachado; el motor excluye esos objetos de las siguientes recomendaciones según su lógica existente.
+- Se agregaron pruebas estáticas de regresión para el contrato de interacción y estado visual. CI del PR: run `43947885373`, success. Los dos primeros intentos detectaron selectores de prueba demasiado estrictos, corregidos antes de aprobar.
+- PR #16 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/16. Commit: `cc5e0941b70ea0b506bfced24bc7ef832a187e9c`.
+- CI post-merge `43947959482` y GitHub Pages `43947959522`: en ejecución al momento de esta actualización.
+- Service Worker: `dota-build-v79`. No se modificaron perfiles, builds, órdenes de habilidades ni árboles de talentos.
+- Próxima validación: prueba práctica en Android de marcar/desmarcar un objeto, confirmar que la próxima compra cambia y que los componentes siguen su ruta correctamente.
