@@ -4,7 +4,7 @@
 **Repositorio:** [JCheinz/dota2-build-assistant](https://github.com/JCheinz/dota2-build-assistant)  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión de referencia actual:** 3.27 (en rama de trabajo; pendiente de integrar)
+**Versión de referencia actual:** 3.27 (integrada en `main`; pendiente de validación final en Android)
 
 Este documento es el punto de continuidad del proyecto. Si una conversación termina, abrir este archivo y continuar desde la sección **Próximo paso**. Actualizarlo al cerrar cada etapa importante.
 
@@ -86,7 +86,7 @@ Ambos perfiles incluyen iconos Q/W/E/R, progresión de habilidades, talentos con
 
 Las rutas de compra separan la presión/rotación de posición 4 de la protección del carry de posición 5. Se añadieron referencias de Ring of Basilius, Magic Wand, Arcane Boots, Aether Lens y Glimmer Cape, más respuestas situacionales como Force Staff, Ghost Scepter y Aeon Disk. No se presentan precios ni recetas como verificados.
 
-La versión visible se actualizó a 3.27 y el Service Worker a `dota-build-v69`. Estos cambios están en `work/pugna-support-4-5`; todavía no se consideran desplegados ni validados en Android.
+La versión visible se actualizó a 3.27 y el Service Worker a `dota-build-v69`. Los cambios quedaron integrados en `main` mediante PR #2; la publicación de GitHub Pages y la validación en Android todavía deben confirmarse.
 
 ## 4. Limitaciones técnicas conocidas
 
@@ -107,10 +107,12 @@ Antes de escalar, convertir el renderer en dinámico: generar filas desde los da
 
 - [x] Crear perfil separado Pugna Support 4.
 - [x] Crear perfil separado Pugna Support 5.
-- [ ] Validar selección de perfiles desde la interfaz y probarlos en Android.
+- [x] Integrar ambos perfiles en `main` mediante PR #2.
+- [ ] Confirmar que GitHub Pages sirve la versión 3.27 y que el Service Worker renueva la caché.
+- [ ] Validar selección de Support 4 y Support 5 en Android.
 - [ ] Completar revisión de compras específicas por posición con escenarios reales.
 
-Los dos perfiles se añadieron en la rama `work/pugna-support-4-5`, pero aún esperan revisión e integración.
+La revisión del código confirmó que el selector utiliza los valores `Support 4` y `Support 5`, coincidentes con las claves de `specializations.js`. La captura enviada correspondía a la app 3.26; no demostraba un fallo de conexión en 3.27. Las menciones a Pudge en las respuestas situacionales se originan en el draft enemigo mostrado y no son, por sí solas, evidencia de contaminación del perfil.
 
 ### Etapa 2 — Universalizar la matriz
 
@@ -164,15 +166,18 @@ Probar primero héroes con estructuras de habilidades distintas. Validar secuenc
 
 ## 7. Próximo paso acordado
 
-**Etapa actual: revisar e integrar Pugna Support 4/5.**
+**Etapa actual: validar la versión 3.27 integrada.**
 
-1. Revisar que el selector de posición encuentre ambos perfiles y que no se altere Pugna Mid.
-2. Validar sintaxis de JavaScript y coherencia de la matriz.
-3. Abrir PR desde `work/pugna-support-4-5` hacia `main`.
-4. Tras integrar, probar ambos perfiles en Android.
-5. Luego abordar la matriz universal.
+1. Abrir la app publicada y confirmar que muestra versión 3.27.
+2. Probar Pugna Support 4: debe mostrar guía individual, matriz, talentos, combos y ruta propia.
+3. Probar Pugna Support 5: debe mostrar su guía y ruta diferenciadas.
+4. Volver a probar Pugna Mid para comprobar que conserva su perfil.
+5. Si todo funciona, registrar la validación Android y comenzar la etapa 2 con un nuevo respaldo desde `main`.
 
-La etapa 1 está implementada en la rama de trabajo, pero todavía no integrada ni validada en el dispositivo.
+PR #2 integrado en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/2
+Merge commit: `bf381b7466d2036339668e958c57b89055ef5917`
+
+La revisión visual aportada por el usuario era de la versión 3.26. El selector de la rama 3.27 usa valores `Support 4`/`Support 5`, que coinciden con las claves de las especializaciones. No se ejecutó `node --check` ni una prueba automatizada del navegador en este entorno; tampoco se ha confirmado todavía el despliegue en el dispositivo.
 
 ---
 
