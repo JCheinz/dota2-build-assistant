@@ -375,7 +375,7 @@ const inventoryMarkers = [
   'data-remove-owned=',
   'data-remove-component=',
   "Inventario del héroe",
-  "espacios principales"
+  "Inventario principal"
 ];
 for (const marker of inventoryMarkers) {
   if (!appHtml.includes(marker)) throw new Error("Falta la interfaz de inventario: " + marker);
