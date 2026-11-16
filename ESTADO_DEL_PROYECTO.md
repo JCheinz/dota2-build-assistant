@@ -87,4 +87,4 @@ Especialización individual incorporada en 3.27: guía, matriz, talentos, combos
 
 ## 6. Próximo paso inmediato
 
-Completar revisión del diff y validación de sintaxis JavaScript de `index.html`. Añadir una fixture de prueba sintética con claves diferentes de Q/W/E/R para validar el comportamiento, sin incorporarla como héroe real ni presentarla como dato de juego. Luego abrir PR, revisar que sea mergeable e integrar solo después de validar la regresión de Pugna.
+Revisar el resultado de GitHub Actions para el commit más reciente; los primeros intentos del workflow fallaron en la extracción de scripts inline y se simplificó la validación para ejecutar `node --check specializations.js` y la prueba aislada del renderizador. Confirmar que la prueba pase, revisar el diff completo y después solicitar validación visual Android antes de integrar. La fixture es sintética y no representa un héroe real.
