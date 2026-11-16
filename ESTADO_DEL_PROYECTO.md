@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.27 + Service Worker v71  
+**Versión integrada:** 3.27 + Service Worker v73  
 **Etapa activa:** Etapa 3 — primer perfil no-Pugna (Techies Support 4), con innata y progresión verificadas parcialmente.
 
 ## 1. Objetivo
@@ -31,12 +31,19 @@ Construir un asistente contextual de Dota 2, no un catálogo de builds estática
 - CI del PR #6: run `43822711864`, success. CI del commit integrado: run `43822788779`, success.
 - GitHub Pages del commit `a3a3d56`: run `43822788109`; pendiente de confirmar al actualizar este registro.
 - Commit de documentación en main: `6ab85d1bebd41f23f1370ce7ad547583fa2996fa`.
-- Service Worker integrado: `dota-build-v71`; la rama de trabajo de Techies lo eleva a v72.
+- PR #7 integró Techies Support 4. Merge squash: `4946573548097b7cf364f190d10146b2f2e0d944`.
+- CI del PR #7: run `43823050286`, success. CI del commit integrado: run `43823104609`, success.
+- GitHub Pages del commit `4946573`: run `43823104163`, success.
+- PR #8 integró el árbol de talentos Techies Support 4 y aclaración de la matriz. Merge squash: `27278b84f018b4ee6d900aab1a2ed81f835ef6b8`.
+- CI del PR #8: run `43823268643`, success. CI del commit integrado: run `43823328340`, success.
+- GitHub Pages del commit `27278b8`: run `43823327854`, publicación en curso al momento de esta actualización.
+- Service Worker integrado: `dota-build-v73`; la matriz aclara que los talentos se marcan por nivel de desbloqueo y la elección puede retrasarse.
 - Respaldos históricos: `backup/3.26-before-pugna-support`, `backup/3.27-stable-before-universal-matrix` y `backup/estado-3.27-before-universal-matrix`. No sobrescribir.
 - Respaldos nuevos desde el main publicado `8ad26a5`: `backup/3.27-universal-matrix-deployed` y `backup/estado-3.27-universal-matrix-deployed`.
 - Respaldos posteriores a PR #5: `backup/3.27-etapa3-pugna-fix-integrated` y `backup/estado-3.27-etapa3-pugna-fix-integrated`, ambos creados desde `9e418f7f4334f2fc56e53b1bd4226c16ed4930d5`.
 - Respaldos posteriores a PR #6: `backup/3.27-etapa3-innate-renderer-integrated` y `backup/estado-3.27-etapa3-innate-renderer-integrated`, ambos creados desde `a3a3d56952afca1e32f22b0a3cbf103f8834f216`.
-- Rama de trabajo actual: `work/etapa-3-primer-perfil-no-pugna`, creada desde `a3a3d56952afca1e32f22b0a3cbf103f8834f216`.
+- Respaldo de código posterior a PR #8: `backup/3.27-techies-talents-integrated`, creado desde `27278b84f018b4ee6d900aab1a2ed81f835ef6b8`. El respaldo del estado se crea tras esta actualización.
+- Próxima rama de trabajo: pendiente de crear desde el `main` actualizado.
 
 ## 3. Etapa 1 — Pugna
 
