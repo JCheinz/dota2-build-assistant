@@ -289,3 +289,5 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - No se alteraron las builds, las especializaciones ni el criterio de compra; solo se fortaleció la validación transversal.
 - PR #18: https://github.com/JCheinz/dota2-build-assistant/pull/18. CI aprobado en run `43969922879`, commit `20913dbfaa796e6ea3e12c921f34b255fb792139`.
 - Estado: pendiente actualizar los registros finales, integrar y confirmar CI/Pages post-merge.
+
+- Resultado final: PR #18 integrado en main por squash, commit `ae787e7bc51e128db5e5a3e3cea6827baac7f3f7`. CI de la rama con estado y pruebas finales run `43969996986`, success; Pages build y deploy post-merge run `43970058451`, success. Publicación confirmada.
