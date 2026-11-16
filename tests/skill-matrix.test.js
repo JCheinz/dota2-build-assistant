@@ -91,6 +91,32 @@ for (const value of ["Techies Support 5", "M.A.D.", "Blast Off!", "Reactive Taze
 }
 
 
+
+const crystalMaiden5 = context.window.DOTA_HERO_SPECIALIZATIONS["crystal_maiden|Support 5"]?.guide;
+if (!crystalMaiden5) throw new Error("Falta la especialización Crystal Maiden Support 5");
+if (crystalMaiden5.metadata?.patch !== "7.41f" || crystalMaiden5.metadata?.role !== "Support 5") {
+  throw new Error("Crystal Maiden Support 5 debe identificar parche y posición");
+}
+if (!Array.isArray(crystalMaiden5.innateAbilities) || !crystalMaiden5.innateAbilities.some(x => x.name === "Glacial Guard")) {
+  throw new Error("Crystal Maiden debe mostrar Glacial Guard como habilidad innata");
+}
+if (crystalMaiden5.skillBuild.some(x => x.code === "T")) {
+  throw new Error("Los tiers de talento no deben duplicarse como eventos de habilidad");
+}
+for (const entry of crystalMaiden5.skillBuild) {
+  if (!crystalMaiden5.skillIcons[entry.code]) throw new Error("Crystal Maiden usa una habilidad sin icono: " + entry.code);
+}
+if ((crystalMaiden5.talentChoices || []).map(x => Number(x.level)).join(",") !== "10,15,20,25") {
+  throw new Error("Crystal Maiden Support 5 debe incluir los cuatro tiers de talentos");
+}
+const cmOutput = context.renderSpecializationGuide(crystalMaiden5);
+for (const value of ["Crystal Maiden Support 5", "Glacial Guard", "Frostbite", "Arcane Aura", "Crystal Nova", "Freezing Field", "+200 salud", "+1 s de duración de Frostbite"]) {
+  if (!cmOutput.includes(value)) throw new Error("La guía Crystal Maiden Support 5 no muestra " + value);
+}
+if (cmOutput.includes("M.A.D.") || cmOutput.includes("Blast Off!")) {
+  throw new Error("Crystal Maiden no debe heredar contenido específico de Techies");
+}
+
 const pugnaHelperStart = html.indexOf("function buildPugnaMidAllySynergy");
 const genericHelperStart = html.indexOf("function buildAllySynergy");
 const threatHelperStart = html.indexOf("function buildThreatPriority", genericHelperStart);
