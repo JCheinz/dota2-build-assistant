@@ -312,3 +312,5 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se preserva la asignación de sectores al recalcular y reconstruir los controles. Componentes y consumo de recetas conservados.
 - Regresiones automáticas añadidas; CI run `43979583575`, success. PR #20: https://github.com/JCheinz/dota2-build-assistant/pull/20.
 - Service Worker actualizado a `dota-build-v82`. Pendiente merge y verificación de publicación.
+
+- Resultado final: PR #20 integrado por squash en main, commit `31fbcd2a5d7ac94ca1f0d6d9ecb0de2dde155008`. CI post-merge run `43979731552`, success. GitHub Pages build/deploy run `43979731165`, success; publicación confirmada.
