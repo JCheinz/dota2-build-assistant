@@ -436,7 +436,7 @@ if (heroPlansStart < 0 || universalStart < 0) {
 const planContext = {};
 vm.createContext(planContext);
 vm.runInContext(appHtml.slice(heroPlansStart, universalStart), planContext);
-const planEntries = Object.entries(planContext.heroPlans || {});
+const planEntries = vm.runInContext('Object.entries(heroPlans)', planContext);
 if (!planEntries.length) throw new Error("No hay rutas individuales para auditar");
 for (const [profile, plan] of planEntries) {
   for (const [stage, items] of [["early", plan.early], ["core", plan.core], ["situational", plan.situational]]) {
