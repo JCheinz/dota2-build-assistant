@@ -1035,6 +1035,16 @@ const itemRecipes={
  "Dagon":[{name:"Point Booster",cost:1200},{name:"Crown",cost:450},{name:"Wizard Hat",cost:250},{name:"Receta de Dagon",cost:1100}],
  "Aghanim’s Scepter":[{name:"Point Booster",cost:1200},{name:"Staff of Wizardry",cost:1000},{name:"Ogre Axe",cost:1000},{name:"Blade of Alacrity",cost:1000}]
 };
+function consumeRecipeComponents(itemName){
+ const recipe=itemRecipes[itemName]||[];
+ recipe.forEach(part=>{
+  const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===part.name);
+  if(input)input.checked=false;
+ });
+}
+function clearTrackedPurchases(){
+ document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
+}
 function getNextPurchase(build,state,preferredName=null){
  const isCrystalMaiden=build.some(x=>x.heroKey==="npc_dota_hero_crystal_maiden|Support 5");
  if(isCrystalMaiden){
@@ -1530,8 +1540,8 @@ function analyze(options={}){
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
-$('myHero').onchange=()=>{updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value};
-$('myRole').onchange=renderDynamicStateControls;
+$('myHero').onchange=()=>{clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value;if($('result').classList.contains('show'))analyze({scroll:false});};
+$('myRole').onchange=()=>{clearTrackedPurchases();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
 $('analyze').onclick=analyze;
 $('toggleLiveState').onclick=()=>{
  const content=$('liveStateContent'),button=$('toggleLiveState');
@@ -1552,7 +1562,7 @@ $('report').addEventListener('click',e=>{
   const name=buy.getAttribute('data-buy-item');
   if(name){let input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);
    if(!input){const root=$('ownedItems');if(root){const label=document.createElement('label');label.className='chip';label.innerHTML='<input type="checkbox" class="owned-item" value="'+esc(name)+'"> '+esc(name);root.querySelector('.controls')?.appendChild(label);input=label.querySelector('input');}}
-   if(input){input.checked=!input.checked;analyze({scroll:false});return;}
+   if(input){const markingBought=!input.checked;input.checked=markingBought;if(markingBought)consumeRecipeComponents(name);analyze({scroll:false});return;}
   }
  }
  if(e.target&&e.target.id==='recalcLive'){analyze({scroll:false});}
