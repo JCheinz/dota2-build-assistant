@@ -36,7 +36,7 @@ Construir un asistente contextual de Dota 2, no un catálogo de builds estática
 - GitHub Pages del commit `4946573`: run `43823104163`, success.
 - PR #8 integró el árbol de talentos Techies Support 4 y aclaración de la matriz. Merge squash: `27278b84f018b4ee6d900aab1a2ed81f835ef6b8`.
 - CI del PR #8: run `43823268643`, success. CI del commit integrado: run `43823328340`, success.
-- GitHub Pages del commit `27278b8`: run `43823327854`, publicación en curso al momento de esta actualización.
+- GitHub Pages del commit `27278b8`: run `43823327854`, success.
 - Service Worker integrado: `dota-build-v73`; la matriz aclara que los talentos se marcan por nivel de desbloqueo y la elección puede retrasarse.
 - Respaldos históricos: `backup/3.26-before-pugna-support`, `backup/3.27-stable-before-universal-matrix` y `backup/estado-3.27-before-universal-matrix`. No sobrescribir.
 - Respaldos nuevos desde el main publicado `8ad26a5`: `backup/3.27-universal-matrix-deployed` y `backup/estado-3.27-universal-matrix-deployed`.
