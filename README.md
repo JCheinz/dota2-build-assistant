@@ -1,4 +1,12 @@
-# Dota 2 Build Assistant — versión 3.18
+# Dota 2 Build Assistant — versión 3.19
+
+## Novedades de la versión 3.19
+- Unificada la decisión defensiva prioritaria de Pugna Mid con la próxima compra recomendada: tras completar el núcleo, la respuesta condicional justificada puede guiar el siguiente objetivo.
+- La prioridad defensiva no desplaza Arcane Boots → Aether Lens ni convierte una respuesta condicional en compra obligatoria.
+- La ruta especial de Anti-Mage y el motor común se conservan.
+- Service Worker actualizado a caché v61.
+
+
 
 ## Novedades de la versión 3.18
 - Auditoría de la progresión de compras de Pugna Mid para 7.41f: Arcane Boots → Aether Lens quedan como núcleo ordenado; Bottle y Magic Wand siguen siendo compras tempranas condicionales.
