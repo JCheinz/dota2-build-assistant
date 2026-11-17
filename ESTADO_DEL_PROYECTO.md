@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.40 + Service Worker v91; última versión estable respaldada: 3.40  
+**Versión integrada:** 3.41 + Service Worker v92; última versión estable respaldada: 3.41  
 **Etapa activa:** Auditoría del catálogo de recetas y componentes del mercado automático. Versión estable integrada 3.40; desarrollo 3.41 en rama de trabajo, pendiente de CI y revisión.
 
 ## 1. Objetivo
@@ -528,3 +528,10 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI del PR #32: run `44004218604` (run 171), job `validate`: success. Se aprobaron sintaxis de especializaciones y la suite completa, incluidas las pruebas de recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes.
 - La suite confirmó además que, con Kaya ya poseída, el mercado solicita Sange como objeto completo; si hay piezas parciales de Yasha, Manta Style solo solicita las faltantes.
 - Estado del PR #32: CI aprobado; revisión final e integración pendientes. No se declara despliegue público ni prueba Android de la candidata 3.41.
+
+
+## Copia de estado estable — versión 3.41 (16-11-2026)
+
+- Código estable: commit `d9ac5505c668687013e4c59be7974eb12fe72adf`, rama `backup/3.41-stable-2026-11-16`.
+- Este registro se conserva en `backup/estado-3.41-stable-2026-11-16`; no sobrescribir.
+- Versión integrada 3.41, Service Worker v92. GitHub Pages, Android y APK todavía sin confirmar.
