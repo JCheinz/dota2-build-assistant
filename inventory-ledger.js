@@ -44,7 +44,8 @@
    return {upgraded:true,consumed,added:added.recorded};
   }
   function recordSale(name,meta={}){return removeInventory(name,"sold",meta);}
-  function removeComponent(name,meta={}){const i=state.components.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return false;const [item]=state.components.splice(i,1);if(!meta.silent)state.history.unshift(event("component-removed",item.name,{...meta,kind:"component"}));persist();return true;}\n  function clearInventory(){state.inventory=[];state.components=[];persist();}
+  function removeComponent(name,meta={}){const i=state.components.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return false;const [item]=state.components.splice(i,1);if(!meta.silent)state.history.unshift(event("component-removed",item.name,{...meta,kind:"component"}));persist();return true;}
+  function clearInventory(){state.inventory=[];state.components=[];persist();}
   function clearHistory(){state.history=[];persist();}
   function reset(){state={inventory:[],components:[],history:[],sequence:0};persist();}
   function addComponents(names,meta={}){for(const name of names||[])recordComponent(name,meta);}
