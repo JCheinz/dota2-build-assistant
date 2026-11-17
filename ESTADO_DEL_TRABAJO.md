@@ -6,8 +6,8 @@ Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #36 — Build 3.45: expand verified market item recipes.
-- Commit integrado: `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
+- Último PR integrado: #37 — Build 3.46: expand hero routes and track duplicate components.
+- Commit integrado: `030be1a9415127bc05852a4c21edbe3bfd410525`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
 - CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
@@ -435,4 +435,19 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Recetas añadidas: Soul Ring, Phase Boots, Blade Mail, Tranquil Boots, Ring of Basilius y Desolator.
 - Componentes duplicados pasan a tener casillas separadas; getMissingRecipeParts y el consumo descuentan la cantidad exacta. Ejemplo: Soul Ring pide dos Gauntlets of Strength; con una registrada solo solicita una más.
 - UI 3.46; Service Worker v97.
-- CI y merge pendientes. Pages, Android y APK siguen separados.
+- PR #37 integrado en main por squash, commit `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- CI run `44017041005`, job `133817339994`: success.
+- Pages, Android y APK siguen separados; no se comprobó Pages, Android no fue probado por el usuario y no se generó APK.
+
+
+## Integración — PR #37, versión 3.46 (17-11-2026)
+
+- PR #37 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/37.
+- Commit de `main`: `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- CI run `44017041005`, job `133817339994`: success.
+- Trece rutas individuales de objetos por héroe/posición; rutas separadas por apertura, core y situacionales.
+- Recetas de Soul Ring, Phase Boots, Blade Mail, Tranquil Boots, Ring of Basilius y Desolator.
+- Registro de componentes ahora cuantitativo: dos unidades del mismo componente no se confunden con una casilla booleana.
+- UI 3.46, Service Worker v97.
+- Pages no verificado; Android pendiente de prueba del usuario; APK no generado.
+- Siguiente: añadir más rutas individuales verificadas con datos actuales, ampliar recetas si faltan y luego guías de habilidades/talentos por héroe/posición.
