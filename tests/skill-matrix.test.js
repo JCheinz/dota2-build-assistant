@@ -206,7 +206,7 @@ for(const [name,slug] of [
  if(!icon.includes("/"+slug+".png"))throw new Error("Falta icono oficial de "+name);
 }
 const marketPhaseStart=html.indexOf("function getMarketPhase(");
-const marketPhaseEnd=html.indexOf("\\nfunction getDraftCounterRecommendations",marketPhaseStart);
+const marketPhaseEnd=html.indexOf("\nfunction getDraftCounterRecommendations",marketPhaseStart);
 if(marketPhaseStart<0||marketPhaseEnd<0)throw new Error("No se encontró el catálogo de fases del mercado");
 vm.runInContext(html.slice(marketPhaseStart,marketPhaseEnd),context);
 const purchaseStart=html.indexOf("const itemRecipes=");
