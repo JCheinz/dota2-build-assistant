@@ -610,3 +610,10 @@ if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].fi
   for(const item of ["Scythe of Vyse","Aghanim’s Scepter","Shiva’s Guard"])if(!veryLate.includes(item))throw new Error("Falta continuidad tardía: "+item);
   console.log("OK: pruebas funcionales de problemas seleccionados, evoluciones de Kaya y opciones de cierre Pugna");
 })();
+
+
+// Regression: independent hero/item reset controls and Pugna anti-sustain.
+if (!html.includes('Única evolución de Kaya contemplada para Pugna Mid')) throw new Error('Pugna debe ofrecer solo Kaya and Sange como evolución de Kaya');
+if (!html.includes('boost("Spirit Vessel"') || !html.includes('has("alchemist")||has("huskar")')) throw new Error('Pugna debe priorizar Spirit Vessel ante sustain alto');
+if (!html.includes('id="clearHeroes"') || !html.includes('id="clearItems"') || !html.includes('function clearHeroesOnly()') || !html.includes('function clearItemsOnly()')) throw new Error('Faltan controles independientes para borrar héroes e ítems');
+if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Restablecer todo debe seguir disponible como acción explícita');
