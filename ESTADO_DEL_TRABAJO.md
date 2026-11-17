@@ -521,3 +521,12 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Recetas nuevas y precios 7.41f: Oblivion Staff, Witch Blade, Meteor Hammer, Null Talisman y Boots of Travel.
 - Pruebas de sumas y progresión parcial con Oblivion Staff/Blitz Knuckles y Kaya ya poseída.
 - UI 3.50; SW v101. Pendiente CI e integración.
+
+
+## Integración PR #42 — versión 3.50 (17-11-2026)
+
+- Integrado por squash: e40105c06d2e0d8bc0d22a7fb5ce0a2927c9ee1f.
+- CI run 44021670287, job 133832342460: success.
+- Rutas nuevas: Puck Mid, Outworld Destroyer Mid, Invoker Mid. Total 23.
+- Recetas nuevas: Oblivion Staff, Witch Blade, Meteor Hammer, Null Talisman, Boots of Travel; sumas y progresión parcial validadas.
+- UI 3.50; SW v101. Pages no verificado, Android pendiente, APK no generado.
