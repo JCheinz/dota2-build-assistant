@@ -335,3 +335,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker `dota-build-v93`; especializaciones `?v=3280`.
 - Pruebas añadidas a `tests/skill-matrix.test.js`: sinergias sin aliados, parciales y completas; gates de tempo y referencia de caché.
 - Estado: pendiente CI y revisión de comportamiento; no integrado, no desplegado, no probado en Android. APK no generado.
+
+
+## Integración — mercado inteligente por tempo y sinergias (PR #33, versión 3.42)
+
+- PR #33 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/33.
+- Commit integrado en `main`: `3f0f481cc5018fef1c4e62478aad795e6f336886`.
+- CI del PR run `44006505822`, job `133783045022`: success; sintaxis de especializaciones y suite de regresiones aprobadas.
+- La secuencia completa de Pugna Mid ahora exige los cuatro aliados específicos; las sinergias individuales solo aparecen si cada aliado está presente. El apoyo genérico dejó de nombrar héroes de una composición anterior.
+- Se aplican límites temporales para BKB, objetos de transición y objetos avanzados; el core de etapa media no desplaza objetos iniciales antes de minuto 12.
+- Service Worker `dota-build-v93`; `specializations.js?v=3280`.
+- GitHub Pages aún sin confirmación; Android pendiente de prueba; APK no generado.
+- Próximo trabajo: mercado por etapas y por posición, con consumibles y objetos de línea tempranos, transición, core y situacionales, respetando oro y componentes.
