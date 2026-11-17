@@ -6,14 +6,14 @@ Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #33 — Build 3.42: intelligent market tempo and composition-aware synergies.
-- Commit integrado: `3f0f481cc5018fef1c4e62478aad795e6f336886`.
+- Último PR integrado: #34 — Build 3.43: five-phase role-aware intelligent market.
+- Commit integrado: `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
 - CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
 - Validación post-merge: run `43929105992`, pendiente al momento de esta actualización.
 - GitHub Pages build/deploy: run `43929102880`, pendiente al momento de esta actualización.
-- Service Worker de la versión integrada: `dota-build-v93`.
+- Service Worker de la versión integrada: `dota-build-v94`.
 
 ## Último trabajo: Crystal Maiden Support 5
 
@@ -361,5 +361,17 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Costes de referencia 7.41f y distinción entre objetos gratuitos y precios desconocidos. Las recetas se mantienen parciales cuando no hay una fuente verificada para sus piezas.
 - Service Worker candidato v94; versión UI 3.43.
 - Fuentes de referencia: Dota 2 update 7.41f (https://www.dota2.com/news/updates/16749) y datafeed de precios 7.41f (https://senseos.gg/wiki/dota-2/items/).
-- Pendiente: verificar tests/CI y revisar diff; completar recetas de objetos frecuentes, rutas individuales por héroe/posición, lógica de amenaza activa y la separación entre inventario actual e historial de consumibles.
-- No integrado ni publicado; Pages y prueba Android pendientes; APK no generado.
+- CI PR #34 run `44008820828`, job `133790581725`: success. PR #34 integrado en main por squash, commit `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
+- Pendiente: completar recetas de objetos frecuentes, rutas individuales por héroe/posición, reglas de amenaza activa y separar inventario actual de historial de consumibles.
+- Integrado en main; GitHub Pages no verificado por separado. Prueba Android pendiente del usuario; APK no generado.
+
+
+## Integración — PR #34, versión 3.43 (17-11-2026)
+
+- PR #34 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/34.
+- Commit de `main`: `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
+- CI del PR run `44008820828`, job `133790581725`: success. Pasaron sintaxis de especializaciones, matrices, Pugna, recetas, inventario y nuevas pruebas del motor de cinco fases.
+- Fases y catálogos por Carry/Mid/Offlane/Support 4/Support 5. Próxima compra por fase, rol, oro e inventario; rutas individuales preservadas cuando existen.
+- Service Worker `dota-build-v94`; UI 3.43.
+- Pages aún sin confirmación independiente; Android por validar; APK 3.43 no generado.
+- Próximo paso: aumentar la precisión contextual por problema activo y ampliar gradualmente las rutas específicas por héroe y posición.
