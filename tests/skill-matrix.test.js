@@ -923,7 +923,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   {...mek,roles:["Support 5"]}
  ];
  const teamfightNext=context.getNextPurchase(teamfightRoute,{minute:16,gold:1775,owned:[],components:[],role:"Support 5",problem:"issue:teamfight"});
- if(teamfightNext.name!=="Mekansm"||teamfightNext.cost!==1775||teamfightNext.urgentOverride!==true)throw new Error("Una respuesta activa de prioridad 8.4 debe adelantar el core cuando se confirma teamfight");
+ if(teamfightNext.name!=="Headdress"||teamfightNext.target?.name!=="Mekansm"||teamfightNext.cost!==425||teamfightNext.urgentOverride!==true)throw new Error("Una respuesta activa de prioridad 8.4 debe adelantar el core y pedir el primer componente real de Mekansm");
  const teamfightCovered=context.getNextPurchase(teamfightRoute,{minute:16,gold:2150,owned:["Mekansm"],components:[],role:"Support 5",problem:"issue:teamfight"});
  if(teamfightCovered.name==="Mekansm")throw new Error("Una respuesta activa ya comprada no debe repetirse");
 
