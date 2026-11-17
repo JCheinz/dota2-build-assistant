@@ -472,3 +472,12 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Recetas nuevas para Radiance, Eul’s Scepter, Buckler y Vladmir’s Offering; la expansión recursiva de Buckler descuenta las piezas existentes.
 - Consecrated Wraps sigue fuera de compra automática hasta validar la receta.
 - UI 3.47, Service Worker v98. Pages no verificado; Android pendiente; APK no generado.
+
+
+## Trabajo 3.48 — corrección de umbral de problemas activos (17-11-2026)
+
+- Base: main 3.47 (commit base del PR).
+- Ajuste: umbral de prioridad activa 8.5 → 8.0. Permite respuestas válidas de 8.0–8.49, por ejemplo Mekansm 8.4 para Support 5 ante teamfight.
+- Pruebas: coste, prioridad, compra anticipada, y continuación de ruta tras registrar Mekansm.
+- UI 3.48; Service Worker v99.
+- Pendiente CI, revisión e integración. No se genera APK en esta etapa.

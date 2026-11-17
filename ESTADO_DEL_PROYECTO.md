@@ -777,3 +777,12 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Service Worker `dota-build-v98`, UI e informe 3.47.
 - GitHub Pages no verificado independientemente; Android no probado por el usuario; APK 3.47 no generado ni archivado.
 - Próxima prioridad: ampliar más rutas individuales solo cuando exista muestra suficiente por posición, y avanzar luego a guías de habilidades/talentos individuales donde todavía falten.
+
+
+## 31. Ajuste 3.48 — prioridad de respuestas activas (17-11-2026)
+
+- Se corrigió el umbral de anulación de ruta: respuestas activas con prioridad >= 8.0 ahora pueden adelantar el core. El umbral previo 8.5 descartaba respuestas válidas como Mekansm (8.4) para Support 5 cuando el problema confirmado era perder peleas grupales.
+- Se agregó una regresión que verifica prioridad, coste de 1.775, adelanto del core y no repetición tras marcar el objeto comprado.
+- Se conserva el criterio: solo adelanta una respuesta cuando el jugador selecciona explícitamente el problema; el draft por sí solo no fuerza la compra.
+- UI 3.48; Service Worker dota-build-v99.
+- Pendiente CI e integración; Pages/Android/APK no se consideran validados.
