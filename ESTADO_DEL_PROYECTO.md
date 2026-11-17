@@ -851,4 +851,16 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Si existe una ruta individual, se conserva su secuencia; si no existe, el mercado recurre al catálogo genérico de la posición.
 - Las respuestas urgentes explícitamente seleccionadas mantienen la capacidad de interrumpir la ruta cuando cumplen prioridad y minuto mínimo.
 - Pruebas nuevas: ruta individual vs plantilla de rol, anulación urgente y fallback genérico.
-- UI candidata 3.51; Service Worker v102. CI pendiente.
+- PR #43 integrado por squash en main: commit ca9a50d541a018e33f72fd573b7dcf38b000924a. CI run 44021956634, job 133833269323: success.
+- UI 3.51; Service Worker v102. Pages no verificado; Android pendiente; APK no generado.
+
+
+## 38. Integración — versión 3.51: prioridad correcta de rutas individuales (17-11-2026)
+
+- PR #43 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/43.
+- Commit de main: ca9a50d541a018e33f72fd573b7dcf38b000924a.
+- CI run 44021956634, job 133833269323: success.
+- En Inicio/Línea, si el mercado contiene una ruta heroSpecific, el catálogo genérico ya no se adelanta a su orden de compra individual.
+- Se mantiene la respuesta urgente explícita y el fallback de rol cuando no existe ruta individual.
+- Regresiones verifican Puck Mid: Magic Wand como objetivo de ruta (la compra siguiente puede ser un componente), respuesta Dust of Appearance urgente y fallback Power Treads.
+- UI 3.51; SW v102. Pages no verificado, Android pendiente, APK no generado.
