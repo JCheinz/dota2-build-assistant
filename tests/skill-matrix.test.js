@@ -562,3 +562,21 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
   }
   console.log("OK: seis slots principales, tres de mochila, reserva ilimitada vendible y movimiento entre sectores");
 })();
+
+
+// Regression: phase-aware Pugna purchase selection and phase-aware automatic inventory order.
+if (!html.includes('const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada"')) {
+  throw new Error("El motor debe identificar las tres fases de compra");
+}
+if (!html.includes('phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage)')) {
+  throw new Error("Pugna debe ponderar objetos avanzados/cierre desde minuto 28");
+}
+if (!html.includes('const phaseNames=plan?(phase==="Inicio"?plan.early:phase==="Medio"?[...(plan.core||[]),...(plan.early||[])]:[...(plan.situational||[]),...(plan.core||[])])')) {
+  throw new Error("El inventario automático debe ordenar por etapa y plan del héroe");
+}
+if (!html.includes('slice(0,2).toUpperCase()')) {
+  throw new Error("El fallback de iconos debe identificar el objeto y no mostrar una espada genérica");
+}
+for (const item of ["Robe of the Magi","Staff of Wizardry","Energy Booster","Void Stone","Ring of Health","Ultimate Orb","Receta de Battle Fury"]) {
+  if (!html.includes("'"+item+"'")) throw new Error("Falta asociación de icono para "+item);
+}
