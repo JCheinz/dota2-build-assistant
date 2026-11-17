@@ -530,3 +530,12 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Rutas nuevas: Puck Mid, Outworld Destroyer Mid, Invoker Mid. Total 23.
 - Recetas nuevas: Oblivion Staff, Witch Blade, Meteor Hammer, Null Talisman, Boots of Travel; sumas y progresión parcial validadas.
 - UI 3.50; SW v101. Pages no verificado, Android pendiente, APK no generado.
+
+
+## Trabajo 3.51 — auditoría de prioridad de compra (17-11-2026)
+
+- Hallazgo: en Inicio/Línea, getNextPurchase devolvía primero el catálogo común del rol y podía saltarse el orden early de una ruta individual.
+- Corrección: la plantilla genérica se usa primero solo cuando el pool no contiene ruta heroSpecific. Con ruta individual, esta se evalúa antes; el fallback genérico sigue disponible si no hay objetivo individual en la fase.
+- Se conserva la anulación por problema activo de prioridad suficiente.
+- Regresiones: prioridad individual, urgencia activa y fallback común.
+- UI 3.51; SW v102. Pendiente CI/revisión/integración.
