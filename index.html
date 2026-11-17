@@ -1150,6 +1150,15 @@ function getNextPurchase(build,state,preferredName=null){
   const coreTarget=coreOrder.find(name=>!owned.has(name));
   if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return recipeTarget(target);}
  }
+ // Progresión común: respetar el orden de la ruta individual de cualquier héroe,
+ // sin depender de una excepción escrita para cada personaje.
+ const orderedHeroRoute=build
+  .filter(x=>x.heroSpecific&&x.stage!=="Avanzada"&&!owned.has(x.name))
+  .sort((a,b)=>(Number.isFinite(a.routeIndex)?a.routeIndex:999)-(Number.isFinite(b.routeIndex)?b.routeIndex:999));
+ if(orderedHeroRoute.length){
+  const target=orderedHeroRoute[0];
+  return {...recipeTarget(target),routeReason:"Progresión individual del héroe: se respeta el orden de su ruta principal. Las respuestas situacionales pueden entrar después de completar el siguiente objetivo o cuando una regla específica demuestre urgencia."};
+ }
  const options=build.filter(x=>!owned.has(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
   const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
