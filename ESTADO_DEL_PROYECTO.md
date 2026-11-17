@@ -433,3 +433,11 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Rutas individuales: el motor compartido respeta su orden principal sin depender de excepciones por héroe; las respuestas situacionales explícitas pueden adelantar el núcleo cuando alcanzan prioridad suficiente.
 - Se corrigió una detección demasiado amplia de Anti-Mage que podía contaminar rutas de otros héroes con objetos compartidos.
 - Pendiente: confirmar despliegue GitHub Pages y validar comportamiento real en Android. La suite automatizada no sustituye esa prueba.
+
+
+## Copia de estado estable — 16-11-2026
+
+- Snapshot del código fuente: commit `fcd8a020ba70e6e970cb3d9e68a7920c36739343`, rama `backup/3.38-stable-2026-11-16`.
+- Esta rama conserva el estado previo a los siguientes cambios y no se sobrescribe.
+- El registro APK se establece en `backup/APK/README.md`; APK 3.38 no generado porque el repositorio contiene la aplicación web y no un binario Android comprobado.
+- Fuente maestra actualizada en main: `ESTADO_DEL_PROYECTO.md`.
