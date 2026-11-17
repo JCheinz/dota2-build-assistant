@@ -878,7 +878,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const helperEnd=html.indexOf("\nfunction buildAdaptivePlan(",helperStart);
  if(helperStart<0||helperEnd<0)throw new Error("No se encontró el motor de problemas activos");
  const activeContext={
-  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Linken’s Sphere":4800,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725},
+  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Linken’s Sphere":4800,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725,"Mekansm":1775},
   matchupRules:{
    bounty_hunter:{title:"Bounty Hunter · invisibilidad y seguimiento",items:[{name:"Dust of Appearance",why:"Detección inmediata"},{name:"Gem of True Sight",why:"Detección persistente"}]},
    alchemist:{title:"Alchemist · sustain alto",items:[{name:"Spirit Vessel",why:"Reduce la restauración de vida"}]},
@@ -915,6 +915,18 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(passiveNext.target?.name!=="Power Treads")throw new Error("Sin problema seleccionado debe conservarse la progresión core");
  const ownedNext=context.getNextPurchase(route,{minute:8,gold:80,owned:["Dust of Appearance"],components:[],role:"Carry",problem:"issue:invisibility"});
  if(ownedNext.name==="Dust of Appearance")throw new Error("El motor no debe volver a recomendar un objeto ya comprado");
+ const teamfightResponses=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("enigma",["Initiator"])],"issue:teamfight",16);
+ const mek=teamfightResponses.find(x=>x.name==="Mekansm");
+ if(!mek||mek.activePriority!==8.4||mek.cost!==1775)throw new Error("Support 5 debe conservar Mekansm como respuesta válida de teamfight con coste correcto");
+ const teamfightRoute=[
+  {name:"Glimmer Cape",heroSpecific:true,heroKey:"npc_dota_hero_crystal_maiden|Support 5",routeIndex:0,marketPhase:"Transición",stage:"Medio",cost:2150,why:"Ruta core"},
+  {...mek,roles:["Support 5"]}
+ ];
+ const teamfightNext=context.getNextPurchase(teamfightRoute,{minute:16,gold:1775,owned:[],components:[],role:"Support 5",problem:"issue:teamfight"});
+ if(teamfightNext.name!=="Mekansm"||teamfightNext.cost!==1775||teamfightNext.urgentOverride!==true)throw new Error("Una respuesta activa de prioridad 8.4 debe adelantar el core cuando se confirma teamfight");
+ const teamfightCovered=context.getNextPurchase(teamfightRoute,{minute:16,gold:2150,owned:["Mekansm"],components:[],role:"Support 5",problem:"issue:teamfight"});
+ if(teamfightCovered.name==="Mekansm")throw new Error("Una respuesta activa ya comprada no debe repetirse");
+
  console.log("OK: v3.44 problemas activos — detección, ilusiones, magia, sustain, amenaza individual, oro e interrupción de ruta");
 })();
 
