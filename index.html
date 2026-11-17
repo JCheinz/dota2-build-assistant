@@ -1074,14 +1074,20 @@ const itemRecipes={
  "Aeon Disk":[{name:"Vitality Booster",cost:1000},{name:"Energy Booster",cost:800},{name:"Receta de Aeon Disk",cost:1200}],
  "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}],
  "Kaya":[{name:"Staff of Wizardry",cost:1000},{name:"Robe of the Magi",cost:450},{name:"Receta de Kaya",cost:650}],
+ "Kaya and Sange":[{name:"Kaya",cost:2100},{name:"Sange",cost:2100}],
+ "Yasha and Kaya":[{name:"Yasha",cost:1450},{name:"Kaya",cost:2100}],
  "Dagon":[{name:"Point Booster",cost:1200},{name:"Crown",cost:450},{name:"Wizard Hat",cost:250},{name:"Receta de Dagon",cost:1100}],
- "Aghanim’s Scepter":[{name:"Point Booster",cost:1200},{name:"Staff of Wizardry",cost:1000},{name:"Ogre Axe",cost:1000},{name:"Blade of Alacrity",cost:1000}]
+ "Aghanim’s Scepter":[{name:"Point Booster",cost:1200},{name:"Staff of Wizardry",cost:1000},{name:"Ogre Axe",cost:1000},{name:"Blade of Alacrity",cost:1000}],
+ "Shiva’s Guard":[{name:"Platemail",cost:1400},{name:"Mystic Staff",cost:2800},{name:"Recipe de Shiva",cost:975}],
+ "Gem of True Sight":[]
 };
 function consumeRecipeComponents(itemName){
  const recipe=itemRecipes[itemName]||[];
  recipe.forEach(part=>{
-  const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===part.name);
-  if(input)input.checked=false;
+  const component=[...document.querySelectorAll('.owned-component')].find(x=>x.value===part.name);
+  if(component)component.checked=false;
+  const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name);
+  if(owned)owned.checked=false;
  });
 }
 function clearTrackedPurchases(){
@@ -1113,7 +1119,7 @@ function getNextPurchase(build,state,preferredName=null){
    const target=build.find(x=>x.name===coreTarget);
    if(!target)return {done:true};
    const recipe=itemRecipes[coreTarget]||[];
-   const missing=recipe.filter(part=>!state.components.includes(part.name));
+   const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
    const totalRemainingCost=missing.reduce((sum,part)=>sum+part.cost,0);
    if(missing.length){
     const next=missing.find(part=>state.gold>=part.cost)||missing[0];
@@ -1132,7 +1138,7 @@ function getNextPurchase(build,state,preferredName=null){
   }).sort((a,b)=>b.decisionScore-a.decisionScore);
   const toOption=target=>{
    const recipe=itemRecipes[target.name]||[];
-   const missing=recipe.filter(part=>!state.components.includes(part.name));
+   const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
    const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
    if(missing.length&&next)return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.condition||target.why};
    if(recipe.length&&!missing.length)return {target,kind:"goal",name:target.name,reason:target.condition||target.why};
@@ -1149,7 +1155,7 @@ function getNextPurchase(build,state,preferredName=null){
  }
  const options=build.filter(x=>!state.owned.includes(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
-  const missing=recipe.filter(part=>!state.components.includes(part.name));
+  const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
   const affordable=missing.find(part=>state.gold>=part.cost);
   const next=affordable||missing[0]||null;
   const remainingCost=missing.reduce((sum,p)=>sum+p.cost,0);
@@ -1184,13 +1190,17 @@ function getNextPurchase(build,state,preferredName=null){
 function pugnaFinalBuild(matchups,state){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
  const has=id=>active.has(id);
- const problem=state.problem;
+ const problem=String(state.problem||"none");
  const candidates=[
   {name:"Bottle",stage:"Inicio",cost:675,score:1.2,why:"Regeneración y control de runas.",condition:"Si todavía necesitás sustain de línea y podés disputar runas."},
   {name:"Magic Wand",stage:"Inicio",cost:460,score:2.5,why:"Ráfaga de vida y maná en intercambios.",condition:"Sube de valor si los rivales generan cargas frecuentes."},
   {name:"Arcane Boots",stage:"Núcleo",cost:1500,score:2.6,why:"Sostienen el maná de Pugna y aportan regeneración al equipo.",condition:"Ruta base; comprá Ring of Basilius como componente si todavía no lo tenés."},
   {name:"Aether Lens",stage:"Núcleo",cost:2275,score:4.0,why:"Más alcance para lanzar habilidades desde una posición segura.",condition:"Núcleo de alcance; adelantala si necesitás jugar fuera del rango de iniciación."},
   {name:"Kaya",stage:"Avanzada",cost:2100,score:2.1,why:"Amplificación de hechizos y mejor rendimiento de maná.",condition:"Daño mágico como prioridad cuando ya tenés alcance y no necesitás resolver primero supervivencia o movilidad."},
+  {name:"Kaya and Sange",stage:"Cierre",cost:4200,score:0,why:"Evolución de Kaya con atributos y resistencia adicional.",condition:"Si ya tenés Kaya y necesitás más aguante sin abandonar la amplificación mágica."},
+  {name:"Yasha and Kaya",stage:"Cierre",cost:3550,score:0,why:"Evolución de Kaya orientada a movilidad y velocidad de ataque.",condition:"Si ya tenés Kaya y el héroe aprovecha movilidad/velocidad; no es mejora automática para toda partida."},
+  {name:"Shiva’s Guard",stage:"Avanzada",cost:5175,score:0,why:"Armadura, daño mágico en área y reducción de velocidad de ataque.",condition:"Contra ilusiones, unidades o daño físico por ataques cuando el efecto de área resuelve un problema real."},
+  {name:"Gem of True Sight",stage:"Avanzada",cost:900,score:0,why:"Detección persistente contra invisibilidad.",condition:"Solo si el equipo necesita detección y podés proteger la gema."},
   {name:"Dagon",stage:"Avanzada",cost:3000,score:2.0,why:"Ráfaga adicional para rematar objetivos; su coste escala por nivel.",condition:"Elegila si tu equipo puede asegurar objetivos aislados y la ráfaga cambia el resultado; no la fuerces por daño teórico."},
   {name:"Blink Dagger",stage:"Avanzada",cost:2250,score:2.4,why:"Reposicionamiento y acceso a ángulos para Decrepify y Nether Blast.",condition:"Adelantala si necesitás reposicionarte o encontrar ángulos de lanzamiento; no reemplaza una defensa contra control."},
   {name:"Aghanim’s Scepter",stage:"Avanzada",cost:4200,score:1.7,why:"Mejora específica de Pugna; inversión de cierre.",condition:"Comprala cuando hayas comprobado el valor de la mejora en la partida y no estés postergando una respuesta urgente."},
@@ -1202,13 +1212,22 @@ function pugnaFinalBuild(matchups,state){
   {name:"Force Staff",stage:"Defensa",cost:2200,score:0,why:"Reposicionamiento antes de que conecte una iniciación o captura.",condition:"Si podés usarlo antes del control para salir de un ángulo peligroso; no garantiza escapar una vez controlado."},
   {name:"Scythe of Vyse",stage:"Cierre",cost:5200,score:0,why:"Control fuerte para neutralizar temporalmente una amenaza.",condition:"Objeto de cierre si necesitás control adicional."}
  ];
- if(problem==="rupture"&&has("bloodseeker"))candidates.find(x=>x.name==="Linken’s Sphere").score=6;
- if(problem==="initiation"&&(has("centaur")||has("dawnbreaker")||has("tidehunter")))candidates.find(x=>x.name==="Aeon Disk").score=5.8;
- if(problem==="control"&&has("lion"))candidates.find(x=>x.name==="Aeon Disk").score=4.8;
- if(problem==="lane"&&has("viper"))candidates.find(x=>x.name==="Magic Wand").score=4.8;
- if(problem==="teamfight"&&has("dark_seer"))candidates.find(x=>x.name==="Glimmer Cape").score=2.8;
- if(problem==="magic")candidates.find(x=>x.name==="Glimmer Cape").score=3.6;
- if(problem==="mobility")candidates.find(x=>x.name==="Blink Dagger").score=5.2;
+ const boost=(name,score,condition)=>{const x=candidates.find(c=>c.name===name);if(x){x.score=Math.max(x.score,score);if(condition)x.condition=condition;}};
+ if((problem==="rupture"||problem==="enemy:bloodseeker")&&has("bloodseeker"))boost("Linken’s Sphere",6,"Respuesta a Rupture: mantené la carga disponible y evitá que otro hechizo la consuma antes.");
+ if(problem==="issue:initiation"||problem==="enemy:centaur"||problem==="enemy:dawnbreaker"||problem==="enemy:tidehunter")boost("Aeon Disk",5.8,"Si la iniciación con burst te elimina antes de responder; no evita por sí sola el control.");
+ if(problem==="issue:control"||problem==="enemy:lion"||problem==="enemy:bane")boost("Black King Bar",4.8,"Solo si su inmunidad actual cubre los controles concretos que te están impidiendo lanzar hechizos.");
+ if(problem==="issue:lane"||problem==="enemy:viper")boost("Magic Wand",4.8,"Sustain de intercambios si el rival genera cargas suficientes.");
+ if(problem==="issue:teamfight"||problem==="issue:magic")boost("Glimmer Cape",3.8,"Salvación para vos o un aliado si el rival no puede revelar o seguir fácilmente al objetivo.");
+ if(problem==="issue:mobility")boost("Blink Dagger",5.2,"Reposicionamiento si necesitás cambiar ángulos o iniciar desde niebla.");
+ if(problem==="issue:magic")boost("Black King Bar",3.8,"Evaluá si la inmunidad vigente cubre las fuentes de daño mágico/control que te afectan.");
+ if(problem==="issue:illusions")boost("Shiva’s Guard",4.2,"Daño en área y reducción de velocidad de ataque contra ilusiones/unidades; verificá si tu equipo necesita esta respuesta.");
+ if(problem==="issue:invisibility")boost("Gem of True Sight",4.5,"Solo si podés proteger la gema y tu equipo necesita detección persistente.");
+ if(problem.startsWith("enemy:")){
+  const id=problem.slice(6);
+  if(["centaur","dawnbreaker","tidehunter","axe","clockwerk","spirit_breaker"].includes(id))boost("Aeon Disk",3.8,"Respuesta condicional a la iniciación; comprala si el burst te mata antes de actuar.");
+  if(["lion","bane","shadow_shaman","puck","silencer"].includes(id))boost("Black King Bar",3.8,"Si el control o silencio concreto te impide lanzar hechizos; comprobá qué efectos atraviesan su inmunidad.");
+  if(["storm_spirit","queenofpain","phantom_assassin","spectre"].includes(id))boost("Blink Dagger",3.2,"Reposicionamiento si necesitás evitar el salto o encontrar distancia de lanzamiento.");
+ }
  const controlCount=matchups.filter(m=>(m.mechanics||[]).includes("hard_control")).length;
  const initiationCount=matchups.filter(m=>(m.mechanics||[]).includes("initiation")).length;
  if(controlCount>=3){
@@ -1220,6 +1239,15 @@ function pugnaFinalBuild(matchups,state){
  if(initiationCount>=2&&controlCount>=3){
   const force=candidates.find(x=>x.name==="Force Staff");
   if(force){force.score=Math.max(force.score,2.0);}
+ }
+ if(state.minute>=32&&state.owned.includes("Kaya")){
+  boost("Kaya and Sange",5.0,"Kaya ya está en tu inventario: esta evolución aprovecha el objeto existente si necesitás resistencia/atributos.");
+  boost("Yasha and Kaya",3.2,"Kaya ya está en tu inventario: alternativa de movilidad si encaja con tu forma de jugar.");
+ }
+ if(state.minute>=35){
+  boost("Scythe of Vyse",1.8,"Control de cierre si necesitás detener a un héroe móvil y tu equipo puede seguir la iniciación.");
+  boost("Aghanim’s Scepter",1.8,"Mejora de cierre si el efecto actual de Pugna aporta valor concreto.");
+  boost("Shiva’s Guard",1.5,"Alternativa tardía si necesitás armadura y efecto de área.");
  }
  const remaining=candidates.filter(x=>x.score>0&&!state.owned.includes(x.name));
  const timeAdjusted=remaining.map(x=>{
@@ -1301,6 +1329,9 @@ function renderDynamicStateControls(){
  if(tags.has("Disabler"))add("issue:control","Me encadenan controles");
  if([...enemies].some(h=>["phantom_lancer","naga_siren","chaos_knight"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:illusions","No puedo limpiar las ilusiones");
  if([...enemies].some(h=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:invisibility","Me amenaza la invisibilidad");
+ if([...enemies].some(h=>["storm_spirit","queenofpain","phantom_assassin","spectre","spirit_breaker","centaur"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:mobility","No puedo mantener distancia / me saltan");
+ if([...enemies].some(h=>["viper","huskar","bristleback","necrophos"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:lane","Pierdo los intercambios o la línea");
+ if([...enemies].some(h=>["dark_seer","enigma","magnus","tidehunter"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:teamfight","Pierdo las peleas grupales");
  problem.innerHTML=options.map(x=>'<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>').join("");
  problem.value=options.some(x=>x.value===previous)?previous:"none";
  const hint=$("problemHint");
@@ -1310,6 +1341,9 @@ function renderDynamicStateControls(){
  universalItems.forEach(addItem);
  const plan=me?getHeroPlan(me,role):null;
  if(plan)[...plan.early,...plan.core,...plan.situational].forEach(x=>addItem({name:x[0],why:x[1]}));
+ if(me&&me.name==="npc_dota_hero_pugna"&&role==="Mid"){
+  ["Kaya and Sange","Yasha and Kaya","Shiva’s Guard","Gem of True Sight"].forEach(name=>addItem({name,why:"Opción de progresión avanzada; se recomienda solo si resuelve una necesidad concreta."}));
+ }
  getDraftCounterRecommendations(enemies).forEach(g=>g.items.forEach(x=>addItem({name:x[0],why:x[1]})));
  const ownedRoot=$("ownedItems");
  if(ownedRoot){

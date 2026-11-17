@@ -580,3 +580,33 @@ if (!html.includes('slice(0,2).toUpperCase()')) {
 for (const item of ["Robe of the Magi","Staff of Wizardry","Energy Booster","Void Stone","Ring of Health","Ultimate Orb","Receta de Battle Fury"]) {
   if (!html.includes("'"+item+"'")) throw new Error("Falta asociación de icono para "+item);
 }
+
+
+// Regression: problem selector values must map to Pugna situational counters, and late progression must continue beyond the first core list.
+for (const marker of ['problem==="issue:initiation"','problem==="issue:magic"','problem==="issue:control"','problem==="issue:illusions"','problem==="issue:invisibility"','problem.startsWith("enemy:")']) {
+ if (!html.includes(marker)) throw new Error("Falta respuesta contextual para "+marker);
+}
+for (const marker of ['"Kaya and Sange"','"Yasha and Kaya"','"Shiva’s Guard"','"Gem of True Sight"']) {
+ if (!html.includes(marker)) throw new Error("Falta progresión tardía: "+marker);
+}
+if (!html.includes('state.minute>=32&&state.owned.includes("Kaya")')) throw new Error("Kaya debe habilitar sus evoluciones al entrar en fase avanzada");
+if (!html.includes('!state.owned.includes(part.name)')) throw new Error("Las recetas deben reconocer objetos completos que ya están en el inventario como componentes");
+if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
+
+
+(()=> {
+  const start=appHtml.indexOf("function pugnaFinalBuild(");
+  const end=appHtml.indexOf("\nfunction heroPositionFit",start);
+  if(start<0||end<0)throw new Error("No se encontró el motor situacional de Pugna");
+  const context={};vm.createContext(context);vm.runInContext(appHtml.slice(start,end),context);
+  const run=(problem,minute=25,owned=[])=>vm.runInContext("pugnaFinalBuild([], {problem:"+JSON.stringify(problem)+",minute:"+minute+",owned:"+JSON.stringify(owned)+"})",context);
+  const names=result=>result.map(x=>x.name);
+  for(const [problem,item] of [["issue:initiation","Aeon Disk"],["issue:control","Black King Bar"],["issue:magic","Glimmer Cape"],["issue:illusions","Shiva’s Guard"],["issue:invisibility","Gem of True Sight"],["issue:mobility","Blink Dagger"],["issue:lane","Magic Wand"],["issue:teamfight","Glimmer Cape"]]){
+    if(!names(run(problem)).includes(item))throw new Error("El problema "+problem+" no activa "+item);
+  }
+  const late=names(run("none",33,["Kaya"]));
+  if(!late.includes("Kaya and Sange")||!late.includes("Yasha and Kaya"))throw new Error("Kaya comprada no habilita sus evoluciones en late game");
+  const veryLate=names(run("none",36,[]));
+  for(const item of ["Scythe of Vyse","Aghanim’s Scepter","Shiva’s Guard"])if(!veryLate.includes(item))throw new Error("Falta continuidad tardía: "+item);
+  console.log("OK: pruebas funcionales de problemas seleccionados, evoluciones de Kaya y opciones de cierre Pugna");
+})();
