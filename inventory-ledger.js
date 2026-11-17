@@ -38,13 +38,13 @@
   }
   function upgrade(finalName,consumedNames=[],meta={}){
    const consumed=[];
-   for(const name of consumedNames){const item=removeInventory(name,"component-consumed",{...meta,note:"Consumido para "+finalName});if(item.removed)consumed.push(name);}
+   for(const name of consumedNames){const item=removeInventory(name,"component-consumed",{...meta,note:"Consumido para "+finalName});if(item.removed){consumed.push(name);continue;}if(removeComponent(name)){consumed.push(name);state.history.unshift(event("component-consumed",name,{...meta,kind:"component",note:"Consumido para "+finalName}));}}
    const added=recordPurchase(finalName,{...meta,kind:"item",note:"Mejora completada"});
    state.history.unshift(event("upgrade",finalName,{...meta,note:"Componentes consumidos: "+consumed.join(", ")}));persist();
    return {upgraded:true,consumed,added:added.recorded};
   }
   function recordSale(name,meta={}){return removeInventory(name,"sold",meta);}
-  function clearInventory(){state.inventory=[];state.components=[];persist();}
+  function removeComponent(name){const i=state.components.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return false;state.components.splice(i,1);persist();return true;}\n  function clearInventory(){state.inventory=[];state.components=[];persist();}
   function clearHistory(){state.history=[];persist();}
   function reset(){state={inventory:[],components:[],history:[],sequence:0};persist();}
   function addComponents(names,meta={}){for(const name of names||[])recordComponent(name,meta);}
@@ -53,7 +53,7 @@
    const owned=new Set(ownedNames.map(keyOf));const seen=new Set();
    return (items||[]).filter(item=>{const name=cleanName(typeof item==="string"?item:item&&item.name);if(!name)return false;const key=keyOf(name);if(owned.has(key)||seen.has(key))return false;seen.add(key);return true;});
   }
-  return {recordPurchase,recordComponent,removeInventory,useConsumable,upgrade,recordSale,clearInventory,clearHistory,reset,addComponents,snapshot,filterRecommendations,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
+  return {recordPurchase,recordComponent,removeInventory,useConsumable,upgrade,recordSale,removeComponent,clearInventory,clearHistory,reset,addComponents,snapshot,filterRecommendations,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
  }
  return {create,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
 });
