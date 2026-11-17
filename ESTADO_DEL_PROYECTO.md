@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.39 + Service Worker v90; última versión estable respaldada: 3.39  
+**Versión en desarrollo:** 3.40 + Service Worker v91 (mercado completo en revisión); última versión integrada: 3.39 + v90  
 **Etapa activa:** Mercado automático y progresión de rutas por héroe; versión 3.38 integrada. PR #28 tiene CI aprobado; despliegue público de 3.38 y pruebas Android aún pendientes de confirmación.
 
 ## 1. Objetivo
@@ -480,3 +480,16 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Respaldo estable del estado: `backup/estado-3.39-market-cost-fix-2026-11-16`.
 - Publicación GitHub Pages de 3.39 y validación Android: pendientes de confirmación independiente. APK 3.39: no generado; el repositorio sigue siendo una aplicación web sin binario Android comprobado.
 - Próxima etapa: ampliar el catálogo validado de recetas/componentes, hacer que las rutas de todos los héroes/posiciones avancen sin agotarse y revisar la prioridad situacional/core en partidas completas. No declarar completo el mercado automático todavía.
+
+
+## 15. Etapa — pool completo del mercado automático (16-11-2026)
+
+- Respaldos previos desde el commit `9e451cd7a22ea4f04c98ae0efcc9efbddf648fab`: `backup/3.39-before-full-market-pool-v3-40` y `backup/estado-3.39-before-full-market-pool-v3-40`. No sobrescribir.
+- Rama: `work/full-market-pool-progression-v3-40`.
+- Auditoría confirmó que el mercado recibía únicamente `adaptive.selected` y `adaptive.situational`, listas derivadas de un máximo de siete tarjetas visibles. Las demás compras candidatas quedaban fuera del motor.
+- Se separa el pool completo de candidatos (`marketPool`) de la selección visual resumida. El mercado recibe todos los candidatos puntuados; la interfaz conserva su límite visual para no saturar la pantalla.
+- Se añade una regresión con 24 objetivos core y dos situacionales: debe recorrer los 24 en orden y continuar con el situacional tras completar el núcleo.
+- Versión de trabajo: 3.40. Service Worker: `dota-build-v91`.
+- CI del PR #31, run `44001992386`: success; sintaxis y suite completa de regresiones aprobadas, incluida la ruta sintética de 24 objetivos y continuidad situacional.
+- Revisión del diff: el pool completo se conserva por separado de las siete tarjetas visuales; no se modifican perfiles ni puntuaciones de héroes.
+- Estado: listo para integrar. Publicación y prueba Android pendientes. La cobertura de rutas individuales y recetas sigue siendo incremental; no se afirma que todos los héroes tengan una build individual validada.
