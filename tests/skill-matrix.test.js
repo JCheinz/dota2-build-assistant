@@ -646,7 +646,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(urgent.target?.name!=="Spirit Vessel")throw new Error("Una amenaza de sustain seleccionada debe adelantar Spirit Vessel");
  const upgrade=run({minute:33,owned:["Arcane Boots","Aether Lens","Kaya"]});
  if(upgrade.target?.name!=="Kaya and Sange"||upgrade.name!=="Sange")throw new Error("Con Kaya adquirida, la mejora debe pedir Sange y proponer Kaya and Sange");
- const consumed=ctx.itemRecipes["Kaya and Sange"].filter(p=>!["Kaya"].includes(p.name));
+ const consumed=vm.runInContext('itemRecipes["Kaya and Sange"].filter(p=>p.name!=="Kaya")',ctx);
  if(consumed.length!==1||consumed[0].name!=="Sange")throw new Error("La receta de mejora debe reconocer Kaya como base ya adquirida y solicitar solo Sange");
  const finished=run({minute:33,owned:["Arcane Boots","Aether Lens","Kaya","Kaya and Sange"]});
  if(finished.name==="Kaya and Sange")throw new Error("La mejora completada no debe volver a recomendarse");
