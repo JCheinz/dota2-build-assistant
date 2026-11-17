@@ -25,7 +25,7 @@ assert.deepEqual(ledger.filterRecommendations([["Tango","consumible"],["Magic Wa
 const restored=create({storage});
 assert.deepEqual(restored.snapshot(),ledger.snapshot());
 restored.recordSale("Kaya and Sange",{minute:35});
-assert.equal(restored.snapshot().inventory.length,0);
+assert.deepEqual(restored.snapshot().inventory.map(x=>x.name),["Battle Fury"]);
 assert.ok(restored.snapshot().history.some(x=>x.action==="sold"));
 restored.clearInventory();
 assert.equal(restored.snapshot().history.length>0,true);
