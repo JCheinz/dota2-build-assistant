@@ -777,3 +777,24 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!consumeFromYashaParts.includes("Blade of Alacrity")||!consumeFromYashaParts.includes("Receta de Yasha"))throw new Error("Al completar Manta debe consumir las piezas de Yasha si no se registró como objeto completo");
  console.log("OK: recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes");
 })();
+
+
+// Intelligent market / ally composition regressions (v3.42)
+(() => {
+ const synergyStart=html.indexOf("function buildPugnaMidAllySynergy(");
+ const synergyEnd=html.indexOf("\nfunction buildAllySynergy(",synergyStart);
+ if(synergyStart<0||synergyEnd<0)throw new Error("No se encontró el generador de sinergias de Pugna");
+ const synergyContext={};vm.createContext(synergyContext);
+ vm.runInContext(html.slice(synergyStart,synergyEnd),synergyContext);
+ const build=(ids)=>{const cards=[];const add=(hero,type,title,combo,execution,watchout)=>cards.push({hero,type,title,combo,execution,watchout});synergyContext.buildPugnaMidAllySynergy("pugna","Mid",new Set(ids),cards,add);return cards;};
+ if(build([]).length!==0)throw new Error("Sin aliados específicos no debe aparecer ninguna sinergia ni composición heredada");
+ const partial=build(["mars","oracle"]);
+ if(partial.some(x=>x.hero==="Equipo completo"))throw new Error("No debe mostrarse una secuencia completa cuando faltan Rubick y Juggernaut");
+ if(!partial.some(x=>x.hero==="Mars")||!partial.some(x=>x.hero==="Oracle"))throw new Error("Deben mostrarse solo las sinergias de aliados realmente seleccionados");
+ const full=build(["mars","rubick","oracle","juggernaut"]);
+ if(!full.some(x=>x.hero==="Equipo completo"))throw new Error("La secuencia combinada debe aparecer cuando están presentes todos sus aliados");
+ if(!html.includes("const tempoMinimum=")||!html.includes('if(x.stage==="Avanzada"&&live.minute<20)score=-100;'))throw new Error("Falta el filtro temporal de objetos avanzados");
+ if(!html.includes('if(live.minute<12)core=[];'))throw new Error("La ruta core no debe desplazar los objetos de inicio antes del minuto 12");
+ if(!html.includes("specializations.js?v=3280"))throw new Error("Falta la invalidación de caché de especializaciones v3.42");
+ console.log("OK: mercado inteligente v3.42 — tempo de compras y sinergias ligadas a la composición actual");
+})();

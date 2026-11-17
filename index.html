@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.41</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -254,7 +254,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3279"></script>
+<script src="./specializations.js?v=3280"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -963,7 +963,8 @@ function buildPugnaMidAllySynergy(ownId,role,ids,cards,add){
   if(ids.has("oracle"))add("Oracle","SALVACIÓN + MITIGACIÓN","Oracle puede comprar tiempo para que Pugna siga lanzando hechizos","False Promise puede salvar temporalmente a un aliado enfocado; Fate's Edict puede reducir daño mágico recibido por un aliado, pero también lo desarma durante su efecto.","Acordá que Oracle reserve False Promise para el aliado que reciba la iniciación decisiva. Si te protege a vos, usá ese tiempo para reposicionarte o lanzar hechizos, no para quedarte expuesto.","Fate's Edict sobre un aliado que necesita pegar puede impedirle atacar mientras dure el desarme. Oracle no reemplaza el posicionamiento.");
   if(ids.has("rubick"))add("Rubick","CONTROL + INTERRUPCIÓN","Rubick puede iniciar el control y facilitar el seguimiento de Pugna","Telekinesis puede levantar y reposicionar un objetivo; ese tiempo puede facilitar que Pugna conecte Nether Blast o se acerque para otro hechizo.","Dejá que Rubick muestre el objetivo y coordiná Nether Blast cuando el rival vuelva a quedar expuesto. Rubick también puede interrumpir canalizaciones enemigas si tiene el ángulo.","No asumas que Rubick siempre tendrá el hechizo enemigo ideal robado: Spell Steal depende de lo que el rival haya lanzado y de la oportunidad.");
   if(ids.has("juggernaut"))add("Juggernaut","DAÑO FÍSICO + PRESIÓN","Juggernaut aporta daño físico sostenido mientras Pugna cubre daño mágico","Juggernaut puede perseguir y rematar objetivos con ataques y Omnislash; Pugna aporta daño mágico y presión de área para complementar el daño físico.","Elegí objetivos y coordiná el foco. Usá Nether Blast para aportar daño sin interferir con los ataques de Juggernaut.","Decrepify sobre un enemigo lo vuelve etéreo e impide que reciba ataques físicos durante el efecto: evitá lanzarlo sobre el objetivo al que Juggernaut está pegando o al que apunta Omnislash. Puede usarse defensivamente sobre un aliado, pero también le impide atacar.");
-  cards.push({hero:"Equipo completo",type:"SECUENCIA DE PELEA",title:"Mars inicia · Rubick controla · Pugna sigue · Oracle salva · Juggernaut remata",combo:"La secuencia es una guía de coordinación, no una cadena automática: Mars busca una entrada favorable; Rubick controla o interrumpe; Pugna aporta Nether Blast desde retaguardia; Oracle guarda False Promise para el aliado que reciba el foco; Juggernaut elige el objetivo que pueda atacar sin que Decrepify lo vuelva etéreo.",execution:"Antes de pelear, definan quién inicia y qué objetivo van a enfocar. Pugna no debe adelantarse a Mars y Oracle debe conservar su salvación para el momento crítico.",watchout:"No superpongas todos los controles sobre el mismo objetivo sin necesidad y no uses Decrepify ofensivamente sobre el blanco de Juggernaut."});
+  const fullCombo=["mars","rubick","oracle","juggernaut"].every(id=>ids.has(id));
+  if(fullCombo)cards.push({hero:"Equipo completo",type:"SECUENCIA DE PELEA",title:"Mars inicia · Rubick controla · Pugna sigue · Oracle salva · Juggernaut remata",combo:"La secuencia se muestra únicamente porque los cuatro aliados están seleccionados: Mars busca una entrada; Rubick controla o interrumpe; Pugna aporta daño desde retaguardia; Oracle guarda False Promise; Juggernaut elige un objetivo al que pueda atacar.",execution:"Antes de pelear, definan quién inicia y qué objetivo van a enfocar. Pugna no debe adelantarse a Mars y Oracle debe conservar su salvación para el momento crítico.",watchout:"No superpongas controles sin necesidad y no uses Decrepify ofensivamente sobre el blanco de Juggernaut."});
  }
 }
 function buildAllySynergy(me,role,allies,enemies){
@@ -1519,6 +1520,10 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
+  const tempoMinimum=({ "Black King Bar":12,"Aeon Disk":16,"Hurricane Pike":16,"Aether Lens":12,"Blink Dagger":12,"Pipe of Insight":14,"Crimson Guard":14,"Shiva’s Guard":20,"Scythe of Vyse":24,"Satanic":20,"Daedalus":24,"Butterfly":24,"Heart of Tarrasque":24,"Silver Edge":20,"Nullifier":24,"Aghanim’s Scepter":20,"Aghanim’s Shard":15 })[x.name]||0;
+  if(live.minute<tempoMinimum)score=-100;
+  if(x.stage==="Medio"&&live.minute<8)score=-100;
+  if(x.stage==="Avanzada"&&live.minute<20)score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&["Linken’s Sphere","Black King Bar"].includes(x.name))score-=2.5;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&!["batrider","bane","beastmaster","legion_commander"].some(id=>enemyIds.has(id)))score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
@@ -1582,6 +1587,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   let situational=plannedItems.filter(x=>x.stage==="Avanzada"&&byName.has(x.name)).map(x=>byName.get(x.name));
   // Pugna: Bottle y Wand son compras de línea condicionales; Null Talisman nunca desplaza automáticamente el núcleo.
   if(pugnaMid){
+   if(live.minute<12)core=[];
    early=early.filter(x=>{
     if(x.name==="Bottle")return live.minute<=9&&!live.owned.includes("Bottle");
     if(x.name==="Magic Wand")return live.minute<=11&&(threatMagic||threatControl||enemyRoles.has("Support"));
@@ -1592,8 +1598,10 @@ function buildAdaptivePlan(hero,role,enemies,live){
    early=early.slice().sort((a,b)=>b.score-a.score).slice(0,1);
    core=core.filter(x=>x.name!=="Aghanim’s Shard");
    situational=[...situational,...optionalEarly,...scores.filter(x=>["Aghanim’s Shard","Null Talisman"].includes(x.name)&&!situational.some(y=>y.name===x.name))];
-  }else if(live.minute>=12){
-   early=[];
+  }else {
+   if(live.minute>=12)early=[];
+   if(live.minute<12)core=[];
+   if(live.minute<20)situational=situational.filter(x=>x.stage!=="Avanzada");
   }
   // Las respuestas de draft no desplazan los objetos de progresión salvo una amenaza concreta y activa.
   const responses=scores.filter(x=>(x.threatSpecific||pugnaResponses.some(p=>p.name===x.name))&&!plannedItems.some(p=>p.name===x.name));
@@ -1655,7 +1663,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.41',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.42',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1680,7 +1688,7 @@ function analyze(options={}){
   const primary=purchaseDecision.primary;
   html.push('<div class="result-section"><h3>Decisión de compra defensiva</h3><p class="hint">'+esc(purchaseDecision.summary)+'</p>'+(primary?'<div class="item-card priority">'+renderItemIcon(primary.name)+'<div class="item-copy"><b>'+esc(primary.name)+' · '+esc(primary.status)+'</b><span>'+esc(primary.reason)+'</span><small>Comprala solo si: '+esc(primary.trigger)+'</small></div></div>':'<p class="hint"><b>Decisión actual:</b> no hay una defensa prioritaria demostrada por el draft. Conservá el núcleo y registrá qué habilidad o combinación te elimina antes de elegir una respuesta.</p>')+purchaseDecision.candidates.filter(x=>!primary||x.name!==primary.name).map(x=>'<div class="item-card">'+renderItemIcon(x.name)+'<div class="item-copy"><b>'+esc(x.name)+' · '+esc(x.status)+'</b><span>'+esc(x.reason)+'</span><small>Condición: '+esc(x.trigger)+'</small></div></div>').join('')+'<p class="hint">Regla: una amenaza detectada no equivale automáticamente a una compra. Evitá acumular varias defensas que no resuelven el mismo problema.</p></div>');
  }
- html.push('<div class="result-section"><h3>Prioridad de amenazas · '+esc(threatPriority.controlSaturation)+' saturación de control</h3><p class="hint">El orden combina el riesgo individual con la capacidad de iniciar, encadenar control, silenciar o cerrar zonas. Es una prioridad táctica heurística, no una probabilidad de muerte.</p><div class="chips"><span class="chip">Control duro: '+threatPriority.hardControlCount+'/5</span><span class="chip">Iniciación directa: '+threatPriority.initiationCount+'</span><span class="chip">Capturas / pickoff: '+threatPriority.pickoffCount+'</span><span class="chip">Entradas y capturas: '+threatPriority.engageCount+'</span><span class="chip">Silencios: '+threatPriority.silenceCount+'</span></div>'+threatPriority.ranked.map((m,index)=>'<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · '+esc(m.priorityLabel)+' · '+esc(m.priorityScore.toFixed(1))+'</b><p style="margin:6px 0 0"><b>Por qué sube:</b> '+esc(m.focus)+'</p><p style="margin:6px 0 0"><b>Respuesta:</b> '+esc(m.response)+'</p></div>').join('')+'<p class="hint"><b>Apoyo aliado:</b> '+(allies.some(h=>h.name==="npc_dota_hero_oracle")?'Oracle aporta una salvación; coordiná su uso para la cadena de control más peligrosa. ':'')+(allies.some(h=>h.name==="npc_dota_hero_mars")?'Mars puede crear la primera entrada; Pugna debería seguirla desde una posición segura. ':'')+'</p></div>');
+ html.push('<div class="result-section"><h3>Prioridad de amenazas · '+esc(threatPriority.controlSaturation)+' saturación de control</h3><p class="hint">El orden combina el riesgo individual con la capacidad de iniciar, encadenar control, silenciar o cerrar zonas. Es una prioridad táctica heurística, no una probabilidad de muerte.</p><div class="chips"><span class="chip">Control duro: '+threatPriority.hardControlCount+'/5</span><span class="chip">Iniciación directa: '+threatPriority.initiationCount+'</span><span class="chip">Capturas / pickoff: '+threatPriority.pickoffCount+'</span><span class="chip">Entradas y capturas: '+threatPriority.engageCount+'</span><span class="chip">Silencios: '+threatPriority.silenceCount+'</span></div>'+threatPriority.ranked.map((m,index)=>'<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · '+esc(m.priorityLabel)+' · '+esc(m.priorityScore.toFixed(1))+'</b><p style="margin:6px 0 0"><b>Por qué sube:</b> '+esc(m.focus)+'</p><p style="margin:6px 0 0"><b>Respuesta:</b> '+esc(m.response)+'</p></div>').join('')+'<p class="hint"><b>Apoyo aliado:</b> '+esc(allies.filter(h=>h.id!==me.id).map(h=>h.localized_name).join(" · ")||"Sin otros aliados registrados")+'. Las pautas de coordinación se calculan únicamente con esta composición.'+'</p></div>');
  if(matchups.length){
   html.push('<div class="result-section"><h3>Amenazas detectadas</h3>');
   matchups.forEach((m,index)=>html.push('<div class="warning" style="margin:7px 0"><b>#'+(index+1)+' '+esc(m.hero.localized_name)+' · Amenaza '+esc(m.risk)+' · '+esc(m.threat.score.toFixed(1))+'/20</b><br><span style="color:#f0c46f">Mecánicas detectadas: '+esc((m.mechanics||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'evaluación general')+'</span><p style="margin:6px 0 0"><b>Qué la hace peligrosa:</b> '+esc(m.detail)+'</p><p style="margin:6px 0 0">'+esc(m.advice)+'</p><p style="margin:6px 0 0"><b>Cómo jugarlo:</b> '+esc(m.plan)+'</p>'+(m.pairSpecific?'<p style="margin:6px 0 0;color:#8fd6ad"><b>Interacción específica:</b> perfil ajustado para este enfrentamiento.</p>':'')+'<small>Prioridad relativa para '+esc(me.localized_name)+' · '+esc(role)+'. Vulnerabilidades coincidentes: '+esc((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(' · ')||'ninguna identificada')+'. Es una estimación táctica, no una predicción del resultado.</small></div>'));

@@ -323,3 +323,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Corregida la detección de Anti-Mage: ahora exige la clave exacta del héroe y posición; no se activa por compartir objetos como Power Treads o Manta Style.
 - La integración en main está confirmada. El despliegue de GitHub Pages y la validación real en Android quedan pendientes de comprobación independiente.
 - Próxima prueba Android: Drow Carry y Luna Carry avanzando por sus rutas; Anti-Mage Carry/Mid sin contaminación cruzada; Bristleback Offlane y al menos un Support con ruta individual. Comprobar también que un enemigo seleccionado como problema pueda adelantar una respuesta de alta prioridad, pero su mera presencia no altere el núcleo.
+
+
+## Nueva etapa — mercado inteligente por tempo y composición (candidata 3.42, 16-11-2026)
+
+- Rama: `work/intelligent-market-tempo-synergy-v3-42`.
+- Respaldos previos desde main `9db655e1666a95d9623686140278092f39ff7a8d`: `backup/3.41-before-intelligent-market-2026-11-16` y `backup/estado-3.41-before-intelligent-market-2026-11-16`.
+- La secuencia de sinergia de Pugna Mid ahora requiere que los aliados Mars, Rubick, Oracle y Juggernaut estén todos seleccionados. Las tarjetas individuales dependen de cada aliado presente.
+- Se retiraron referencias heredadas a Mars/Oracle del apoyo genérico; el texto refleja la composición actual.
+- Se agregaron gates de tempo para BKB y objetos de transición/avanzados; el core de etapa media no debe aparecer como compra siguiente antes del minuto 12 y los situacionales avanzados quedan bloqueados antes del minuto 20.
+- Service Worker `dota-build-v93`; especializaciones `?v=3280`.
+- Pruebas añadidas a `tests/skill-matrix.test.js`: sinergias sin aliados, parciales y completas; gates de tempo y referencia de caché.
+- Estado: pendiente CI y revisión de comportamiento; no integrado, no desplegado, no probado en Android. APK no generado.
