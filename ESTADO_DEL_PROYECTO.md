@@ -423,3 +423,13 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI PR/post-merge: success (`43996382079`, `43996452895`). GitHub Pages build/deploy: success (`43996452316`).
 - Service Worker v88.
 - El inventario automático prioriza la respuesta situacional ya adquirida según el problema seleccionado, sin alterar las ubicaciones manuales; mantiene el orden por etapa y núcleo.
+
+
+## Resultado — motor común de progresión 3.38 (17-11-2026)
+
+- PR #28 integrado por squash: `b64556cfb3a173c7979aba46a04be8446eb2e1e0`.
+- CI del PR aprobado (run `44000768637`).
+- Versión 3.38 · Service Worker v89.
+- Rutas individuales: el motor compartido respeta su orden principal sin depender de excepciones por héroe; las respuestas situacionales explícitas pueden adelantar el núcleo cuando alcanzan prioridad suficiente.
+- Se corrigió una detección demasiado amplia de Anti-Mage que podía contaminar rutas de otros héroes con objetos compartidos.
+- Pendiente: confirmar despliegue GitHub Pages y validar comportamiento real en Android. La suite automatizada no sustituye esa prueba.
