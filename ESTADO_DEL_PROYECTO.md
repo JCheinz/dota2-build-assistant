@@ -866,7 +866,7 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - UI 3.51; SW v102. Pages no verificado, Android pendiente, APK no generado.
 
 
-## Desarrollo 3.52 — inventario actual e historial de compras (17-11-2026)
+## Integración 3.52 — inventario actual e historial de compras (17-11-2026)
 
 - Base estable: versión 3.51, rama `main`, commit base `6740c91f733ed0ad9d7199272d41a99409cc9ff7`.
 - Respaldos previos creados desde la base: `backup/3.51-before-inventory-ledger-v3-52-2026-11-17` (código) y `backup/estado-3.51-before-inventory-ledger-v3-52-2026-11-17` (estado/documentación). No sobrescribir.
