@@ -605,7 +605,7 @@ if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].fi
     if(!names(run(problem)).includes(item))throw new Error("El problema "+problem+" no activa "+item);
   }
   const late=names(run("none",33,["Kaya"]));
-  if(!late.includes("Kaya and Sange")||!late.includes("Yasha and Kaya"))throw new Error("Kaya comprada no habilita sus evoluciones en late game");
+  if(!late.includes("Kaya and Sange")||late.includes("Yasha and Kaya"))throw new Error("Pugna debe ofrecer únicamente Kaya and Sange como evolución de Kaya");
   const veryLate=names(run("none",36,[]));
   for(const item of ["Scythe of Vyse","Aghanim’s Scepter","Shiva’s Guard"])if(!veryLate.includes(item))throw new Error("Falta continuidad tardía: "+item);
   console.log("OK: pruebas funcionales de problemas seleccionados, evoluciones de Kaya y opciones de cierre Pugna");
