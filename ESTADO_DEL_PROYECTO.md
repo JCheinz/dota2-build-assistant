@@ -397,3 +397,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - La presencia de un héroe con sustain en el draft no equivale por sí sola a una compra obligatoria; el problema seleccionado eleva Spirit Vessel cuando corresponde.
 - Rama de trabajo: `work/core-progression-and-item-upgrades`; respaldos previos 3.34.
 - Estado: implementación y pruebas agregadas; pendiente CI/revisión/deploy.
+
+
+## Resultado — progresión adaptativa y evolución de objetos (17-11-2026)
+
+- PR #25 integrado por squash: `78b25a96ced89c6251313e7d3889b0c2057b3a66`.
+- CI del PR y post-merge aprobados (runs `43995986339` y `43996069576`).
+- GitHub Pages build/deploy aprobado (run `43996068769`).
+- Service Worker v87.
+- Pugna Mid: core secuencial Arcane Boots → Aether Lens; respuesta situacional explícita de prioridad alta puede adelantar el core. Spirit Vessel no se impone por presencia de Alchemist/Huskar sin seleccionar sustain.
+- Evolución Kaya → Kaya and Sange: Kaya se reconoce como objeto base poseído, se solicita Sange y al marcar la mejora se consume el objeto anterior.
+- Pruebas funcionales agregadas y suite de regresión completa aprobada. Próxima validación: Android, incluyendo avance core, selección de problema, mejora y consumo de Kaya.
