@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.51 + Service Worker v102; última versión estable respaldada: 3.51  
-**Etapa activa:** Mercado inteligente 3.51 integrado: cinco fases, prioridad correcta de rutas individuales, respuestas a problemas activos, recetas recursivas y seguimiento cuantitativo de componentes. Veintitrés rutas individuales de objetos por héroe/posición. Próximo trabajo: separar inventario actual e historial de consumibles, ampliar perfiles verificados y validar Pages/Android.
+**Etapa activa:** versión 3.52 en desarrollo en `work/inventory-ledger-v3-52-refresh`. Se incorpora un libro de movimientos separado del inventario actual, historial de compras/ventas/mejoras, registro de consumibles usados, consumo cuantitativo de componentes, deduplicación de recomendaciones y persistencia local. Base integrada 3.51; pendiente CI completo, revisión y PR. No integrar hasta que las regresiones estén aprobadas.
 
 ## 1. Objetivo
 
@@ -864,3 +864,19 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se mantiene la respuesta urgente explícita y el fallback de rol cuando no existe ruta individual.
 - Regresiones verifican Puck Mid: Magic Wand como objetivo de ruta (la compra siguiente puede ser un componente), respuesta Dust of Appearance urgente y fallback Power Treads.
 - UI 3.51; SW v102. Pages no verificado, Android pendiente, APK no generado.
+
+
+## Desarrollo 3.52 — inventario actual e historial de compras (17-11-2026)
+
+- Base estable: versión 3.51, rama `main`, commit base `6740c91f733ed0ad9d7199272d41a99409cc9ff7`.
+- Respaldos previos creados desde la base: `backup/3.51-before-inventory-ledger-v3-52-2026-11-17` (código) y `backup/estado-3.51-before-inventory-ledger-v3-52-2026-11-17` (estado/documentación). No sobrescribir.
+- Rama de trabajo solicitada: `work/inventory-ledger-v3-52-refresh`.
+- Nuevo módulo `inventory-ledger.js`: inventario activo separado del historial; eventos de compra, venta, retiro, mejora, consumo de componentes y uso de consumibles; persistencia local versionada.
+- La interfaz distingue «Inventario actual» e «Historial de compras y consumibles». Los consumibles identificados pueden marcarse como usados y pasan al historial, no permanecen como objetos activos.
+- Las evoluciones registran el objeto final y consumen las piezas cuantitativas disponibles; los componentes duplicados se registran como unidades independientes.
+- Las recomendaciones visuales filtran objetos ya poseídos y duplicados del mismo bloque; el motor de próxima compra conserva su filtro de inventario y recetas.
+- Pruebas nuevas: `tests/inventory-ledger.test.js`, con compra repetida, consumible usado, evolución Kaya → Kaya and Sange, componentes repetidos para Battle Fury, venta, persistencia, limpieza independiente del historial y deduplicación de recomendaciones.
+- CI ampliado para ejecutar la prueba nueva junto con `tests/skill-matrix.test.js`.
+- Service Worker candidato: `dota-build-v103`; versión de interfaz candidata: 3.52.
+- Estado: implementación en rama de trabajo. CI completo y regresiones aún deben ejecutarse; PR e integración pendientes. Pages/Android no verificados; APK no generado.
+- Criterio de integración: no fusionar hasta que ambos comandos de prueba, sintaxis, regresiones y CI de GitHub Actions terminen correctamente. Revisar además que los controles de borrar inventario e historial sigan siendo independientes.
