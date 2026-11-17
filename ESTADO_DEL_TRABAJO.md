@@ -6,14 +6,13 @@ Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #37 — Build 3.46: expand hero routes and track duplicate components.
-- Commit integrado: `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- Último PR integrado: #38 — Build 3.47: add four evidence-backed hero-position routes.
+- Commit integrado: `985f13d940f97f809c82480511abc7ace8f47dc7`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
-- CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
-- Validación post-merge: run `43929105992`, pendiente al momento de esta actualización.
-- GitHub Pages build/deploy: run `43929102880`, pendiente al momento de esta actualización.
-- Service Worker de la versión integrada: `dota-build-v94`.
+- CI del PR #38: run `44017750310`, job `133819650588`, success.
+- GitHub Pages no verificado independientemente; Android pendiente de prueba del usuario; APK no generado.
+- Service Worker de la versión integrada: `dota-build-v98`.
 
 ## Último trabajo: Crystal Maiden Support 5
 
@@ -462,3 +461,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Recetas de Radiance, Eul’s Scepter, Buckler y Vladmir’s Offering; subreceta Buckler. Prueba de compra parcial cuando Ring of Protection ya está poseído.
 - Consecrated Wraps se mantiene fuera de las recomendaciones automáticas hasta verificar su composición/receta.
 - UI 3.47; Service Worker v98. CI pendiente.
+
+
+## Integración — PR #38, versión 3.47 (17-11-2026)
+
+- PR #38 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/38.
+- Commit de `main`: `985f13d940f97f809c82480511abc7ace8f47dc7`.
+- CI run `44017750310`, job `133819650588`: success.
+- Diecisiete rutas individuales de objetos por héroe/posición: se añadieron Wraith King Carry, Shadow Fiend Mid, Tidehunter Offlane y Pudge Support 4.
+- Recetas nuevas para Radiance, Eul’s Scepter, Buckler y Vladmir’s Offering; la expansión recursiva de Buckler descuenta las piezas existentes.
+- Consecrated Wraps sigue fuera de compra automática hasta validar la receta.
+- UI 3.47, Service Worker v98. Pages no verificado; Android pendiente; APK no generado.
