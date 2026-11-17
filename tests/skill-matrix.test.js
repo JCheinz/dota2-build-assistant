@@ -713,4 +713,18 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const upgradeProgress=ctx.getNextPurchase([{name:"Kaya and Sange",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Evolución"}],{minute:33,gold:1000,owned:["Kaya"],components:[],problem:"none"});
  if(upgradeProgress.kind!=="component"||upgradeProgress.name!=="Sange"||upgradeProgress.remaining!==1100)throw new Error("La evolución debe reconocer Kaya como objeto base y pedir solo Sange con su oro faltante");
  console.log("OK: mercado universal — precios desconocidos no se convierten en cero, componentes descontados y evolución incremental");
+ // El motor debe conservar un pool completo aunque la interfaz visual limite sus tarjetas.
+ const longRoute=Array.from({length:24},(_,i)=>({name:"Core item "+(i+1),heroSpecific:true,heroKey:"npc_dota_hero_fixture|Carry",routeIndex:i,stage:"Medio",score:3,why:"Ruta larga de regresión"}));
+ const lateItems=[{name:"Situational alpha",stage:"Avanzada",score:3,why:"Situacional"},{name:"Situational beta",stage:"Avanzada",score:2,why:"Situacional"}];
+ const fullPool=[...longRoute,...lateItems];
+ let longOwned=[];
+ for(let i=0;i<24;i++){
+  const next=ctx.getNextPurchase(fullPool,{minute:24,gold:500,owned:longOwned,components:[],problem:"none"});
+  if(next.target?.name!=="Core item "+(i+1))throw new Error("El mercado debe recorrer el objetivo "+(i+1)+" de una ruta de 24 objetos");
+  longOwned.push("Core item "+(i+1));
+ }
+ const afterLongCore=ctx.getNextPurchase(fullPool,{minute:35,gold:500,owned:longOwned,components:[],problem:"none"});
+ if(afterLongCore.target?.name!=="Situational alpha")throw new Error("El mercado debe continuar con situacionales después de completar una ruta larga");
+ if(!appHtml.includes("marketPool:scores")||!appHtml.includes("...(adaptive.marketPool||[])"))throw new Error("El informe debe alimentar el mercado con el catálogo completo y no solo con las siete tarjetas visibles");
+ console.log("OK: mercado sin límite de siete recomendaciones — 24 objetivos core y continuidad situacional");
 })();
