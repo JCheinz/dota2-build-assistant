@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.43</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.44</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -1361,9 +1361,14 @@ function getNextPurchase(build,state,preferredName=null){
   return {...chosen.result,marketPhase:key,phaseLabel:marketPhase.label,
    routeReason:"Compra de "+key.toLocaleLowerCase("es")+" para "+state.role+". La selección respeta el rol, el presupuesto disponible y los objetos ya registrados."};
  };
- if(marketPhase.key==="Inicio"||marketPhase.key==="Línea"){
+ if((marketPhase.key==="Inicio"||marketPhase.key==="Línea")&&(!state.problem||state.problem==="none")){
   const rolePurchase=chooseRolePhase(marketPhase.key);
   if(rolePurchase)return rolePurchase;
+ }
+ const activeProblemChoice=build.filter(x=>x.activeProblem&&x.activeProblemId===String(state.problem||"none")&&!owned.has(x.name)&&state.minute>=(x.minMinute||0))
+  .sort((a,b)=>(Number(b.activePriority)||0)-(Number(a.activePriority)||0))[0];
+ if(activeProblemChoice&&Number(activeProblemChoice.activePriority)>=8.5){
+  return {...recipeTarget(activeProblemChoice),marketPhase:marketPhase.key,phaseLabel:marketPhase.label,urgentOverride:true,routeReason:"Respuesta adelantada porque seleccionaste un problema que estás sufriendo. La ruta vuelve a su orden normal cuando esta respuesta ya está cubierta."};
  }
  const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
  if(isPugna){
@@ -1551,7 +1556,7 @@ function updateRoleFit(){
  const fit=heroPositionFit(hero);
  hint.textContent="Compatibilidad estimada por roles: "+fit.slice(0,3).map(x=>x.role+" ("+x.score+")").join(" · ")+". Podés elegir cualquier posición; no son estadísticas de lanes.";
 }
-const MARKET_ITEM_COSTS={"Tango":90,"Iron Branch":55,"Blood Grenade":50,"Sentry Ward":50,"Observer Ward":0,"Clarity":60,"Enchanted Mango":65,"Faerie Fire":65,"Healing Salve":100,"Quelling Blade":100,"Gauntlets of Strength":140,"Mantle of Intelligence":140,"Slippers of Agility":140,"Circlet":155,"Ring of Protection":175,"Magic Stick":200,"Wind Lace":225,"Infused Raindrops":225,"Boots of Speed":500,"Power Treads":1400,"Phase Boots":1450,"Tranquil Boots":900,"Bracer":505,"Wraith Band":505,"Null Talisman":505,"Soul Ring":805,"Urn of Shadows":825,"Bottle":675,"Maelstrom":2950,"Mask of Madness":1900,"Dragon Lance":2000,"Manta Style":4650,"Battle Fury":3900,"Black King Bar":4050,"Hurricane Pike":4550,"Satanic":5050,"Daedalus":5200,"Butterfly":5450,"Scythe of Vyse":5200,"Shiva’s Guard":4500,"Blink Dagger":2250,"Vanguard":1700,"Blade Mail":2400,"Pipe of Insight":3725,"Crimson Guard":3725,"Lotus Orb":3850,"Heart of Tarrasque":5300,"Magic Wand":460,"Glimmer Cape":2150,"Force Staff":2200,"Arcane Boots":1500,"Aether Lens":2275,"Mekansm":1775,"Solar Crest":2575,"Aeon Disk":3000,"Eul’s Scepter of Divinity":2600,"Ghost Scepter":1500,"Aghanim’s Shard":1400,"Aghanim’s Scepter":4200,"Octarine Core":5100,"Silver Edge":5700,"Swift Blink":6800,"Skull Basher":2875,"Abyssal Blade":6250,"Nullifier":4350,"Mjollnir":5500};
+const MARKET_ITEM_COSTS={"Dust of Appearance":80,"Gem of True Sight":900,"Linken’s Sphere":4800,"Spirit Vessel":2725,"Monkey King Bar":5000,"Tango":90,"Iron Branch":55,"Blood Grenade":50,"Sentry Ward":50,"Observer Ward":0,"Clarity":60,"Enchanted Mango":65,"Faerie Fire":65,"Healing Salve":100,"Quelling Blade":100,"Gauntlets of Strength":140,"Mantle of Intelligence":140,"Slippers of Agility":140,"Circlet":155,"Ring of Protection":175,"Magic Stick":200,"Wind Lace":225,"Infused Raindrops":225,"Boots of Speed":500,"Power Treads":1400,"Phase Boots":1450,"Tranquil Boots":900,"Bracer":505,"Wraith Band":505,"Null Talisman":505,"Soul Ring":805,"Urn of Shadows":825,"Bottle":675,"Maelstrom":2950,"Mask of Madness":1900,"Dragon Lance":2000,"Manta Style":4650,"Battle Fury":3900,"Black King Bar":4050,"Hurricane Pike":4550,"Satanic":5050,"Daedalus":5200,"Butterfly":5450,"Scythe of Vyse":5200,"Shiva’s Guard":4500,"Blink Dagger":2250,"Vanguard":1700,"Blade Mail":2400,"Pipe of Insight":3725,"Crimson Guard":3725,"Lotus Orb":3850,"Heart of Tarrasque":5300,"Magic Wand":460,"Glimmer Cape":2150,"Force Staff":2200,"Arcane Boots":1500,"Aether Lens":2275,"Mekansm":1775,"Solar Crest":2575,"Aeon Disk":3000,"Eul’s Scepter of Divinity":2600,"Ghost Scepter":1500,"Aghanim’s Shard":1400,"Aghanim’s Scepter":4200,"Octarine Core":5100,"Silver Edge":5700,"Swift Blink":6800,"Skull Basher":2875,"Abyssal Blade":6250,"Nullifier":4350,"Mjollnir":5500};
 const universalItems=[
  {name:"Power Treads",roles:["Carry","Mid"],tags:["attack","farm"],why:"Atributos y velocidad de ataque para escalar; confirmá si tu héroe aprovecha botas de atributo."},
  {name:"Phase Boots",roles:["Carry","Mid","Offlane"],tags:["physical","mobility"],why:"Movilidad y daño de ataque para héroes que aprovechan intercambios físicos."},
@@ -1601,6 +1606,7 @@ function renderDynamicStateControls(){
  if([...enemies].some(h=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:invisibility","Me amenaza la invisibilidad");
  if([...enemies].some(h=>["storm_spirit","queenofpain","phantom_assassin","spectre","spirit_breaker","centaur"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:mobility","No puedo mantener distancia / me saltan");
  if([...enemies].some(h=>["viper","huskar","bristleback","necrophos"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:lane","Pierdo los intercambios o la línea");
+ if([...enemies].some(h=>["alchemist","huskar","necrophos","bristleback","morphling"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:sustain","El enemigo sobrevive por curación o regeneración");
  if([...enemies].some(h=>["dark_seer","enigma","magnus","tidehunter"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:teamfight","Pierdo las peleas grupales");
  problem.innerHTML=options.map(x=>'<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>').join("");
  problem.value=options.some(x=>x.value===previous)?previous:"none";
@@ -1636,6 +1642,91 @@ function renderDynamicStateControls(){
    return '<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" '+(checked.has(x)?"checked":"")+'> '+esc(x)+(remainingQuantity>1?' ×'+remainingQuantity:'')+'</label>';
   }).join("");
  }
+}
+
+function getActiveProblemResponses(hero,role,enemies,problem,minute){
+ const id=String(problem||"none");
+ if(id==="none")return [];
+ const enemyIds=new Set((enemies||[]).map(h=>String(h.name||"").replace("npc_dota_hero_","")));
+ const ranged=hero?.attack_type==="Ranged";
+ const rows=[];
+ const add=(name,reason,priority,minMinute=12,allowedRoles=null)=>{
+  if(Array.isArray(allowedRoles)&&!allowedRoles.includes(role))return;
+  if(Number(minute)<minMinute)return;
+  rows.push({
+   name,why:reason,condition:reason,cost:MARKET_ITEM_COSTS[name],
+   roles:[role],tags:["threat-response","active-problem"],
+   stage:"Situacional",threatSpecific:true,threatWeight:2.5,
+   activeProblem:true,activeProblemId:id,activePriority:priority,minMinute
+  });
+ };
+ const hasAny=(ids)=>ids.some(x=>enemyIds.has(x));
+ if(id==="issue:initiation"){
+  if(role==="Carry"&&ranged)add("Hurricane Pike","Problema activo: necesitás separación y reposicionamiento frente a iniciaciones que te alcanzan. No elimina un control ya aplicado.",9.5,16);
+  add("Force Staff","Problema activo: reposicionamiento preventivo para vos o un aliado antes de que la iniciación conecte.",9.1,12,["Offlane","Support 4","Support 5","Mid"]);
+  add("Aeon Disk","Problema activo: considerala si una iniciación seguida de burst te elimina antes de poder actuar; no es una inmunidad al control.",8.7,16);
+  if(role==="Support 4"||role==="Support 5")add("Glimmer Cape","Problema activo: salvación para el objetivo del foco cuando la detección enemiga no la neutraliza.",8.5,12);
+ }
+ if(id==="issue:magic"){
+  add("Infused Raindrops","Problema activo: mitigación económica frente a hostigamiento mágico; su bloqueo tiene límite por instancia.",9.5,5);
+  add("Black King Bar","Problema activo: priorizala solo si su inmunidad vigente cubre las habilidades concretas que te impiden actuar.",9.2,12,["Carry","Mid","Offlane"]);
+  add("Pipe of Insight","Problema activo: mitigación grupal si el daño mágico amenaza a varios aliados.",8.9,14,["Offlane","Support 4","Support 5"]);
+  add("Glimmer Cape","Problema activo: salvación y resistencia mágica para un aliado si no hay detección suficiente.",8.3,12,["Support 4","Support 5"]);
+ }
+ if(id==="issue:control"){
+  add("Black King Bar","Problema activo: respuesta si la inmunidad vigente cubre los controles que te están encadenando; verificá las habilidades concretas.",9.5,12,["Carry","Mid","Offlane"]);
+  add("Lotus Orb","Problema activo: dispel y devolución/objetivo de hechizos dirigidos solo cuando la interacción aplica.",8.9,20,["Offlane","Support 4"]);
+  add("Force Staff","Problema activo: puede evitar una captura si lo usás antes de recibir el control; no te libera de todos los estados.",8.2,12,["Offlane","Support 4","Support 5"]);
+  add("Aeon Disk","Problema activo: solo si el encadenamiento termina en burst letal antes de que puedas responder.",8.1,16);
+ }
+ if(id==="issue:illusions"){
+  if(role==="Carry"&&!ranged)add("Battle Fury","Problema activo: cleave para limpiar grupos de unidades si tu héroe cuerpo a cuerpo aprovecha el objeto.",9.4,12);
+  if(role==="Carry"&&ranged)add("Mjollnir","Problema activo: impactos y daño en área para lidiar con ilusiones; confirmá que tu héroe pueda aplicar ataques con seguridad.",9.1,20);
+  add("Shiva’s Guard","Problema activo: daño en área y reducción de velocidad de ataque contra grupos de unidades.",8.8,20,["Mid","Offlane"]);
+  add("Crimson Guard","Problema activo: reducción de daño de ataques repetidos de unidades e ilusiones; valorá la composición concreta.",8.5,20,["Offlane"]);
+ }
+ if(id==="issue:invisibility"){
+  add("Dust of Appearance","Problema activo: detección consumible para revelar al enemigo en la zona donde se usa.",9.8,5);
+  add("Gem of True Sight","Problema activo: detección persistente si el equipo puede proteger al portador; se pierde al morir.",8.7,12,["Offlane","Support 4","Support 5"]);
+ }
+ if(id==="issue:mobility"){
+  if(role==="Carry"&&ranged)add("Hurricane Pike","Problema activo: crea separación frente a héroes que te saltan o te persiguen.",9.2,16);
+  add("Force Staff","Problema activo: reposicionamiento para evitar una captura antes de que conecte.",8.9,12,["Offlane","Support 4","Support 5"]);
+  add("Scythe of Vyse","Problema activo: control para detener temporalmente a un héroe móvil cuando tu equipo pueda seguirlo.",8.5,30,["Carry","Mid","Offlane"]);
+ }
+ if(id==="issue:lane"){
+  add("Magic Wand","Problema activo: ráfaga de vida y maná si los enemigos generan cargas durante los intercambios.",9.3,5);
+  add("Infused Raindrops","Problema activo: mitigación puntual si el hostigamiento mágico está decidiendo la línea.",8.7,5);
+  add("Bracer","Problema activo: vida y atributos para estabilizar una línea física exigente.",8.2,5,["Offlane"]);
+ }
+ if(id==="issue:teamfight"){
+  add("Pipe of Insight","Problema activo: mitigación de daño mágico para el equipo cuando ese es el factor que decide las peleas.",9.2,14,["Offlane","Support 4","Support 5"]);
+  add("Crimson Guard","Problema activo: defensa grupal ante ataques físicos repetidos, unidades o ilusiones.",8.9,20,["Offlane"]);
+  add("Mekansm","Problema activo: curación grupal cuando tu composición necesita sostener la pelea.",8.4,12,["Offlane","Support 4","Support 5"]);
+ }
+ if(id==="issue:sustain"&&hasAny(["alchemist","huskar","necrophos","bristleback","morphling"])){
+  add("Spirit Vessel","Problema activo: reduce la restauración de vida cuando podés aplicar cargas y el rival está sobreviviendo por sustain.",9.7,12,["Carry","Mid","Offlane","Support 4","Support 5"]);
+ }
+ if(id.startsWith("enemy:")){
+  const enemyId=id.slice(6);
+  const specific=matchupRules[enemyId];
+  const counter=(counterRules||[]).filter(rule=>(rule.match||[]).includes(enemyId));
+  const addEnemyItem=(x)=>{
+   const name=x.name;
+   const cost=Number(MARKET_ITEM_COSTS[name]);
+   const minMinute=name==="Dust of Appearance"||name==="Sentry Ward"||name==="Magic Wand"||name==="Infused Raindrops"?5:name==="Scythe of Vyse"||name==="Shiva’s Guard"||name==="Butterfly"||name==="Daedalus"?30:cost>=3500?16:12;
+   const priority=name==="Dust of Appearance"||name==="Spirit Vessel"||name==="Linken’s Sphere"?9.6:cost>=4000?8.8:8.4;
+   add(name,"Problema activo contra "+(specific?.title||counter[0]?.label||enemyId)+": "+(x.why||"respuesta situacional; verificá la interacción y el momento de compra."),priority,minMinute);
+  };
+  (specific?.items||[]).forEach(addEnemyItem);
+  counter.forEach(rule=>(rule.items||[]).forEach(addEnemyItem));
+ }
+ const deduped=new Map();
+ for(const x of rows){
+  const prev=deduped.get(x.name);
+  if(!prev||x.activePriority>prev.activePriority)deduped.set(x.name,x);
+ }
+ return [...deduped.values()].sort((a,b)=>b.activePriority-a.activePriority);
 }
 
 function buildAdaptivePlan(hero,role,enemies,live){
@@ -1710,10 +1801,11 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const rolePhase=getUniversalRolePlan(role,live.minute,hero,enemies,live.problem);
  const roleItems=rolePhase.allItems.map(x=>({...x,roles:[role],tags:["role-baseline"],roleBaseline:true}));
  const roleItemsForCandidates=heroPlan?roleItems.filter(x=>x.marketPhase==="Inicio"):roleItems;
+ const activeProblemResponses=getActiveProblemResponses(hero,role,enemies,selectedProblem,live.minute);
  const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
  const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live).map(x=>({...x,roles:[role],tags:["threat-response"],threatSpecific:true})):[];
  const pugnaPlannedItems=pugnaMid?plannedItems.map(x=>{const response=pugnaResponses.find(p=>p.name===x.name);return response?{...x,pugnaScore:response.score,cost:response.cost,condition:response.condition,threatSpecific:true}:x;}):plannedItems;
- const candidates=[...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const candidates=[...activeProblemResponses,...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.marketPhase===getMarketPhase(live.minute).key)score+=1.8;else score-=0.35;}
@@ -1730,6 +1822,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(x.roleBaseline)score+=1.35;
   if(Number.isFinite(x.pugnaScore))score+=x.pugnaScore;
   if(x.threatSpecific)score+=Math.min(4.2,x.threatWeight||0);
+  if(x.activeProblem){if(live.problem===x.activeProblemId&&live.minute>=(x.minMinute||0))score=Math.max(score,x.activePriority||0);else score=-100;}
   const tags=x.tags;
   if(tags.includes("detection")&&[...enemyIds].some(id=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(id)))score+=4;
   if(tags.includes("magic")&&threatMagic)score+=1.3;
@@ -1863,7 +1956,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.43',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.44',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
