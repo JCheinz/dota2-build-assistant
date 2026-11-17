@@ -879,7 +879,7 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI ampliado para ejecutar la prueba nueva junto con `tests/skill-matrix.test.js`.
 - Service Worker integrado: `dota-build-v103`; versión de interfaz: 3.52.
 - PR #44 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/44.
-- Commit de integración: `0d6f48175423758c387a505fb5dec81bc96b6020`; commit de documentación/estado: pendiente de esta actualización.
+- Commit de integración: `0d6f48175423758c387a505fb5dec81bc96b6020`; commit de documentación/estado: `8d2fa70c47c720763e2cc5b8b3ac95c356834be7`.
 - CI final run `44024314264` (run #252): success. Sintaxis, regresiones existentes, matriz de héroes, libro de inventario y pruebas de evolución aprobados.
 - Respaldos estables: `backup/3.52-stable-final-2026-11-17` y `backup/estado-3.52-stable-final-2026-11-17`. Respaldos anteriores 3.51 preservados.
 - Rama de trabajo conservada: `work/inventory-ledger-v3-52-refresh`.
