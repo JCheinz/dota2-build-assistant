@@ -387,3 +387,13 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Pugna Mid: Kaya and Sange queda como única evolución de Kaya en su ruta. Spirit Vessel se incorpora al motor con prioridad condicional frente a Alchemist/Huskar por sustain alto.
 - Service Worker: `dota-build-v86`.
 - Pendiente: verificar CI post-merge y deploy de Pages, y prueba visual Android de los botones y de la compra anti-sustain.
+
+
+## Progresión adaptativa de núcleo y evoluciones (17-11-2026)
+
+- Se inició una etapa transversal con foco de validación inicial en Pugna Mid.
+- La próxima compra sigue una ruta core secuencial, admite respuestas situacionales explícitas de alta prioridad y considera minuto, oro, objetos completos y componentes.
+- Las evoluciones reconocen el objeto base como componente ya adquirido: Kaya + Sange → Kaya and Sange. Al registrar la mejora completa, se consume Kaya del inventario para evitar duplicación.
+- La presencia de un héroe con sustain en el draft no equivale por sí sola a una compra obligatoria; el problema seleccionado eleva Spirit Vessel cuando corresponde.
+- Rama de trabajo: `work/core-progression-and-item-upgrades`; respaldos previos 3.34.
+- Estado: implementación y pruebas agregadas; pendiente CI/revisión/deploy.

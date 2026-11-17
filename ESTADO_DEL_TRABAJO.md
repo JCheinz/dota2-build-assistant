@@ -261,3 +261,17 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Pugna Mid: Kaya and Sange queda como única evolución de Kaya en su ruta. Spirit Vessel se incorpora al motor con prioridad condicional frente a Alchemist/Huskar por sustain alto.
 - Service Worker: `dota-build-v86`.
 - Pendiente: verificar CI post-merge y deploy de Pages, y prueba visual Android de los botones y de la compra anti-sustain.
+
+
+## Nueva etapa — progresión de núcleo y evolución automática de objetos (17-11-2026)
+
+- Base verificada: main `bb2a867eeba004b830144f149fc557f83a5e6007` (integración PR #24).
+- Respaldos: `backup/3.34-before-core-progression-and-upgrades` y `backup/estado-3.34-before-core-progression-and-upgrades`.
+- Rama: `work/core-progression-and-item-upgrades`.
+- El motor de Pugna Mid ahora conserva el orden Arcane Boots → Aether Lens, pero permite que una respuesta situacional explícita y de alta prioridad interrumpa esa secuencia.
+- La mera presencia de Alchemist/Huskar en el draft ya no impone Spirit Vessel como compra inmediata; la selección explícita del problema de sustain sí lo eleva a prioridad.
+- La selección de próxima compra reconoce `pugnaScore` de las respuestas específicas, pondera la etapa y evita terminar silenciosamente cuando no hay compra pendiente.
+- Flujo de evolución: con Kaya registrada y minuto 32+, Kaya and Sange se convierte en objetivo elegible; como Kaya ya cuenta como componente poseído, el motor solicita Sange y al marcar el objeto mejorado la receta consume Kaya del inventario.
+- Service Worker actualizado a `dota-build-v87`.
+- Pruebas funcionales nuevas: avance de núcleo, interrupción situacional por sustain, mejora Kaya → Kaya and Sange, y no repetir la mejora ya completada.
+- Pendiente: CI, revisión de diff, integración y deploy. La lógica de perfiles Support, Techies y Crystal Maiden no se altera.
