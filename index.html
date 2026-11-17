@@ -1367,7 +1367,7 @@ function getNextPurchase(build,state,preferredName=null){
  }
  const activeProblemChoice=build.filter(x=>x.activeProblem&&x.activeProblemId===String(state.problem||"none")&&!owned.has(x.name)&&state.minute>=(x.minMinute||0))
   .sort((a,b)=>(Number(b.activePriority)||0)-(Number(a.activePriority)||0))[0];
- if(activeProblemChoice&&Number(activeProblemChoice.activePriority)>=8.5){
+ if(activeProblemChoice&&Number(activeProblemChoice.activePriority)>=8.0){
   return {...recipeTarget(activeProblemChoice),marketPhase:marketPhase.key,phaseLabel:marketPhase.label,urgentOverride:true,routeReason:"Respuesta adelantada porque seleccionaste un problema que estás sufriendo. La ruta vuelve a su orden normal cuando esta respuesta ya está cubierta."};
  }
  const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
