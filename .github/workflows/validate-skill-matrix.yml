@@ -12,7 +12,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check specializations syntax
-        run: node --check specializations.js
+      - name: Check application modules syntax
+        run: |
+          node --check specializations.js
+          node --check inventory-ledger.js
       - name: Test dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
+      - name: Test inventory ledger lifecycle and regressions
+        run: node tests/inventory-ledger.test.js

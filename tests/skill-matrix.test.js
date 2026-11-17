@@ -361,7 +361,7 @@ for (const marker of [
   'bought-chip',
   'Carga manual opcional de objetos comprados',
   'Tocá cualquier objeto recomendado cuando lo compres',
-  "input.checked=!input.checked;analyze({scroll:false})"
+  "const markingBought=!input.checked;input.checked=markingBought"
 ]) {
   if (!appHtml.includes(marker)) throw new Error("Falta el flujo de compra directa: " + marker);
 }
@@ -403,6 +403,7 @@ const purchaseContext = {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[ch])),
   getLiveState: () => ({ owned: [], components: [] }),
+  purchaseLedger: { snapshot: () => ({inventory:[],components:[],history:[]}), isConsumable: () => false, filterRecommendations: (items,owned=[]) => { const seen=new Set(),have=new Set(owned.map(x=>String(x).toLowerCase())); return items.filter(x=>{const n=String(Array.isArray(x)?x[0]:typeof x==="string"?x:x.name||"").toLowerCase();if(!n||have.has(n)||seen.has(n))return false;seen.add(n);return true;}); } },
   getMarketPhase: minute => { const m=Number(minute)||0; return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada"}; },
   getHeroPlan: () => ({early:[["Tango","early"]],core:[["Arcane Boots","core"],["Aether Lens","core"]],situational:[["Glimmer Cape","late"]]}),
   renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
@@ -475,7 +476,7 @@ for (const marker of [
   "closest('[data-buy-item]')",
   "querySelectorAll('.owned-item')",
   "appendChild(label)",
-  "input.checked=!input.checked",
+  "const markingBought=!input.checked;input.checked=markingBought",
   "analyze({scroll:false})",
   "closest('[data-buy-component]')",
   "closest('[data-remove-owned]')",
@@ -515,7 +516,9 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
     "Receta de Arcane Boots", "Energy Booster", "Void Stone"
   ].map(value => ({ value, checked: true }));
   const recipeContext = {
-    document: { querySelectorAll: selector => selector === ".owned-component" ? componentInputs : [] }
+    document: { querySelectorAll: selector => selector === ".owned-component" ? componentInputs : [] },
+    purchaseLedger: { upgrade: () => ({upgraded:true}), recordPurchase: () => ({recorded:true}) },
+    ledgerMinute: () => 20
   };
   vm.createContext(recipeContext);
   vm.runInContext(recipeSource, recipeContext);
@@ -533,8 +536,8 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
   if (!appHtml.includes("if(markingBought)consumeRecipeComponents(name)")) {
     throw new Error("La compra de un objeto completo no consume su receta");
   }
-  if (!appHtml.includes("clearTrackedPurchases();updateRoleFit()")
-      || !appHtml.includes("clearTrackedPurchases();renderDynamicStateControls()")) {
+  if (!appHtml.includes("purchaseLedger.reset();clearTrackedPurchases();updateRoleFit()")
+      || !appHtml.includes("purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls()")) {
     throw new Error("El inventario no se reinicia al cambiar de héroe o posición");
   }
   console.log("OK: inventario aislado por héroe/posición al cambiar la configuración");
