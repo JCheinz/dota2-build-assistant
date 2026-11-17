@@ -299,3 +299,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Kaya and Sange ya adquirida recibe prioridad de orden como evolución completada desde minuto 32.
 - Cache previsto: `dota-build-v88`.
 - Pruebas añadidas para el mapeo situacional y preservación de zonas manuales. Pendiente CI/PR/deploy.
+
+
+## Resultado — PR #26 integrado y desplegado (17-11-2026)
+
+- PR #26 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/26.
+- Commit: `4106040f1fde2d920f4e2a5e2d99c07cc78412b3`.
+- CI PR run `43996382079` y CI post-merge `43996452895`: success.
+- GitHub Pages build/deploy run `43996452316`: success.
+- Service Worker actualizado a `dota-build-v88`.
+- El inventario automático sube la respuesta situacional adquirida correspondiente al problema seleccionado; las ubicaciones manuales se preservan. Se mantiene el orden por fase y núcleo del héroe.
+- Publicación confirmada. Validación Android recomendada: registrar Spirit Vessel, seleccionar Alchemist como problema y comprobar que suba en el orden visual; cambiar a otro problema y comprobar que el inventario automático se reordene sin mover los objetos colocados manualmente.
