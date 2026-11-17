@@ -1009,7 +1009,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   {name:"Witch Blade",roles:["Mid"],heroSpecific:true,heroKey:"npc_dota_hero_puck|Mid",routeIndex:1,marketPhase:"Transición",stage:"Medio",cost:2775,why:"Ruta core"}
  ];
  const heroFirst=context.getNextPurchase(priorityBuild,{minute:5,gold:1400,owned:[],components:[],role:"Mid",problem:"none"});
- if(heroFirst.target?.name!=="Magic Wand"||heroFirst.name!=="Magic Wand")throw new Error("La ruta individual del héroe debe tener prioridad sobre el catálogo genérico de posición");
+ if(heroFirst.target?.name!=="Magic Wand"||heroFirst.kind!=="component")throw new Error("La ruta individual del héroe debe tener prioridad sobre el catálogo genérico y pedir una pieza real de Magic Wand");
  const urgentFirst=context.getNextPurchase([...priorityBuild,{name:"Dust of Appearance",roles:["Mid"],activeProblem:true,activeProblemId:"issue:invisibility",activePriority:9.8,minMinute:5,cost:80,why:"Detección urgente"}],{minute:8,gold:80,owned:[],components:[],role:"Mid",problem:"issue:invisibility"});
  if(urgentFirst.name!=="Dust of Appearance"||urgentFirst.urgentOverride!==true)throw new Error("Una respuesta urgente confirmada debe poder interrumpir la ruta individual");
  const roleFallback=context.getNextPurchase([{name:"Power Treads",roles:["Mid"],roleBaseline:true,marketRole:"Mid",marketPhase:"Línea",priority:1,cost:1400,why:"Plantilla"}],{minute:5,gold:1400,owned:[],components:[],role:"Mid",problem:"none"});
