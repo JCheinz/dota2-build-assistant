@@ -1144,7 +1144,7 @@ function getNextPurchase(build,state,preferredName=null){
   const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
   return situational[0]?{target:situational[0],kind:"goal",name:situational[0].name,reason:situational[0].why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
  }
- const isAntiMage=build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Yasha","Manta Style"].includes(x.name));
+ const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid");
  if(isAntiMage){
   const coreOrder=["Power Treads","Battle Fury","Yasha","Manta Style"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
