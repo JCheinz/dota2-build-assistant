@@ -668,8 +668,8 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
 
 
 // Progresión común para rutas individuales no cubiertas por excepciones históricas.
-// Drow y Luna deben avanzar por su ruta core en orden, mientras Anti-Mage conserva su ruta específica y luego continuar
-// con una respuesta situacional; una amenaza explícita de alta prioridad puede adelantarla.
+// Drow y Luna deben avanzar por su ruta core en orden; Anti-Mage conserva su ruta específica.
+// Tras completar el núcleo, el mercado continúa con situacionales y permite adelantar una amenaza explícita.
 (()=>{
  const purchaseStart=appHtml.indexOf("const itemRecipes={");
  const purchaseEnd=appHtml.indexOf("\nfunction pugnaFinalBuild",purchaseStart);
@@ -701,5 +701,6 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(interrupted.target?.name!=="Aeon Disk")throw new Error("Una amenaza explícita de alta prioridad debe poder adelantar el core");
  const passive=ctx.getNextPurchase(threat,{minute:20,gold:2000,owned:[],components:[],problem:"none"});
  if(passive.target?.name!=="Power Treads")throw new Error("La presencia de una amenaza sin problema seleccionado no debe romper el core");
+ if(!appHtml.includes('const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid")'))throw new Error("La ruta especial de Anti-Mage debe identificarse por héroe y posición, no por nombres de objetos compartidos");
  console.log("OK: progresión común Drow/Luna/Anti-Mage, continuidad situacional y prioridad explícita");
 })();
