@@ -200,3 +200,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker actualizado a `dota-build-v84`.
 - Pruebas añadidas para las tres fases, ponderación tardía de Pugna, orden automático del inventario y fallback/iconos de componentes.
 - Pendiente: CI, revisión del diff, integración y despliegue. No afirmar publicación hasta verificar GitHub Pages.
+
+
+## Resultado — PR #22 integrado (17-11-2026)
+
+- PR #22 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/22.
+- Commit integrado: `4c0eb7874171ad09c10706c341c23f829e4fa756`.
+- CI del PR #22 run `43988280714`: success. CI post-merge run `43988328494`: success.
+- GitHub Pages run `43988327776`: en ejecución al actualizar este registro; no declarar deploy completado hasta confirmar.
+- Service Worker `dota-build-v84`.
+- Se conserva la fase 0–11 / 12–27 / 28+ para priorizar compras; en Pugna, el núcleo base sigue primero y, una vez cubierto, las opciones avanzadas/cierre reciben ponderación tardía sin eliminar respuestas defensivas justificadas.
+- El inventario automático reordena objetos según la ruta individual y la etapa; los espacios con zona manual explícita se conservan.
+- Los iconos que fallen muestran abreviatura del nombre en vez de una espada genérica. Las asociaciones nuevas se añadieron para componentes y recetas reportados. La comprobación de que cada URL de imagen sirva el icono visual exacto requiere validación visual Android.
+- Próxima prueba Android: Pugna Mid con inventario similar a la captura, probar minuto 25 y 35 y verificar que cambia la próxima compra; comprobar también que los objetos automáticos se reordenan y los manuales no se mueven. Revisar iconos de Robe of the Magi, Staff of Wizardry y componentes.
