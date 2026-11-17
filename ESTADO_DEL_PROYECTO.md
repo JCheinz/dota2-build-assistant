@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.27 + Service Worker v73  
-**Etapa activa:** Etapa 3 — Techies Support 5 validado por el usuario en Android; corrección de sinergia genérica de PR #10 integrada, CI y GitHub Pages aprobados. Pendiente validación visual Android de la corrección.
+**Versión integrada:** 3.38 + Service Worker v89  
+**Etapa activa:** Progresión común de rutas 3.38 integrada; CI del PR #28 aprobado. Despliegue público y validación Android de 3.38 pendientes de confirmación.
 
 ## 1. Objetivo
 
