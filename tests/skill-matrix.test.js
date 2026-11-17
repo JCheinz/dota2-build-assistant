@@ -922,11 +922,15 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
 // v3.46 evidence-backed item routes: these are separate hero/position records, not role templates.
 (() => {
  const routeStart=html.indexOf("const heroPlans = {");
- const routeEnd=html.indexOf("\\nfunction getHeroPlan",routeStart);
+ const routeEnd=html.indexOf("\nfunction getHeroPlan",routeStart);
  if(routeStart<0||routeEnd<0)throw new Error("No se encontró el catálogo de rutas de héroe");
  const routeContext={};vm.createContext(routeContext);
  vm.runInContext(html.slice(routeStart,routeEnd),routeContext);
  const keys=vm.runInContext("Object.keys(heroPlans)",routeContext);
+ const recipeStart=html.indexOf("const itemRecipes={");
+ const recipeEnd=html.indexOf("\nfunction getNextPurchase(",recipeStart);
+ const recipeContext={};vm.createContext(recipeContext);
+ vm.runInContext(html.slice(recipeStart,recipeEnd),recipeContext);
  const required=[
   "npc_dota_hero_juggernaut|Carry",
   "npc_dota_hero_phantom_assassin|Carry",
@@ -943,8 +947,17 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  }
  if(keys.length!==13)throw new Error("El catálogo debe registrar 13 rutas individuales verificadas; encontradas: "+keys.length);
  for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500]]){
-  const total=vm.runInContext('itemRecipes['+JSON.stringify(name)+'].reduce((n,p)=>n+p.cost*(p.quantity||1),0)',routeContext);
+  const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
   if(total!==cost)throw new Error(name+" debe tener receta desglosada por "+cost+"; encontrado "+total);
  }
+ const purchaseStart=html.indexOf("function getNextPurchase(");
+ const purchaseEnd=html.indexOf("\nfunction pugnaFinalBuild(",purchaseStart);
+ vm.runInContext(html.slice(purchaseStart,purchaseEnd),recipeContext);
+ vm.runInContext('getMarketPhase=minute=>{const m=Number(minute)||0;return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada",index:m<5?0:m<12?1:m<20?2:m<30?3:4};}',recipeContext);
+ const nextOne=vm.runInContext('getNextPurchase([{name:"Soul Ring",heroSpecific:true,heroKey:"npc_dota_hero_mars|Offlane",routeIndex:0,marketPhase:"Transición",stage:"Medio",why:"Recipe quantity"}],{minute:15,gold:140,owned:[],components:["Gauntlets of Strength"],role:"Offlane",problem:"none"})',recipeContext);
+ if(nextOne.kind!=="component"||nextOne.name!=="Gauntlets of Strength"||nextOne.cost!==140||nextOne.affordable!==true)throw new Error("Con una Gauntlet poseída, la próxima compra de Soul Ring debe pedir una sola más");
+ const bothParts=vm.runInContext('getMissingRecipeParts("Soul Ring",new Set(),new Map([["Gauntlets of Strength",2]]))',recipeContext);
+ if(bothParts.some(x=>x.name==="Gauntlets of Strength"))throw new Error("Dos unidades marcadas deben descontar las dos piezas del objeto");
+ if(!html.includes('normalizeQuantityMap(state.components||[])')||!html.includes('data-component-unit='))throw new Error("El mercado y la interfaz deben conservar cantidades duplicadas");
  console.log("OK: v3.46 — 13 rutas por héroe/posición y recetas necesarias para sus compras iniciales/core");
 })();
