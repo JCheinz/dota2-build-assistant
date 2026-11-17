@@ -1155,7 +1155,7 @@ function getNextPurchase(build,state,preferredName=null){
  }
  const options=build.filter(x=>!state.owned.includes(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
-  const missing=recipe.filter(part=>!state.components.includes(part.name));
+  const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
   const affordable=missing.find(part=>state.gold>=part.cost);
   const next=affordable||missing[0]||null;
   const remainingCost=missing.reduce((sum,p)=>sum+p.cost,0);
@@ -1329,6 +1329,9 @@ function renderDynamicStateControls(){
  if(tags.has("Disabler"))add("issue:control","Me encadenan controles");
  if([...enemies].some(h=>["phantom_lancer","naga_siren","chaos_knight"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:illusions","No puedo limpiar las ilusiones");
  if([...enemies].some(h=>["bounty_hunter","riki","clinkz","nyx_assassin"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:invisibility","Me amenaza la invisibilidad");
+ if([...enemies].some(h=>["storm_spirit","queenofpain","phantom_assassin","spectre","spirit_breaker","centaur"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:mobility","No puedo mantener distancia / me saltan");
+ if([...enemies].some(h=>["viper","huskar","bristleback","necrophos"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:lane","Pierdo los intercambios o la línea");
+ if([...enemies].some(h=>["dark_seer","enigma","magnus","tidehunter"].includes(h.name.replace("npc_dota_hero_",""))))add("issue:teamfight","Pierdo las peleas grupales");
  problem.innerHTML=options.map(x=>'<option value="'+esc(x.value)+'">'+esc(x.label)+'</option>').join("");
  problem.value=options.some(x=>x.value===previous)?previous:"none";
  const hint=$("problemHint");
