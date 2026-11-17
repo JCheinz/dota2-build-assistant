@@ -539,3 +539,11 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Se conserva la anulación por problema activo de prioridad suficiente.
 - Regresiones: prioridad individual, urgencia activa y fallback común.
 - UI 3.51; SW v102. Pendiente CI/revisión/integración.
+
+
+## Integración PR #43 — versión 3.51 (17-11-2026)
+
+- PR #43 integrado por squash: ca9a50d541a018e33f72fd573b7dcf38b000924a.
+- CI run 44021956634, job 133833269323: success.
+- Corregido orden de compra: ruta individual antes del catálogo común en Inicio/Línea; problemas activos urgentes siguen adelantando; fallback genérico se conserva sin ruta individual.
+- UI 3.51; SW v102. Pages no verificado, Android pendiente, APK no generado.
