@@ -1098,7 +1098,7 @@ function getNextPurchase(build,state,preferredName=null){
  const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
-  const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
+  const missing=recipe.filter(part=>!components.has(part.name)&&!state.owned.includes(part.name));
   const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
   if(missing.length&&next)return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.condition||target.why};
   if(recipe.length)return {target,kind:"goal",name:target.name,reason:target.condition||target.why,routeReason:"Los componentes están registrados. Completá el objeto en la partida y marcá el objeto terminado para actualizar el inventario."};
