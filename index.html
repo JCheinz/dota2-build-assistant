@@ -1094,98 +1094,70 @@ function clearTrackedPurchases(){
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
 }
 function getNextPurchase(build,state,preferredName=null){
+ const owned=new Set(state.owned||[]),components=new Set(state.components||[]);
+ const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
+ const recipeTarget=target=>{
+  const recipe=itemRecipes[target.name]||[];
+  const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
+  const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
+  if(missing.length&&next)return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.condition||target.why};
+  if(recipe.length)return {target,kind:"goal",name:target.name,reason:target.condition||target.why,routeReason:"Los componentes están registrados. Completá el objeto en la partida y marcá el objeto terminado para actualizar el inventario."};
+  return {target,kind:"complete",name:target.name,cost:Number(target.cost)||0,remaining:Math.max(0,(Number(target.cost)||0)-state.gold),affordable:state.gold>=(Number(target.cost)||0),reason:target.condition||target.why};
+ };
+ const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
+ if(isPugna){
+  const coreOrder=["Arcane Boots","Aether Lens"];
+  const scoreOf=x=>Number.isFinite(x.pugnaScore)?x.pugnaScore:(Number(x.score)||0);
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&scoreOf(x)>0).map(x=>{
+   let score=scoreOf(x);
+   if(phase==="Avanzada"&&["Avanzada","Cierre","Situacional"].includes(x.stage))score+=0.7;
+   if(phase!=="Avanzada"&&x.stage==="Cierre")score-=0.8;
+   if(x.name==="Kaya and Sange"&&(!owned.has("Kaya")||state.minute<32))score=-100;
+   return {...x,decisionScore:score};
+  }).filter(x=>x.decisionScore>0).sort((a,b)=>b.decisionScore-a.decisionScore);
+  // Una respuesta urgente y explícitamente seleccionada puede interrumpir el núcleo;
+  // la mera presencia de un héroe en el draft no debe hacerlo.
+  const urgent=situational.find(x=>x.decisionScore>=4.8);
+  if(urgent)return {...recipeTarget(urgent),alternatives:situational.filter(x=>x.name!==urgent.name).slice(0,2).map(recipeTarget),routeReason:"La situación seleccionada justifica adelantar esta respuesta por encima del siguiente objeto de núcleo."};
+  const coreTarget=coreOrder.find(name=>!owned.has(name));
+  if(coreTarget){
+   const target=build.find(x=>x.name===coreTarget);
+   if(target)return {...recipeTarget(target),routeReason:"Progresión base de Pugna Mid: Arcane Boots → Aether Lens. El núcleo permanece como referencia y puede ceder ante una respuesta urgente demostrada."};
+  }
+  const chosen=situational[0];
+  if(chosen)return {...recipeTarget(chosen),alternatives:situational.filter(x=>x.name!==chosen.name).slice(0,3).map(recipeTarget),routeReason:owned.has("Kaya")&&chosen.name==="Kaya and Sange"?"Evolución de Kaya: ya tenés el objeto base; reuní Sange y completá Kaya and Sange. Al registrar la mejora, Kaya se consume y se reemplaza por el objeto mejorado.":"El núcleo está cubierto. La siguiente compra se pondera por la situación, la fase y los objetos que ya registraste."};
+  return {done:true,message:"El núcleo y las mejoras aplicables están cubiertos. No hay otra compra situacional con prioridad suficiente; si cambió la partida, actualizá el problema o el inventario."};
+ }
  const isCrystalMaiden=build.some(x=>x.heroKey==="npc_dota_hero_crystal_maiden|Support 5");
  if(isCrystalMaiden){
-  if(state.gold<=0)return {done:true,message:"Ingresá el oro disponible para calcular una compra. La guía mantiene visibles el núcleo y las alternativas, pero no recomienda comprar sin conocer tus recursos."};
-  if(state.minute<12)return {done:true,message:"En la fase inicial, priorizá los consumibles y la supervivencia de línea según el oro y el inventario. La compra automática de objetos principales se activa desde el minuto 12."};
+  if(state.gold<=0)return {done:true,message:"Ingresá el oro disponible para calcular una compra. El núcleo y las alternativas siguen visibles."};
+  if(state.minute<12)return {done:true,message:"En fase inicial, priorizá consumibles y supervivencia de línea. La ruta principal se activa desde el minuto 12."};
   const coreOrder=["Blink Dagger","Glimmer Cape","Aghanim’s Shard"];
-  const owned=new Set(state.owned);
   const coreTarget=coreOrder.find(name=>!owned.has(name));
-  if(coreTarget){
-   const target=build.find(x=>x.name===coreTarget);
-   return target?{target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."}:{done:true,message:"No hay un objetivo de núcleo disponible en la ruta actual. Revisá el inventario y las compras situacionales."};
-  }
-  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&x.score>0).sort((a,b)=>(b.score||0)-(a.score||0));
-  const chosen=preferredName?situational.find(x=>x.name===preferredName)||situational[0]:situational[0];
-  return chosen?{target:chosen,kind:"goal",name:chosen.name,reason:chosen.why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
+  if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return recipeTarget(target);}
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
+  return situational[0]?recipeTarget(situational[0]):{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
  }
  const isAntiMage=build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Yasha","Manta Style"].includes(x.name));
- const isPugna=build.some(x=>x.heroSpecific&&["Arcane Boots","Aether Lens"].includes(x.name));
- if(isAntiMage||isPugna){
-  const coreOrder=isAntiMage?["Power Treads","Battle Fury","Yasha","Manta Style"]:["Arcane Boots","Aether Lens"];
-  const owned=new Set(state.owned);
+ if(isAntiMage){
+  const coreOrder=["Power Treads","Battle Fury","Yasha","Manta Style"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
-  if(coreTarget){
-   const target=build.find(x=>x.name===coreTarget);
-   if(!target)return {done:true};
-   const recipe=itemRecipes[coreTarget]||[];
-   const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
-   const totalRemainingCost=missing.reduce((sum,part)=>sum+part.cost,0);
-   if(missing.length){
-    const next=missing.find(part=>state.gold>=part.cost)||missing[0];
-    return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,totalRemainingCost,reason:target.why,routeReason:"Ruta de Anti-Mage en orden: Power Treads → Battle Fury → Yasha → Manta Style. Se recomienda un componente pendiente por vez; cuando completes el objeto, marcá el objeto entero como comprado para avanzar."};
-   }
-   return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Los componentes registrados están completos. Completá el objeto en la partida y marcá el objeto entero como comprado para avanzar. No se muestra un costo de receta no verificado."};
-  }
-  const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
-  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0).map(x=>{
-   let phaseBonus=0;
-   if(phase==="Inicio"&&x.stage==="Inicio")phaseBonus=1.4;
-   if(phase==="Medio"&&x.stage==="Núcleo")phaseBonus=1.0;
-   if(phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage))phaseBonus=1.8;
-   if(phase==="Avanzada"&&x.stage==="Defensa")phaseBonus=-0.6;
-   return {...x,decisionScore:(x.score||0)+phaseBonus};
-  }).sort((a,b)=>b.decisionScore-a.decisionScore);
-  const toOption=target=>{
-   const recipe=itemRecipes[target.name]||[];
-   const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
-   const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
-   if(missing.length&&next)return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.condition||target.why};
-   if(recipe.length&&!missing.length)return {target,kind:"goal",name:target.name,reason:target.condition||target.why};
-   return {target,kind:"complete",name:target.name,cost:Number.isFinite(target.cost)?target.cost:0,remaining:Math.max(0,(target.cost||0)-state.gold),affordable:state.gold>=(target.cost||0),reason:target.condition||target.why};
-  };
-  const preferred=preferredName?situational.find(x=>x.name===preferredName):null;
-  const chosen=preferred||situational[0];
-  if(chosen){
-   const primary=toOption(chosen);
-   const alternatives=situational.filter(x=>x.name!==chosen.name).slice(0,3).map(toOption);
-   return {...primary,alternatives,routeReason:"El núcleo está completo. Esta es la opción mejor puntuada; abajo se comparan otras alternativas y sus próximos componentes. La puntuación orienta, no obliga a comprar."};
-  }
-  return {done:true};
+  if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return recipeTarget(target);}
  }
- const options=build.filter(x=>!state.owned.includes(x.name)).map(target=>{
+ const options=build.filter(x=>!owned.has(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
-  const missing=recipe.filter(part=>!state.components.includes(part.name)&&!state.owned.includes(part.name));
-  const affordable=missing.find(part=>state.gold>=part.cost);
-  const next=affordable||missing[0]||null;
+  const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
+  const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
   const remainingCost=missing.reduce((sum,p)=>sum+p.cost,0);
   const progress=recipe.length?((recipe.length-missing.length)/recipe.length):0;
-  const urgency=target.score||0;
-  const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
-  const stage=target.stage||"";
+  const urgency=target.score||0,stage=target.stage||"";
   const stageFit=stage===phase?1.25:stage==="Inicio"&&phase!=="Inicio"?-1.2:stage==="Avanzada"&&phase!=="Avanzada"?-0.8:0;
-  const componentScore=next?(state.gold>=next.cost?1.15:0.75):0.5;
-  const completionBonus=remainingCost<=state.gold?0.8:0;
-  const responseBonus=target.threatSpecific?0.55:0;
-  const decisionScore=urgency*0.72+componentScore+progress*0.65+completionBonus+stageFit+responseBonus;
-  return {...target,recipe,missing,next,remainingCost,decisionScore,progress,stageFit};
- }).filter(x=>x.score>0);
- const hasOrderedRoute=options.some(x=>x.heroSpecific&&Number.isFinite(x.routeIndex));
- if(hasOrderedRoute)options.sort((a,b)=>{
-  if(a.heroSpecific&&b.heroSpecific)return (a.routeIndex??999)-(b.routeIndex??999);
-  if(a.heroSpecific)return -1;
-  if(b.heroSpecific)return 1;
-  return b.decisionScore-a.decisionScore;
- });
- else options.sort((a,b)=>b.decisionScore-a.decisionScore);
- if(!options.length)return {done:true};
+  const decisionScore=urgency*0.72+(next?(state.gold>=next.cost?1.15:0.75):0.5)+progress*0.65+(remainingCost<=state.gold?0.8:0)+stageFit+(target.threatSpecific?0.55:0);
+  return {...target,recipe,missing,next,decisionScore};
+ }).filter(x=>(x.score||0)>0).sort((a,b)=>b.decisionScore-a.decisionScore);
+ if(!options.length)return {done:true,message:"No hay una compra pendiente con prioridad suficiente en esta ruta. Revisá el inventario, el minuto y el problema seleccionado."};
  const chosen=options[0],alt=options[1];
- if(!chosen.recipe.length){
-  if(!Number.isFinite(Number(chosen.cost)))return {target:chosen,kind:"goal",name:chosen.name,reason:chosen.condition||chosen.why,alternative:alt};
-  return {target:chosen,kind:"complete",name:chosen.name,cost:chosen.cost,remaining:Math.max(0,chosen.cost-state.gold),affordable:state.gold>=chosen.cost,reason:chosen.condition,alternative:alt};
- }
- if(!chosen.next)return {target:chosen,kind:"complete",name:chosen.name,cost:0,remaining:0,affordable:true,reason:"Todos los componentes marcados; verificá si el objeto ya está completado.",alternative:alt};
- return {target:chosen,kind:"component",name:chosen.next.name,cost:chosen.next.cost,remaining:Math.max(0,chosen.next.cost-state.gold),affordable:state.gold>=chosen.next.cost,reason:chosen.condition,alternative:alt?{target:alt,name:alt.next?alt.next.name:alt.name,cost:alt.next?alt.next.cost:alt.cost,score:alt.decisionScore}:null,routeReason:"La elección pondera urgencia, oro disponible y progreso de componentes."};
+ return {...recipeTarget(chosen),alternative:alt?recipeTarget(alt):null,routeReason:"La elección pondera urgencia, etapa, oro y progreso de componentes."};
 }
 function pugnaFinalBuild(matchups,state){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
@@ -1243,7 +1215,8 @@ function pugnaFinalBuild(matchups,state){
  if(state.minute>=32&&state.owned.includes("Kaya")){
   boost("Kaya and Sange",5.0,"Kaya ya está en tu inventario: esta es la evolución contemplada para Pugna Mid si necesitás aguante adicional.");
  }
- if(has("alchemist")||has("huskar"))boost("Spirit Vessel",has("alchemist")?5.2:4.8,"Respuesta contra regeneración/sustain alto: priorizala si el rival está sobreviviendo gracias a curación o regeneración y podés mantener cargas.");
+ if(has("alchemist")||has("huskar"))boost("Spirit Vessel",has("alchemist")?3.2:2.8,"Respuesta contra regeneración/sustain alto: subila si el rival está sobreviviendo gracias a curación o regeneración y podés mantener cargas.");
+ if((problem==="enemy:alchemist"||problem==="enemy:huskar"||problem==="issue:sustain")&&(has("alchemist")||has("huskar")))boost("Spirit Vessel",5.4,"Problema de sustain seleccionado: adelantá Spirit Vessel si el rival está sobreviviendo por curación/regeneración y podés mantener cargas.");
  if(state.minute>=35){
   boost("Scythe of Vyse",1.8,"Control de cierre si necesitás detener a un héroe móvil y tu equipo puede seguir la iniciación.");
   boost("Aghanim’s Scepter",1.8,"Mejora de cierre si el efecto actual de Pugna aporta valor concreto.");
