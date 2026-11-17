@@ -449,3 +449,6 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
   4. Si solo hay aplicación web y no se ha generado APK, indicarlo explícitamente como “APK no generado”.
 - Regla permanente de documentación: actualizar este archivo `ESTADO_DEL_PROYECTO.md` en cada respaldo, cambio relevante, PR integrado, resultado CI/Pages, generación de APK y validación Android. Este sigue siendo el único registro maestro del estado.
 - Estado de publicación 3.38: integración en `main` confirmada; CI del PR #28 aprobado. No hay confirmación independiente del despliegue de GitHub Pages ni prueba Android posterior a 3.38.
+
+- Registro de política APK creado en `backup/APK/README.md` (commit `2641ed1def23faa6f46b8da8baccb01cda5b70f0`). El registro deja explícito que el APK 3.38 no existe todavía como binario y define nombre, metadatos y conservación inmutable para futuras compilaciones.
+- Actualización de este estado y política de respaldos: commit `c51cdf887328eed5bd9c56bdf5ad7941662a8b39`.
