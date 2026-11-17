@@ -424,3 +424,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - UI 3.45; Service Worker v96.
 - Pages no confirmado; Android pendiente; APK no generado.
 - Próxima fase: más rutas individuales verificadas por héroe/posición (solo seis rutas específicas de objetos hasta aquí).
+
+
+## Desarrollo 3.46 — rutas por héroe/posición y cantidades reales (17-11-2026)
+
+- Base integrada 3.45, commit `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
+- Backups: `backup/3.45-before-hero-routes-v3-46-2026-11-17`, `backup/estado-3.45-before-hero-routes-v3-46-2026-11-17`.
+- Se añaden siete rutas de compra individual: Juggernaut Carry, Phantom Assassin Carry, Axe Offlane, Mars Offlane, Lion Support 4/5, Zeus Mid. Total 13 rutas específicas de objetos (no son trece guías completas de habilidades).
+- Fuentes: StatsDota 7.41f, snapshots Nov 16–17 2026, con compras/tiempos por posición; los tiempos son medianas/agregados, no requisitos. Las páginas y muestras están en `ESTADO_DEL_PROYECTO.md`.
+- Recetas añadidas: Soul Ring, Phase Boots, Blade Mail, Tranquil Boots, Ring of Basilius y Desolator.
+- Componentes duplicados pasan a tener casillas separadas; getMissingRecipeParts y el consumo descuentan la cantidad exacta. Ejemplo: Soul Ring pide dos Gauntlets of Strength; con una registrada solo solicita una más.
+- UI 3.46; Service Worker v97.
+- CI y merge pendientes. Pages, Android y APK siguen separados.

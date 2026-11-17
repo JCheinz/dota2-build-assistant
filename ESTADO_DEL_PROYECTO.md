@@ -707,3 +707,18 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - UI 3.45; Service Worker `dota-build-v96`.
 - GitHub Pages no confirmado de forma independiente; Android no probado por el usuario; APK 3.45 no generado ni archivado.
 - Siguiente prioridad: ampliar rutas individuales verificadas. En la rama actual solo existen seis combinaciones de compra específicas: Pugna Mid, Drow Carry, Luna Carry, Anti-Mage Carry/Mid y Bristleback Offlane. El resto utiliza catálogo de rol/arquetipo, no build individual validada.
+
+
+## 27. Desarrollo — rutas individuales y cantidades de componentes (candidata 3.46, 17-11-2026)
+
+- Base estable: 3.45, commit `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
+- Rama: `work/hero-routes-by-position-v3-46`.
+- Backups previos: `backup/3.45-before-hero-routes-v3-46-2026-11-17` y `backup/estado-3.45-before-hero-routes-v3-46-2026-11-17`.
+- Se añaden siete rutas individuales: Juggernaut Carry, Phantom Assassin Carry, Axe Offlane, Mars Offlane, Lion Support 4, Lion Support 5 y Zeus Mid. El catálogo pasa de seis a trece combinaciones específicas de objetos.
+- Cada ruta incluye apertura/línea, core y situacionales, con nota de fuente y snapshot. No se presentan timings agregados como horarios obligatorios.
+- Datos de builds y compras recientes StatsDota 7.41f (snapshots 16–17-11-2026): https://statsdota.com/en/heroes/juggernaut/carry ; https://statsdota.com/en/heroes/phantom-assassin/carry ; https://statsdota.com/en/heroes/axe/offlane ; https://statsdota.com/en/heroes/mars/offlane ; https://statsdota.com/en/heroes/lion/soft-support ; https://statsdota.com/en/heroes/lion/hard-support ; https://statsdota.com/en/heroes/zeus/mid .
+- Se incorporan recetas de Soul Ring (2 Gauntlets), Phase Boots, Blade Mail, Tranquil Boots, Ring of Basilius y Desolator según fichas de objetos 7.41f: https://sinceilastplayed.com/dota2/items/soul-ring ; https://sinceilastplayed.com/dota2/items/phase-boots ; https://sinceilastplayed.com/dota2/items/blade-mail ; https://sinceilastplayed.com/dota2/items/tranquil-boots ; https://sinceilastplayed.com/dota2/items/ring-of-basilius ; https://sinceilastplayed.com/dota2/items/desolator .
+- Seguimiento cuantitativo: el inventario de componentes admite varias unidades de una misma pieza; el motor descuenta cantidades exactas y consume solo las unidades marcadas al completar una receta.
+- Regresiones añadidas para trece perfiles, costes de nuevas recetas y Soul Ring con cero, una o dos Gauntlets registradas.
+- UI/informe candidato 3.46; Service Worker `dota-build-v97`.
+- Estado: cambios y pruebas en rama; CI y revisión pendientes. No integrar hasta aprobar. Pages, Android y APK no probados/generados.

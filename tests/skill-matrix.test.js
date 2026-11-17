@@ -595,7 +595,7 @@ for (const marker of ['"Kaya and Sange"','"Yasha and Kaya"','"Shiva’s Guard"',
  if (!html.includes(marker)) throw new Error("Falta progresión tardía: "+marker);
 }
 if (!html.includes('state.minute>=32&&state.owned.includes("Kaya")')) throw new Error("Kaya debe habilitar sus evoluciones al entrar en fase avanzada");
-if (!html.includes('remainingQuantity=quantity-(owned.has(part.name)?1:0)')) throw new Error("Las recetas deben descontar una unidad de objetos completos ya poseídos");
+if (!html.includes("getTrackedQuantity(owned,part.name)+getTrackedQuantity(components,part.name)") || !html.includes("normalizeQuantityMap(state.components||[])")) throw new Error("Las recetas deben descontar las unidades completas y parciales registradas");
 if (!html.includes("const item=ownedInputs.find(x=>x.value===name&&x.checked)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
 
 
@@ -745,10 +745,10 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  vm.createContext(recipeContext);
  vm.runInContext(appHtml.slice(recipeStart,recipeEnd),recipeContext);
  const recipes=vm.runInContext("itemRecipes",recipeContext);
- const missing=(name,owned=[],components=[])=>vm.runInContext(
-  "getMissingRecipeParts("+JSON.stringify(name)+",new Set("+JSON.stringify(owned)+"),new Set("+JSON.stringify(components)+"))",
-  recipeContext
- );
+ const missing=(name,owned=[],components=[])=>{
+  const counts=new Map();components.forEach(x=>counts.set(x,(counts.get(x)||0)+1));
+  return vm.runInContext("getMissingRecipeParts("+JSON.stringify(name)+",new Set("+JSON.stringify(owned)+"),new Map("+JSON.stringify([...counts])+"))",recipeContext);
+ };
  const total=name=>(recipes[name]||[]).reduce((sum,part)=>sum+part.cost*(part.quantity||1),0);
  const expected={
   "Battle Fury":3900,"Yasha":2100,"Sange":2100,"Manta Style":4650,
@@ -776,12 +776,23 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const mjollnirNames=mjollnirPartial.map(x=>x.name);
  if(!mjollnirNames.includes("Javelin")||!mjollnirNames.includes("Gloves of Haste")||mjollnirNames.includes("Mithril Hammer"))throw new Error("Mjollnir debe expandir Maelstrom al detectar progreso en sus piezas");
  const vesselConsumption=vm.runInContext('getRecipePartsForConsumption("Spirit Vessel",new Set(["Urn of Shadows"]),new Set())',recipeContext);
- if(!vesselConsumption.includes("Urn of Shadows")||!vesselConsumption.includes("Diadem"))throw new Error("Al completar Spirit Vessel debe consumirse Urn como objeto completo y Diadem");
+ if(!vesselConsumption.includes("Urn of Shadows")||vesselConsumption.includes("Diadem"))throw new Error("Al completar Spirit Vessel debe consumirse solo la pieza que realmente está registrada");
  const mekansmConsumption=vm.runInContext('getRecipePartsForConsumption("Mekansm",new Set(["Headdress"]),new Set())',recipeContext);
  if(!mekansmConsumption.includes("Headdress"))throw new Error("Al completar Mekansm debe consumirse Headdress como objeto completo");
  const newIconNames=["Circlet","Gauntlets of Strength","Javelin","Hyperstone","Helm of Iron Will","Ring of Tarrasque","Cloak","Headdress","Chainmail","Platemail","Mystic Staff","Tiara of Selemene","Demon Edge","Blitz Knuckles","Sage's Mask","Ring of Protection","Ring of Regen"];
  for(const name of newIconNames)if(!html.includes(name))throw new Error("Falta asociación visual de componente "+name);
  if((recipes["Dust of Appearance"]||[]).length||(recipes["Infused Raindrops"]||[]).length||(recipes["Gem of True Sight"]||[]).length)throw new Error("Dust, Raindrops y Gem no deben recibir recetas fabricadas");
+ // Inventario cuantitativo: no descontar dos piezas por marcar una sola casilla.
+ const oneGauntletMissing=missing("Soul Ring",[],["Gauntlets of Strength"]);
+ const gauntletEntry=oneGauntletMissing.find(x=>x.name==="Gauntlets of Strength");
+ if(!gauntletEntry||gauntletEntry.quantity!==1)throw new Error("Con una Gauntlet registrada, Soul Ring debe seguir pidiendo exactamente una más");
+ const twoGauntletsMissing=missing("Soul Ring",[],["Gauntlets of Strength","Gauntlets of Strength"]);
+ if(twoGauntletsMissing.some(x=>x.name==="Gauntlets of Strength"))throw new Error("Dos Gauntlets registradas deben cubrir la cantidad doble de Soul Ring");
+ const oneOwnedOneComponent=missing("Soul Ring",["Gauntlets of Strength"],["Gauntlets of Strength"]);
+ if(oneOwnedOneComponent.some(x=>x.name==="Gauntlets of Strength"))throw new Error("Una Gauntlet completa y otra pieza marcada deben cubrir las dos unidades requeridas");
+ const gauntletConsumption=vm.runInContext('getRecipePartsForConsumption("Soul Ring",new Set(["Gauntlets of Strength"]),new Map([["Gauntlets of Strength",1]]))',recipeContext);
+ if(gauntletConsumption.filter(x=>x==="Gauntlets of Strength").length!==2)throw new Error("Al completar Soul Ring debe consumir una Gauntlet completa y una segunda unidad como componente");
+ if(!html.includes('Array.from({length:remainingQuantity}')||!html.includes('data-component-unit='))throw new Error("La interfaz debe ofrecer una casilla separada por unidad de componente");
  const mantaWithoutProgress=missing("Manta Style",[],[]);
  if(!mantaWithoutProgress.some(x=>x.name==="Yasha")||mantaWithoutProgress.some(x=>x.name==="Blade of Alacrity"))throw new Error("Sin piezas de Yasha registradas, el mercado debe proponer Yasha como objeto completo");
  const sangeUpgrade=missing("Kaya and Sange",["Kaya"],[]);
@@ -905,4 +916,48 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const ownedNext=context.getNextPurchase(route,{minute:8,gold:80,owned:["Dust of Appearance"],components:[],role:"Carry",problem:"issue:invisibility"});
  if(ownedNext.name==="Dust of Appearance")throw new Error("El motor no debe volver a recomendar un objeto ya comprado");
  console.log("OK: v3.44 problemas activos — detección, ilusiones, magia, sustain, amenaza individual, oro e interrupción de ruta");
+})();
+
+
+// v3.46 evidence-backed item routes: these are separate hero/position records, not role templates.
+(() => {
+ const routeStart=html.indexOf("const heroPlans = {");
+ const routeEnd=html.indexOf("\nfunction getHeroPlan",routeStart);
+ if(routeStart<0||routeEnd<0)throw new Error("No se encontró el catálogo de rutas de héroe");
+ const routeContext={};vm.createContext(routeContext);
+ vm.runInContext(html.slice(routeStart,routeEnd),routeContext);
+ const keys=vm.runInContext("Object.keys(heroPlans)",routeContext);
+ const recipeStart=html.indexOf("const itemRecipes={");
+ const recipeEnd=html.indexOf("\nfunction getNextPurchase(",recipeStart);
+ const recipeContext={};vm.createContext(recipeContext);
+ vm.runInContext(html.slice(recipeStart,recipeEnd),recipeContext);
+ const required=[
+  "npc_dota_hero_juggernaut|Carry",
+  "npc_dota_hero_phantom_assassin|Carry",
+  "npc_dota_hero_axe|Offlane",
+  "npc_dota_hero_mars|Offlane",
+  "npc_dota_hero_lion|Support 4",
+  "npc_dota_hero_lion|Support 5",
+  "npc_dota_hero_zuus|Mid"
+ ];
+ for(const key of required){
+  if(!keys.includes(key))throw new Error("Falta ruta individual de héroe/posición: "+key);
+  const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);
+  if(!Array.isArray(plan.early)||!plan.early.length||!Array.isArray(plan.core)||!plan.core.length||!Array.isArray(plan.situational)||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta sin fases o sin fuente/fecha identificable: "+key);
+ }
+ if(keys.length!==13)throw new Error("El catálogo debe registrar 13 rutas individuales verificadas; encontradas: "+keys.length);
+ for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500]]){
+  const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
+  if(total!==cost)throw new Error(name+" debe tener receta desglosada por "+cost+"; encontrado "+total);
+ }
+ const purchaseStart=html.indexOf("function getNextPurchase(");
+ const purchaseEnd=html.indexOf("\nfunction pugnaFinalBuild(",purchaseStart);
+ vm.runInContext(html.slice(purchaseStart,purchaseEnd),recipeContext);
+ vm.runInContext('getMarketPhase=minute=>{const m=Number(minute)||0;return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada",index:m<5?0:m<12?1:m<20?2:m<30?3:4};}',recipeContext);
+ const nextOne=vm.runInContext('getNextPurchase([{name:"Soul Ring",heroSpecific:true,heroKey:"npc_dota_hero_mars|Offlane",routeIndex:0,marketPhase:"Transición",stage:"Medio",why:"Recipe quantity"}],{minute:15,gold:140,owned:[],components:["Gauntlets of Strength"],role:"Offlane",problem:"none"})',recipeContext);
+ if(nextOne.kind!=="component"||nextOne.name!=="Gauntlets of Strength"||nextOne.cost!==140||nextOne.affordable!==true)throw new Error("Con una Gauntlet poseída, la próxima compra de Soul Ring debe pedir una sola más");
+ const bothParts=vm.runInContext('getMissingRecipeParts("Soul Ring",new Set(),new Map([["Gauntlets of Strength",2]]))',recipeContext);
+ if(bothParts.some(x=>x.name==="Gauntlets of Strength"))throw new Error("Dos unidades marcadas deben descontar las dos piezas del objeto");
+ if(!html.includes('normalizeQuantityMap(state.components||[])')||!html.includes('data-component-unit='))throw new Error("El mercado y la interfaz deben conservar cantidades duplicadas");
+ console.log("OK: v3.46 — 13 rutas por héroe/posición y recetas necesarias para sus compras iniciales/core");
 })();
