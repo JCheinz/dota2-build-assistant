@@ -51,7 +51,7 @@
   function snapshot(){return clone();}
   function filterRecommendations(items,ownedNames=[]){
    const owned=new Set(ownedNames.map(keyOf));const seen=new Set();
-   return (items||[]).filter(item=>{const name=cleanName(typeof item==="string"?item:item&&item.name);if(!name)return false;const key=keyOf(name);if(owned.has(key)||seen.has(key))return false;seen.add(key);return true;});
+   return (items||[]).filter(item=>{const name=cleanName(typeof item==="string"?item:Array.isArray(item)?item[0]:item&&item.name);if(!name)return false;const key=keyOf(name);if(owned.has(key)||seen.has(key))return false;seen.add(key);return true;});
   }
   return {recordPurchase,recordComponent,removeInventory,useConsumable,upgrade,recordSale,removeComponent,clearInventory,clearHistory,reset,addComponents,snapshot,filterRecommendations,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
  }
