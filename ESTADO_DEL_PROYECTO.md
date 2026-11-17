@@ -415,3 +415,11 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadió un refinamiento para que el inventario automático priorice los objetos situacionales ya adquiridos según el problema seleccionado, sin mover objetos ubicados manualmente.
 - Se mantiene la organización por etapa y por núcleo del héroe; las evoluciones completadas pueden subir en el orden visual cuando corresponde.
 - Rama `work/situational-inventory-priority`; respaldos 3.37. Pendiente CI, revisión e integración.
+
+
+## Resultado — orden situacional del inventario publicado (17-11-2026)
+
+- PR #26 integrado: `4106040f1fde2d920f4e2a5e2d99c07cc78412b3`.
+- CI PR/post-merge: success (`43996382079`, `43996452895`). GitHub Pages build/deploy: success (`43996452316`).
+- Service Worker v88.
+- El inventario automático prioriza la respuesta situacional ya adquirida según el problema seleccionado, sin alterar las ubicaciones manuales; mantiene el orden por etapa y núcleo.
