@@ -369,9 +369,9 @@ console.log("OK: compra directa desde recomendaciones, deshacer compra y carga m
 
 // Inventario visual del héroe: refleja compras y permite retirarlas del estado.
 const inventoryMarkers = [
-  "function renderHeroInventory(state)",
+  'function renderHeroInventory(state,hero=null,role="")',
   'class="hero-inventory-slots"',
-  "renderHeroInventory(live)",
+  "renderHeroInventory(live,me,role)",
   'data-remove-owned=',
   'data-remove-component=',
   "Inventario del héroe",
@@ -388,7 +388,7 @@ console.log("OK: inventario visual de seis espacios, objetos extra y componentes
 
 (()=>{
 // Auditoría transversal del seguimiento de compras para cualquier héroe/posición.
-const purchaseStart = appHtml.indexOf("function renderHeroInventory(state){");
+const purchaseStart = appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\"){");
 const purchaseEnd = appHtml.indexOf("\nconst heroPlans =", purchaseStart);
 if (purchaseStart < 0 || purchaseEnd < 0) {
   throw new Error("No se encontró el bloque común de inventario y tarjetas de objetos");
@@ -399,6 +399,7 @@ const purchaseContext = {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[ch])),
   getLiveState: () => ({ owned: [], components: [] }),
+  getHeroPlan: () => ({core:[["Arcane Boots","core"],["Aether Lens","core"]]}),
   renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
 };
 vm.createContext(purchaseContext);
@@ -427,6 +428,14 @@ if ((!arbitraryInventory.includes('data-remove-owned=') && !arbitraryInventory.i
     || !arbitraryInventory.includes('data-remove-component=')) {
   throw new Error("El inventario debe permitir retirar tanto objetos como componentes");
 }
+const coreOrderedInventory = purchaseContext.renderHeroInventory({owned:["Arcane Boots","Magic Wand","Bottle","Black King Bar","Blink Dagger","Glimmer Cape","Aether Lens","Aeon Disk","Kaya","Dagon","Aghanim’s Shard","Aghanim’s Scepter","Linken’s Sphere"],components:[],zones:{}},{name:"npc_dota_hero_pugna"},"Mid");
+const mainArea=coreOrderedInventory.split("Mochila · objetos para rotar")[0];
+if(!mainArea.includes("Arcane Boots")||!mainArea.includes("Aether Lens"))throw new Error("Los objetos core de Pugna deben priorizarse en los seis espacios principales");
+const iconStart=appHtml.indexOf("function renderItemIcon(name){");
+const iconEnd=appHtml.indexOf("\nfunction renderHeroInventory",iconStart);
+const iconSource=appHtml.slice(iconStart,iconEnd);
+if(!iconSource.includes("onerror=")||!iconSource.includes("item-icon-fallback"))throw new Error("Los iconos fallidos deben mostrar un fallback visual");
+
 
 // Todas las rutas individuales de objetos usan el mismo renderizador interactivo.
 const heroPlansStart = appHtml.indexOf("const heroPlans = {");
@@ -528,7 +537,7 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
 
 
 (()=> {
-  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state){");
+  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\"){");
   const inventoryEnd=appHtml.indexOf("\nfunction renderItemCards(items){",inventoryStart);
   if(inventoryStart<0||inventoryEnd<0)throw new Error("No se encontró el inventario ampliado");
   const renderer=appHtml.slice(inventoryStart,inventoryEnd);
