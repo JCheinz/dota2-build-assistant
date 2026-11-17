@@ -652,3 +652,16 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(finished.name==="Kaya and Sange")throw new Error("La mejora completada no debe volver a recomendarse");
  console.log("OK: progresión del núcleo Pugna, prioridad situacional y evolución Kaya → Kaya and Sange");
 })();
+
+ 
+// Situational inventory priority follows the selected problem without overriding manually placed slots.
+(()=>{
+ const start=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\"){");
+ const end=appHtml.indexOf("\nfunction renderItemCards(items){",start);
+ if(start<0||end<0)throw new Error("No se encontró render de inventario");
+ const source=appHtml.slice(start,end);
+ for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(situationalFirst&&owned.includes(situationalFirst))phaseNames.unshift','const manual=owned.filter(name=>["main","backpack","reserve"].includes(zones[name]))']) {
+  if(!source.includes(marker))throw new Error("El orden situacional del inventario no contempla "+marker);
+ }
+ console.log("OK: prioridad situacional del inventario y preservación de ubicaciones manuales");
+})();
