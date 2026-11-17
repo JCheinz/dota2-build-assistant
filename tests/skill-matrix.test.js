@@ -781,6 +781,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!mekansmConsumption.includes("Headdress"))throw new Error("Al completar Mekansm debe consumirse Headdress como objeto completo");
  const newIconNames=["Circlet","Gauntlets of Strength","Javelin","Hyperstone","Helm of Iron Will","Ring of Tarrasque","Cloak","Headdress","Chainmail","Platemail","Mystic Staff","Tiara of Selemene","Demon Edge","Blitz Knuckles","Sage's Mask","Ring of Protection","Ring of Regen"];
  for(const name of newIconNames)if(!html.includes(name))throw new Error("Falta asociación visual de componente "+name);
+ if((recipes["Dust of Appearance"]||[]).length||(recipes["Infused Raindrops"]||[]).length||(recipes["Gem of True Sight"]||[]).length)throw new Error("Dust, Raindrops y Gem no deben recibir recetas fabricadas");
  const mantaWithoutProgress=missing("Manta Style",[],[]);
  if(!mantaWithoutProgress.some(x=>x.name==="Yasha")||mantaWithoutProgress.some(x=>x.name==="Blade of Alacrity"))throw new Error("Sin piezas de Yasha registradas, el mercado debe proponer Yasha como objeto completo");
  const sangeUpgrade=missing("Kaya and Sange",["Kaya"],[]);
