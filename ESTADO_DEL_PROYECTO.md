@@ -843,3 +843,12 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Recetas 7.41f añadidas: Oblivion Staff (1.625), Witch Blade (2.775), Meteor Hammer (2.850), Null Talisman (505) y Boots of Travel (2.500). Witch Blade expande Oblivion Staff; Meteor Hammer reconoce Kaya ya poseída.
 - UI 3.50; Service Worker v101.
 - Pages no verificado independientemente; Android no probado; APK 3.50 no generado ni archivado.
+
+
+## 37. Auditoría 3.51 — prioridad de rutas individuales (17-11-2026)
+
+- Se corrigió el orden de decisión temprana: el catálogo genérico de rol ya no devuelve la compra antes de revisar una ruta individual de héroe/posición.
+- Si existe una ruta individual, se conserva su secuencia; si no existe, el mercado recurre al catálogo genérico de la posición.
+- Las respuestas urgentes explícitamente seleccionadas mantienen la capacidad de interrumpir la ruta cuando cumplen prioridad y minuto mínimo.
+- Pruebas nuevas: ruta individual vs plantilla de rol, anulación urgente y fallback genérico.
+- UI candidata 3.51; Service Worker v102. CI pendiente.
