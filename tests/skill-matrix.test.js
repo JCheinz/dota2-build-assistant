@@ -800,7 +800,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!partial.some(x=>x.hero==="Mars")||!partial.some(x=>x.hero==="Oracle"))throw new Error("Deben mostrarse solo las sinergias de aliados realmente seleccionados");
  const full=build(["mars","rubick","oracle","juggernaut"]);
  if(!full.some(x=>x.hero==="Equipo completo"))throw new Error("La secuencia combinada debe aparecer cuando están presentes todos sus aliados");
- if(!html.includes("const tempoMinimum=")||!html.includes('if(x.stage==="Avanzada"&&live.minute<20)score=-100;'))throw new Error("Falta el filtro temporal de objetos avanzados");
+ if(!html.includes("const tempoMinimum=")||!html.includes('if(x.marketPhase==="Avanzada"&&live.minute<30)score=-100;'))throw new Error("Falta el filtro temporal de objetos avanzados antes de minuto 30");
  if(!html.includes('if(live.minute<12)core=[];'))throw new Error("La ruta core no debe desplazar los objetos de inicio antes del minuto 12");
  if(!html.includes("specializations.js?v=3280"))throw new Error("Falta la invalidación de caché de especializaciones v3.42");
  console.log("OK: mercado inteligente v3.42 — tempo de compras y sinergias ligadas a la composición actual");
