@@ -367,7 +367,7 @@ function renderItemIcon(name){
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
 }
 function renderHeroInventory(state,hero=null,role=""){
- const owned=[...new Set(state.owned)],components=[...new Set(state.components)];
+ const owned=[...new Set(state.owned)],components=[...(state.components||[])];
  const zones=state.zones||{};
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
@@ -1293,20 +1293,30 @@ const itemRecipes={
  "Desolator":[{name:"Mithril Hammer",cost:1600,quantity:2},{name:"Orb of Blight",cost:300}],
  "Gem of True Sight":[]
 };
+function getTrackedQuantity(collection,name){
+ if(collection instanceof Map)return Math.max(0,Number(collection.get(name)||0));
+ if(Array.isArray(collection))return collection.filter(x=>x===name).length;
+ if(collection&&typeof collection.has==="function")return collection.has(name)?1:0;
+ return 0;
+}
+function normalizeQuantityMap(values){
+ if(values instanceof Map)return new Map(values);
+ const counts=new Map();
+ (values||[]).forEach(name=>counts.set(name,(counts.get(name)||0)+1));
+ return counts;
+}
 function getMissingRecipeParts(itemName,owned=new Set(),components=new Set(),path=[]){
  if(path.includes(itemName))return [];
  const recipe=itemRecipes[itemName]||[];
  if(!recipe.length)return [];
  return recipe.flatMap(part=>{
   const quantity=Math.max(1,Number(part.quantity)||1);
-  if(components.has(part.name))return [];
-  // Cada objeto completo registrado cubre una unidad; si se requieren dos,
-  // el mercado solicita solo la cantidad que todavía falta.
-  const remainingQuantity=quantity-(owned.has(part.name)?1:0);
+  const covered=getTrackedQuantity(owned,part.name)+getTrackedQuantity(components,part.name);
+  const remainingQuantity=Math.max(0,quantity-covered);
   if(remainingQuantity<=0)return [];
   if(itemRecipes[part.name]?.length){
    const nestedLeaves=getRecipeLeafParts(part.name,[...path,itemName]);
-   const hasNestedProgress=nestedLeaves.some(piece=>owned.has(piece.name)||components.has(piece.name));
+   const hasNestedProgress=nestedLeaves.some(piece=>getTrackedQuantity(owned,piece.name)>0||getTrackedQuantity(components,piece.name)>0);
    if(hasNestedProgress)return getMissingRecipeParts(part.name,owned,components,[...path,itemName]);
   }
   return [{...part,quantity:remainingQuantity}];
@@ -1322,17 +1332,18 @@ function getRecipePartsForConsumption(itemName,owned=new Set(),components=new Se
  const recipe=itemRecipes[itemName]||[];
  return recipe.flatMap(part=>{
   const quantity=Math.max(1,Number(part.quantity)||1);
-  if(components.has(part.name)){
-   const ownedCount=owned.has(part.name)?1:0;
-   return Array.from({length:quantity},()=>part.name);
-  }
-  if(owned.has(part.name))return [part.name];
+  const result=[];
+  const componentCount=Math.min(quantity,getTrackedQuantity(components,part.name));
+  for(let i=0;i<componentCount;i++)result.push(part.name);
+  const ownedCount=Math.min(quantity-result.length,getTrackedQuantity(owned,part.name));
+  for(let i=0;i<ownedCount;i++)result.push(part.name);
+  if(result.length>=quantity)return result;
   if(itemRecipes[part.name]?.length){
    const nestedLeaves=getRecipeLeafParts(part.name,[...path,itemName]);
-   const hasNestedProgress=nestedLeaves.some(piece=>owned.has(piece.name)||components.has(piece.name));
-   if(hasNestedProgress)return getRecipePartsForConsumption(part.name,owned,components,[...path,itemName]);
+   const hasNestedProgress=nestedLeaves.some(piece=>getTrackedQuantity(owned,piece.name)>0||getTrackedQuantity(components,piece.name)>0);
+   if(hasNestedProgress)return [...result,...getRecipePartsForConsumption(part.name,owned,components,[...path,itemName])];
   }
-  return [part.name];
+  return result;
  });
 }
 function getRecipeComponentQuantities(){
@@ -1352,7 +1363,7 @@ function getRecipeComponentQuantities(){
 function consumeRecipeComponents(itemName){
  const componentInputs=[...document.querySelectorAll('.owned-component')];
  const ownedInputs=[...document.querySelectorAll('.owned-item')];
- const components=new Set(componentInputs.filter(x=>x.checked).map(x=>x.value));
+ const components=normalizeQuantityMap(componentInputs.filter(x=>x.checked).map(x=>x.value));
  const owned=new Set(ownedInputs.filter(x=>x.checked).map(x=>x.value));
  const names=getRecipePartsForConsumption(itemName,owned,components);
  names.forEach(name=>{
@@ -1366,7 +1377,7 @@ function clearTrackedPurchases(){
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
 }
 function getNextPurchase(build,state,preferredName=null){
- const owned=new Set(state.owned||[]),components=new Set(state.components||[]);
+ const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
  const phase=getMarketPhase(state.minute).key;
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
@@ -1673,11 +1684,12 @@ function renderDynamicStateControls(){
  const parts=[...quantities.keys()];
  const componentRoot=$("ownedComponents");
  if(componentRoot){
-  const checked=new Set([...document.querySelectorAll(".owned-component:checked")].map(x=>x.value));
+  const checkedCounts=normalizeQuantityMap([...document.querySelectorAll(".owned-component:checked")].map(x=>x.value));
   const ownedNames=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
   componentRoot.innerHTML=parts.map(x=>{
-   const remainingQuantity=Math.max(0,quantities.get(x)-(ownedNames.has(x)?1:0));
-   return '<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" '+(checked.has(x)?"checked":"")+'> '+esc(x)+(remainingQuantity>1?' ×'+remainingQuantity:'')+'</label>';
+   const remainingQuantity=Math.max(0,Number(quantities.get(x)||1)-(ownedNames.has(x)?1:0));
+   const selectedQuantity=Math.min(remainingQuantity,checkedCounts.get(x)||0);
+   return Array.from({length:remainingQuantity},(_,i)=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" data-component-unit="'+(i+1)+'" '+(i<selectedQuantity?"checked":"")+'>'+esc(x)+(remainingQuantity>1?' '+(i+1)+'/'+remainingQuantity:'')+'</label>').join("");
   }).join("");
  }
 }
