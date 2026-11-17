@@ -822,3 +822,13 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Fuentes StatsDota 7.41f y muestras/snapshots 16–17-11-2026 documentadas en la sección 33.
 - UI 3.49; Service Worker v100.
 - Pages no verificado independientemente; Android no probado; APK 3.49 no generado ni archivado.
+
+
+## 35. Desarrollo 3.50 — tres rutas Mid y cinco recetas de objetos (17-11-2026)
+
+- Rutas nuevas: Puck Mid, Outworld Destroyer Mid e Invoker Mid. El catálogo pasa de 20 a 23 combinaciones héroe/posición.
+- StatsDota 7.41f: Puck Mid, snapshot 16-11-2026, 25.434 partidas con objetos conocidos: https://statsdota.com/en/heroes/puck/mid . Outworld Destroyer Mid, snapshot 16-11-2026, 507.229 partidas de parche y 113.830 en corte por posición: https://statsdota.com/en/heroes/outworld-devourer/mid . Invoker Mid, snapshot 16-11-2026, 99.019 partidas: https://statsdota.com/en/heroes/invoker/mid .
+- Recetas añadidas: Oblivion Staff 1.625 (Blitz Knuckles 1.000 + Sage’s Mask 175 + Robe of the Magi 450); Witch Blade 2.775 (Oblivion Staff 1.625 + Chainmail 500 + Orb of Venom 350 + receta 300); Meteor Hammer 2.850 (Kaya 2.100 + Crown 450 + receta 300); Null Talisman 505 (Circlet 155 + Mantle of Intelligence 140 + receta 210); Boots of Travel 2.500 (Boots of Speed 500 + receta 2.000).
+- Se prueban sumas, progresión recursiva de Witch Blade desde Oblivion Staff y descuento de Kaya ya poseída para Meteor Hammer.
+- Fuentes de recetas: https://sinceilastplayed.com/dota2/items/oblivion-staff ; https://sinceilastplayed.com/dota2/items/witch-blade ; https://sinceilastplayed.com/dota2/items/null-talisman ; https://highgroundcoach.app/dota-2-items/meteor-hammer .
+- UI candidata 3.50; Service Worker v101. Pendiente CI/revisión/integración.
