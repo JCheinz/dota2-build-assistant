@@ -632,6 +632,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const nextEnd=html.indexOf("\nfunction pugnaFinalBuild(",nextStart);
  if(recipeStart<0||nextStart<0||nextEnd<0)throw new Error("No se encontró motor de progresión Pugna");
  const ctx={};vm.createContext(ctx);
+ ctx.getMarketPhase=minute=>{const m=Number(minute)||0;return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada",index:m<5?0:m<12?1:m<20?2:m<30?3:4};};
  vm.runInContext(html.slice(recipeStart,nextStart),ctx);
  vm.runInContext(html.slice(nextStart,nextEnd),ctx);
  const build=[
