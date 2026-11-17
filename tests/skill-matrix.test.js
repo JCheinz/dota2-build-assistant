@@ -987,7 +987,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!html.includes('normalizeQuantityMap(state.components||[])')||!html.includes('data-component-unit='))throw new Error("El mercado y la interfaz deben conservar cantidades duplicadas");
 
  const newRoutes=["npc_dota_hero_phantom_lancer|Carry","npc_dota_hero_enigma|Offlane","npc_dota_hero_winter_wyvern|Support 5"];
- for(const key of newRoutes){const plan=routeContext.heroPlans[key];if(!plan||!plan.early.length||!plan.core.length||!plan.situational.length||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta nueva incompleta o sin fuente: "+key);}
+ for(const key of newRoutes){const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);if(!plan||!plan.early.length||!plan.core.length||!plan.situational.length||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta nueva incompleta o sin fuente: "+key);}
  const drumTotal=vm.runInContext('(itemRecipes["Drum of Endurance"]||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
  if(drumTotal!==1625)throw new Error("Drum of Endurance debe sumar 1.625 de oro; encontrado "+drumTotal);
  const drumPartial=vm.runInContext('getMissingRecipeParts("Drum of Endurance",new Set(["Ring of Regen"]),new Map())',recipeContext);
