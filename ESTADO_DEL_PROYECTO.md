@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.40 + Service Worker v91; última versión estable respaldada: 3.40  
-**Etapa activa:** Auditoría del catálogo de recetas y componentes del mercado automático. Versión estable integrada 3.40; desarrollo 3.41 en rama de trabajo, pendiente de CI y revisión.
+**Versión integrada:** 3.41 + Service Worker v92; última versión estable respaldada: 3.41  
+**Etapa activa:** Auditoría y ampliación progresiva del mercado automático; catálogo recursivo de recetas integrado en 3.41. Pendiente validar despliegue público y comportamiento real en Android.
 
 ## 1. Objetivo
 
@@ -528,3 +528,21 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI del PR #32: run `44004218604` (run 171), job `validate`: success. Se aprobaron sintaxis de especializaciones y la suite completa, incluidas las pruebas de recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes.
 - La suite confirmó además que, con Kaya ya poseída, el mercado solicita Sange como objeto completo; si hay piezas parciales de Yasha, Manta Style solo solicita las faltantes.
 - Estado del PR #32: CI aprobado; revisión final e integración pendientes. No se declara despliegue público ni prueba Android de la candidata 3.41.
+
+
+## 18. Resultado — PR #32 integrado: recetas recursivas y cantidades de componentes (16-11-2026)
+
+- PR #32: https://github.com/JCheinz/dota2-build-assistant/pull/32, integrado por squash.
+- Commit integrado: `d9ac5505c668687013e4c59be7974eb12fe72adf`.
+- CI del PR #32, run `44004218604` (run 171), job `validate`: success. Sintaxis de especializaciones y suite completa aprobadas; el log confirma las regresiones de mercado universal y recetas 7.41f.
+- Versión integrada: 3.41. Service Worker: `dota-build-v92`. Referencia de especializaciones: `?v=3279`.
+- El mercado expande recetas anidadas solo cuando hay piezas parciales registradas; si no hay progreso de componentes, conserva como objetivo el subobjeto completo (por ejemplo, tras comprar Kaya solicita Sange; Manta Style puede solicitar Yasha).
+- Si ya se registraron piezas de Yasha, Manta Style calcula solo las faltantes. Al completar un objeto, el inventario consume los componentes registrados a través de la receta anidada.
+- Battle Fury registra dos Broadswords; una unidad ya poseída descuenta una y el mercado solicita la restante. El selector muestra la cantidad requerida.
+- Se agregaron/actualizaron recetas y costes de referencia para Perseverance, Battle Fury, Yasha, Sange, Manta Style, Kaya and Sange, Yasha and Kaya, Sange and Yasha, Arcane Boots, Shiva’s Guard, Glimmer Cape, Force Staff, Black King Bar, Dragon Lance y Hurricane Pike, además de las recetas previas.
+- Respaldo estable posterior a la integración:
+  - Código: `backup/3.41-stable-2026-11-16`.
+  - Estado: `backup/estado-3.41-stable-2026-11-16`.
+- La versión visible y el Service Worker están confirmados en `main`. La URL de GitHub Pages no pudo verificarse con la herramienta de navegación; por tanto, el despliegue público de 3.41 queda pendiente de confirmación. Android y APK 3.41 también pendientes.
+- APK 3.41: no generado ni archivado como binario. Se mantiene el registro en `backup/APK/README.md`; no se sustituye un APK por código fuente.
+- Próxima etapa: auditoría del inventario de recetas y objetos restantes, control de cantidades, progreso del mercado en rutas situacionales y pruebas Android con compras parciales y mejoras.
