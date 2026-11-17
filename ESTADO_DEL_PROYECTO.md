@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión en desarrollo:** 3.39 + Service Worker v90 (mercado universal en revisión); última versión estable respaldada: 3.38 + v89  
+**Versión integrada:** 3.39 + Service Worker v90; última versión estable respaldada: 3.39  
 **Etapa activa:** Mercado automático y progresión de rutas por héroe; versión 3.38 integrada. PR #28 tiene CI aprobado; despliegue público de 3.38 y pruebas Android aún pendientes de confirmación.
 
 ## 1. Objetivo
@@ -466,3 +466,17 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI del PR #30: runs `44001719794` y `44001721511`, ambos success; sintaxis de especializaciones y suite completa de regresiones aprobadas.
 - Revisión del diff: sin cambios en especializaciones ni reglas de draft; el alcance se limita al contrato de coste/receta y presentación de la próxima compra.
 - Estado: PR #30 listo para integrar; publicación y validación Android pendientes. No declarar el mercado universal terminado con este primer bloque: sigue pendiente ampliar/contrastar recetas y costes del catálogo y validar rutas reales de más héroes/posiciones.
+
+
+## 14. Resultado — PR #30 integrado: mercado universal (16-11-2026)
+
+- PR #30 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/30.
+- Commit de integración: `d8bfd138a22c9bb8cd51f2f106a0eb27c020daf2`.
+- CI del PR, run `44001791783`: success; sintaxis de especializaciones y suite de regresiones completas aprobadas. Runs previos de validación del mismo código: `44001719794` y `44001721511`, success.
+- Versión integrada: 3.39. Service Worker: `dota-build-v90`.
+- El mercado ya no trata como gratuitos los objetos cuyo coste no está catalogado; la interfaz diferencia precio verificado de precio desconocido.
+- La progresión de recetas descuenta componentes y objetos completos ya poseídos; la mejora Kaya → Kaya and Sange solicita Sange cuando Kaya ya está en el inventario.
+- Respaldo estable de código: `backup/3.39-market-cost-fix-2026-11-16`.
+- Respaldo estable del estado: `backup/estado-3.39-market-cost-fix-2026-11-16`.
+- Publicación GitHub Pages de 3.39 y validación Android: pendientes de confirmación independiente. APK 3.39: no generado; el repositorio sigue siendo una aplicación web sin binario Android comprobado.
+- Próxima etapa: ampliar el catálogo validado de recetas/componentes, hacer que las rutas de todos los héroes/posiciones avancen sin agotarse y revisar la prioridad situacional/core en partidas completas. No declarar completo el mercado automático todavía.
