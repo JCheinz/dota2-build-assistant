@@ -836,3 +836,48 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!html.includes('const visibleScores=scores.filter(x=>!x.roleBaseline||x.marketPhase===getMarketPhase(live.minute).key)'))throw new Error("La pantalla debe mostrar solo las compras del momento sin perder futuras fases del pool");
  console.log("OK: mercado 3.43 — cinco fases, restricciones por rol/alcance, selección por oro, wards gratuitos y progresión sin saltos");
 })();
+
+
+// v3.44 active-problem engine: selected matchups must become role/phase-aware purchase responses.
+(() => {
+ const helperStart=html.indexOf("function getActiveProblemResponses(");
+ const helperEnd=html.indexOf("\nfunction buildAdaptivePlan(",helperStart);
+ if(helperStart<0||helperEnd<0)throw new Error("No se encontró el motor de problemas activos");
+ const activeContext={
+  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725},
+  matchupRules:{
+   bounty_hunter:{title:"Bounty Hunter · invisibilidad y seguimiento",items:[{name:"Dust of Appearance",why:"Detección inmediata"},{name:"Gem of True Sight",why:"Detección persistente"}]},
+   alchemist:{title:"Alchemist · sustain alto",items:[{name:"Spirit Vessel",why:"Reduce la restauración de vida"}]},
+   batrider:{title:"Batrider · iniciación",items:[{name:"Linken’s Sphere",why:"Puede bloquear Flaming Lasso"},{name:"Force Staff",why:"Reposicionamiento preventivo"}]}
+  },
+  counterRules:[{match:["bounty_hunter"],label:"Bounty Hunter · invisibilidad",items:[{name:"Dust of Appearance",why:"Revelación inmediata"}]}]
+ };
+ vm.createContext(activeContext);
+ vm.runInContext(html.slice(helperStart,helperEnd),activeContext);
+ const enemy=(id,roles=[])=>({name:"npc_dota_hero_"+id,roles,localized_name:id});
+ const invis=activeContext.getActiveProblemResponses({roles:["Support"],attack_type:"Ranged"},"Support 5",[enemy("bounty_hunter")],"issue:invisibility",8);
+ if(!invis.some(x=>x.name==="Dust of Appearance"&&x.activePriority>=9)||!invis.some(x=>x.name==="Gem of True Sight"&&x.minMinute===12))throw new Error("Invisibilidad debe priorizar Dust temprano y Gem condicional como detección persistente");
+ const noProblem=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("bounty_hunter")],"none",8);
+ if(noProblem.length)throw new Error("La sola presencia de un enemigo no debe generar una compra forzada");
+ const meleeIllusions=activeContext.getActiveProblemResponses({roles:["Carry"],attack_type:"Melee"},"Carry",[enemy("phantom_lancer")],"issue:illusions",20);
+ if(!meleeIllusions.some(x=>x.name==="Battle Fury"))throw new Error("Carry cuerpo a cuerpo debe poder recibir Battle Fury frente a ilusiones");
+ const rangedIllusions=activeContext.getActiveProblemResponses({roles:["Carry"],attack_type:"Ranged"},"Carry",[enemy("phantom_lancer")],"issue:illusions",20);
+ if(!rangedIllusions.some(x=>x.name==="Mjollnir"))throw new Error("Carry a distancia debe poder recibir Mjollnir frente a ilusiones");
+ const magic=activeContext.getActiveProblemResponses({roles:["Carry"]},"Carry",[enemy("zeus",["Nuker"])],"issue:magic",15);
+ if(!magic.some(x=>x.name==="Black King Bar"&&x.minMinute===12))throw new Error("Daño mágico seleccionado debe activar BKB con condición temporal y de interacción");
+ const sustain=activeContext.getActiveProblemResponses({roles:["Offlane"]},"Offlane",[enemy("alchemist")],"issue:sustain",18);
+ if(!sustain.some(x=>x.name==="Spirit Vessel"&&x.activePriority>=9))throw new Error("Sustain activo contra Alchemist debe habilitar Spirit Vessel");
+ const focused=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("bounty_hunter")],"enemy:bounty_hunter",10);
+ if(!focused.some(x=>x.name==="Dust of Appearance"&&x.activeProblemId==="enemy:bounty_hunter"))throw new Error("Seleccionar un enemigo concreto debe traer sus respuestas específicas");
+ const route=[
+  {name:"Power Treads",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,marketPhase:"Línea",stage:"Inicio",cost:1400,why:"Ruta core"},
+  {name:"Dust of Appearance",activeProblem:true,activeProblemId:"issue:invisibility",activePriority:9.8,minMinute:5,threatSpecific:true,cost:80,stage:"Situacional",why:"Detección"}
+ ];
+ const activeNext=context.getNextPurchase(route,{minute:8,gold:80,owned:[],components:[],role:"Carry",problem:"issue:invisibility"});
+ if(activeNext.name!=="Dust of Appearance"||activeNext.cost!==80||activeNext.affordable!==true||!activeNext.urgentOverride)throw new Error("Un problema activo debe adelantar la respuesta apropiada y calcular el oro");
+ const passiveNext=context.getNextPurchase(route,{minute:8,gold:80,owned:[],components:[],role:"Carry",problem:"none"});
+ if(passiveNext.target?.name!=="Power Treads")throw new Error("Sin problema seleccionado debe conservarse la progresión core");
+ const ownedNext=context.getNextPurchase(route,{minute:8,gold:80,owned:["Dust of Appearance"],components:[],role:"Carry",problem:"issue:invisibility"});
+ if(ownedNext.name==="Dust of Appearance")throw new Error("El motor no debe volver a recomendar un objeto ya comprado");
+ console.log("OK: v3.44 problemas activos — detección, ilusiones, magia, sustain, amenaza individual, oro e interrupción de ruta");
+})();
