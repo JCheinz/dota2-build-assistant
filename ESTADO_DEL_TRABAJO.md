@@ -6,13 +6,13 @@ Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #38 — Build 3.47: add four evidence-backed hero-position routes.
-- Commit integrado: `985f13d940f97f809c82480511abc7ace8f47dc7`.
+- Último PR integrado: #43 — Build 3.51: preserve individual hero purchase order.
+- Commit integrado: `ca9a50d541a018e33f72fd573b7dcf38b000924a`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
-- CI del PR #38: run `44017750310`, job `133819650588`, success.
+- CI del PR #43: run `44021956634`, job `133833269323`, success.
 - GitHub Pages no verificado independientemente; Android pendiente de prueba del usuario; APK no generado.
-- Service Worker de la versión integrada: `dota-build-v98`.
+- Service Worker de la versión integrada: `dota-build-v102`.
 
 ## Último trabajo: Crystal Maiden Support 5
 
@@ -538,7 +538,9 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Corrección: la plantilla genérica se usa primero solo cuando el pool no contiene ruta heroSpecific. Con ruta individual, esta se evalúa antes; el fallback genérico sigue disponible si no hay objetivo individual en la fase.
 - Se conserva la anulación por problema activo de prioridad suficiente.
 - Regresiones: prioridad individual, urgencia activa y fallback común.
-- UI 3.51; SW v102. Pendiente CI/revisión/integración.
+- PR #43 integrado por squash: commit `ca9a50d541a018e33f72fd573b7dcf38b000924a`.
+- CI run `44021956634`, job `133833269323`: success.
+- UI 3.51; SW v102. Pages no verificado, Android pendiente, APK no generado.
 
 
 ## Integración PR #43 — versión 3.51 (17-11-2026)
