@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión en desarrollo:** 3.40 + Service Worker v91 (mercado completo en revisión); última versión integrada: 3.39 + v90  
+**Versión integrada:** 3.40 + Service Worker v91; última versión estable respaldada: 3.40  
 **Etapa activa:** Mercado automático y progresión de rutas por héroe; versión 3.38 integrada. PR #28 tiene CI aprobado; despliegue público de 3.38 y pruebas Android aún pendientes de confirmación.
 
 ## 1. Objetivo
@@ -493,3 +493,17 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - CI del PR #31, run `44001992386`: success; sintaxis y suite completa de regresiones aprobadas, incluida la ruta sintética de 24 objetivos y continuidad situacional.
 - Revisión del diff: el pool completo se conserva por separado de las siete tarjetas visuales; no se modifican perfiles ni puntuaciones de héroes.
 - Estado: listo para integrar. Publicación y prueba Android pendientes. La cobertura de rutas individuales y recetas sigue siendo incremental; no se afirma que todos los héroes tengan una build individual validada.
+
+
+## 16. Resultado — PR #31 integrado: pool completo del mercado (16-11-2026)
+
+- PR #31 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/31.
+- Commit de integración: `7840479c8819b42368350c8c67a2cb2d0af205b4`.
+- CI del PR, run `44002035632`: success; sintaxis y suite completa aprobadas, incluida la prueba de progresión de 24 objetos y continuación situacional.
+- Versión integrada: 3.40. Service Worker: `dota-build-v91`.
+- `buildAdaptivePlan` expone todos los candidatos puntuados como `marketPool`; el mercado usa ese pool completo en vez de limitarse a las siete tarjetas visibles. La interfaz mantiene el resumen compacto.
+- Respaldos estables creados desde el commit integrado:
+  - Código: `backup/3.40-full-market-pool-2026-11-16`.
+  - Estado: `backup/estado-3.40-full-market-pool-2026-11-16`.
+- GitHub Pages de 3.40 y validación Android: pendientes de confirmación independiente. APK 3.40: no generado; no existe binario Android comprobado en el repositorio.
+- Próxima etapa: ampliar el catálogo de recetas/costes con datos verificados y probar rutas completas por héroe/posición. El mercado ya no tiene el límite artificial de siete candidatos, pero todavía no está certificada la cobertura individual de todos los héroes.
