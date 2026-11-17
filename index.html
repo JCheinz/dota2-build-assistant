@@ -1397,8 +1397,6 @@ function getNextPurchase(build,state,preferredName=null){
   if(chosen)return {...recipeTarget(chosen),alternatives:situational.filter(x=>x.name!==chosen.name).slice(0,3).map(recipeTarget),routeReason:owned.has("Kaya")&&chosen.name==="Kaya and Sange"?"Evolución de Kaya: ya tenés el objeto base; reuní Sange y completá Kaya and Sange. Al registrar la mejora, Kaya se consume y se reemplaza por el objeto mejorado.":"El núcleo está cubierto. La siguiente compra se pondera por la situación, la fase y los objetos que ya registraste."};
   return {done:true,message:"El núcleo y las mejoras aplicables están cubiertos. No hay otra compra situacional con prioridad suficiente; si cambió la partida, actualizá el problema o el inventario."};
  }
- const genericRolePurchase=chooseRolePhase(marketPhase.key);
- if(genericRolePurchase)return genericRolePurchase;
  const isCrystalMaiden=build.some(x=>x.heroKey==="npc_dota_hero_crystal_maiden|Support 5");
  if(isCrystalMaiden){
   if(state.gold<=0)return {done:true,message:"Ingresá el oro disponible para calcular una compra. El núcleo y las alternativas siguen visibles."};
