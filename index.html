@@ -1110,7 +1110,8 @@ function getNextPurchase(build,state,preferredName=null){
   const scoreOf=x=>Number.isFinite(x.pugnaScore)?x.pugnaScore:(Number(x.score)||0);
   const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&scoreOf(x)>0).map(x=>{
    let score=scoreOf(x);
-   if(phase==="Avanzada"&&["Avanzada","Cierre","Situacional"].includes(x.stage))score+=0.7;
+   if(phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage))score+=0.7;
+   if(phase==="Avanzada"&&x.stage==="Situacional")score+=0.7;
    if(phase!=="Avanzada"&&x.stage==="Cierre")score-=0.8;
    if(x.name==="Kaya and Sange"&&(!owned.has("Kaya")||state.minute<32))score=-100;
    return {...x,decisionScore:score};
