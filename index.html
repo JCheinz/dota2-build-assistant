@@ -1627,7 +1627,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   .map(([name,data])=>({name,why:"Respuesta contextual: "+data.why.slice(0,2).join("; ")+". Confirmá que el efecto del objeto resuelva esa amenaza y que tu héroe lo aproveche.",roles:[role],tags:["threat-response"],threatSpecific:true,threatWeight:data.score}));
  const specialization=getHeroSpecialization(hero,role);
  const heroPlan=specialization.plan;
- const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada"}))]:[];
+ const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada"}))]:[];
  const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:undefined}));
  const heroRoles=new Set(hero.roles||[]);
  const archetypeItems=[];
@@ -1670,19 +1670,22 @@ function buildAdaptivePlan(hero,role,enemies,live){
   addArchetype("Eul’s Scepter of Divinity","Dispel propio y control situacional cuando el héroe lo aprovecha.",["Mid"],["dispel","control"]);
   addArchetype("Scythe of Vyse","Control fuerte para neutralizar una amenaza prioritaria en el cierre.",["Mid"],["control"]);
  }
- const rolePhase=getUniversalRolePlan(role,live.minute);
- const roleItems=rolePhase.items.map(x=>({name:x[0],why:x[1],stage:rolePhase.phase,roles:[role],tags:["role-baseline"],roleBaseline:true}));
+ const rolePhase=getUniversalRolePlan(role,live.minute,hero,enemies,live.problem);
+ const roleItems=rolePhase.allItems.map(x=>({...x,roles:[role],tags:["role-baseline"],roleBaseline:true}));
+ const roleItemsForCandidates=heroPlan?roleItems.filter(x=>x.marketPhase==="Inicio"):roleItems;
  const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
  const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live).map(x=>({...x,roles:[role],tags:["threat-response"],threatSpecific:true})):[];
  const pugnaPlannedItems=pugnaMid?plannedItems.map(x=>{const response=pugnaResponses.find(p=>p.name===x.name);return response?{...x,pugnaScore:response.score,cost:response.cost,condition:response.condition,threatSpecific:true}:x;}):plannedItems;
- const candidates=[...(heroPlan?[]:roleItems),...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const candidates=[...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
-  if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
+  if(x.heroSpecific){score+=4.2;if(x.marketPhase===getMarketPhase(live.minute).key)score+=1.8;else score-=0.35;}
+  if(x.roleBaseline){const current=getMarketPhase(live.minute);const candidateIndex=({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4})[x.marketPhase]??0;if(x.marketPhase===current.key)score+=3.5;else if(candidateIndex>current.index)score-=3.1;else score-=1.5;}
   const tempoMinimum=({ "Black King Bar":12,"Aeon Disk":16,"Hurricane Pike":16,"Aether Lens":12,"Blink Dagger":12,"Pipe of Insight":14,"Crimson Guard":14,"Shiva’s Guard":20,"Scythe of Vyse":24,"Satanic":20,"Daedalus":24,"Butterfly":24,"Heart of Tarrasque":24,"Silver Edge":20,"Nullifier":24,"Aghanim’s Scepter":20,"Aghanim’s Shard":15 })[x.name]||0;
   if(live.minute<tempoMinimum)score=-100;
-  if(x.stage==="Medio"&&live.minute<8)score=-100;
-  if(x.stage==="Avanzada"&&live.minute<20)score=-100;
+  if(x.marketPhase==="Transición"&&live.minute<12)score=-100;
+  if(x.marketPhase==="Core"&&live.minute<20)score=-100;
+  if(x.marketPhase==="Avanzada"&&live.minute<30)score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&["Linken’s Sphere","Black King Bar"].includes(x.name))score-=2.5;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&!["batrider","bane","beastmaster","legion_commander"].some(id=>enemyIds.has(id)))score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
@@ -1741,7 +1744,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  let selected;
  if(heroPlan){
   const byName=new Map(scores.map(x=>[x.name,x]));
-  let early=plannedItems.filter(x=>x.stage==="Inicio"&&byName.has(x.name)).map(x=>byName.get(x.name));
+  let early=plannedItems.filter(x=>x.stage==="Inicio"&&live.minute>=5&&byName.has(x.name)).map(x=>byName.get(x.name));
   let core=plannedItems.filter(x=>x.stage==="Medio"&&byName.has(x.name)).map(x=>byName.get(x.name));
   let situational=plannedItems.filter(x=>x.stage==="Avanzada"&&byName.has(x.name)).map(x=>byName.get(x.name));
   // Pugna: Bottle y Wand son compras de línea condicionales; Null Talisman nunca desplaza automáticamente el núcleo.
@@ -1760,7 +1763,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   }else {
    if(live.minute>=12)early=[];
    if(live.minute<12)core=[];
-   if(live.minute<20)situational=situational.filter(x=>x.stage!=="Avanzada");
+   if(live.minute<30)situational=situational.filter(x=>x.stage!=="Avanzada");
   }
   // Las respuestas de draft no desplazan los objetos de progresión salvo una amenaza concreta y activa.
   const responses=scores.filter(x=>(x.threatSpecific||pugnaResponses.some(p=>p.name===x.name))&&!plannedItems.some(p=>p.name===x.name));
@@ -1792,7 +1795,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   selected.sort((a,b)=>{const ai=coreOrder.indexOf(a.name),bi=coreOrder.indexOf(b.name);if(ai>=0&&bi>=0)return ai-bi;if(ai>=0)return -1;if(bi>=0)return 1;return b.score-a.score;});
   selected.forEach((x,i)=>x.priority=i<3);
  }
- const phase=live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada";
+ const phase=getMarketPhase(live.minute).key;
  const explanation=fitScore>=5?"El rol elegido coincide con varios roles declarados del héroe.":fitScore>=3?"El rol elegido es compatible con algunos roles declarados; verificá la viabilidad de línea.":"La compatibilidad estimada es baja. Podés usar esta posición, pero el catálogo no la respalda con los roles generales del héroe.";
  const mainRoute=selected.filter(x=>(x.heroSpecific&&x.stage!=="Avanzada")||x.roleBaseline||(x.heroArchetype&&["Power Treads","Phase Boots","Arcane Boots","Vanguard","Blink Dagger","Dragon Lance","Battle Fury"].includes(x.name)));
  const situational=selected.filter(x=>!mainRoute.includes(x));
@@ -1815,7 +1818,7 @@ function analyze(options={}){
  const rankContext=getRankHeroContext(me,$('rank').value);
  const rankSummary=rankContext?('OpenDota · '+$('rank').value+': '+rankContext.rate.toFixed(1)+'% de victorias en '+rankContext.picks.toLocaleString('es-AR')+' partidas. Dato agregado del héroe; no separa posiciones.'):'OpenDota: muestra insuficiente para este héroe en el rango seleccionado.';
  const purchasePool=[...(adaptive.marketPool||[]),...adaptive.selected,...adaptive.situational,...(adaptive.specialization.heroId==="crystal_maiden"?adaptive.plannedItems:[])].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
- const nextPurchase=getNextPurchase(purchasePool,live,purchaseDecision&&purchaseDecision.primary?purchaseDecision.primary.name:null);
+ const nextPurchase=getNextPurchase(purchasePool,{...live,role,hero:me.name},purchaseDecision&&purchaseDecision.primary?purchaseDecision.primary.name:null);
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const crystalPlan=adaptive.specialization.heroId==="crystal_maiden"?adaptive.specialization.plan:null;
  const crystalCore=crystalPlan?crystalPlan.core.filter(x=>!live.owned.includes(x[0])&&!adaptive.mainRoute.some(y=>y.name===x[0])):[];
