@@ -776,7 +776,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const mjollnirNames=mjollnirPartial.map(x=>x.name);
  if(!mjollnirNames.includes("Javelin")||!mjollnirNames.includes("Gloves of Haste")||mjollnirNames.includes("Mithril Hammer"))throw new Error("Mjollnir debe expandir Maelstrom al detectar progreso en sus piezas");
  const vesselConsumption=vm.runInContext('getRecipePartsForConsumption("Spirit Vessel",new Set(["Urn of Shadows"]),new Set())',recipeContext);
- if(!vesselConsumption.includes("Urn of Shadows")||!vesselConsumption.includes("Diadem"))throw new Error("Al completar Spirit Vessel debe consumirse Urn como objeto completo y Diadem");
+ if(!vesselConsumption.includes("Urn of Shadows")||vesselConsumption.includes("Diadem"))throw new Error("Al completar Spirit Vessel debe consumirse solo la pieza que realmente está registrada");
  const mekansmConsumption=vm.runInContext('getRecipePartsForConsumption("Mekansm",new Set(["Headdress"]),new Set())',recipeContext);
  if(!mekansmConsumption.includes("Headdress"))throw new Error("Al completar Mekansm debe consumirse Headdress como objeto completo");
  const newIconNames=["Circlet","Gauntlets of Strength","Javelin","Hyperstone","Helm of Iron Will","Ring of Tarrasque","Cloak","Headdress","Chainmail","Platemail","Mystic Staff","Tiara of Selemene","Demon Edge","Blitz Knuckles","Sage's Mask","Ring of Protection","Ring of Regen"];
