@@ -1099,9 +1099,12 @@ function getMissingRecipeParts(itemName,owned=new Set(),components=new Set(),pat
  const recipe=itemRecipes[itemName]||[];
  if(!recipe.length)return [];
  return recipe.flatMap(part=>{
-  if(owned.has(part.name)||components.has(part.name))return [];
+  const quantity=Math.max(1,Number(part.quantity)||1);
+  // Un objeto completo cubre una pieza simple; para cantidades múltiples se
+  // exige marcar el grupo de componentes con la cantidad exacta (p. ej. Broadsword ×2).
+  if(components.has(part.name)||(quantity===1&&owned.has(part.name)))return [];
   if(itemRecipes[part.name]?.length)return getMissingRecipeParts(part.name,owned,components,[...path,itemName]);
-  return [{...part,quantity:Math.max(1,Number(part.quantity)||1)}];
+  return [{...part,quantity}];
  });
 }
 function getRecipeLeafParts(itemName,path=[]){
@@ -1113,9 +1116,10 @@ function getRecipePartsForConsumption(itemName,owned=new Set(),components=new Se
  if(path.includes(itemName))return [];
  const recipe=itemRecipes[itemName]||[];
  return recipe.flatMap(part=>{
-  if(owned.has(part.name)||components.has(part.name))return [part.name];
+  const quantity=Math.max(1,Number(part.quantity)||1);
+  if(components.has(part.name)||(quantity===1&&owned.has(part.name)))return [part.name];
   if(itemRecipes[part.name]?.length)return getRecipePartsForConsumption(part.name,owned,components,[...path,itemName]);
-  return [part.name];
+  return owned.has(part.name)?[part.name]:[part.name];
  });
 }
 function getRecipeComponentQuantities(){
