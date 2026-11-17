@@ -1134,9 +1134,9 @@ function getNextPurchase(build,state,preferredName=null){
   if(state.minute<12)return {done:true,message:"En fase inicial, priorizá consumibles y supervivencia de línea. La ruta principal se activa desde el minuto 12."};
   const coreOrder=["Blink Dagger","Glimmer Cape","Aghanim’s Shard"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
-  if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return recipeTarget(target);}
+  if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."};}
   const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
-  return situational[0]?recipeTarget(situational[0]):{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
+  return situational[0]?{target:situational[0],kind:"goal",name:situational[0].name,reason:situational[0].why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
  }
  const isAntiMage=build.some(x=>x.heroSpecific&&["Power Treads","Battle Fury","Yasha","Manta Style"].includes(x.name));
  if(isAntiMage){
