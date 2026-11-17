@@ -2093,8 +2093,8 @@ function analyze(options={}){
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
-$('myHero').onchange=()=>{clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value;if($('result').classList.contains('show'))analyze({scroll:false});};
-$('myRole').onchange=()=>{clearTrackedPurchases();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
+$('myHero').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value;if($('result').classList.contains('show'))analyze({scroll:false});};
+$('myRole').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
 $('analyze').onclick=analyze;
 $('toggleLiveState').onclick=()=>{
  const content=$('liveStateContent'),button=$('toggleLiveState');
@@ -2129,8 +2129,8 @@ $('report').addEventListener('click',e=>{
 ['gameMinute','currentGold','currentProblem','myRole','gameMode','rank'].forEach(id=>$(id).addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});}));
 $('gameMinute').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 $('currentGold').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
-$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')&&$('result').classList.contains('show'))analyze({scroll:false});});
-$('ownedComponents').addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
+$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
+$('ownedComponents').addEventListener('change',e=>{if(e.target.matches('.owned-component')){if(e.target.checked)purchaseLedger.recordComponent(e.target.value,{minute:ledgerMinute(),note:'Carga manual de componente'});else purchaseLedger.removeComponent(e.target.value);}if($('result').classList.contains('show'))analyze({scroll:false});});
 
 function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
 function clearItemsOnly(){
