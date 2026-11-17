@@ -877,6 +877,11 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Las recomendaciones visuales filtran objetos ya poseídos y duplicados del mismo bloque; el motor de próxima compra conserva su filtro de inventario y recetas.
 - Pruebas nuevas: `tests/inventory-ledger.test.js`, con compra repetida, consumible usado, evolución Kaya → Kaya and Sange, componentes repetidos para Battle Fury, venta, persistencia, limpieza independiente del historial y deduplicación de recomendaciones.
 - CI ampliado para ejecutar la prueba nueva junto con `tests/skill-matrix.test.js`.
-- Service Worker candidato: `dota-build-v103`; versión de interfaz candidata: 3.52.
-- Estado: implementación en rama de trabajo. CI completo y regresiones aún deben ejecutarse; PR e integración pendientes. Pages/Android no verificados; APK no generado.
-- Criterio de integración: no fusionar hasta que ambos comandos de prueba, sintaxis, regresiones y CI de GitHub Actions terminen correctamente. Revisar además que los controles de borrar inventario e historial sigan siendo independientes.
+- Service Worker integrado: `dota-build-v103`; versión de interfaz: 3.52.
+- PR #44 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/44.
+- Commit de integración: `0d6f48175423758c387a505fb5dec81bc96b6020`; commit de documentación/estado: pendiente de esta actualización.
+- CI final run `44024314264` (run #252): success. Sintaxis, regresiones existentes, matriz de héroes, libro de inventario y pruebas de evolución aprobados.
+- Respaldos estables: `backup/3.52-stable-final-2026-11-17` y `backup/estado-3.52-stable-final-2026-11-17`. Respaldos anteriores 3.51 preservados.
+- Rama de trabajo conservada: `work/inventory-ledger-v3-52-refresh`.
+- Pages/Android no verificados; APK 3.52 no generado. No declarar publicación o prueba Android completadas hasta comprobarlas.
+- «Borrar ítems» limpia el inventario activo y conserva historial; «Borrar historial» limpia solo el registro. Cambiar héroe/posición inicia un contexto nuevo.
