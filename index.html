@@ -361,7 +361,8 @@ function renderHeroInventory(state,hero=null,role=""){
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
  const plan=hero?getHeroPlan(hero,role):null;
- const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
+ const marketPhaseKey=getMarketPhase(state.minute).key;
+ const phase=marketPhaseKey==="Inicio"||marketPhaseKey==="Línea"?"Inicio":marketPhaseKey==="Transición"||marketPhaseKey==="Core"?"Medio":"Avanzada";
  const phaseNames=plan?(phase==="Inicio"?plan.early:phase==="Medio"?[...(plan.core||[]),...(plan.early||[])]:[...(plan.situational||[]),...(plan.core||[])]):[];
  const selectedProblem=String(state.problem||"none");
  const situationalInventoryPriority={"enemy:alchemist":"Spirit Vessel","enemy:huskar":"Spirit Vessel","issue:sustain":"Spirit Vessel","issue:initiation":"Aeon Disk","enemy:centaur":"Aeon Disk","enemy:dawnbreaker":"Aeon Disk","enemy:tidehunter":"Aeon Disk","issue:control":"Black King Bar","enemy:lion":"Black King Bar","enemy:bane":"Black King Bar","issue:magic":"Glimmer Cape","issue:teamfight":"Glimmer Cape","issue:mobility":"Blink Dagger","issue:illusions":"Shiva’s Guard","issue:invisibility":"Gem of True Sight"};
@@ -1328,7 +1329,7 @@ function clearTrackedPurchases(){
 }
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=new Set(state.components||[]);
- const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
+ const phase=getMarketPhase(state.minute).key;
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
   // Un objeto completo registrado en el inventario también cuenta como componente
@@ -1396,6 +1397,8 @@ function getNextPurchase(build,state,preferredName=null){
   if(chosen)return {...recipeTarget(chosen),alternatives:situational.filter(x=>x.name!==chosen.name).slice(0,3).map(recipeTarget),routeReason:owned.has("Kaya")&&chosen.name==="Kaya and Sange"?"Evolución de Kaya: ya tenés el objeto base; reuní Sange y completá Kaya and Sange. Al registrar la mejora, Kaya se consume y se reemplaza por el objeto mejorado.":"El núcleo está cubierto. La siguiente compra se pondera por la situación, la fase y los objetos que ya registraste."};
   return {done:true,message:"El núcleo y las mejoras aplicables están cubiertos. No hay otra compra situacional con prioridad suficiente; si cambió la partida, actualizá el problema o el inventario."};
  }
+ const genericRolePurchase=chooseRolePhase(marketPhase.key);
+ if(genericRolePurchase)return genericRolePurchase;
  const isCrystalMaiden=build.some(x=>x.heroKey==="npc_dota_hero_crystal_maiden|Support 5");
  if(isCrystalMaiden){
   if(state.gold<=0)return {done:true,message:"Ingresá el oro disponible para calcular una compra. El núcleo y las alternativas siguen visibles."};
@@ -1465,7 +1468,7 @@ function pugnaFinalBuild(matchups,state){
   {name:"Aether Lens",stage:"Núcleo",cost:2275,score:4.0,why:"Más alcance para lanzar habilidades desde una posición segura.",condition:"Núcleo de alcance; adelantala si necesitás jugar fuera del rango de iniciación."},
   {name:"Kaya",stage:"Avanzada",cost:2100,score:2.1,why:"Amplificación de hechizos y mejor rendimiento de maná.",condition:"Daño mágico como prioridad cuando ya tenés alcance y no necesitás resolver primero supervivencia o movilidad."},
   {name:"Kaya and Sange",stage:"Cierre",cost:4200,score:0,why:"Evolución de Kaya con atributos y resistencia adicional.",condition:"Única evolución de Kaya contemplada para Pugna Mid en esta ruta."},
-  {name:"Spirit Vessel",stage:"Situacional",cost:2780,score:0,why:"Reduce curación y regeneración sostenida.",condition:"Contra Alchemist o Huskar cuando su sustain es el problema real; necesitás cargas para mantener el efecto."},
+  {name:"Spirit Vessel",stage:"Situacional",cost:2725,score:0,why:"Reduce curación y regeneración sostenida.",condition:"Contra Alchemist o Huskar cuando su sustain es el problema real; necesitás cargas para mantener el efecto."},
   {name:"Shiva’s Guard",stage:"Avanzada",cost:5175,score:0,why:"Armadura, daño mágico en área y reducción de velocidad de ataque.",condition:"Contra ilusiones, unidades o daño físico por ataques cuando el efecto de área resuelve un problema real."},
   {name:"Gem of True Sight",stage:"Avanzada",cost:900,score:0,why:"Detección persistente contra invisibilidad.",condition:"Solo si el equipo necesita detección y podés proteger la gema."},
   {name:"Dagon",stage:"Avanzada",cost:3000,score:2.0,why:"Ráfaga adicional para rematar objetivos; su coste escala por nivel.",condition:"Elegila si tu equipo puede asegurar objetivos aislados y la ráfaga cambia el resultado; no la fuerces por daño teórico."},
@@ -1550,6 +1553,7 @@ function updateRoleFit(){
  const fit=heroPositionFit(hero);
  hint.textContent="Compatibilidad estimada por roles: "+fit.slice(0,3).map(x=>x.role+" ("+x.score+")").join(" · ")+". Podés elegir cualquier posición; no son estadísticas de lanes.";
 }
+const MARKET_ITEM_COSTS={"Tango":90,"Iron Branch":55,"Blood Grenade":50,"Sentry Ward":50,"Observer Ward":0,"Clarity":60,"Enchanted Mango":65,"Faerie Fire":65,"Healing Salve":100,"Quelling Blade":100,"Gauntlets of Strength":140,"Mantle of Intelligence":140,"Slippers of Agility":140,"Circlet":155,"Ring of Protection":175,"Magic Stick":200,"Wind Lace":225,"Infused Raindrops":225,"Boots of Speed":500,"Power Treads":1400,"Phase Boots":1450,"Tranquil Boots":900,"Bracer":505,"Wraith Band":505,"Null Talisman":505,"Soul Ring":805,"Urn of Shadows":825,"Bottle":675,"Maelstrom":2950,"Mask of Madness":1900,"Dragon Lance":2000,"Manta Style":4650,"Battle Fury":3900,"Black King Bar":4050,"Hurricane Pike":4550,"Satanic":5050,"Daedalus":5200,"Butterfly":5450,"Scythe of Vyse":5200,"Shiva’s Guard":4500,"Blink Dagger":2250,"Vanguard":1700,"Blade Mail":2400,"Pipe of Insight":3725,"Crimson Guard":3725,"Lotus Orb":3850,"Heart of Tarrasque":5300,"Magic Wand":460,"Glimmer Cape":2150,"Force Staff":2200,"Arcane Boots":1500,"Aether Lens":2275,"Mekansm":1775,"Solar Crest":2575,"Aeon Disk":3000,"Eul’s Scepter of Divinity":2600,"Ghost Scepter":1500,"Aghanim’s Shard":1400,"Aghanim’s Scepter":4200,"Octarine Core":5100,"Silver Edge":5700,"Swift Blink":6800,"Skull Basher":2875,"Abyssal Blade":6250,"Nullifier":4350,"Mjollnir":5500};
 const universalItems=[
  {name:"Power Treads",roles:["Carry","Mid"],tags:["attack","farm"],why:"Atributos y velocidad de ataque para escalar; confirmá si tu héroe aprovecha botas de atributo."},
  {name:"Phase Boots",roles:["Carry","Mid","Offlane"],tags:["physical","mobility"],why:"Movilidad y daño de ataque para héroes que aprovechan intercambios físicos."},
@@ -1661,7 +1665,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const specialization=getHeroSpecialization(hero,role);
  const heroPlan=specialization.plan;
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada"}))]:[];
- const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:undefined}));
+ const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:(MARKET_ITEM_COSTS[x.name]||undefined)}));
  const heroRoles=new Set(hero.roles||[]);
  const archetypeItems=[];
  const addArchetype=(name,why,roles,tags)=>archetypeItems.push({name,why,roles,tags,heroArchetype:true});
@@ -1863,6 +1867,7 @@ function analyze(options={}){
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
   'ESTADO: minuto '+live.minute+' | oro '+live.gold+' | problema '+live.problem,
+  'FASE DEL MERCADO: '+adaptive.phase,
   'PERFIL TÁCTICO: '+adaptive.specialization.style+' | '+adaptive.specialization.level+' | '+adaptive.specialization.source,
   ...(adaptive.specialization.guide?['GUÍA PUGNA MID: habilidades '+adaptive.specialization.guide.skillOrder.join(', ')+' | talentos y combos individualizados disponibles en el informe.']:[]),
   'INVENTARIO: '+(live.owned.join(', ')||'no informado')+' | COMPONENTES: '+(live.components.join(', ')||'no informados'),
