@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.45</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.46</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -341,7 +341,7 @@ const itemSlugs={
  'Receta de Crimson Guard':'recipe','Receta de Pipe of Insight':'recipe','Receta de Headdress':'recipe',
  'Receta de Mekansm':'recipe','Receta de Lotus Orb':'recipe','Receta de Scythe of Vyse':'recipe',
  'Receta de Monkey King Bar':'recipe','Receta de Urn of Shadows':'recipe','Receta de Spirit Vessel':'recipe',
- 'Blades of Attack':'blades_of_attack','Orb of Blight':'orb_of_blight',
+ 'Blades of Attack':'blades_of_attack','Orb of Blight':'orb_of_blight', 'Desolator':'desolator',
  'Receta de Soul Ring':'recipe','Receta de Blade Mail':'recipe','Receta de Ring of Basilius':'recipe',
  'Power Treads':'power_treads','Wraith Band':'wraith_band','Dragon Lance':'dragon_lance','Yasha':'yasha','Mask of Madness':'mask_of_madness',
  'Hurricane Pike':'hurricane_pike','Manta Style':'manta','Butterfly':'butterfly','Daedalus':'daedalus',
@@ -367,7 +367,7 @@ function renderItemIcon(name){
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
 }
 function renderHeroInventory(state,hero=null,role=""){
- const owned=[...new Set(state.owned)],components=[...(state.components||[])];
+ const owned=[...new Set(state.owned||[])],components=[...(state.components||[])];
  const zones=state.zones||{};
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
@@ -2006,7 +2006,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.45',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.46',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
