@@ -463,4 +463,6 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - La tarjeta de próxima compra informa el coste y oro faltante cuando el catálogo dispone de un precio conocido; si el precio no está verificado, lo declara expresamente.
 - Se añadieron regresiones para coste desconocido, coste conocido, componente ya adquirido y evolución Kaya → Kaya and Sange.
 - Versión de trabajo: 3.39. Service Worker: `dota-build-v90`.
-- Estado: cambios preparados en rama de trabajo; pendientes CI, revisión del diff, integración, publicación y validación Android. No declarar el mercado universal terminado con este primer bloque: sigue pendiente ampliar/contrastar recetas y costes del catálogo y validar rutas reales de más héroes/posiciones.
+- CI del PR #30: runs `44001719794` y `44001721511`, ambos success; sintaxis de especializaciones y suite completa de regresiones aprobadas.
+- Revisión del diff: sin cambios en especializaciones ni reglas de draft; el alcance se limita al contrato de coste/receta y presentación de la próxima compra.
+- Estado: PR #30 listo para integrar; publicación y validación Android pendientes. No declarar el mercado universal terminado con este primer bloque: sigue pendiente ampliar/contrastar recetas y costes del catálogo y validar rutas reales de más héroes/posiciones.
