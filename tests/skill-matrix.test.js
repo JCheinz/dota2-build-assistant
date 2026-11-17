@@ -205,6 +205,10 @@ for(const [name,slug] of [
  const icon=context.renderItemIcon(name);
  if(!icon.includes("/"+slug+".png"))throw new Error("Falta icono oficial de "+name);
 }
+const marketPhaseStart=html.indexOf("function getMarketPhase(");
+const marketPhaseEnd=html.indexOf("\\nfunction getDraftCounterRecommendations",marketPhaseStart);
+if(marketPhaseStart<0||marketPhaseEnd<0)throw new Error("No se encontró el catálogo de fases del mercado");
+vm.runInContext(html.slice(marketPhaseStart,marketPhaseEnd),context);
 const purchaseStart=html.indexOf("const itemRecipes=");
 const purchaseEnd=html.indexOf("\nfunction pugnaFinalBuild",purchaseStart);
 if(purchaseStart<0||purchaseEnd<0)throw new Error("No se encontró el motor de próxima compra");
@@ -797,4 +801,35 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!html.includes('if(live.minute<12)core=[];'))throw new Error("La ruta core no debe desplazar los objetos de inicio antes del minuto 12");
  if(!html.includes("specializations.js?v=3280"))throw new Error("Falta la invalidación de caché de especializaciones v3.42");
  console.log("OK: mercado inteligente v3.42 — tempo de compras y sinergias ligadas a la composición actual");
+})();
+
+
+// Market phases and role-aware progression (v3.43)
+(() => {
+ const phases=[[0,"Inicio"],[4.9,"Inicio"],[5,"Línea"],[11.9,"Línea"],[12,"Transición"],[19.9,"Transición"],[20,"Core"],[29.9,"Core"],[30,"Avanzada"],[60,"Avanzada"]];
+ for(const [minute,expected] of phases){
+  const actual=context.getMarketPhase(minute).key;
+  if(actual!==expected)throw new Error("Fase incorrecta en minuto "+minute+": "+actual+"; se esperaba "+expected);
+ }
+ const melee={attack_type:"Melee",roles:["Carry"]};
+ const ranged={attack_type:"Ranged",roles:["Carry"]};
+ const carryPlan=context.getUniversalRolePlan("Carry",0,melee,[],"none");
+ if(carryPlan.phase!=="Inicio"||!carryPlan.allItems.some(x=>x.name==="Quelling Blade"&&x.marketPhase==="Inicio"))throw new Error("Carry cuerpo a cuerpo debe contemplar Quelling Blade al inicio");
+ const rangedPlan=context.getUniversalRolePlan("Carry",0,ranged,[],"none");
+ if(rangedPlan.allItems.some(x=>x.name==="Quelling Blade"))throw new Error("Carry a distancia no debe recibir Quelling Blade como compra inicial");
+ const supportPlan=context.getUniversalRolePlan("Support 5",0,{attack_type:"Ranged",roles:["Support"]},[],"none");
+ if(!supportPlan.allItems.some(x=>x.name==="Observer Ward"&&x.free===true))throw new Error("Support 5 debe reconocer Observer Ward como recurso gratuito de apertura");
+ const carryBuild=carryPlan.allItems.map(x=>({...x,roles:["Carry"],roleBaseline:true,marketRole:"Carry"}));
+ const startPurchase=context.getNextPurchase(carryBuild,{minute:0,gold:600,owned:[],components:[],role:"Carry"});
+ if(startPurchase.marketPhase!=="Inicio"||startPurchase.name!=="Quelling Blade")throw new Error("En el minuto 0 Carry debe recibir una compra inicial, no Power Treads o BKB");
+ const linePurchase=context.getNextPurchase(carryBuild,{minute:5,gold:1400,owned:["Quelling Blade","Tango","Iron Branch","Slippers of Agility","Faerie Fire"],components:[],role:"Carry"});
+ if(linePurchase.marketPhase!=="Línea"||linePurchase.target?.name!=="Power Treads")throw new Error("Carry debe pasar a su objetivo de línea desde el minuto 5");
+ const midPurchase=context.getNextPurchase(carryBuild,{minute:15,gold:3900,owned:["Quelling Blade","Tango","Iron Branch","Slippers of Agility","Faerie Fire","Power Treads"],components:[],role:"Carry"});
+ if(midPurchase.marketPhase!=="Transición"||midPurchase.target?.name!=="Battle Fury")throw new Error("Carry cuerpo a cuerpo debe pasar a progresión de transición, sin saltar a objetos de cierre");
+ const supportStart=supportPlan.allItems.map(x=>({...x,roles:["Support 5"],roleBaseline:true,marketRole:"Support 5"}));
+ const freeWard=context.getNextPurchase(supportStart,{minute:0,gold:0,owned:[],components:[],role:"Support 5"});
+ if(freeWard.name!=="Observer Ward"||freeWard.cost!==0||freeWard.affordable!==true)throw new Error("El mercado debe distinguir un ward gratuito de un precio desconocido");
+ if(!html.includes('"Spirit Vessel",stage:"Situacional",cost:2725'))throw new Error("El coste de Spirit Vessel debe coincidir con la referencia 7.41f cargada");
+ if(!html.includes('const visibleScores=scores.filter(x=>!x.roleBaseline||x.marketPhase===getMarketPhase(live.minute).key)'))throw new Error("La pantalla debe mostrar solo las compras del momento sin perder futuras fases del pool");
+ console.log("OK: mercado 3.43 — cinco fases, restricciones por rol/alcance, selección por oro, wards gratuitos y progresión sin saltos");
 })();
