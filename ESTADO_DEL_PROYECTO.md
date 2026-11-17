@@ -524,3 +524,7 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añadieron regresiones para sumas de costes, expansión Manta/Yasha, evolución Kaya, duplicados de Battle Fury y consumo recursivo.
 - Versión candidata visible: 3.41. Service Worker: `dota-build-v92`; referencia de especializaciones `?v=3279`.
 - Estado: pendiente CI, revisión del diff e integración. No declarar desplegada la 3.41 hasta verificar Pages; Android y APK 3.41 siguen pendientes. La cobertura de recetas se amplía de forma incremental, no representa todavía el catálogo completo de Dota 2.
+
+- CI del PR #32: run `44004218604` (run 171), job `validate`: success. Se aprobaron sintaxis de especializaciones y la suite completa, incluidas las pruebas de recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes.
+- La suite confirmó además que, con Kaya ya poseída, el mercado solicita Sange como objeto completo; si hay piezas parciales de Yasha, Manta Style solo solicita las faltantes.
+- Estado del PR #32: CI aprobado; revisión final e integración pendientes. No se declara despliegue público ni prueba Android de la candidata 3.41.
