@@ -798,3 +798,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - La presencia de enemigos sin problema seleccionado sigue sin forzar compras situacionales.
 - UI 3.48; Service Worker v99.
 - Pages no verificado independientemente; Android no probado; APK 3.48 no generado ni archivado.
+
+
+## 33. Desarrollo 3.49 — tres nuevas rutas individuales y receta Drum (17-11-2026)
+
+- Se amplía el catálogo de 17 a 20 rutas por héroe/posición: Phantom Lancer Carry, Enigma Offlane y Winter Wyvern Support 5.
+- Fuentes StatsDota 7.41f: Phantom Lancer Carry, corte 16-11-2026 (494.036 partidas de parche; 108.209 en la muestra de posición): https://statsdota.com/en/heroes/phantom-lancer/carry . Enigma Offlane, actualizado 17-11-2026 (112.256 partidas en la muestra del parche; corte de posición 19.368): https://statsdota.com/en/heroes/enigma/offlane . Winter Wyvern Hard Support, snapshot 16-11-2026 (161.848 partidas de parche; corte de posición 28.841): https://statsdota.com/en/heroes/winter-wyvern/hard-support .
+- Las rutas reflejan compras frecuentes y separan core/situacionales; no convierten timings medios en metas rígidas ni objetos de baja frecuencia en obligatorios.
+- Se agrega Drum of Endurance: Headdress (425) + Belt of Strength (450) + Wind Lace (225) + receta (525) = 1.625. La receta de Headdress queda anidada para descontar Ring of Regen si ya está poseído. Referencia de receta 7.41f: https://highgroundcoach.app/dota-2-items/ancient-janggo y cambios de parche: https://dotaideas.com/wiki/patches/7.41 .
+- Service Worker candidato v100; UI candidata 3.49.
+- Respaldos pre-etapa: backup/3.48-before-next-market-stage-v3-49-2026-11-17 y backup/estado-3.48-before-next-market-stage-v3-49-2026-11-17.
+- Pendiente CI, revisión e integración; Pages/Android/APK siguen sin confirmación/generación.
