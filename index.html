@@ -1266,7 +1266,7 @@ function getLiveState(){
  const domComponents=[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value);
  const owned=[...new Set([...domOwned,...ledger.inventory.map(x=>x.name)])];
  const components=ledger.components.length?ledger.components.flatMap(x=>Array(Math.max(1,Number(x.quantity)||1)).fill(x.name)):domComponents;
- return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone])),components,history:ledger.history,ledgerInventory:ledger.inventory};
+ return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.zone||'main'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))},components,history:ledger.history,ledgerInventory:ledger.inventory};
 }
 const itemRecipes={
  "Power Treads":[{name:"Boots of Speed",cost:500},{name:"Gloves of Haste",cost:450},{name:"Belt of Strength",cost:450}],
@@ -1709,7 +1709,7 @@ function renderDynamicStateControls(){
  if(ownedRoot){
   const previousInputs=[...document.querySelectorAll(".owned-item")];
   const checked=new Set(previousInputs.filter(x=>x.checked).map(x=>x.value));
-  const zones=Object.fromEntries(previousInputs.filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]));
+  const zones={...Object.fromEntries(purchaseLedger.snapshot().inventory.map(x=>[x.name,x.zone||"main"])),...Object.fromEntries(previousInputs.filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))};
   ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
  }
  const quantities=getRecipeComponentQuantities();
@@ -2107,7 +2107,7 @@ $('toggleLiveState').onclick=()=>{
 };
 $('report').addEventListener('click',e=>{
  const moveOwned=e.target.closest('[data-move-owned]');
- if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;analyze({scroll:false});}return;}}
+ if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;purchaseLedger.setZone(name,next);analyze({scroll:false});}return;}}
  const sellOwned=e.target.closest('[data-sell-owned]');
  const removeOwned=e.target.closest('[data-remove-owned]')||sellOwned;
  if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned')||removeOwned.getAttribute('data-sell-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);purchaseLedger.recordSale(name,{minute:ledgerMinute()});if(input){input.checked=false;input.dataset.inventoryZone="";}analyze({scroll:false});return;}
@@ -2131,7 +2131,7 @@ $('report').addEventListener('click',e=>{
 ['gameMinute','currentGold','currentProblem','myRole','gameMode','rank'].forEach(id=>$(id).addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});}));
 $('gameMinute').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 $('currentGold').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
-$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
+$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),zone:e.target.dataset.inventoryZone||'main',note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',e=>{if(e.target.matches('.owned-component')){if(e.target.checked)purchaseLedger.recordComponent(e.target.value,{minute:ledgerMinute(),note:'Carga manual de componente'});else purchaseLedger.removeComponent(e.target.value);}if($('result').classList.contains('show'))analyze({scroll:false});});
 
 function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
