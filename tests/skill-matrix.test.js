@@ -844,7 +844,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const helperEnd=html.indexOf("\nfunction buildAdaptivePlan(",helperStart);
  if(helperStart<0||helperEnd<0)throw new Error("No se encontró el motor de problemas activos");
  const activeContext={
-  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Linken’s Sphere":4800,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725},
+  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Linken’s Sphere":4800,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725,"Mekansm":1775},
   matchupRules:{
    bounty_hunter:{title:"Bounty Hunter · invisibilidad y seguimiento",items:[{name:"Dust of Appearance",why:"Detección inmediata"},{name:"Gem of True Sight",why:"Detección persistente"}]},
    alchemist:{title:"Alchemist · sustain alto",items:[{name:"Spirit Vessel",why:"Reduce la restauración de vida"}]},
