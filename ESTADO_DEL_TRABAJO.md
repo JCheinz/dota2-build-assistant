@@ -310,3 +310,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker actualizado a `dota-build-v88`.
 - El inventario automático sube la respuesta situacional adquirida correspondiente al problema seleccionado; las ubicaciones manuales se preservan. Se mantiene el orden por fase y núcleo del héroe.
 - Publicación confirmada. Validación Android recomendada: registrar Spirit Vessel, seleccionar Alchemist como problema y comprobar que suba en el orden visual; cambiar a otro problema y comprobar que el inventario automático se reordene sin mover los objetos colocados manualmente.
+
+
+## Resultado — versión 3.38 y progresión común de rutas (17-11-2026)
+
+- PR #27 integrado: corrección de etiquetas visibles e informe copiable a versión 3.37.
+- PR #28 integrado por squash: `b64556cfb3a173c7979aba46a04be8446eb2e1e0`.
+- CI PR #28, run `44000768637`: success; paso de pruebas de matriz dinámica y regresiones: success.
+- Versión visible e informe: 3.38. Service Worker: `dota-build-v89`.
+- El motor común ahora respeta el orden de `routeIndex` de las rutas individuales para héroes fuera de las excepciones históricas. Una respuesta situacional solo adelanta la ruta cuando el usuario selecciona un problema y la puntuación de amenaza es alta.
+- Los counters del enemigo seleccionado se marcan como respuestas situacionales explícitas.
+- Corregida la detección de Anti-Mage: ahora exige la clave exacta del héroe y posición; no se activa por compartir objetos como Power Treads o Manta Style.
+- La integración en main está confirmada. El despliegue de GitHub Pages y la validación real en Android quedan pendientes de comprobación independiente.
+- Próxima prueba Android: Drow Carry y Luna Carry avanzando por sus rutas; Anti-Mage Carry/Mid sin contaminación cruzada; Bristleback Offlane y al menos un Support con ruta individual. Comprobar también que un enemigo seleccionado como problema pueda adelantar una respuesta de alta prioridad, pero su mera presencia no altere el núcleo.
