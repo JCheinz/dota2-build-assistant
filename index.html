@@ -623,36 +623,195 @@ const counterRules=[
  {match:['drow_ranger','templar_assassin','sniper'],label:'Daño físico a distancia',items:[item('Assault Cuirass','armadura y velocidad de ataque para el equipo'),item('Heaven’s Halberd','desarme situacional contra ataques'),item('Ghost Scepter','supervivencia temporal frente a ataques físicos')]}
 ];
 
-function getUniversalRolePlan(role,minute){
+function getMarketPhase(minute){
+ const m=Math.max(0,Number(minute)||0);
+ if(m<5)return {key:"Inicio",label:"Inicio · 0–4 min",index:0};
+ if(m<12)return {key:"Línea",label:"Línea · 5–11 min",index:1};
+ if(m<20)return {key:"Transición",label:"Transición · 12–19 min",index:2};
+ if(m<30)return {key:"Core",label:"Core · 20–29 min",index:3};
+ return {key:"Avanzada",label:"Avanzada · 30+ min",index:4};
+}
+function getUniversalRolePlan(role,minute,hero=null,enemies=[],problem="none"){
  const catalog={
   "Carry":{
-   early:[["Power Treads","Atributos y velocidad de ataque; ajustá el tipo de atributo a la situación."],["Magic Wand","Sustain económico si los rivales generan cargas."]],
-   core:[["Black King Bar","Si el control o daño mágico te impide atacar."],["Hurricane Pike","Alcance y reposicionamiento si necesitás mantener distancia."]],
-   late:[["Satanic","Supervivencia y sustain en peleas prolongadas."],["Daedalus","Daño físico para cerrar partidas."]],
+   "Inicio":[
+    {name:"Quelling Blade",cost:100,priority:1,requiresMelee:true,why:"Facilita el último golpe y el control de la línea cuerpo a cuerpo.",condition:"Elegila solo si tu héroe es cuerpo a cuerpo y necesitás asegurar súbditos."},
+    {name:"Tango",cost:90,priority:2,why:"Regeneración inicial para sostener intercambios y daño de hostigamiento."},
+    {name:"Iron Branch",cost:55,priority:3,why:"Atributos económicos; completá el presupuesto con consumibles según la línea."},
+    {name:"Slippers of Agility",cost:140,priority:4,why:"Atributos iniciales para un carry que aprovecha agilidad."},
+    {name:"Faerie Fire",cost:65,priority:5,why:"Pequeña reserva de vida para sobrevivir un intercambio o asegurar un último golpe."}
+   ],
+   "Línea":[
+    {name:"Power Treads",cost:1400,priority:1,why:"Botas de atributos y velocidad de ataque; ajustá el atributo a la situación."},
+    {name:"Magic Wand",cost:460,priority:2,requiresSpellSpam:true,why:"Sustain eficiente si los rivales generan cargas con frecuencia."},
+    {name:"Wraith Band",cost:505,priority:3,why:"Atributos económicos si la línea exige más resistencia y velocidad de ataque."},
+    {name:"Infused Raindrops",cost:225,priority:4,requiresMagicThreat:true,why:"Mitigación puntual frente a daño mágico; compralas si el hostigamiento lo justifica."}
+   ],
+   "Transición":[
+    {name:"Maelstrom",cost:2950,priority:1,requiresRanged:true,why:"Aceleración de farmeo y daño en área para carries que aprovechan impactos."},
+    {name:"Battle Fury",cost:3900,priority:2,requiresMelee:true,why:"Aceleración de farmeo para carries cuerpo a cuerpo que aprovechan cleave."},
+    {name:"Dragon Lance",cost:2000,priority:3,requiresRanged:true,why:"Alcance y atributos para mantener distancia antes de completar una mejora."},
+    {name:"Mask of Madness",cost:1900,priority:4,why:"Ritmo de farmeo y daño físico si podés farmear con seguridad; su silencio impide lanzar habilidades mientras está activa."}
+   ],
+   "Core":[
+    {name:"Black King Bar",cost:4050,priority:1,requiresMagicThreat:true,why:"Protección si el control o daño mágico concreto te impide mantener ataques.",condition:"No es automática: verificá qué habilidades enemigas cubre la inmunidad vigente."},
+    {name:"Manta Style",cost:4650,priority:2,why:"Atributos, presión de líneas e ilusiones; el dispel solo resuelve efectos disipables."},
+    {name:"Hurricane Pike",cost:4550,priority:3,requiresRanged:true,why:"Alcance y reposicionamiento si los enemigos pueden alcanzarte."}
+   ],
+   "Avanzada":[
+    {name:"Satanic",cost:5050,priority:1,why:"Sustain para peleas largas cuando podés mantener ataques."},
+    {name:"Daedalus",cost:5200,priority:2,why:"Daño físico de cierre cuando ya podés atacar con seguridad."},
+    {name:"Butterfly",cost:5450,priority:3,why:"Defensa y daño contra ataques físicos; pierde valor ante precisión fiable."},
+    {name:"Scythe of Vyse",cost:5200,priority:4,why:"Control de cierre si tu equipo necesita neutralizar una amenaza móvil."}
+   ]
   },
   "Mid":{
-   early:[["Bottle","Solo si la línea y el control de runas justifican la compra."],["Magic Wand","Respuesta económica a intercambios de hechizos."]],
-   core:[["Power Treads","Atributos y velocidad; elegí botas según el héroe."],["Black King Bar","Si el control rival te impide ejecutar tu combo."]],
-   late:[["Scythe of Vyse","Control para neutralizar una amenaza prioritaria."],["Shiva’s Guard","Armadura y utilidad contra daño físico/velocidad de ataque."]]
+   "Inicio":[
+    {name:"Tango",cost:90,priority:1,why:"Regeneración para sostener la línea central."},
+    {name:"Iron Branch",cost:55,priority:2,why:"Atributos económicos para completar la compra inicial."},
+    {name:"Faerie Fire",cost:65,priority:3,why:"Margen de supervivencia y posibilidad de asegurar un intercambio."},
+    {name:"Mantle of Intelligence",cost:140,priority:4,why:"Atributos iniciales para mids de inteligencia."}
+   ],
+   "Línea":[
+    {name:"Bottle",cost:675,priority:1,why:"Regeneración y control de runas.",condition:"Comprala si podés disputar y aprovechar las runas; no es obligatoria en toda línea."},
+    {name:"Magic Wand",cost:460,priority:2,requiresSpellSpam:true,why:"Sustain económico ante intercambios frecuentes de hechizos."},
+    {name:"Boots of Speed",cost:500,priority:3,why:"Movilidad para esquivar, rotar y controlar runas."},
+    {name:"Infused Raindrops",cost:225,priority:4,requiresMagicThreat:true,why:"Mitigación puntual ante daño mágico que te hostiga."}
+   ],
+   "Transición":[
+    {name:"Power Treads",cost:1400,priority:1,why:"Botas de atributos si el héroe aprovecha velocidad de ataque y cambios de atributo."},
+    {name:"Phase Boots",cost:1450,priority:2,requiresMelee:true,why:"Movilidad y daño de ataque para mids cuerpo a cuerpo."},
+    {name:"Witch Blade",cost:2775,priority:3,requiresRanged:true,why:"Daño y presión para héroes de inteligencia a distancia que aprovechan ataques."},
+    {name:"Aether Lens",cost:2275,priority:4,requiresNuker:true,why:"Alcance adicional si tus habilidades principales necesitan distancia."}
+   ],
+   "Core":[
+    {name:"Black King Bar",cost:4050,priority:1,requiresMagicThreat:true,why:"Solo si el control rival te impide ejecutar tu combo."},
+    {name:"Blink Dagger",cost:2250,priority:2,requiresInitiator:true,why:"Iniciación o reposicionamiento si tu kit necesita entrar con un ángulo preciso."},
+    {name:"Eul’s Scepter of Divinity",cost:2600,priority:3,why:"Dispel propio e interrupción si el efecto responde al problema concreto."}
+   ],
+   "Avanzada":[
+    {name:"Scythe of Vyse",cost:5200,priority:1,why:"Control de cierre contra una amenaza prioritaria."},
+    {name:"Shiva’s Guard",cost:4500,priority:2,why:"Armadura y utilidad contra daño físico, velocidad de ataque o sustain."},
+    {name:"Octarine Core",cost:5100,priority:3,requiresNuker:true,why:"Enfriamientos y alcance si el héroe aprovecha sus estadísticas y efecto."}
+   ]
   },
   "Offlane":{
-   early:[["Phase Boots","Movilidad y presencia en línea; no es universal para todos los offlaners."],["Magic Wand","Sustain frente a intercambios frecuentes."]],
-   core:[["Blink Dagger","Si tu héroe necesita iniciar o alcanzar objetivos."],["Pipe of Insight","Si el daño mágico rival amenaza al equipo."]],
-   late:[["Lotus Orb","Dispel y utilidad contra hechizos dirigidos."],["Shiva’s Guard","Armadura y control de área."]]
+   "Inicio":[
+    {name:"Tango",cost:90,priority:1,why:"Regeneración para sostener la línea difícil."},
+    {name:"Iron Branch",cost:55,priority:2,why:"Atributos económicos y flexibilidad para completar consumibles."},
+    {name:"Gauntlets of Strength",cost:140,priority:3,why:"Atributos de fuerza para un offlaner que necesita aguante."},
+    {name:"Ring of Protection",cost:175,priority:4,why:"Armadura inicial si el intercambio físico de línea es intenso."}
+   ],
+   "Línea":[
+    {name:"Boots of Speed",cost:500,priority:1,why:"Movilidad para posicionarte y evitar hostigamiento."},
+    {name:"Bracer",cost:505,priority:2,why:"Atributos y vida para estabilizar una línea exigente."},
+    {name:"Magic Wand",cost:460,priority:3,requiresSpellSpam:true,why:"Sustain ante enemigos que generan cargas."},
+    {name:"Soul Ring",cost:805,priority:4,requiresNuker:true,why:"Maná para usar habilidades con frecuencia; no la fuerces si el coste en vida te deja vulnerable."}
+   ],
+   "Transición":[
+    {name:"Phase Boots",cost:1450,priority:1,why:"Movilidad y presencia en intercambios cuerpo a cuerpo."},
+    {name:"Vanguard",cost:1700,priority:2,why:"Mitigación ante ataques y daño repetido; baja prioridad contra daño mágico."},
+    {name:"Blink Dagger",cost:2250,priority:3,requiresInitiator:true,why:"Iniciación si tu héroe necesita alcanzar primero a un objetivo."},
+    {name:"Blade Mail",cost:2400,priority:4,why:"Si recibís foco al entrar y el rival se daña al atacarte."}
+   ],
+   "Core":[
+    {name:"Pipe of Insight",cost:3725,priority:1,requiresMagicThreat:true,why:"Mitigación grupal cuando el daño mágico enemigo amenaza al equipo."},
+    {name:"Crimson Guard",cost:3725,priority:2,requiresPhysicalThreat:true,why:"Defensa grupal ante ataques físicos repetidos, unidades o ilusiones."},
+    {name:"Lotus Orb",cost:3850,priority:3,why:"Dispel y respuesta contra hechizos dirigidos cuando el efecto aplica."},
+    {name:"Black King Bar",cost:4050,priority:4,requiresMagicThreat:true,why:"Si el control o daño mágico te impide permanecer en la pelea."}
+   ],
+   "Avanzada":[
+    {name:"Shiva’s Guard",cost:4500,priority:1,why:"Armadura y efecto de área ante velocidad de ataque, curación o presión física."},
+    {name:"Heart of Tarrasque",cost:5300,priority:2,why:"Aguante y regeneración para ocupar espacio en peleas largas."},
+    {name:"Scythe of Vyse",cost:5200,priority:3,why:"Control adicional si el equipo necesita fijar un objetivo móvil."}
+   ]
   },
   "Support 4":{
-   early:[["Magic Wand","Sustain económico en rotaciones."],["Glimmer Cape","Salvación si el equipo necesita protección."]],
-   core:[["Force Staff","Reposicionamiento para vos o un aliado."],["Blink Dagger","Si tu héroe depende de iniciar con una habilidad."]],
-   late:[["Aeon Disk","Si el burst te elimina antes de actuar."],["Eul’s Scepter of Divinity","Dispel propio o interrupción cuando corresponda."]]
+   "Inicio":[
+    {name:"Tango",cost:90,priority:1,why:"Regeneración para intercambios y hostigamiento en línea."},
+    {name:"Sentry Ward",cost:50,priority:2,why:"Detección o bloqueo de campamentos cuando la línea lo requiere."},
+    {name:"Blood Grenade",cost:50,priority:3,why:"Herramienta de agresión para asegurar una captura junto al aliado."},
+    {name:"Iron Branch",cost:55,priority:4,why:"Atributos económicos para completar la compra inicial."},
+    {name:"Clarity",cost:60,priority:5,why:"Regeneración de maná si podés mantenerte fuera del daño enemigo."}
+   ],
+   "Línea":[
+    {name:"Boots of Speed",cost:500,priority:1,why:"Movilidad para rotaciones y acceso a runas o zonas de visión."},
+    {name:"Magic Wand",cost:460,priority:2,requiresSpellSpam:true,why:"Sustain en escaramuzas si los rivales generan cargas."},
+    {name:"Wind Lace",cost:225,priority:3,why:"Movilidad económica si necesitás rotar y reposicionarte."},
+    {name:"Urn of Shadows",cost:825,priority:4,requiresInitiator:true,why:"Aprovecha rotaciones y capturas si tu equipo puede mantener cargas."}
+   ],
+   "Transición":[
+    {name:"Tranquil Boots",cost:900,priority:1,why:"Movilidad y regeneración para rotar con recursos limitados."},
+    {name:"Arcane Boots",cost:1500,priority:2,requiresNuker:true,why:"Sustain de maná para vos y el equipo si la composición lo necesita."},
+    {name:"Glimmer Cape",cost:2150,priority:3,why:"Salvación si el equipo necesita protección y el rival no tiene detección suficiente."},
+    {name:"Force Staff",cost:2200,priority:4,why:"Reposicionamiento para salvar aliados o salir de zonas peligrosas."}
+   ],
+   "Core":[
+    {name:"Force Staff",cost:2200,priority:1,why:"Herramienta de rescate y reposicionamiento."},
+    {name:"Glimmer Cape",cost:2150,priority:2,why:"Salvación para el aliado que recibe el foco."},
+    {name:"Blink Dagger",cost:2250,priority:3,requiresInitiator:true,why:"Iniciación para un support 4 cuyo kit necesita entrar primero."},
+    {name:"Solar Crest",cost:2575,priority:4,why:"Utilidad defensiva/ofensiva si ayuda al objetivo aliado que define la pelea."}
+   ],
+   "Avanzada":[
+    {name:"Aeon Disk",cost:3000,priority:1,why:"Si el burst te elimina antes de usar tus habilidades."},
+    {name:"Eul’s Scepter of Divinity",cost:2600,priority:2,why:"Dispel propio o interrupción cuando el efecto aplica."},
+    {name:"Aghanim’s Shard",cost:1400,priority:3,why:"Mejora solo si el efecto vigente del héroe aporta valor real."}
+   ]
   },
   "Support 5":{
-   early:[["Magic Wand","Sustain económico."],["Glimmer Cape","Salvación y protección para un aliado."]],
-   core:[["Force Staff","Sacar aliados de posiciones peligrosas."],["Mekansm","Curación grupal si el equipo necesita sostener peleas."]],
-   late:[["Aeon Disk","Si te eliminan antes de poder usar tus habilidades."],["Ghost Scepter","Defensa puntual contra ataques físicos."]]
+   "Inicio":[
+    {name:"Observer Ward",cost:0,priority:1,why:"Visión inicial gratuita; colocala donde proteja la línea o revele una rotación."},
+    {name:"Sentry Ward",cost:50,priority:2,why:"Detección o bloqueo de campamentos según necesidad de línea."},
+    {name:"Tango",cost:90,priority:3,why:"Regeneración para sostener la línea del carry."},
+    {name:"Blood Grenade",cost:50,priority:4,why:"Agresión coordinada para asegurar una captura."},
+    {name:"Iron Branch",cost:55,priority:5,why:"Atributos económicos para completar la compra inicial."},
+    {name:"Clarity",cost:60,priority:6,why:"Maná para sostener habilidades si podés mantenerte fuera del daño."}
+   ],
+   "Línea":[
+    {name:"Boots of Speed",cost:500,priority:1,why:"Movilidad para posicionamiento, visión y retirada."},
+    {name:"Magic Wand",cost:460,priority:2,requiresSpellSpam:true,why:"Sustain si los rivales generan cargas."},
+    {name:"Wind Lace",cost:225,priority:3,why:"Movilidad económica cuando necesitás salir o llegar antes a una zona."},
+    {name:"Headdress",cost:425,priority:4,why:"Regeneración de equipo para una línea de intercambios frecuentes."}
+   ],
+   "Transición":[
+    {name:"Tranquil Boots",cost:900,priority:1,why:"Movilidad y regeneración con presupuesto limitado."},
+    {name:"Arcane Boots",cost:1500,priority:2,why:"Sustain de maná para el equipo si la composición lo aprovecha."},
+    {name:"Glimmer Cape",cost:2150,priority:3,why:"Salvación si el rival no tiene detección suficiente."},
+    {name:"Force Staff",cost:2200,priority:4,why:"Reposicionamiento para salvar aliados o escapar de zonas peligrosas."}
+   ],
+   "Core":[
+    {name:"Glimmer Cape",cost:2150,priority:1,why:"Salvación para el aliado que recibe el foco."},
+    {name:"Force Staff",cost:2200,priority:2,why:"Reposicionamiento para resolver iniciaciones y capturas."},
+    {name:"Mekansm",cost:1775,priority:3,why:"Curación de equipo si tu composición necesita sostener peleas."},
+    {name:"Solar Crest",cost:2575,priority:4,why:"Utilidad para proteger o potenciar al aliado que define la pelea."}
+   ],
+   "Avanzada":[
+    {name:"Aeon Disk",cost:3000,priority:1,why:"Si el burst te elimina antes de poder actuar."},
+    {name:"Ghost Scepter",cost:1500,priority:2,why:"Defensa puntual contra ataques físicos; no te protege de daño mágico."},
+    {name:"Aghanim’s Shard",cost:1400,priority:3,why:"Mejora individual solo si el efecto actual resuelve una necesidad."}
+   ]
   }
  };
- const p=catalog[role]||catalog["Support 5"];
- return minute<12?{phase:"Inicio",items:p.early}:minute<28?{phase:"Medio",items:p.core}:{phase:"Avanzada",items:p.late};
+ const phase=getMarketPhase(minute);
+ const enemiesRoles=new Set((enemies||[]).flatMap(x=>x.roles||[]));
+ const enemyIds=new Set((enemies||[]).map(x=>String(x.name||"").replace("npc_dota_hero_","")));
+ const heroRoles=new Set(hero?.roles||[]);
+ const hasSpellSpam=(enemies||[]).some(x=>(x.roles||[]).includes("Nuker")||(x.roles||[]).includes("Disabler"));
+ const hasPhysical=(enemies||[]).some(x=>(x.roles||[]).includes("Carry")||(x.roles||[]).includes("Pusher"));
+ const hasMagic=enemiesRoles.has("Nuker")||enemiesRoles.has("Disabler");
+ const hasInitiator=enemiesRoles.has("Initiator");
+ const items=Object.entries(catalog[role]||catalog["Support 5"]).flatMap(([marketPhase,entries])=>entries.map(x=>({...x,marketPhase})))
+  .filter(x=>{
+   if(x.requiresMelee&&hero?.attack_type==="Ranged")return false;
+   if(x.requiresRanged&&hero&&hero.attack_type!=="Ranged")return false;
+   if(x.requiresNuker&&!heroRoles.has("Nuker"))return false;
+   if(x.requiresInitiator&&!heroRoles.has("Initiator")&&!hasInitiator)return false;
+   if(x.requiresMagicThreat&&!hasMagic&&problem!=="issue:magic"&&problem!=="issue:control")return false;
+   if(x.requiresPhysicalThreat&&!hasPhysical&&problem!=="issue:teamfight")return false;
+   if(x.requiresSpellSpam&&!hasSpellSpam&&problem!=="issue:lane"&&problem!=="issue:control")return false;
+   return true;
+  }).map(x=>({...x,marketRole:role,stage:({Inicio:"Inicio","Línea":"Inicio",Transición:"Medio",Core:"Medio",Avanzada:"Avanzada"})[x.marketPhase],tags:["role-baseline"]}));
+ return {phase:phase.key,phaseLabel:phase.label,items:items.filter(x=>x.marketPhase===phase.key),allItems:items};
 }
 function getDraftCounterRecommendations(enemies){
  const ids=new Set(enemies.map(h=>h.name.replace("npc_dota_hero_","")));
