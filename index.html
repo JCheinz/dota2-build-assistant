@@ -392,10 +392,7 @@ function renderHeroInventory(state,hero=null,role=""){
    : '<div class="hero-inventory-slot empty"><span>'+(i+1)+'</span></div>';
  }).join('');
  const reserve=assigned.reserve.map(name=>'<button type="button" class="inventory-reserve-item" data-remove-owned="'+esc(name)+'" title="Tocar para vender / quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><b>×</b></button>').join('');
- const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>{
-  const remainingQuantity=Math.max(0,(getRecipeComponentQuantities().get(name)||1)-(owned.includes(name)?1:0));
-  return '<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+(remainingQuantity>1?' ×'+remainingQuantity:'')+' ×</button>';
- }).join('')+'</div></div>':'';
+ const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
  return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario o la mochila para moverlo entre sectores. Usá × para venderlo; en reserva, tocá directamente el objeto. Los componentes se muestran por separado.</p></div>';
 }
 function renderItemCards(items){
