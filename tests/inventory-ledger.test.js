@@ -3,6 +3,8 @@ const {create}=require("../inventory-ledger.js");
 class MemoryStorage{constructor(){this.data=new Map()}getItem(k){return this.data.get(k)||null}setItem(k,v){this.data.set(k,v)}}
 const storage=new MemoryStorage(),ledger=create({storage});
 assert.equal(ledger.recordPurchase("Kaya",{minute:18}).recorded,true);
+assert.equal(ledger.isConsumable("Tango"),true);
+assert.equal(ledger.isConsumable("Bottle"),false);
 assert.equal(ledger.recordPurchase("Kaya",{minute:19}).reason,"already-owned");
 assert.deepEqual(ledger.snapshot().inventory.map(x=>x.name),["Kaya"]);
 ledger.upgrade("Kaya and Sange",["Kaya"],{minute:28});
