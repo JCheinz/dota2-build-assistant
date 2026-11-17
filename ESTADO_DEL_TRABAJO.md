@@ -451,3 +451,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - UI 3.46, Service Worker v97.
 - Pages no verificado; Android pendiente de prueba del usuario; APK no generado.
 - Siguiente: añadir más rutas individuales verificadas con datos actuales, ampliar recetas si faltan y luego guías de habilidades/talentos por héroe/posición.
+
+
+## Desarrollo 3.47 — más rutas individuales y recetas (17-11-2026)
+
+- Base: 3.46 integrada, commit `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- Backups previos: `backup/3.46-before-next-routes-v3-47-2026-11-17`, `backup/estado-3.46-before-next-routes-v3-47-2026-11-17`.
+- Cuatro perfiles nuevos: Wraith King Carry, Shadow Fiend Mid, Tidehunter Offlane, Pudge Support 4. Catálogo 17 rutas individuales de compra (13 en 3.46 + estas cuatro nuevas).
+- Builds contrastadas con StatsDota 7.41f; fechas/muestras guardadas en el estado del proyecto. Timings informativos, no obligatorios.
+- Recetas de Radiance, Eul’s Scepter, Buckler y Vladmir’s Offering; subreceta Buckler. Prueba de compra parcial cuando Ring of Protection ya está poseído.
+- Consecrated Wraps se mantiene fuera de las recomendaciones automáticas hasta verificar su composición/receta.
+- UI 3.47; Service Worker v98. CI pendiente.
