@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.45 + Service Worker v96; última versión estable respaldada: 3.45  
-**Etapa activa:** Mercado inteligente 3.45 integrado: cinco fases, respuestas a problemas activos y recetas ampliadas. Próximo trabajo: aumentar las rutas individuales verificadas por héroe/posición. Pages/Android pendientes de confirmación.
+**Versión integrada:** 3.46 + Service Worker v97; última versión estable respaldada: 3.46  
+**Etapa activa:** Mercado inteligente 3.46 integrado: cinco fases, respuestas a problemas activos, recetas ampliadas y seguimiento cuantitativo de componentes. Trece rutas individuales de objetos por héroe/posición. Próximo trabajo: ampliar cobertura con más rutas verificadas. Pages/Android pendientes.
 
 ## 1. Objetivo
 
@@ -720,5 +720,23 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se incorporan recetas de Soul Ring (2 Gauntlets), Phase Boots, Blade Mail, Tranquil Boots, Ring of Basilius y Desolator según fichas de objetos 7.41f: https://sinceilastplayed.com/dota2/items/soul-ring ; https://sinceilastplayed.com/dota2/items/phase-boots ; https://sinceilastplayed.com/dota2/items/blade-mail ; https://sinceilastplayed.com/dota2/items/tranquil-boots ; https://sinceilastplayed.com/dota2/items/ring-of-basilius ; https://sinceilastplayed.com/dota2/items/desolator .
 - Seguimiento cuantitativo: el inventario de componentes admite varias unidades de una misma pieza; el motor descuenta cantidades exactas y consume solo las unidades marcadas al completar una receta.
 - Regresiones añadidas para trece perfiles, costes de nuevas recetas y Soul Ring con cero, una o dos Gauntlets registradas.
-- UI/informe candidato 3.46; Service Worker `dota-build-v97`.
-- Estado: cambios y pruebas en rama; CI y revisión pendientes. No integrar hasta aprobar. Pages, Android y APK no probados/generados.
+- PR #37 integrado por squash en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/37.
+- Commit integrado: `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- CI PR #37 run `44017041005`, job `133817339994`: success. Pasaron todas las regresiones de matrices, recetas, cantidades, rutas y motor de compra.
+- UI/informe 3.46; Service Worker `dota-build-v97`. Pages, Android y APK no probados/generados.
+
+
+## 28. Integración — versión 3.46: rutas por héroe/posición y componentes cuantitativos (17-11-2026)
+
+- PR #37 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/37.
+- Commit de integración `main`: `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- CI run `44017041005`, job `133817339994`: success; sintaxis y suite completa de regresiones aprobadas.
+- El catálogo de rutas de objetos individuales pasó de seis a trece combinaciones: Juggernaut Carry, Phantom Assassin Carry, Axe Offlane, Mars Offlane, Lion Support 4, Lion Support 5 y Zeus Mid, además de los seis perfiles preexistentes.
+- Las rutas separan línea, core y situacionales y citan StatsDota 7.41f con snapshots de 16–17 noviembre de 2026. Los tiempos son datos agregados, no plazos obligatorios. No son trece guías completas de habilidades/talentos.
+- Recetas nuevas: Soul Ring, Phase Boots, Blade Mail, Tranquil Boots, Ring of Basilius y Desolator.
+- Cantidades duplicadas reales: múltiples casillas de la misma pieza, descuento exacto en recetas recursivas y consumo únicamente de unidades realmente marcadas.
+- Prueba específica: Soul Ring exige dos Gauntlets of Strength; con una registrada, el mercado solicita una más; con dos, considera cubierto el requisito.
+- Service Worker `dota-build-v97`; interfaz e informe 3.46.
+- Backups previos de base 3.45: `backup/3.45-before-hero-routes-v3-46-2026-11-17` y `backup/estado-3.45-before-hero-routes-v3-46-2026-11-17`.
+- GitHub Pages no confirmado independientemente; Android no probado por el usuario; APK 3.46 no generado ni archivado.
+- Próxima prioridad: continuar ampliación gradual de rutas de objetos por héroe/posición a partir de datos 7.41f, y luego cubrir builds/habilidades/talentos separados donde falten.
