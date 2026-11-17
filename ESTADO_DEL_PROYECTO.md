@@ -747,7 +747,7 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Base estable: 3.46, commit `030be1a9415127bc05852a4c21edbe3bfd410525`.
 - Rama: `work/next-hero-routes-v3-47`.
 - Respaldos previos: `backup/3.46-before-next-routes-v3-47-2026-11-17` y `backup/estado-3.46-before-next-routes-v3-47-2026-11-17`.
-- Se agregan cuatro rutas individuales: Wraith King Carry, Shadow Fiend Mid, Tidehunter Offlane y Pudge Support 4. El catálogo pasa de 17 a 21 combinaciones héroe/posición con ruta de objetos específica.
+- Se agregan cuatro rutas individuales: Wraith King Carry, Shadow Fiend Mid, Tidehunter Offlane y Pudge Support 4. El catálogo pasa de 13 a 17 combinaciones héroe/posición con ruta de objetos específica.
 - Cada ruta separa early/línea, core y situacionales; las notas señalan muestra y snapshot. Los timings son tendencias agregadas, no metas obligatorias.
 - Fuentes de builds 7.41f:
   - Wraith King Carry (223.582 partidas; snapshot 17-11-2026): https://statsdota.com/en/heroes/wraith-king/carry
