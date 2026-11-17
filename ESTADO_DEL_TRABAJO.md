@@ -400,3 +400,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - UI 3.44, Service Worker v95. Costes de referencia actualizados para Dust, Gem, Linken, Vessel y MKB.
 - GitHub Pages no verificado de forma independiente. Android pendiente; APK no generado.
 - Siguientes fases: completar recetas fiables, ampliar perfiles individuales por héroe/posición y separar inventario actual del historial de consumibles.
+
+
+## Desarrollo 3.45 — recetas del mercado (17-11-2026)
+
+- Base estable 3.44 (main commit `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`).
+- Backups: `backup/3.44-before-recipes-and-hero-routes-v3-45-2026-11-17`, `backup/estado-3.44-before-recipes-and-hero-routes-v3-45-2026-11-17`.
+- Rama: `work/recipes-and-hero-routes-v3-45`.
+- Añadidas recetas de Magic Wand, Bracer, Maelstrom/Mjollnir, Vanguard/Crimson Guard, Pipe, Headdress/Mekansm, Lotus Orb, Scythe of Vyse, Monkey King Bar y Urn/Spirit Vessel.
+- Comprobación de sumas, piezas anidadas, componentes ya poseídos y consumo de mejoras añadida a `tests/skill-matrix.test.js`.
+- Dust, Raindrops y Gem no reciben recetas inventadas.
+- Fuentes del detalle de componentes/precios: sinceilastplayed.com, con páginas del objeto y cambios hasta 7.41f; Liquipedia 7.41 para cambios específicos: https://liquipedia.net/dota2/7.41.
+- UI 3.45 candidata, SW v96; CI y merge pendientes.
