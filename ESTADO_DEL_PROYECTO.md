@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.38 + Service Worker v89  
+**Versión en desarrollo:** 3.39 + Service Worker v90 (mercado universal en revisión); última versión estable respaldada: 3.38 + v89  
 **Etapa activa:** Mercado automático y progresión de rutas por héroe; versión 3.38 integrada. PR #28 tiene CI aprobado; despliegue público de 3.38 y pruebas Android aún pendientes de confirmación.
 
 ## 1. Objetivo
@@ -452,3 +452,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 
 - Registro de política APK creado en `backup/APK/README.md` (commit `2641ed1def23faa6f46b8da8baccb01cda5b70f0`). El registro deja explícito que el APK 3.38 no existe todavía como binario y define nombre, metadatos y conservación inmutable para futuras compilaciones.
 - Actualización de este estado y política de respaldos: commit `c51cdf887328eed5bd9c56bdf5ad7941662a8b39`.
+
+
+## 13. Etapa — mercado universal y compras incrementales (16-11-2026)
+
+- Respaldos previos desde el commit `679d6af5b38e0c48feffd44bec6f7471de81a457`: `backup/3.38-before-universal-market-v3-39` y `backup/estado-3.38-before-universal-market-v3-39`. No sobrescribir.
+- Rama de trabajo: `work/universal-market-progression-v3-39`.
+- Auditoría detectó que los objetos sin receta ni coste explícito podían devolver coste 0 y aparentar ser gratuitos. Se corrigió el contrato: el precio desconocido ahora es `null`, no 0; la interfaz indica que debe comprobarse en la tienda.
+- La selección de componentes ahora reconoce tanto componentes parciales como objetos completos ya adquiridos que formen parte de una evolución (por ejemplo, Kaya → Kaya and Sange).
+- La tarjeta de próxima compra informa el coste y oro faltante cuando el catálogo dispone de un precio conocido; si el precio no está verificado, lo declara expresamente.
+- Se añadieron regresiones para coste desconocido, coste conocido, componente ya adquirido y evolución Kaya → Kaya and Sange.
+- Versión de trabajo: 3.39. Service Worker: `dota-build-v90`.
+- Estado: cambios preparados en rama de trabajo; pendientes CI, revisión del diff, integración, publicación y validación Android. No declarar el mercado universal terminado con este primer bloque: sigue pendiente ampliar/contrastar recetas y costes del catálogo y validar rutas reales de más héroes/posiciones.
