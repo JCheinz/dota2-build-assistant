@@ -503,3 +503,12 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Regresiones: 20 rutas, fases completas y fuente, suma de receta, progreso parcial de Headdress y slug de icono.
 - UI 3.49; Service Worker v100.
 - Pendiente CI e integración; Pages, Android y APK no se consideran probados/generados.
+
+
+## Integración PR #41 — versión 3.49 (17-11-2026)
+
+- PR #41 integrado por squash: 76cb74173d64100e950cdbad4b0edf924286f811.
+- CI run 44021398285, job 133831472898: success.
+- Rutas: Phantom Lancer Carry, Enigma Offlane y Winter Wyvern Support 5. Total 20 rutas.
+- Receta Drum of Endurance con Headdress anidado, coste 1.625, progreso parcial y deducción de Ring of Regen.
+- UI 3.49; SW v100. Pages no verificado, Android pendiente, APK no generado.
