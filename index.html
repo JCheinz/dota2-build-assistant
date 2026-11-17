@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.40</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.41</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -254,7 +254,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3278"></script>
+<script src="./specializations.js?v=3279"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -341,13 +341,13 @@ const itemSlugs={
  'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
  'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots',
- 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb',
- 'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe',
+ 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb','Diadem':'diadem','Splintmail':'splintmail','Chasm Stone':'chasm_stone','Shawl':'shawl','Shadow Amulet':'shadow_amulet','Fluffy Hat':'fluffy_hat','Mithril Hammer':'mithril_hammer','Ogre Axe':'ogre_axe',
+ 'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe','Receta de Yasha':'recipe','Receta de Sange':'recipe','Receta de Shiva’s Guard':'recipe','Receta de Glimmer Cape':'recipe','Receta de Force Staff':'recipe','Receta de Black King Bar':'recipe','Receta de Dragon Lance':'recipe','Receta de Hurricane Pike':'recipe',
  'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
  'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
  'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
- 'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe'
+ 'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe','Receta de Perseverance':'recipe'
 };
 function renderItemIcon(name){
  const slug=itemSlugs[name];
@@ -1071,28 +1071,96 @@ function getLiveState(){
 }
 const itemRecipes={
  "Power Treads":[{name:"Boots of Speed",cost:500},{name:"Gloves of Haste",cost:450},{name:"Belt of Strength",cost:450}],
- "Battle Fury":[{name:"Perseverance",cost:1400},{name:"Broadsword",cost:1000},{name:"Claymore",cost:1350},{name:"Quelling Blade",cost:100},{name:"Receta de Battle Fury",cost:250}],
- "Yasha":[{name:"Blade of Alacrity",cost:1000},{name:"Band of Elvenskin",cost:450}],
- "Manta Style":[{name:"Yasha",cost:1450},{name:"Ultimate Orb",cost:2800},{name:"Receta de Manta Style",cost:500}],
+ "Perseverance":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700}],
+ "Battle Fury":[{name:"Perseverance",cost:1400},{name:"Broadsword",cost:1000,quantity:2},{name:"Quelling Blade",cost:100},{name:"Receta de Battle Fury",cost:400}],
+ "Yasha":[{name:"Blade of Alacrity",cost:1000},{name:"Band of Elvenskin",cost:450},{name:"Receta de Yasha",cost:650}],
+ "Sange":[{name:"Ogre Axe",cost:1000},{name:"Belt of Strength",cost:450},{name:"Receta de Sange",cost:650}],
+ "Manta Style":[{name:"Yasha",cost:2100},{name:"Diadem",cost:1000},{name:"Receta de Manta Style",cost:1550}],
  "Aether Lens":[{name:"Energy Booster",cost:800},{name:"Void Stone",cost:700},{name:"Receta de Aether Lens",cost:775}],
  "Linken’s Sphere":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700},{name:"Ultimate Orb",cost:2800},{name:"Receta de Linken’s Sphere",cost:600}],
  "Aeon Disk":[{name:"Vitality Booster",cost:1000},{name:"Energy Booster",cost:800},{name:"Receta de Aeon Disk",cost:1200}],
  "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}],
  "Kaya":[{name:"Staff of Wizardry",cost:1000},{name:"Robe of the Magi",cost:450},{name:"Receta de Kaya",cost:650}],
  "Kaya and Sange":[{name:"Kaya",cost:2100},{name:"Sange",cost:2100}],
- "Yasha and Kaya":[{name:"Yasha",cost:1450},{name:"Kaya",cost:2100}],
+ "Yasha and Kaya":[{name:"Yasha",cost:2100},{name:"Kaya",cost:2100}],
+ "Sange and Yasha":[{name:"Sange",cost:2100},{name:"Yasha",cost:2100}],
  "Dagon":[{name:"Point Booster",cost:1200},{name:"Crown",cost:450},{name:"Wizard Hat",cost:250},{name:"Receta de Dagon",cost:1100}],
  "Aghanim’s Scepter":[{name:"Point Booster",cost:1200},{name:"Staff of Wizardry",cost:1000},{name:"Ogre Axe",cost:1000},{name:"Blade of Alacrity",cost:1000}],
- "Shiva’s Guard":[{name:"Platemail",cost:1400},{name:"Mystic Staff",cost:2800},{name:"Recipe de Shiva",cost:975}],
+ "Shiva’s Guard":[{name:"Platemail",cost:1400},{name:"Splintmail",cost:950},{name:"Chasm Stone",cost:900},{name:"Receta de Shiva’s Guard",cost:1250}],
+ "Glimmer Cape":[{name:"Shadow Amulet",cost:900},{name:"Shawl",cost:450},{name:"Receta de Glimmer Cape",cost:800}],
+ "Force Staff":[{name:"Staff of Wizardry",cost:1000},{name:"Fluffy Hat",cost:250},{name:"Receta de Force Staff",cost:950}],
+ "Black King Bar":[{name:"Mithril Hammer",cost:1600},{name:"Ogre Axe",cost:1000},{name:"Receta de Black King Bar",cost:1450}],
+ "Dragon Lance":[{name:"Blade of Alacrity",cost:1000},{name:"Belt of Strength",cost:450},{name:"Receta de Dragon Lance",cost:550}],
+ "Hurricane Pike":[{name:"Force Staff",cost:2200},{name:"Dragon Lance",cost:2000},{name:"Receta de Hurricane Pike",cost:350}],
  "Gem of True Sight":[]
 };
-function consumeRecipeComponents(itemName){
+function getMissingRecipeParts(itemName,owned=new Set(),components=new Set(),path=[]){
+ if(path.includes(itemName))return [];
  const recipe=itemRecipes[itemName]||[];
- recipe.forEach(part=>{
-  const component=[...document.querySelectorAll('.owned-component')].find(x=>x.value===part.name);
-  if(component)component.checked=false;
-  const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name);
-  if(owned)owned.checked=false;
+ if(!recipe.length)return [];
+ return recipe.flatMap(part=>{
+  const quantity=Math.max(1,Number(part.quantity)||1);
+  if(components.has(part.name))return [];
+  // Cada objeto completo registrado cubre una unidad; si se requieren dos,
+  // el mercado solicita solo la cantidad que todavía falta.
+  const remainingQuantity=quantity-(owned.has(part.name)?1:0);
+  if(remainingQuantity<=0)return [];
+  if(itemRecipes[part.name]?.length){
+   const nestedLeaves=getRecipeLeafParts(part.name,[...path,itemName]);
+   const hasNestedProgress=nestedLeaves.some(piece=>owned.has(piece.name)||components.has(piece.name));
+   if(hasNestedProgress)return getMissingRecipeParts(part.name,owned,components,[...path,itemName]);
+  }
+  return [{...part,quantity:remainingQuantity}];
+ });
+}
+function getRecipeLeafParts(itemName,path=[]){
+ if(path.includes(itemName))return [];
+ const recipe=itemRecipes[itemName]||[];
+ return recipe.flatMap(part=>itemRecipes[part.name]?.length?getRecipeLeafParts(part.name,[...path,itemName]):[{...part,quantity:Math.max(1,Number(part.quantity)||1)}]);
+}
+function getRecipePartsForConsumption(itemName,owned=new Set(),components=new Set(),path=[]){
+ if(path.includes(itemName))return [];
+ const recipe=itemRecipes[itemName]||[];
+ return recipe.flatMap(part=>{
+  const quantity=Math.max(1,Number(part.quantity)||1);
+  if(components.has(part.name)){
+   const ownedCount=owned.has(part.name)?1:0;
+   return Array.from({length:quantity},()=>part.name);
+  }
+  if(owned.has(part.name))return [part.name];
+  if(itemRecipes[part.name]?.length){
+   const nestedLeaves=getRecipeLeafParts(part.name,[...path,itemName]);
+   const hasNestedProgress=nestedLeaves.some(piece=>owned.has(piece.name)||components.has(piece.name));
+   if(hasNestedProgress)return getRecipePartsForConsumption(part.name,owned,components,[...path,itemName]);
+  }
+  return [part.name];
+ });
+}
+function getRecipeComponentQuantities(){
+ const quantities=new Map();
+ Object.keys(itemRecipes).forEach(itemName=>{
+  const visit=(name,path=[])=>{
+   if(path.includes(name))return;
+   (itemRecipes[name]||[]).forEach(part=>{
+    quantities.set(part.name,Math.max(quantities.get(part.name)||1,Math.max(1,Number(part.quantity)||1)));
+    if(itemRecipes[part.name]?.length)visit(part.name,[...path,name]);
+   });
+  };
+  visit(itemName);
+ });
+ return quantities;
+}
+function consumeRecipeComponents(itemName){
+ const componentInputs=[...document.querySelectorAll('.owned-component')];
+ const ownedInputs=[...document.querySelectorAll('.owned-item')];
+ const components=new Set(componentInputs.filter(x=>x.checked).map(x=>x.value));
+ const owned=new Set(ownedInputs.filter(x=>x.checked).map(x=>x.value));
+ const names=getRecipePartsForConsumption(itemName,owned,components);
+ names.forEach(name=>{
+  const component=componentInputs.find(x=>x.value===name&&x.checked);
+  if(component){component.checked=false;return;}
+  const item=ownedInputs.find(x=>x.value===name&&x.checked);
+  if(item)item.checked=false;
  });
 }
 function clearTrackedPurchases(){
@@ -1105,12 +1173,12 @@ function getNextPurchase(build,state,preferredName=null){
   const recipe=itemRecipes[target.name]||[];
   // Un objeto completo registrado en el inventario también cuenta como componente
   // de una evolución (por ejemplo, Kaya dentro de Kaya and Sange).
-  const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
+  const missing=getMissingRecipeParts(target.name,owned,components);
   // Elegir una pieza que ya se pueda comprar; si ninguna alcanza, mostrar la primera
   // pendiente y cuánto oro falta, sin marcarla como asequible.
-  const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost))||missing[0]||null;
+  const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*Math.max(1,Number(part.quantity)||1))||missing[0]||null;
   if(missing.length&&next){
-   const cost=Number.isFinite(Number(next.cost))?Number(next.cost):null;
+   const cost=Number.isFinite(Number(next.cost))?Number(next.cost)*Math.max(1,Number(next.quantity)||1):null;
    return {target,kind:"component",name:next.name,cost,remaining:cost===null?null:Math.max(0,cost-state.gold),affordable:cost===null?null:state.gold>=cost,reason:target.condition||target.why};
   }
   if(recipe.length)return {target,kind:"goal",name:target.name,cost:null,remaining:null,affordable:null,reason:target.condition||target.why,routeReason:"Los componentes están registrados. Completá el objeto en la partida y marcá el objeto terminado para actualizar el inventario."};
@@ -1178,10 +1246,12 @@ function getNextPurchase(build,state,preferredName=null){
  }
  const options=build.filter(x=>!owned.has(x.name)).map(target=>{
   const recipe=itemRecipes[target.name]||[];
-  const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
-  const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
-  const remainingCost=missing.reduce((sum,p)=>sum+p.cost,0);
-  const progress=recipe.length?((recipe.length-missing.length)/recipe.length):0;
+  const missing=getMissingRecipeParts(target.name,owned,components);
+  const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*part.quantity)||missing[0]||null;
+  const remainingCost=missing.reduce((sum,p)=>sum+(Number(p.cost)||0)*p.quantity,0);
+  const totalParts=getRecipeLeafParts(target.name).reduce((sum,p)=>sum+p.quantity,0);
+  const missingParts=missing.reduce((sum,p)=>sum+p.quantity,0);
+  const progress=totalParts?((totalParts-missingParts)/totalParts):0;
   const urgency=target.score||0,stage=target.stage||"";
   const stageFit=stage===phase?1.25:stage==="Inicio"&&phase!=="Inicio"?-1.2:stage==="Avanzada"&&phase!=="Avanzada"?-0.8:0;
   const decisionScore=urgency*0.72+(next?(state.gold>=next.cost?1.15:0.75):0.5)+progress*0.65+(remainingCost<=state.gold?0.8:0)+stageFit+(target.threatSpecific?0.55:0);
@@ -1358,12 +1428,16 @@ function renderDynamicStateControls(){
   const zones=Object.fromEntries(previousInputs.filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]));
   ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
  }
- const parts=new Set();
- Object.values(itemRecipes).flat().forEach(x=>parts.add(x.name));
+ const quantities=getRecipeComponentQuantities();
+ const parts=[...quantities.keys()];
  const componentRoot=$("ownedComponents");
  if(componentRoot){
   const checked=new Set([...document.querySelectorAll(".owned-component:checked")].map(x=>x.value));
-  componentRoot.innerHTML=[...parts].map(x=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" '+(checked.has(x)?"checked":"")+'> '+esc(x)+'</label>').join("");
+  const ownedNames=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
+  componentRoot.innerHTML=parts.map(x=>{
+   const remainingQuantity=Math.max(0,quantities.get(x)-(ownedNames.has(x)?1:0));
+   return '<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" '+(checked.has(x)?"checked":"")+'> '+esc(x)+(remainingQuantity>1?' ×'+remainingQuantity:'')+'</label>';
+  }).join("");
  }
 }
 
@@ -1581,7 +1655,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.40',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.41',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),

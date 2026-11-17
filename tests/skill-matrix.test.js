@@ -590,8 +590,8 @@ for (const marker of ['"Kaya and Sange"','"Yasha and Kaya"','"Shiva’s Guard"',
  if (!html.includes(marker)) throw new Error("Falta progresión tardía: "+marker);
 }
 if (!html.includes('state.minute>=32&&state.owned.includes("Kaya")')) throw new Error("Kaya debe habilitar sus evoluciones al entrar en fase avanzada");
-if (!html.includes('!owned.has(part.name)')) throw new Error("Las recetas deben reconocer objetos completos que ya están en el inventario como componentes");
-if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
+if (!html.includes('remainingQuantity=quantity-(owned.has(part.name)?1:0)')) throw new Error("Las recetas deben descontar una unidad de objetos completos ya poseídos");
+if (!html.includes("const item=ownedInputs.find(x=>x.value===name&&x.checked)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
 
 
 (()=> {
@@ -727,4 +727,53 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(afterLongCore.target?.name!=="Situational alpha")throw new Error("El mercado debe continuar con situacionales después de completar una ruta larga");
  if(!appHtml.includes("marketPool:scores")||!appHtml.includes("...(adaptive.marketPool||[])"))throw new Error("El informe debe alimentar el mercado con el catálogo completo y no solo con las siete tarjetas visibles");
  console.log("OK: mercado sin límite de siete recomendaciones — 24 objetivos core y continuidad situacional");
+})();
+
+// Recursive item-recipe regression suite (7.41f)
+(() => {
+ const recipeStart=appHtml.indexOf("const itemRecipes={");
+ const recipeEnd=appHtml.indexOf("\nfunction getNextPurchase(",recipeStart);
+ if(recipeStart<0||recipeEnd<0)throw new Error("No se encontró el motor de recetas para probar");
+ const recipeContext={document:{querySelectorAll:()=>[]}};
+ vm.createContext(recipeContext);
+ vm.runInContext(appHtml.slice(recipeStart,recipeEnd),recipeContext);
+ const recipes=vm.runInContext("itemRecipes",recipeContext);
+ const missing=(name,owned=[],components=[])=>vm.runInContext(
+  "getMissingRecipeParts("+JSON.stringify(name)+",new Set("+JSON.stringify(owned)+"),new Set("+JSON.stringify(components)+"))",
+  recipeContext
+ );
+ const total=name=>(recipes[name]||[]).reduce((sum,part)=>sum+part.cost*(part.quantity||1),0);
+ const expected={
+  "Battle Fury":3900,"Yasha":2100,"Sange":2100,"Manta Style":4650,
+  "Arcane Boots":1500,"Kaya and Sange":4200,"Yasha and Kaya":4200,
+  "Sange and Yasha":4200,"Shiva’s Guard":4500,"Glimmer Cape":2150,
+  "Force Staff":2200,"Black King Bar":4050,"Dragon Lance":2000,"Hurricane Pike":4550
+ };
+ for(const [name,cost] of Object.entries(expected)){
+  if(total(name)!==cost)throw new Error(name+" debe sumar "+cost+" de oro, suma encontrada: "+total(name));
+ }
+ const mantaWithoutProgress=missing("Manta Style",[],[]);
+ if(!mantaWithoutProgress.some(x=>x.name==="Yasha")||mantaWithoutProgress.some(x=>x.name==="Blade of Alacrity"))throw new Error("Sin piezas de Yasha registradas, el mercado debe proponer Yasha como objeto completo");
+ const sangeUpgrade=missing("Kaya and Sange",["Kaya"],[]);
+ if(sangeUpgrade.length!==1||sangeUpgrade[0].name!=="Sange")throw new Error("Con Kaya ya comprada, el siguiente objetivo debe ser Sange como objeto completo");
+ const mantaFromPieces=missing("Manta Style",[],["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]);
+ const mantaNames=mantaFromPieces.map(x=>x.name).sort().join("|");
+ if(mantaNames!=="Diadem|Receta de Manta Style")throw new Error("Manta debe reconocer la Yasha construida a partir de sus componentes: "+mantaNames);
+ const mantaFromYasha=missing("Manta Style",["Yasha"],[]);
+ if(mantaFromYasha.some(x=>x.name==="Yasha"||x.name==="Blade of Alacrity"))throw new Error("Manta no debe volver a pedir Yasha si ya está en el inventario");
+ const kayaUpgrade=missing("Kaya and Sange",["Kaya"],["Sange"]);
+ if(kayaUpgrade.length)throw new Error("Kaya + Sange deben completar los componentes de Kaya and Sange");
+ const battleFury=missing("Battle Fury",["Perseverance"],["Quelling Blade","Receta de Battle Fury"]);
+ if(battleFury.length!==1||battleFury[0].name!=="Broadsword"||battleFury[0].quantity!==2)throw new Error("Battle Fury debe representar las dos Broadswords como una cantidad de dos");
+ const battleFuryOneOwned=missing("Battle Fury",["Perseverance","Broadsword"],["Quelling Blade","Receta de Battle Fury"]);
+ if(battleFuryOneOwned.length!==1||battleFuryOneOwned[0].quantity!==1)throw new Error("Una Broadsword completa ya poseída debe descontarse de las dos requeridas");
+ const quantities=vm.runInContext("getRecipeComponentQuantities()",recipeContext);
+ if(quantities.get("Broadsword")!==2)throw new Error("El selector de componentes debe comunicar que se necesitan dos Broadswords");
+ const consumedDuplicateParts=vm.runInContext('getRecipePartsForConsumption("Battle Fury",new Set(["Broadsword"]),new Set(["Broadsword"]))',recipeContext);
+ if(consumedDuplicateParts.filter(name=>name==="Broadsword").length!==2)throw new Error("Al completar Battle Fury deben consumirse las dos unidades registradas de Broadsword");
+ const consumeFromCompleteYasha=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(["Yasha"]),new Set())',recipeContext);
+ if(!consumeFromCompleteYasha.includes("Yasha")||consumeFromCompleteYasha.includes("Blade of Alacrity"))throw new Error("Al completar Manta debe consumir Yasha como objeto completo, no sus subcomponentes");
+ const consumeFromYashaParts=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(),new Set(["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]))',recipeContext);
+ if(!consumeFromYashaParts.includes("Blade of Alacrity")||!consumeFromYashaParts.includes("Receta de Yasha"))throw new Error("Al completar Manta debe consumir las piezas de Yasha si no se registró como objeto completo");
+ console.log("OK: recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes");
 })();
