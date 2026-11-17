@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.46 + Service Worker v97; última versión estable respaldada: 3.46  
-**Etapa activa:** Mercado inteligente 3.46 integrado: cinco fases, respuestas a problemas activos, recetas ampliadas y seguimiento cuantitativo de componentes. Trece rutas individuales de objetos por héroe/posición. Próximo trabajo: ampliar cobertura con más rutas verificadas. Pages/Android pendientes.
+**Versión integrada:** 3.47 + Service Worker v98; última versión estable respaldada: 3.47  
+**Etapa activa:** Mercado inteligente 3.47 integrado: cinco fases, respuestas a problemas activos, recetas recursivas y seguimiento cuantitativo de componentes. Diecisiete rutas individuales de objetos por héroe/posición. Próximo trabajo: ampliar perfiles con datos verificados y cubrir guías individuales de habilidades/talentos donde falten. Pages/Android pendientes de verificación.
 
 ## 1. Objetivo
 
@@ -758,5 +758,22 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Detalles de receta/precio contrastados en 7.41f: Eul’s Scepter https://sinceilastplayed.com/dota2/items/euls-scepter-of-divinity ; Vladmir’s Offering https://sinceilastplayed.com/dota2/items/vladmirs-offering ; Radiance https://sinceilastplayed.com/dota2/items/radiance .
 - No se activa Consecrated Wraps como compra porque su receta todavía no está verificada en este proyecto; queda como siguiente investigación, no como pieza inventada.
 - Se añadieron pruebas para cuatro perfiles, suma de costes, progresión de Vladmir’s con Ring of Protection ya poseído e iconos nuevos.
-- Interfaz/informe candidata 3.47; Service Worker `dota-build-v98`.
-- CI, revisión e integración pendientes. Pages/Android/APK no probados/generados.
+- PR #38 integrado por squash en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/38.
+- Commit integrado: `985f13d940f97f809c82480511abc7ace8f47dc7`.
+- CI PR #38 run `44017750310`, job `133819650588`: success. Pasaron sintaxis y la suite completa.
+- Interfaz/informe 3.47; Service Worker `dota-build-v98`. Pages/Android/APK no probados/generados.
+
+
+## 30. Integración — versión 3.47: cuatro rutas adicionales por héroe/posición (17-11-2026)
+
+- PR #38 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/38.
+- Commit integrado en `main`: `985f13d940f97f809c82480511abc7ace8f47dc7`.
+- CI run `44017750310`, job `133819650588`: success.
+- El catálogo crece de 13 a 17 rutas de objetos individuales con cuatro combinaciones: Wraith King Carry, Shadow Fiend Mid, Tidehunter Offlane y Pudge Support 4.
+- Recetas añadidas: Eul’s Scepter of Divinity (2.600), Buckler (425), Vladmir’s Offering (2.200) con subreceta Buckler, Radiance (4.700).
+- Se prueban la expansión de Buckler cuando Ring of Protection ya está en el inventario y el cálculo de siguiente compra (solo receta de Buckler pendiente).
+- Consecrated Wraps queda excluido del mercado automático hasta confirmar su receta y sus ingredientes.
+- Fuentes de ruta StatsDota 7.41f y fichas de componentes sinceilastplayed documentadas en la sección 29.
+- Service Worker `dota-build-v98`, UI e informe 3.47.
+- GitHub Pages no verificado independientemente; Android no probado por el usuario; APK 3.47 no generado ni archivado.
+- Próxima prioridad: ampliar más rutas individuales solo cuando exista muestra suficiente por posición, y avanzar luego a guías de habilidades/talentos individuales donde todavía falten.
