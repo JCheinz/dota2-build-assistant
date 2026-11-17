@@ -1777,6 +1777,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(live.owned.includes(x.name))score=-100;
   return {...x,score,priority:false};
  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+ const visibleScores=scores.filter(x=>!x.roleBaseline||x.marketPhase===getMarketPhase(live.minute).key);
 
  let selected;
  if(heroPlan){
@@ -1805,12 +1806,12 @@ function buildAdaptivePlan(hero,role,enemies,live){
   // Las respuestas de draft no desplazan los objetos de progresión salvo una amenaza concreta y activa.
   const responses=scores.filter(x=>(x.threatSpecific||pugnaResponses.some(p=>p.name===x.name))&&!plannedItems.some(p=>p.name===x.name));
   const route=[...early,...core].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
-  const extras=[...situational,...responses,...scores.filter(x=>!plannedItems.some(p=>p.name===x.name)&&!responses.some(r=>r.name===x.name))]
+  const extras=[...situational,...responses,...scores.filter(x=>!x.roleBaseline||x.marketPhase===getMarketPhase(live.minute).key).filter(x=>!plannedItems.some(p=>p.name===x.name)&&!responses.some(r=>r.name===x.name))]
    .filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i)
    .sort((a,b)=>b.score-a.score);
   selected=[...route,...extras].slice(0,7).map((x,i)=>({...x,priority:i<3,routeIndex:i}));
  }else{
-  selected=scores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
+  selected=visibleScores.slice(0,7).map((x,i)=>({...x,priority:i<3}));
  }
  if(hero.name==="npc_dota_hero_antimage"){
   const coreOrder=["Power Treads","Battle Fury","Yasha","Manta Style"];
@@ -1823,7 +1824,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
    }
   });
   scores.sort((a,b)=>b.score-a.score);
-  selected.splice(0,selected.length,...scores.slice(0,7).map((x,i)=>({...x,priority:i<3})));
+  selected.splice(0,selected.length,...visibleScores.slice(0,7).map((x,i)=>({...x,priority:i<3})));
   selected.sort((a,b)=>{const ai=coreOrder.indexOf(a.name),bi=coreOrder.indexOf(b.name);if(ai>=0&&bi>=0)return ai-bi;if(ai>=0)return -1;if(bi>=0)return 1;return b.score-a.score;});
   selected.forEach((x,i)=>x.priority=i<3);
  }
