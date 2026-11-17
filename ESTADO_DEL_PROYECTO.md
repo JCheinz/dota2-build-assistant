@@ -559,5 +559,19 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - El mercado aplica umbrales de tempo a objetos de transición y avanzados (incluida BKB), y no permite que los objetos core de etapa media desplacen la compra inicial antes del minuto 12. Los situacionales avanzados no entran antes del minuto 20. Los umbrales son heurísticos y deberán calibrarse con pruebas por héroe/posición.
 - Se actualizó el Service Worker a `dota-build-v93` y la referencia de especializaciones a `?v=3280`.
 - Se agregaron regresiones para sinergias vacías/parciales/completas, filtros temporales y versión de caché.
-- Estado: cambios en rama, pendientes de CI, revisión final, integración y despliegue. La versión 3.42 todavía no está publicada ni probada en Android. No se generó APK.
+- PR #33 integrado por squash en `main`: commit `3f0f481cc5018fef1c4e62478aad795e6f336886`. CI PR run `44006505822`, job `133783045022`: success. El despliegue Pages, la validación visual en Android y APK siguen pendientes; no se generó APK.
 - Próxima ampliación: convertir la ruta de compra en fases específicas por héroe y posición, con consumibles de inicio, objetos de línea, transición, core y situacionales; comprobar que el oro y el inventario determinen el siguiente componente comprable sin saltar objetivos.
+
+
+## 20. Resultado — versión 3.42 integrada: mercado por tempo y sinergias de composición (17-11-2026)
+
+- PR #33: https://github.com/JCheinz/dota2-build-assistant/pull/33, integrado por squash.
+- Commit: `3f0f481cc5018fef1c4e62478aad795e6f336886`.
+- CI PR: run `44006505822`, job `133783045022`, success. La suite completa de matrices, mercado y recetas, junto con las nuevas regresiones de sinergia/tempo, terminó correctamente.
+- La secuencia de equipo completo de Pugna Mid requiere Mars, Rubick, Oracle y Juggernaut presentes en los aliados. Las sinergias individuales se generan solo para los aliados elegidos.
+- Se eliminaron menciones de apoyo genéricas heredadas de Mars/Oracle; el informe refleja la composición actual.
+- Se incorporaron umbrales temporales: BKB desde minuto 12; objetos de transición/defensa desde umbrales de 12–16; objetos avanzados de 20–24. La ruta de héroes sin perfil específico conserva solo compras tempranas antes de minuto 12 y no muestra objetivos avanzados antes de minuto 20. Son reglas iniciales que requieren calibración con pruebas reales por héroe/posición.
+- Service Worker: `dota-build-v93`; referencia `specializations.js?v=3280`.
+- Respaldo previo inmutable: `backup/3.41-before-intelligent-market-2026-11-16`; estado previo: `backup/estado-3.41-before-intelligent-market-2026-11-16`.
+- GitHub Pages no confirmado en este hito. Android no probado por el usuario. APK 3.42 no generado ni archivado.
+- Próxima fase prioritaria: construir rutas temporales por héroe y posición (inicio, línea, transición, core y situacionales), y ordenar la próxima compra por fase, oro, inventario y amenaza activa.
