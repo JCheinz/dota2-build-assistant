@@ -516,7 +516,9 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
     "Receta de Arcane Boots", "Energy Booster", "Void Stone"
   ].map(value => ({ value, checked: true }));
   const recipeContext = {
-    document: { querySelectorAll: selector => selector === ".owned-component" ? componentInputs : [] }
+    document: { querySelectorAll: selector => selector === ".owned-component" ? componentInputs : [] },
+    purchaseLedger: { upgrade: () => ({upgraded:true}), recordPurchase: () => ({recorded:true}) },
+    ledgerMinute: () => 20
   };
   vm.createContext(recipeContext);
   vm.runInContext(recipeSource, recipeContext);
@@ -534,8 +536,8 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
   if (!appHtml.includes("if(markingBought)consumeRecipeComponents(name)")) {
     throw new Error("La compra de un objeto completo no consume su receta");
   }
-  if (!appHtml.includes("clearTrackedPurchases();updateRoleFit()")
-      || !appHtml.includes("clearTrackedPurchases();renderDynamicStateControls()")) {
+  if (!appHtml.includes("purchaseLedger.reset();clearTrackedPurchases();updateRoleFit()")
+      || !appHtml.includes("purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls()")) {
     throw new Error("El inventario no se reinicia al cambiar de héroe o posición");
   }
   console.log("OK: inventario aislado por héroe/posición al cambiar la configuración");
