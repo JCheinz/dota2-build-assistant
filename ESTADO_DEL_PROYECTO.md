@@ -363,3 +363,16 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Service Worker: `dota-build-v85`.
 - Alcance: se corrigió el enlace entre el selector de problemas y las respuestas de compra de Pugna Mid; se agregaron rutas de evolución de Kaya y opciones condicionales de late game. Se mantienen intactos los perfiles Pugna Support, Techies y Crystal Maiden.
 - Validación pendiente del usuario en Android: cambiar el problema seleccionado con draft fijo y verificar la próxima compra; registrar Kaya como objeto completo, fijar minuto 33 y comprobar que se recomiende una evolución apropiada; al marcar la evolución, confirmar que Kaya se consume del inventario.
+
+
+## Nueva etapa — controles independientes y selección situacional Pugna (17-11-2026)
+
+- Backups creados desde main `4e75464b0ed9ca1b46443ea5bb2f82593fd20bb4`: `backup/3.35-before-inventory-and-selection-controls` y `backup/estado-3.35-before-inventory-and-selection-controls`.
+- Rama: `work/inventory-and-selection-controls`.
+- La composición incorpora el botón `Borrar héroes`, que limpia únicamente los diez espacios del draft.
+- El inventario incorpora `Borrar ítems`, que limpia únicamente objetos completos, componentes, minuto, oro y problema seleccionado; no toca los héroes.
+- `Limpiar selección` se renombra `Restablecer todo` y conserva una acción explícita para borrar ambos contextos.
+- Pugna Mid conserva Kaya and Sange como única evolución de Kaya en esta ruta; se retira Yasha and Kaya de las opciones específicas de Pugna.
+- Se añade Spirit Vessel al motor de Pugna Mid con prioridad condicional ante Alchemist/Huskar cuando el sustain sea la amenaza; se agrega a carga manual e iconografía.
+- Service Worker pasa a `dota-build-v86`. Se añadieron comprobaciones de regresión para botones separados y respuestas anti-sustain.
+- Pendiente CI/revisión del diff y prueba Android de los tres botones y de Spirit Vessel ante Alchemist/Huskar.

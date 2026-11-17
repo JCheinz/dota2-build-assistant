@@ -206,7 +206,7 @@
 <div class="wrap">
   <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.27</div></header>
   <section class="panel">
-    <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2>
+    <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
       <div class="team">
         <div class="team-title"><i class="dot"></i> TU EQUIPO</div>
@@ -242,7 +242,7 @@
         <div class="controls" id="ownedComponents"></div>
       </div>
     </div>
-    <div class="actions"><button class="btn" id="analyze" disabled>Analizar draft y build</button><button class="btn secondary" id="reset">Limpiar selección</button></div>
+    <div class="actions"><button class="btn" id="analyze" disabled>Analizar draft y build</button><button class="btn secondary" id="reset">Restablecer todo</button></div>
     <p class="hint">Tocá un espacio vacío para elegir un héroe. No se puede repetir el mismo héroe en los dos equipos.</p>
   </section>
   <section class="panel result" id="result">
@@ -336,7 +336,7 @@ const itemSlugs={
  'Hurricane Pike':'hurricane_pike','Manta Style':'manta','Butterfly':'butterfly','Daedalus':'daedalus',
  'Satanic':'satanic','Silver Edge':'silver_edge','Swift Blink':'swift_blink','Mask of Madness':'mask_of_madness',
  'Aghanim’s Scepter':'ultimate_scepter','Monkey King Bar':'monkey_king_bar','Dust of Appearance':'dust',
- 'Gem of True Sight':'gem','Mjollnir':'mjollnir','Shiva’s Guard':'shivas_guard','Battle Fury':'bfury','Skull Basher':'basher','Abyssal Blade':'abyssal_blade','Nullifier':'nullifier',
+ 'Gem of True Sight':'gem','Mjollnir':'mjollnir','Shiva’s Guard':'shivas_guard','Spirit Vessel':'spirit_vessel','Battle Fury':'bfury','Skull Basher':'basher','Abyssal Blade':'abyssal_blade','Nullifier':'nullifier',
  'Pipe of Insight':'pipe','Crimson Guard':'crimson_guard','Spirit Vessel':'spirit_vessel','Assault Cuirass':'assault','Heaven’s Halberd':'heavens_halberd',
  'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
@@ -388,7 +388,7 @@ function renderHeroInventory(state,hero=null,role=""){
  }).join('');
  const reserve=assigned.reserve.map(name=>'<button type="button" class="inventory-reserve-item" data-remove-owned="'+esc(name)+'" title="Tocar para vender / quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><b>×</b></button>').join('');
  const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
- return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario o la mochila para moverlo entre sectores. Usá × para venderlo; en reserva, tocá directamente el objeto. Los componentes se muestran por separado.</p></div>';
+ return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario o la mochila para moverlo entre sectores. Usá × para venderlo; en reserva, tocá directamente el objeto. Los componentes se muestran por separado.</p></div>';
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
@@ -1197,8 +1197,8 @@ function pugnaFinalBuild(matchups,state){
   {name:"Arcane Boots",stage:"Núcleo",cost:1500,score:2.6,why:"Sostienen el maná de Pugna y aportan regeneración al equipo.",condition:"Ruta base; comprá Ring of Basilius como componente si todavía no lo tenés."},
   {name:"Aether Lens",stage:"Núcleo",cost:2275,score:4.0,why:"Más alcance para lanzar habilidades desde una posición segura.",condition:"Núcleo de alcance; adelantala si necesitás jugar fuera del rango de iniciación."},
   {name:"Kaya",stage:"Avanzada",cost:2100,score:2.1,why:"Amplificación de hechizos y mejor rendimiento de maná.",condition:"Daño mágico como prioridad cuando ya tenés alcance y no necesitás resolver primero supervivencia o movilidad."},
-  {name:"Kaya and Sange",stage:"Cierre",cost:4200,score:0,why:"Evolución de Kaya con atributos y resistencia adicional.",condition:"Si ya tenés Kaya y necesitás más aguante sin abandonar la amplificación mágica."},
-  {name:"Yasha and Kaya",stage:"Cierre",cost:3550,score:0,why:"Evolución de Kaya orientada a movilidad y velocidad de ataque.",condition:"Si ya tenés Kaya y el héroe aprovecha movilidad/velocidad; no es mejora automática para toda partida."},
+  {name:"Kaya and Sange",stage:"Cierre",cost:4200,score:0,why:"Evolución de Kaya con atributos y resistencia adicional.",condition:"Única evolución de Kaya contemplada para Pugna Mid en esta ruta."},
+  {name:"Spirit Vessel",stage:"Situacional",cost:2780,score:0,why:"Reduce curación y regeneración sostenida.",condition:"Contra Alchemist o Huskar cuando su sustain es el problema real; necesitás cargas para mantener el efecto."},
   {name:"Shiva’s Guard",stage:"Avanzada",cost:5175,score:0,why:"Armadura, daño mágico en área y reducción de velocidad de ataque.",condition:"Contra ilusiones, unidades o daño físico por ataques cuando el efecto de área resuelve un problema real."},
   {name:"Gem of True Sight",stage:"Avanzada",cost:900,score:0,why:"Detección persistente contra invisibilidad.",condition:"Solo si el equipo necesita detección y podés proteger la gema."},
   {name:"Dagon",stage:"Avanzada",cost:3000,score:2.0,why:"Ráfaga adicional para rematar objetivos; su coste escala por nivel.",condition:"Elegila si tu equipo puede asegurar objetivos aislados y la ráfaga cambia el resultado; no la fuerces por daño teórico."},
@@ -1241,9 +1241,9 @@ function pugnaFinalBuild(matchups,state){
   if(force){force.score=Math.max(force.score,2.0);}
  }
  if(state.minute>=32&&state.owned.includes("Kaya")){
-  boost("Kaya and Sange",5.0,"Kaya ya está en tu inventario: esta evolución aprovecha el objeto existente si necesitás resistencia/atributos.");
-  boost("Yasha and Kaya",3.2,"Kaya ya está en tu inventario: alternativa de movilidad si encaja con tu forma de jugar.");
+  boost("Kaya and Sange",5.0,"Kaya ya está en tu inventario: esta es la evolución contemplada para Pugna Mid si necesitás aguante adicional.");
  }
+ if(has("alchemist")||has("huskar"))boost("Spirit Vessel",has("alchemist")?5.2:4.8,"Respuesta contra regeneración/sustain alto: priorizala si el rival está sobreviviendo gracias a curación o regeneración y podés mantener cargas.");
  if(state.minute>=35){
   boost("Scythe of Vyse",1.8,"Control de cierre si necesitás detener a un héroe móvil y tu equipo puede seguir la iniciación.");
   boost("Aghanim’s Scepter",1.8,"Mejora de cierre si el efecto actual de Pugna aporta valor concreto.");
@@ -1342,9 +1342,10 @@ function renderDynamicStateControls(){
  const plan=me?getHeroPlan(me,role):null;
  if(plan)[...plan.early,...plan.core,...plan.situational].forEach(x=>addItem({name:x[0],why:x[1]}));
  if(me&&me.name==="npc_dota_hero_pugna"&&role==="Mid"){
-  ["Kaya and Sange","Yasha and Kaya","Shiva’s Guard","Gem of True Sight"].forEach(name=>addItem({name,why:"Opción de progresión avanzada; se recomienda solo si resuelve una necesidad concreta."}));
+  ["Kaya and Sange","Shiva’s Guard","Gem of True Sight","Spirit Vessel"].forEach(name=>addItem({name,why:"Opción de progresión avanzada; se recomienda solo si resuelve una necesidad concreta."}));
  }
  getDraftCounterRecommendations(enemies).forEach(g=>g.items.forEach(x=>addItem({name:x[0],why:x[1]})));
+ if(me&&me.name==="npc_dota_hero_pugna"&&role==="Mid"&&enemies.some(h=>["alchemist","huskar"].includes(h.name.replace("npc_dota_hero_",""))))addItem({name:"Spirit Vessel",why:"Contra sustain alto: reduce curación y regeneración mientras tenga cargas."});
  const ownedRoot=$("ownedItems");
  if(ownedRoot){
   const previousInputs=[...document.querySelectorAll(".owned-item")];
@@ -1662,7 +1663,15 @@ $('currentGold').addEventListener('input',()=>{if($('result').classList.contains
 $('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')&&$('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 
-$('reset').onclick=()=>{ally=Array(5).fill(null);enemy=Array(5).fill(null);$('result').classList.remove('show');renderSlots()};
+function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
+function clearItemsOnly(){
+ document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
+ $('gameMinute').value='0';$('currentGold').value='0';$('currentProblem').value='none';
+ if($('result').classList.contains('show'))analyze({scroll:false});
+}
+$('clearHeroes').onclick=clearHeroesOnly;
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='clearItems')clearItemsOnly();});
+$('reset').onclick=()=>{clearHeroesOnly();clearItemsOnly();$('result').classList.remove('show');};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
 if('serviceWorker' in navigator){
   let refreshing=false;
