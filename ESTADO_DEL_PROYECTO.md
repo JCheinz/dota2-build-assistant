@@ -546,3 +546,18 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - La versión visible y el Service Worker están confirmados en `main`. La URL de GitHub Pages no pudo verificarse con la herramienta de navegación; por tanto, el despliegue público de 3.41 queda pendiente de confirmación. Android y APK 3.41 también pendientes.
 - APK 3.41: no generado ni archivado como binario. Se mantiene el registro en `backup/APK/README.md`; no se sustituye un APK por código fuente.
 - Próxima etapa: auditoría del inventario de recetas y objetos restantes, control de cantidades, progreso del mercado en rutas situacionales y pruebas Android con compras parciales y mejoras.
+
+
+## 19. Desarrollo — mercado inteligente por tempo y composición (candidata 3.42, 16-11-2026)
+
+- Respaldos previos desde `main` commit `9db655e1666a95d9623686140278092f39ff7a8d`:
+  - Código: `backup/3.41-before-intelligent-market-2026-11-16`.
+  - Estado: `backup/estado-3.41-before-intelligent-market-2026-11-16`.
+- Rama: `work/intelligent-market-tempo-synergy-v3-42`.
+- Se detectó que la secuencia de sinergia de Pugna Mid se agregaba sin comprobar que Mars, Rubick, Oracle y Juggernaut estuvieran todos en el equipo aliado. Ahora la secuencia combinada exige los cuatro; las tarjetas individuales solo se muestran para aliados presentes.
+- Se eliminaron los consejos de apoyo heredados que nombraban a Mars/Oracle fuera de la composición actual. El bloque genérico resume únicamente los aliados seleccionados.
+- El mercado aplica umbrales de tempo a objetos de transición y avanzados (incluida BKB), y no permite que los objetos core de etapa media desplacen la compra inicial antes del minuto 12. Los situacionales avanzados no entran antes del minuto 20. Los umbrales son heurísticos y deberán calibrarse con pruebas por héroe/posición.
+- Se actualizó el Service Worker a `dota-build-v93` y la referencia de especializaciones a `?v=3280`.
+- Se agregaron regresiones para sinergias vacías/parciales/completas, filtros temporales y versión de caché.
+- Estado: cambios en rama, pendientes de CI, revisión final, integración y despliegue. La versión 3.42 todavía no está publicada ni probada en Android. No se generó APK.
+- Próxima ampliación: convertir la ruta de compra en fases específicas por héroe y posición, con consumibles de inicio, objetos de línea, transición, core y situacionales; comprobar que el oro y el inventario determinen el siguiente componente comprable sin saltar objetivos.
