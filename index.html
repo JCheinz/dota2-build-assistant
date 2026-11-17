@@ -1105,7 +1105,11 @@ function getMissingRecipeParts(itemName,owned=new Set(),components=new Set(),pat
   // el mercado solicita solo la cantidad que todavía falta.
   const remainingQuantity=quantity-(owned.has(part.name)?1:0);
   if(remainingQuantity<=0)return [];
-  if(itemRecipes[part.name]?.length)return getMissingRecipeParts(part.name,owned,components,[...path,itemName]);
+  if(itemRecipes[part.name]?.length){
+   const nestedLeaves=getRecipeLeafParts(part.name,[...path,itemName]);
+   const hasNestedProgress=nestedLeaves.some(piece=>owned.has(piece.name)||components.has(piece.name));
+   if(hasNestedProgress)return getMissingRecipeParts(part.name,owned,components,[...path,itemName]);
+  }
   return [{...part,quantity:remainingQuantity}];
  });
 }
@@ -1124,7 +1128,11 @@ function getRecipePartsForConsumption(itemName,owned=new Set(),components=new Se
    return Array.from({length:quantity},()=>part.name);
   }
   if(owned.has(part.name))return [part.name];
-  if(itemRecipes[part.name]?.length)return getRecipePartsForConsumption(part.name,owned,components,[...path,itemName]);
+  if(itemRecipes[part.name]?.length){
+   const nestedLeaves=getRecipeLeafParts(part.name,[...path,itemName]);
+   const hasNestedProgress=nestedLeaves.some(piece=>owned.has(piece.name)||components.has(piece.name));
+   if(hasNestedProgress)return getRecipePartsForConsumption(part.name,owned,components,[...path,itemName]);
+  }
   return [part.name];
  });
 }
