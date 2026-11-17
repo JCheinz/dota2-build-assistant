@@ -808,4 +808,17 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se agrega Drum of Endurance: Headdress (425) + Belt of Strength (450) + Wind Lace (225) + receta (525) = 1.625. La receta de Headdress queda anidada para descontar Ring of Regen si ya está poseído. Referencia de receta 7.41f: https://highgroundcoach.app/dota-2-items/ancient-janggo y cambios de parche: https://dotaideas.com/wiki/patches/7.41 .
 - Service Worker candidato v100; UI candidata 3.49.
 - Respaldos pre-etapa: backup/3.48-before-next-market-stage-v3-49-2026-11-17 y backup/estado-3.48-before-next-market-stage-v3-49-2026-11-17.
-- Pendiente CI, revisión e integración; Pages/Android/APK siguen sin confirmación/generación.
+- PR #41 integrado por squash en main: commit 76cb74173d64100e950cdbad4b0edf924286f811. CI run 44021398285, job 133831472898: success.
+- Pages no verificado independientemente; Android no probado; APK 3.49 no generado.
+
+
+## 34. Integración — versión 3.49: veinte rutas individuales por héroe/posición (17-11-2026)
+
+- PR #41 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/41.
+- Commit de main: 76cb74173d64100e950cdbad4b0edf924286f811.
+- CI run 44021398285, job 133831472898: success.
+- El catálogo pasa de 17 a 20 rutas con Phantom Lancer Carry, Enigma Offlane y Winter Wyvern Support 5.
+- Drum of Endurance añadido con receta recursiva: Headdress 425 + Belt of Strength 450 + Wind Lace 225 + receta 525 = 1.625. Si Ring of Regen ya está poseído, la expansión de Headdress solicita solo la receta y no vuelve a pedir el anillo.
+- Fuentes StatsDota 7.41f y muestras/snapshots 16–17-11-2026 documentadas en la sección 33.
+- UI 3.49; Service Worker v100.
+- Pages no verificado independientemente; Android no probado; APK 3.49 no generado ni archivado.
