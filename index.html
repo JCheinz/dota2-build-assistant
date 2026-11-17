@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.41</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -254,7 +254,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./specializations.js?v=3279"></script>
+<script src="./specializations.js?v=3280"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -341,8 +341,8 @@ const itemSlugs={
  'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
  'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots',
- 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb','Diadem':'diadem','Splintmail':'splintmail','Chasm Stone':'chasm_stone','Shawl':'shawl','Shadow Amulet':'shadow_amulet','Fluffy Hat':'fluffy_hat','Mithril Hammer':'mithril_hammer','Ogre Axe':'ogre_axe',
- 'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe','Receta de Yasha':'recipe','Receta de Sange':'recipe','Receta de Shiva’s Guard':'recipe','Receta de Glimmer Cape':'recipe','Receta de Force Staff':'recipe','Receta de Black King Bar':'recipe','Receta de Dragon Lance':'recipe','Receta de Hurricane Pike':'recipe',
+ 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb','Diadem':'diadem','Splintmail':'splintmail','Chasm Stone':'chasm_stone','Shawl':'shawl','Shadow Amulet':'shadow_amulet','Fluffy Hat':'fluffy_hat','Mithril Hammer':'mithril_hammer','Ogre Axe':'ogre_axe','Circlet':'circlet','Gauntlets of Strength':'gauntlets','Slippers of Agility':'slippers','Ring of Protection':'ring_of_protection','Morbid Mask':'lifesteal','Helm of Iron Will':'helm_of_iron_will','Ring of Tarrasque':'ring_of_tarrasque','Cloak':'cloak','Reaver':'reaver','Crystalys':'lesser_crit','Demon Edge':'demon_edge','Blades of Attack':'blades_of_attack','Javelin':'javelin','Hyperstone':'hyperstone','Eaglesong':'eagle','Talisman of Evasion':'talisman_of_evasion','Shadow Blade':'invis_sword','Blitz Knuckles':'blitz_knuckles','Mystic Staff':'mystic_staff','Tiara of Selemene':'tiara_of_selemene','Sacred Relic':'relic',
+ 'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe','Receta de Yasha':'recipe','Receta de Sange':'recipe','Receta de Shiva’s Guard':'recipe','Receta de Glimmer Cape':'recipe','Receta de Force Staff':'recipe','Receta de Black King Bar':'recipe','Receta de Dragon Lance':'recipe','Receta de Hurricane Pike':'recipe','Receta de Bracer':'recipe','Receta de Wraith Band':'recipe','Receta de Soul Ring':'recipe','Receta de Blade Mail':'recipe','Receta de Crimson Guard':'recipe','Receta de Pipe of Insight':'recipe','Receta de Lotus Orb':'recipe','Receta de Crystalys':'recipe','Receta de Daedalus':'recipe','Receta de Heart of Tarrasque':'recipe','Receta de Mjollnir':'recipe','Receta de Silver Edge':'recipe','Receta de Skull Basher':'recipe','Receta de Abyssal Blade':'recipe','Receta de Scythe of Vyse':'recipe','Receta de Swift Blink':'recipe',
  'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
  'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
@@ -1092,7 +1092,44 @@ const itemRecipes={
  "Black King Bar":[{name:"Mithril Hammer",cost:1600},{name:"Ogre Axe",cost:1000},{name:"Receta de Black King Bar",cost:1450}],
  "Dragon Lance":[{name:"Blade of Alacrity",cost:1000},{name:"Belt of Strength",cost:450},{name:"Receta de Dragon Lance",cost:550}],
  "Hurricane Pike":[{name:"Force Staff",cost:2200},{name:"Dragon Lance",cost:2000},{name:"Receta de Hurricane Pike",cost:350}],
+ "Bracer":[{name:"Circlet",cost:155},{name:"Gauntlets of Strength",cost:140},{name:"Receta de Bracer",cost:210}],
+ "Wraith Band":[{name:"Circlet",cost:155},{name:"Slippers of Agility",cost:140},{name:"Receta de Wraith Band",cost:210}],
+ "Soul Ring":[{name:"Ring of Protection",cost:175},{name:"Gauntlets of Strength",cost:140,quantity:2},{name:"Receta de Soul Ring",cost:350}],
+ "Blade Mail":[{name:"Broadsword",cost:1000},{name:"Splintmail",cost:950},{name:"Receta de Blade Mail",cost:450}],
+ "Mask of Madness":[{name:"Broadsword",cost:1000},{name:"Morbid Mask",cost:900}],
+ "Vanguard":[{name:"Vitality Booster",cost:1000},{name:"Ring of Health",cost:700}],
+ "Crimson Guard":[{name:"Vanguard",cost:1700},{name:"Helm of Iron Will",cost:975},{name:"Receta de Crimson Guard",cost:1050}],
+ "Pipe of Insight":[{name:"Ring of Tarrasque",cost:1700},{name:"Cloak",cost:900},{name:"Shawl",cost:450},{name:"Receta de Pipe of Insight",cost:675}],
+ "Lotus Orb":[{name:"Perseverance",cost:1400},{name:"Platemail",cost:1400},{name:"Energy Booster",cost:800},{name:"Receta de Lotus Orb",cost:250}],
+ "Crystalys":[{name:"Broadsword",cost:1000},{name:"Blades of Attack",cost:450},{name:"Receta de Crystalys",cost:550}],
+ "Daedalus":[{name:"Crystalys",cost:2000},{name:"Demon Edge",cost:2200},{name:"Receta de Daedalus",cost:1000}],
+ "Heart of Tarrasque":[{name:"Reaver",cost:2800},{name:"Ring of Tarrasque",cost:1700},{name:"Receta de Heart of Tarrasque",cost:800}],
+ "Maelstrom":[{name:"Mithril Hammer",cost:1600},{name:"Javelin",cost:900},{name:"Gloves of Haste",cost:450}],
+ "Mjollnir":[{name:"Maelstrom",cost:2950},{name:"Hyperstone",cost:2000},{name:"Receta de Mjollnir",cost:550}],
+ "Butterfly":[{name:"Eaglesong",cost:2800},{name:"Claymore",cost:1350},{name:"Talisman of Evasion",cost:1300}],
+ "Satanic":[{name:"Reaver",cost:2800},{name:"Claymore",cost:1350},{name:"Morbid Mask",cost:900}],
+ "Shadow Blade":[{name:"Claymore",cost:1350},{name:"Blitz Knuckles",cost:1000},{name:"Shadow Amulet",cost:900}],
+ "Silver Edge":[{name:"Shadow Blade",cost:3250},{name:"Demon Edge",cost:2200},{name:"Receta de Silver Edge",cost:250}],
+ "Skull Basher":[{name:"Mithril Hammer",cost:1600},{name:"Belt of Strength",cost:450},{name:"Receta de Skull Basher",cost:825}],
+ "Abyssal Blade":[{name:"Skull Basher",cost:2875},{name:"Sange",cost:2100},{name:"Receta de Abyssal Blade",cost:1275}],
+ "Nullifier":[{name:"Sacred Relic",cost:3400},{name:"Splintmail",cost:950}],
+ "Scythe of Vyse":[{name:"Mystic Staff",cost:2800},{name:"Tiara of Selemene",cost:1700},{name:"Receta de Scythe of Vyse",cost:700}],
+ "Swift Blink":[{name:"Blink Dagger",cost:2250},{name:"Eaglesong",cost:2800},{name:"Receta de Swift Blink",cost:1750}],
+ "Aghanim’s Shard":[],
+ "Blink Dagger":[],
+ "Bottle":[],
+ "Magic Wand":[],
  "Gem of True Sight":[]
+};
+const itemCosts={
+ "Abyssal Blade":6250,"Aeon Disk":3000,"Aether Lens":2275,"Aghanim’s Scepter":4200,"Aghanim’s Shard":1400,
+ "Arcane Boots":1500,"Battle Fury":3900,"Black King Bar":4050,"Blade Mail":2400,"Blink Dagger":2250,
+ "Bottle":675,"Bracer":505,"Butterfly":5450,"Crimson Guard":3725,"Daedalus":5200,"Dagon":3000,
+ "Dragon Lance":2000,"Force Staff":2200,"Gem of True Sight":900,"Glimmer Cape":2150,"Heart of Tarrasque":5300,
+ "Hurricane Pike":4550,"Kaya":2100,"Linken’s Sphere":4800,"Lotus Orb":3850,"Magic Wand":450,"Manta Style":4650,
+ "Mask of Madness":1900,"Mjollnir":5500,"Nullifier":4350,"Pipe of Insight":3725,"Power Treads":1400,
+ "Sange and Yasha":4200,"Satanic":5050,"Scythe of Vyse":5200,"Shiva’s Guard":4500,"Silver Edge":5700,
+ "Skull Basher":2875,"Soul Ring":805,"Swift Blink":6800,"Vanguard":1700,"Wraith Band":505,"Yasha":2100
 };
 function getMissingRecipeParts(itemName,owned=new Set(),components=new Set(),path=[]){
  if(path.includes(itemName))return [];
@@ -1184,7 +1221,7 @@ function getNextPurchase(build,state,preferredName=null){
   if(recipe.length)return {target,kind:"goal",name:target.name,cost:null,remaining:null,affordable:null,reason:target.condition||target.why,routeReason:"Los componentes están registrados. Completá el objeto en la partida y marcá el objeto terminado para actualizar el inventario."};
   // No inventar precio cero: si el catálogo no tiene un coste confirmado, indicar
   // que el objetivo es el objeto completo y dejar su precio como desconocido.
-  const directCost=Number(target.cost),hasDirectCost=Number.isFinite(directCost)&&directCost>0;
+  const directCost=Number(target.cost??itemCosts[target.name]),hasDirectCost=Number.isFinite(directCost)&&directCost>0;
   return {target,kind:"goal",name:target.name,cost:hasDirectCost?directCost:null,remaining:hasDirectCost?Math.max(0,directCost-state.gold):null,affordable:hasDirectCost?state.gold>=directCost:null,reason:target.condition||target.why};
  };
  const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
@@ -1218,9 +1255,9 @@ function getNextPurchase(build,state,preferredName=null){
   if(state.minute<12)return {done:true,message:"En fase inicial, priorizá consumibles y supervivencia de línea. La ruta principal se activa desde el minuto 12."};
   const coreOrder=["Blink Dagger","Glimmer Cape","Aghanim’s Shard"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
-  if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."};}
+  if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return {...recipeTarget(target),routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."};}
   const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
-  return situational[0]?{target:situational[0],kind:"goal",name:situational[0].name,reason:situational[0].why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
+  return situational[0]?{...recipeTarget(situational[0]),routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
  }
  const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid");
  if(isAntiMage){
@@ -1655,7 +1692,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.41',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.42',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
