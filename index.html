@@ -200,7 +200,7 @@
 .inventory-reserve-item span{overflow-wrap:anywhere}
 .inventory-reserve-item b{color:#f29b94}
 @media(max-width:420px){.hero-backpack-slots{max-width:68%}.inventory-sell{width:18px;height:18px}}
-</style>
+\n.inventory-use{display:block;position:absolute;left:2px;bottom:1px;border:1px solid #5a9b76;background:#183729;color:#a9f0c4;border-radius:6px;font-size:9px;padding:2px 5px;z-index:3}.hero-inventory-cell{position:relative}.inventory-history{margin-top:14px;padding-top:10px;border-top:1px solid #3b4b5d}.inventory-history ol{margin:6px 0 10px;padding-left:20px;color:#c5ced9;font-size:.72rem;line-height:1.6}.inventory-history li{margin:3px 0}.inventory-history button{font-size:.72rem;padding:7px 10px}\n</style>
 </head>
 <body>
 <div class="wrap">
@@ -254,12 +254,15 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
+<script src="./inventory-ledger.js?v=352"></script>
 <script src="./specializations.js?v=3280"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
 let heroes=[], ally=Array(5).fill(null), enemy=Array(5).fill(null), target={team:'ally',index:0}, lastReport='';
 const $=id=>document.getElementById(id);
+const purchaseLedger=window.DOTA_INVENTORY_LEDGER.create({storageKey:'dota2-build-inventory-ledger-v352',storage:window.localStorage});
+const ledgerMinute=()=>Math.max(0,Number($('gameMinute')?.value)||0);
 function heroImage(h){return IMG+h.name.replace('npc_dota_hero_','')+'.png'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let heroLoadPromise=null;
@@ -370,7 +373,8 @@ function renderItemIcon(name){
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
 }
 function renderHeroInventory(state,hero=null,role=""){
- const owned=[...new Set(state.owned||[])],components=[...(state.components||[])];
+ const ledger=purchaseLedger.snapshot();
+ const owned=[...new Set([...(state.owned||[]),...ledger.inventory.map(x=>x.name)])],components=[...(state.components||[]),...ledger.components.map(x=>x.name)];
  const zones=state.zones||{};
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
@@ -403,16 +407,19 @@ function renderHeroInventory(state,hero=null,role=""){
  const renderSlots=(zone,total,label)=>Array.from({length:total},(_,i)=>{
   const name=assigned[zone][i];
   return name
-   ? '<div class="hero-inventory-cell"><button type="button" class="hero-inventory-slot filled" data-move-owned="'+esc(name)+'" title="Tocar para mover '+esc(name)+' entre inventario y mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>↔</small></button><button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button></div>'
+   ? '<div class="hero-inventory-cell"><button type="button" class="hero-inventory-slot filled" data-move-owned="'+esc(name)+'" title="Tocar para mover '+esc(name)+' entre inventario y mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>↔</small></button>'+(purchaseLedger.isConsumable(name)?'<button type="button" class="inventory-use" data-use-consumable="'+esc(name)+'">Usado</button>':'')+'<button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button></div>'
    : '<div class="hero-inventory-slot empty"><span>'+(i+1)+'</span></div>';
  }).join('');
  const reserve=assigned.reserve.map(name=>'<button type="button" class="inventory-reserve-item" data-remove-owned="'+esc(name)+'" title="Tocar para vender / quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><b>×</b></button>').join('');
  const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
- return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+'<p class="hint inventory-help">Tocá un objeto del inventario o la mochila para moverlo entre sectores. Usá × para venderlo; en reserva, tocá directamente el objeto. Los componentes se muestran por separado.</p></div>';
+ const ledgerHistory=ledger.history.slice(0,8);
+ const historyView='<div class="inventory-history"><div class="inventory-zone-title">Historial de compras y consumibles</div>'+(ledgerHistory.length?'<ol>'+ledgerHistory.map(x=>'<li><b>'+esc(x.name)+'</b> · '+esc(({purchase:'Compra',upgrade:'Mejora','component-purchase':'Componente','component-consumed':'Componente consumido','consumable-used':'Consumible usado',sold:'Venta',removed:'Retirado','purchase-undone':'Compra deshecha'}[x.action]||x.action))+(x.minute===null?'':' · min '+x.minute)+'</li>').join('')+'</ol>':'<p class="hint">Todavía no hay movimientos registrados.</p>')+'<button type="button" class="btn secondary" id="clearPurchaseHistory">Borrar historial</button></div>';
+ return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. Las compras, ventas, mejoras y consumibles usados quedan en el historial. Tocá «Usado» al consumir un consumible.</p></div>';
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
- return '<div class="item-list">'+items.map((x,i)=>{
+ const unique=purchaseLedger.filterRecommendations(items,getLiveState().owned);
+ return '<div class="item-list">'+unique.map((x,i)=>{
   const name=Array.isArray(x)?x[0]:x.name,why=Array.isArray(x)?x[1]:x.why;
   const priority=!Array.isArray(x)&&x.priority===true, bought=owned.has(name);
   return '<button type="button" class="item-card item-buy-toggle '+(priority?'priority':'complement')+(bought?' bought':'')+'" data-buy-item="'+esc(name)+'" aria-pressed="'+bought+'" title="'+(bought?'Tocar para desmarcar como comprado':'Tocar cuando lo compres')+'"><span class="item-number">'+(i+1)+'</span>'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(why||'Objeto situacional')+'</span><small class="item-priority-label">'+(bought?'✓ COMPRADO · TOCÁ PARA DESHACER':priority?'PRIORIDAD PRINCIPAL':'TOCÁ AL COMPRAR')+'</small></div></button>';
@@ -1252,14 +1259,12 @@ function uniqueItems(items){
  return items.filter(x=>{const key=x.name.toLowerCase();if(seen.has(key))return false;seen.add(key);return true});
 }
 function getLiveState(){
- return {
-  minute:Math.max(0,Number($('gameMinute').value)||0),
-  gold:Math.max(0,Number($('currentGold').value)||0),
-  problem:$('currentProblem').value,
-  owned:[...document.querySelectorAll('.owned-item:checked')].map(x=>x.value),
-  zones:Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone])),
-  components:[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value)
- };
+ const ledger=purchaseLedger.snapshot();
+ const domOwned=[...document.querySelectorAll('.owned-item:checked')].map(x=>x.value);
+ const domComponents=[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value);
+ const owned=[...new Set([...domOwned,...ledger.inventory.map(x=>x.name)])];
+ const components=[...domComponents,...ledger.components.flatMap(x=>Array(Math.max(1,Number(x.quantity)||1)).fill(x.name))];
+ return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone])),components,history:ledger.history,ledgerInventory:ledger.inventory};
 }
 const itemRecipes={
  "Power Treads":[{name:"Boots of Speed",cost:500},{name:"Gloves of Haste",cost:450},{name:"Belt of Strength",cost:450}],
@@ -1389,6 +1394,8 @@ function consumeRecipeComponents(itemName){
  const components=normalizeQuantityMap(componentInputs.filter(x=>x.checked).map(x=>x.value));
  const owned=new Set(ownedInputs.filter(x=>x.checked).map(x=>x.value));
  const names=getRecipePartsForConsumption(itemName,owned,components);
+ if(names.length)purchaseLedger.upgrade(itemName,names,{minute:ledgerMinute()});
+ else purchaseLedger.recordPurchase(itemName,{minute:ledgerMinute()});
  names.forEach(name=>{
   const component=componentInputs.find(x=>x.value===name&&x.checked);
   if(component){component.checked=false;return;}
@@ -2096,19 +2103,22 @@ $('report').addEventListener('click',e=>{
  if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;analyze({scroll:false});}return;}}
  const sellOwned=e.target.closest('[data-sell-owned]');
  const removeOwned=e.target.closest('[data-remove-owned]')||sellOwned;
- if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned')||removeOwned.getAttribute('data-sell-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){input.checked=false;input.dataset.inventoryZone="";analyze({scroll:false});return;}}
+ if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned')||removeOwned.getAttribute('data-sell-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);purchaseLedger.recordSale(name,{minute:ledgerMinute()});if(input){input.checked=false;input.dataset.inventoryZone="";analyze({scroll:false});return;}}
  const removeComponent=e.target.closest('[data-remove-component]');
- if(removeComponent){const name=removeComponent.getAttribute('data-remove-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){input.checked=false;analyze({scroll:false});return;}}
+ if(removeComponent){const name=removeComponent.getAttribute('data-remove-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);purchaseLedger.removeComponent(name);if(input){input.checked=false;analyze({scroll:false});return;}}
+ const used=e.target.closest('[data-use-consumable]');
+ if(used){const name=used.getAttribute('data-use-consumable');purchaseLedger.useConsumable(name,{minute:ledgerMinute()});const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input)input.checked=false;analyze({scroll:false});return;}
  const component=e.target.closest('[data-buy-component]');
- if(component){const name=component.getAttribute('data-buy-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){input.checked=!input.checked;analyze({scroll:false});return;}}
+ if(component){const name=component.getAttribute('data-buy-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){const marking=!input.checked;input.checked=marking;if(marking)purchaseLedger.recordComponent(name,{minute:ledgerMinute()});else purchaseLedger.removeComponent(name);analyze({scroll:false});return;}}
  const buy=e.target.closest('[data-buy-item]');
  if(buy){
   const name=buy.getAttribute('data-buy-item');
   if(name){let input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);
    if(!input){const root=$('ownedItems');if(root){const label=document.createElement('label');label.className='chip';label.innerHTML='<input type="checkbox" class="owned-item" value="'+esc(name)+'"> '+esc(name);root.querySelector('.controls')?.appendChild(label);input=label.querySelector('input');}}
-   if(input){const markingBought=!input.checked;input.checked=markingBought;if(markingBought)consumeRecipeComponents(name);analyze({scroll:false});return;}
+   if(input){const markingBought=!input.checked;input.checked=markingBought;if(markingBought)consumeRecipeComponents(name);else purchaseLedger.removeInventory(name,'purchase-undone',{minute:ledgerMinute()});if(markingBought&&!itemRecipes[name]?.length)purchaseLedger.recordPurchase(name,{minute:ledgerMinute()});analyze({scroll:false});return;}
   }
  }
+ if(e.target&&e.target.id==='clearPurchaseHistory'){purchaseLedger.clearHistory();analyze({scroll:false});return;}
  if(e.target&&e.target.id==='recalcLive'){analyze({scroll:false});}
 });
 ['gameMinute','currentGold','currentProblem','myRole','gameMode','rank'].forEach(id=>$(id).addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});}));
@@ -2117,8 +2127,9 @@ $('currentGold').addEventListener('input',()=>{if($('result').classList.contains
 $('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')&&$('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 
-function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
+function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
 function clearItemsOnly(){
+ purchaseLedger.clearInventory();
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
  $('gameMinute').value='0';$('currentGold').value='0';$('currentProblem').value='none';
  if($('result').classList.contains('show'))analyze({scroll:false});
