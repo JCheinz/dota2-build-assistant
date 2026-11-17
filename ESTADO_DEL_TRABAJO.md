@@ -6,8 +6,8 @@ Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #35 — Build 3.44: active-problem purchase responses.
-- Commit integrado: `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`.
+- Último PR integrado: #36 — Build 3.45: expand verified market item recipes.
+- Commit integrado: `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
 - CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
@@ -412,3 +412,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Dust, Raindrops y Gem no reciben recetas inventadas.
 - Fuentes del detalle de componentes/precios: sinceilastplayed.com, con páginas del objeto y cambios hasta 7.41f; Liquipedia 7.41 para cambios específicos: https://liquipedia.net/dota2/7.41.
 - UI 3.45 candidata, SW v96; CI y merge pendientes.
+
+
+## Integración — PR #36, versión 3.45 (17-11-2026)
+
+- PR #36 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/36.
+- Commit de `main`: `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
+- CI run `44015909133`, job `133813663764`: success.
+- Recetas incorporadas: Magic Wand, Bracer, Maelstrom, Mjollnir, Vanguard, Crimson Guard, Pipe of Insight, Headdress, Mekansm, Lotus Orb, Scythe of Vyse, Monkey King Bar, Urn of Shadows y Spirit Vessel.
+- Pruebas cubren coste completo, subrecetas, componentes previos y consumo del objeto base.
+- UI 3.45; Service Worker v96.
+- Pages no confirmado; Android pendiente; APK no generado.
+- Próxima fase: más rutas individuales verificadas por héroe/posición (solo seis rutas específicas de objetos hasta aquí).
