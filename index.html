@@ -1121,7 +1121,7 @@ function getRecipePartsForConsumption(itemName,owned=new Set(),components=new Se
   const quantity=Math.max(1,Number(part.quantity)||1);
   if(components.has(part.name)){
    const ownedCount=owned.has(part.name)?1:0;
-   return Array.from({length:Math.max(1,ownedCount+1)},()=>part.name);
+   return Array.from({length:quantity},()=>part.name);
   }
   if(owned.has(part.name))return [part.name];
   if(itemRecipes[part.name]?.length)return getRecipePartsForConsumption(part.name,owned,components,[...path,itemName]);
