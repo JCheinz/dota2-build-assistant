@@ -844,7 +844,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const helperEnd=html.indexOf("\nfunction buildAdaptivePlan(",helperStart);
  if(helperStart<0||helperEnd<0)throw new Error("No se encontró el motor de problemas activos");
  const activeContext={
-  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725},
+  MARKET_ITEM_COSTS:{"Dust of Appearance":80,"Gem of True Sight":900,"Linken’s Sphere":4800,"Battle Fury":3900,"Mjollnir":5500,"Black King Bar":4050,"Spirit Vessel":2725},
   matchupRules:{
    bounty_hunter:{title:"Bounty Hunter · invisibilidad y seguimiento",items:[{name:"Dust of Appearance",why:"Detección inmediata"},{name:"Gem of True Sight",why:"Detección persistente"}]},
    alchemist:{title:"Alchemist · sustain alto",items:[{name:"Spirit Vessel",why:"Reduce la restauración de vida"}]},
@@ -867,9 +867,9 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const magic=activeContext.getActiveProblemResponses({roles:["Carry"]},"Carry",[enemy("zeus",["Nuker"])],"issue:magic",15);
  if(!magic.some(x=>x.name==="Black King Bar"&&x.minMinute===12))throw new Error("Daño mágico seleccionado debe activar BKB con condición temporal y de interacción");
  const sustain=activeContext.getActiveProblemResponses({roles:["Offlane"]},"Offlane",[enemy("alchemist")],"issue:sustain",18);
- if(!sustain.some(x=>x.name==="Spirit Vessel"&&x.activePriority>=9))throw new Error("Sustain activo contra Alchemist debe habilitar Spirit Vessel");
+ if(!sustain.some(x=>x.name==="Spirit Vessel"&&x.activePriority>=9&&x.cost===2725))throw new Error("Sustain activo contra Alchemist debe habilitar Spirit Vessel");
  const focused=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("bounty_hunter")],"enemy:bounty_hunter",10);
- if(!focused.some(x=>x.name==="Dust of Appearance"&&x.activeProblemId==="enemy:bounty_hunter"))throw new Error("Seleccionar un enemigo concreto debe traer sus respuestas específicas");
+ if(!focused.some(x=>x.name==="Dust of Appearance"&&x.activeProblemId==="enemy:bounty_hunter")||!focused.some(x=>x.name==="Gem of True Sight"&&x.cost===900))throw new Error("Seleccionar un enemigo concreto debe traer sus respuestas específicas");
  const route=[
   {name:"Power Treads",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,marketPhase:"Línea",stage:"Inicio",cost:1400,why:"Ruta core"},
   {name:"Dust of Appearance",activeProblem:true,activeProblemId:"issue:invisibility",activePriority:9.8,minMinute:5,threatSpecific:true,cost:80,stage:"Situacional",why:"Detección"}
