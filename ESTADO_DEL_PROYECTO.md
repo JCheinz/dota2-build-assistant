@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.43 + Service Worker v94; última versión estable respaldada: 3.43  
-**Etapa activa:** Motor de problemas activos 3.44 en desarrollo; 3.43 permanece como versión integrada estable. Pages/Android pendientes de confirmación.
+**Versión integrada:** 3.44 + Service Worker v95; última versión estable respaldada: 3.44  
+**Etapa activa:** Mercado inteligente 3.44 integrado: respuesta a problemas activos conectada al motor de compra. Próximo paso: ampliar rutas individuales verificadas y cobertura de recetas. Pages/Android pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -653,7 +653,24 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Reglas explícitas por posición y alcance; filtros de minuto mínimo; razones de compra; objetos ya poseídos excluidos en el selector de próxima compra.
 - Seleccionar un problema activo puede adelantar una respuesta; la mera presencia de un héroe en el draft no lo hace. Una vez cubierta la respuesta, el motor continúa la ruta principal.
 - Amenazas por enemigo seleccionado utilizan la tabla de matchup y contadores existentes. El selector suma `issue:sustain` cuando el draft incluye héroes con curación/regeneración relevante.
-- Precios añadidos con referencia 7.41f: Dust of Appearance 80, Gem of True Sight 900. Fuentes: https://www.dota2.com/newsentry/677383425371407609 y https://sarjanaherald.com/item/ (catálogo de precios).
-- Interfaz/informe candidata 3.44; Service Worker candidato `dota-build-v95`.
+- Precios añadidos con referencia 7.41f: Dust of Appearance 80, Gem of True Sight 900, Linken’s Sphere 4.800, Spirit Vessel 2.725 y Monkey King Bar 5.000. Fuentes: https://www.dota2.com/newsentry/677383425371407609, https://sarjanaherald.com/item/, https://sinceilastplayed.com/dota2/items/linkens-sphere y https://sinceilastplayed.com/dota2/items/monkey-king-bar.
+- Interfaz/informe 3.44; Service Worker `dota-build-v95`.
 - Se agregaron regresiones para problema no seleccionado, respuestas por rol/alcance, invisibilidad, ilusiones, magia, sustain, enemigo concreto, oro, item comprado y anulación temporal de ruta.
-- Estado inicial de etapa: implementación en rama; CI pendiente. No integrar hasta aprobar suite completa. Pages/Android/APK no se consideran probados ni generados.
+- PR #35 integrado por squash en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/35.
+- Commit integrado: `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`.
+- CI PR #35 run `44015327497`, job `133811748997`: success. Pasaron todas las regresiones incluidas.
+- GitHub Pages, validación visual Android y APK 3.44 pendientes de confirmación. No se generó APK.
+
+
+## 24. Integración — versión 3.44: respuestas a problemas activos (17-11-2026)
+
+- PR #35 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/35.
+- Commit de integración en `main`: `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`.
+- CI run `44015327497`, job `133811748997`: success.
+- Motor `getActiveProblemResponses` para iniciación, magia, control, ilusiones, invisibilidad, movilidad, línea, teamfight y sustain.
+- Respuestas seleccionadas por el usuario pueden adelantar una compra compatible con la posición y el minuto. La sola presencia del enemigo en el draft no anula el core.
+- La compra vuelve a la ruta principal al registrar la respuesta activa en el inventario.
+- Precio de referencia 7.41f en el catálogo común: Dust 80, Gem 900, Linken’s Sphere 4.800, Spirit Vessel 2.725, Monkey King Bar 5.000.
+- Service Worker `dota-build-v95`; etiqueta de interfaz e informe 3.44.
+- Pages no verificado todavía por separado. Android no probado por el usuario. APK 3.44 no generado ni archivado.
+- Próximos hitos: ampliar recetas con precios/ingredientes verificados, construir más rutas específicas por héroe/posición y añadir pruebas de inventario/historial de consumibles.
