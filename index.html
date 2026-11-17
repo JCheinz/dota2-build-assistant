@@ -1368,7 +1368,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const selectedProblem=live.problem;
  const focusedEnemy=selectedProblem.startsWith("enemy:")?selectedProblem.slice(6):null;
  const focusedGroup=focusedEnemy?threatGroups.filter(g=>enemies.some(h=>h.name.endsWith(focusedEnemy)&&g.label.startsWith(h.localized_name))):[];
- const focusedItems=focusedGroup.flatMap(g=>g.items.map(x=>({name:x[0],roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["save","control","magic","survival"],why:x[1]})));
+ const focusedItems=focusedGroup.flatMap(g=>g.items.map(x=>({name:x[0],roles:["Carry","Mid","Offlane","Support 4","Support 5"],tags:["save","control","magic","survival"],why:x[1],threatSpecific:true,threatWeight:2.5,focusedEnemy})));
  // Respuestas situacionales basadas en mecánicas que coinciden con debilidades del héroe.
  const threatItemScores=new Map();
  matchupContext.forEach(m=>(m.threat.matched||[]).slice(0,3).forEach(mechanic=>{
