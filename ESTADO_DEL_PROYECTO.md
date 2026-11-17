@@ -832,3 +832,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se prueban sumas, progresión recursiva de Witch Blade desde Oblivion Staff y descuento de Kaya ya poseída para Meteor Hammer.
 - Fuentes de recetas: https://sinceilastplayed.com/dota2/items/oblivion-staff ; https://sinceilastplayed.com/dota2/items/witch-blade ; https://sinceilastplayed.com/dota2/items/null-talisman ; https://highgroundcoach.app/dota-2-items/meteor-hammer .
 - UI candidata 3.50; Service Worker v101. Pendiente CI/revisión/integración.
+
+
+## 36. Integración — versión 3.50: veintitrés rutas y cinco recetas nuevas (17-11-2026)
+
+- PR #42 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/42.
+- Commit de main: e40105c06d2e0d8bc0d22a7fb5ce0a2927c9ee1f.
+- CI run 44021670287, job 133832342460: success.
+- Rutas añadidas: Puck Mid, Outworld Destroyer Mid e Invoker Mid. Total 23 rutas héroe/posición.
+- Recetas 7.41f añadidas: Oblivion Staff (1.625), Witch Blade (2.775), Meteor Hammer (2.850), Null Talisman (505) y Boots of Travel (2.500). Witch Blade expande Oblivion Staff; Meteor Hammer reconoce Kaya ya poseída.
+- UI 3.50; Service Worker v101.
+- Pages no verificado independientemente; Android no probado; APK 3.50 no generado ni archivado.
