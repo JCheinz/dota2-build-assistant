@@ -404,7 +404,7 @@ const purchaseContext = {
   }[ch])),
   getLiveState: () => ({ owned: [], components: [] }),
   getMarketPhase: minute => { const m=Number(minute)||0; return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada"}; },
-  getHeroPlan: () => ({core:[["Arcane Boots","core"],["Aether Lens","core"]]}),
+  getHeroPlan: () => ({early:[["Tango","early"]],core:[["Arcane Boots","core"],["Aether Lens","core"]],situational:[["Glimmer Cape","late"]]}),
   renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
 };
 vm.createContext(purchaseContext);
