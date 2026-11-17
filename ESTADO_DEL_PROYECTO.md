@@ -339,3 +339,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - El inventario automático reordena objetos según la ruta individual y la etapa; los espacios con zona manual explícita se conservan.
 - Los iconos que fallen muestran abreviatura del nombre en vez de una espada genérica. Las asociaciones nuevas se añadieron para componentes y recetas reportados. La comprobación de que cada URL de imagen sirva el icono visual exacto requiere validación visual Android.
 - Próxima prueba Android: Pugna Mid con inventario similar a la captura, probar minuto 25 y 35 y verificar que cambia la próxima compra; comprobar también que los objetos automáticos se reordenan y los manuales no se mueven. Revisar iconos de Robe of the Magi, Staff of Wizardry y componentes.
+
+
+## Nueva etapa — problemas de partida y evolución del núcleo Pugna Mid (17-11-2026)
+
+- Respaldos previos desde main `3c15fead72068bbf89f208f4e5cdf72b5c7570a9`: `backup/3.34-before-situation-and-core-progression` y `backup/estado-3.34-before-situation-and-core-progression`.
+- Rama: `work/situation-aware-core-evolution`.
+- Se corrigió el contrato entre el selector `currentProblem` (valores `issue:*` y `enemy:*`) y el motor específico de Pugna, que esperaba claves antiguas como `rupture`, `initiation` o `magic`. Ahora las opciones elegidas por el usuario elevan las respuestas correspondientes y conservan condiciones para evitar compras automáticas injustificadas.
+- Se amplió la detección de problemas seleccionables para movilidad/saltos, intercambios de línea y peleas grupales cuando el draft contiene amenazas asociadas.
+- Pugna Mid incorpora opciones de progresión posterior al núcleo: Kaya and Sange, Yasha and Kaya, Shiva’s Guard y Gem of True Sight. Las evoluciones de Kaya solo reciben prioridad si Kaya está comprada y el minuto es 32 o superior; otras opciones tardías dependen de problema/minuto.
+- Las recetas reconocen objetos completos existentes como componentes de una evolución y al marcar la mejora como comprada se consume el objeto base del inventario. No se modifica la compra ni el inventario de otros héroes.
+- Se actualizó Service Worker a `dota-build-v85` y se agregaron regresiones estáticas para problemas contextuales, evolución de Kaya y continuidad tardía.
+- Pendiente: validar CI, revisar diff y verificar que las pruebas dinámicas no alteren perfiles Pugna Support, Techies o Crystal Maiden. Prueba Android posterior: variar el problema seleccionado con draft fijo y comprobar que cambie la respuesta; registrar Kaya en inventario y probar minuto 33 para observar evolución; marcar la evolución y confirmar consumo de Kaya.
