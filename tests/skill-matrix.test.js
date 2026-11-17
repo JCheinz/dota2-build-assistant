@@ -728,3 +728,44 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!appHtml.includes("marketPool:scores")||!appHtml.includes("...(adaptive.marketPool||[])"))throw new Error("El informe debe alimentar el mercado con el catálogo completo y no solo con las siete tarjetas visibles");
  console.log("OK: mercado sin límite de siete recomendaciones — 24 objetivos core y continuidad situacional");
 })();
+
+// Recursive item-recipe regression suite (7.41f)
+(() => {
+ const recipeStart=appHtml.indexOf("const itemRecipes={");
+ const recipeEnd=appHtml.indexOf("\nfunction getNextPurchase(",recipeStart);
+ if(recipeStart<0||recipeEnd<0)throw new Error("No se encontró el motor de recetas para probar");
+ const recipeContext={document:{querySelectorAll:()=>[]}};
+ vm.createContext(recipeContext);
+ vm.runInContext(appHtml.slice(recipeStart,recipeEnd),recipeContext);
+ const recipes=vm.runInContext("itemRecipes",recipeContext);
+ const missing=(name,owned=[],components=[])=>vm.runInContext(
+  "getMissingRecipeParts("+JSON.stringify(name)+",new Set("+JSON.stringify(owned)+"),new Set("+JSON.stringify(components)+"))",
+  recipeContext
+ );
+ const total=name=>(recipes[name]||[]).reduce((sum,part)=>sum+part.cost*(part.quantity||1),0);
+ const expected={
+  "Battle Fury":3900,"Yasha":2100,"Sange":2100,"Manta Style":4650,
+  "Arcane Boots":1500,"Kaya and Sange":4200,"Yasha and Kaya":4200,
+  "Sange and Yasha":4200,"Shiva’s Guard":4500,"Glimmer Cape":2150,
+  "Force Staff":2200,"Black King Bar":4050,"Dragon Lance":2000,"Hurricane Pike":4550
+ };
+ for(const [name,cost] of Object.entries(expected)){
+  if(total(name)!==cost)throw new Error(name+" debe sumar "+cost+" de oro, suma encontrada: "+total(name));
+ }
+ const mantaFromPieces=missing("Manta Style",[],["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]);
+ const mantaNames=mantaFromPieces.map(x=>x.name).sort().join("|");
+ if(mantaNames!=="Diadem|Receta de Manta Style")throw new Error("Manta debe reconocer la Yasha construida a partir de sus componentes: "+mantaNames);
+ const mantaFromYasha=missing("Manta Style",["Yasha"],[]);
+ if(mantaFromYasha.some(x=>x.name==="Yasha"||x.name==="Blade of Alacrity"))throw new Error("Manta no debe volver a pedir Yasha si ya está en el inventario");
+ const kayaUpgrade=missing("Kaya and Sange",["Kaya"],["Sange"]);
+ if(kayaUpgrade.length)throw new Error("Kaya + Sange deben completar los componentes de Kaya and Sange");
+ const battleFury=missing("Battle Fury",["Perseverance"],["Quelling Blade","Receta de Battle Fury"]);
+ if(battleFury.length!==1||battleFury[0].name!=="Broadsword"||battleFury[0].quantity!==2)throw new Error("Battle Fury debe representar las dos Broadswords como una cantidad de dos");
+ const quantities=vm.runInContext("getRecipeComponentQuantities()",recipeContext);
+ if(quantities.get("Broadsword")!==2)throw new Error("El selector de componentes debe comunicar que se necesitan dos Broadswords");
+ const consumeFromCompleteYasha=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(["Yasha"]),new Set())',recipeContext);
+ if(!consumeFromCompleteYasha.includes("Yasha")||consumeFromCompleteYasha.includes("Blade of Alacrity"))throw new Error("Al completar Manta debe consumir Yasha como objeto completo, no sus subcomponentes");
+ const consumeFromYashaParts=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(),new Set(["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]))',recipeContext);
+ if(!consumeFromYashaParts.includes("Blade of Alacrity")||!consumeFromYashaParts.includes("Receta de Yasha"))throw new Error("Al completar Manta debe consumir las piezas de Yasha si no se registró como objeto completo");
+ console.log("OK: recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes");
+})();
