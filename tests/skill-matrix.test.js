@@ -960,6 +960,10 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!vladBucklerPartial.some(x=>x.name==="Receta de Buckler")||vladBucklerPartial.some(x=>x.name==="Ring of Protection"))throw new Error("Vladmir’s Offering debe expandir Buckler y descontar Ring of Protection ya poseído");
  const radianceParts=vm.runInContext('getMissingRecipeParts("Radiance",new Set(),new Map())',recipeContext);
  if(!radianceParts.some(x=>x.name==="Sacred Relic")||!radianceParts.some(x=>x.name==="Talisman of Evasion"))throw new Error("Radiance debe solicitar Sacred Relic y Talisman of Evasion");
+ const vladPurchase=vm.runInContext('getNextPurchase([{name:"Vladmir’s Offering",heroSpecific:true,heroKey:"npc_dota_hero_tidehunter|Offlane",routeIndex:0,marketPhase:"Core",stage:"Medio",cost:2200,why:"Vlad recipe"}],{minute:22,gold:250,owned:["Ring of Protection"],components:[],role:"Offlane",problem:"none"})',recipeContext);
+ if(vladPurchase.kind!=="component"||vladPurchase.name!=="Receta de Buckler"||vladPurchase.cost!==250||vladPurchase.affordable!==true)throw new Error("Con Ring of Protection poseído, Vladmir's debe solicitar solo la receta de Buckler");
+ const newRouteIcons=["Sacred Relic","Talisman of Evasion","Buckler","Morbid Mask","Radiance","Vladmir’s Offering","Receta de Buckler","Receta de Eul’s Scepter of Divinity"];
+ for(const name of newRouteIcons)if(!html.includes("'"+name+"'"))throw new Error("Falta icono o slug para "+name);
  const purchaseStart=html.indexOf("function getNextPurchase(");
  const purchaseEnd=html.indexOf("\nfunction pugnaFinalBuild(",purchaseStart);
  vm.runInContext(html.slice(purchaseStart,purchaseEnd),recipeContext);
