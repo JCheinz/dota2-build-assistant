@@ -668,7 +668,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
 
 
 // Progresión común para rutas individuales no cubiertas por excepciones históricas.
-// Drow, Luna y Anti-Mage deben avanzar por su ruta core en orden y luego continuar
+// Drow y Luna deben avanzar por su ruta core en orden, mientras Anti-Mage conserva su ruta específica y luego continuar
 // con una respuesta situacional; una amenaza explícita de alta prioridad puede adelantarla.
 (()=>{
  const purchaseStart=appHtml.indexOf("const itemRecipes={");
