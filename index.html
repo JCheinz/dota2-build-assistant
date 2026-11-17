@@ -1722,6 +1722,11 @@ function renderDynamicStateControls(){
    return Array.from({length:remainingQuantity},(_,i)=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" data-component-unit="'+(i+1)+'" '+(i<selectedQuantity?"checked":"")+'>'+esc(x)+(remainingQuantity>1?' '+(i+1)+'/'+remainingQuantity:'')+'</label>').join("");
   }).join("");
  }
+ const ledgerSnapshot=purchaseLedger.snapshot();
+ const ledgerOwned=new Set(ledgerSnapshot.inventory.map(x=>x.name.toLocaleLowerCase("en")));
+ const ledgerComponents=new Map();ledgerSnapshot.components.forEach(x=>ledgerComponents.set(x.name,(ledgerComponents.get(x.name)||0)+Math.max(1,Number(x.quantity)||1)));
+ document.querySelectorAll(".owned-item").forEach(input=>{if(ledgerOwned.has(input.value.toLocaleLowerCase("en")))input.checked=true;});
+ document.querySelectorAll(".owned-component").forEach(input=>{const remaining=ledgerComponents.get(input.value)||0;if(remaining>0){input.checked=true;ledgerComponents.set(input.value,remaining-1);}});
 }
 
 function getActiveProblemResponses(hero,role,enemies,problem,minute){
