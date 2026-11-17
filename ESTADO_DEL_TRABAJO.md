@@ -6,8 +6,8 @@ Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #34 — Build 3.43: five-phase role-aware intelligent market.
-- Commit integrado: `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
+- Último PR integrado: #35 — Build 3.44: active-problem purchase responses.
+- Commit integrado: `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
 - CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
@@ -388,3 +388,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - UI 3.44; Service Worker `dota-build-v95`.
 - Pruebas nuevas agregadas; CI aún pendiente de ejecución.
 - Continuar: validar pruebas, corregir regresiones, integrar solo con CI exitoso y verificar Pages separadamente.
+
+
+## Integración — PR #35, versión 3.44 (17-11-2026)
+
+- PR #35 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/35.
+- Commit de `main`: `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`.
+- CI run `44015327497`, job `133811748997`: success.
+- Respuestas activas: iniciación, magia, control, ilusiones, invisibilidad, movilidad, línea, teamfight, sustain y matchup concreto.
+- La próxima compra puede interrumpir temporalmente la ruta solo ante problema seleccionado por el usuario, con filtros de posición/minuto; sin selección conserva progresión habitual.
+- UI 3.44, Service Worker v95. Costes de referencia actualizados para Dust, Gem, Linken, Vessel y MKB.
+- GitHub Pages no verificado de forma independiente. Android pendiente; APK no generado.
+- Siguientes fases: completar recetas fiables, ampliar perfiles individuales por héroe/posición y separar inventario actual del historial de consumibles.
