@@ -512,3 +512,12 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Rutas: Phantom Lancer Carry, Enigma Offlane y Winter Wyvern Support 5. Total 20 rutas.
 - Receta Drum of Endurance con Headdress anidado, coste 1.625, progreso parcial y deducción de Ring of Regen.
 - UI 3.49; SW v100. Pages no verificado, Android pendiente, APK no generado.
+
+
+## Trabajo 3.50 — rutas Puck, Outworld Destroyer e Invoker Mid (17-11-2026)
+
+- Base estable: 3.49; respaldos pre-etapa: backup/3.49-before-item-recipe-expansion-v3-50-2026-11-17 y backup/estado-3.49-before-item-recipe-expansion-v3-50-2026-11-17.
+- Tres rutas Mid individuales añadidas, total 23 combinaciones héroe/posición.
+- Recetas nuevas y precios 7.41f: Oblivion Staff, Witch Blade, Meteor Hammer, Null Talisman y Boots of Travel.
+- Pruebas de sumas y progresión parcial con Oblivion Staff/Blitz Knuckles y Kaya ya poseída.
+- UI 3.50; SW v101. Pendiente CI e integración.
