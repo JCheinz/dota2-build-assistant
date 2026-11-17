@@ -353,7 +353,7 @@ function renderItemIcon(name){
  const slug=itemSlugs[name];
  const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span>';
  if(!slug)return fallback;
- return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">⚔</span></span>';
+ return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
 }
 function renderHeroInventory(state,hero=null,role=""){
  const owned=[...new Set(state.owned)],components=[...new Set(state.components)];
