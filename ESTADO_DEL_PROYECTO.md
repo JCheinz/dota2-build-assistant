@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.42 + Service Worker v93; última versión estable respaldada: 3.42  
-**Etapa activa:** Desarrollo 3.43 — mercado inteligente por cinco fases y catálogo de compras por posición. Base integrada 3.42; Pages y prueba Android pendientes de confirmación.
+**Versión integrada:** 3.43 + Service Worker v94; última versión estable respaldada: 3.43  
+**Etapa activa:** Mercado inteligente 3.43 integrado; siguiente trabajo: reforzar respuestas a problemas activos, ampliar rutas individuales verificadas y cubrir recetas de inicio/transición. Pages/Android pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -626,3 +626,19 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 ### Estado
 - Implementado en la rama; CI, revisión de diff e integración pendientes.
 - GitHub Pages, validación visual Android y APK 3.43 pendientes. No se ha generado APK.
+
+
+## 22. Resultado — versión 3.43 integrada: mercado inteligente de cinco fases y cinco posiciones (17-11-2026)
+
+- PR #34 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/34.
+- Commit integrado: `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
+- CI del PR #34: run `44008820828`, job `133790581725`, success. Se aprobaron sintaxis de especializaciones y toda la suite de regresiones.
+- Fases: Inicio (0–4), Línea (5–11), Transición (12–19), Core (20–29) y Avanzada (30+).
+- Catálogos por Carry, Mid, Offlane, Support 4 y Support 5; filtros por alcance, roles del héroe y amenazas del draft.
+- La próxima compra respeta fase, posición, ruta individual cuando existe, oro e inventario; los perfiles individuales no ceden su progresión a la lista genérica de rol.
+- UI limitada a candidatos de la fase actual, con mercado completo preservado para futuras fases; selector manual de inventario ampliado con objetos del rol.
+- Se separa objeto gratuito (Observer Ward) de coste desconocido; costes comunes con referencia de datos 7.41f; no se inventan recetas ausentes.
+- Service Worker `dota-build-v94`; interfaz/informe 3.43.
+- Respaldos previos: `backup/3.42-before-market-phases-v3-43-2026-11-17` y `backup/estado-3.42-before-market-phases-v3-43-2026-11-17`.
+- GitHub Pages no confirmado por separado. Android no probado por el usuario. APK 3.43 no generado ni archivado.
+- Límites: seis rutas individuales de objetos conocidas; otras combinaciones todavía usan arquetipo/posición. Recetas parciales para objetos de inicio/transición. Próxima fase: reglas de amenaza activa (no solo draft), más rutas individuales verificadas, receta completa y separación inventario/historial de consumibles.
