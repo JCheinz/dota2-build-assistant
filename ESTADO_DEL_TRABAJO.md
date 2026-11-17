@@ -1,19 +1,19 @@
 # ESTADO DEL TRABAJO — Dota 2 Build Assistant
 
-Actualizado: 16-11-2026
+Actualizado: 17-11-2026
 Repositorio: https://github.com/JCheinz/dota2-build-assistant
 Aplicación: https://jcheinz.github.io/dota2-build-assistant/
 
 ## Estado actual
 
-- Último PR integrado: #12 — Fix Crystal Maiden Support 5 item route and icons.
-- Commit integrado: `af5dbca8e8d3d79348aa5632f839dd177106c975`.
+- Último PR integrado: #33 — Build 3.42: intelligent market tempo and composition-aware synergies.
+- Commit integrado: `3f0f481cc5018fef1c4e62478aad795e6f336886`.
 - Rama principal: `main`.
 - La integración por squash fue confirmada por GitHub.
 - CI del PR antes del merge: aprobado (run `43928051614`, job `133512701083`).
 - Validación post-merge: run `43929105992`, pendiente al momento de esta actualización.
 - GitHub Pages build/deploy: run `43929102880`, pendiente al momento de esta actualización.
-- Service Worker de la versión integrada: `dota-build-v76`.
+- Service Worker de la versión integrada: `dota-build-v93`.
 
 ## Último trabajo: Crystal Maiden Support 5
 
@@ -347,3 +347,19 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker `dota-build-v93`; `specializations.js?v=3280`.
 - GitHub Pages aún sin confirmación; Android pendiente de prueba; APK no generado.
 - Próximo trabajo: mercado por etapas y por posición, con consumibles y objetos de línea tempranos, transición, core y situacionales, respetando oro y componentes.
+
+
+## Desarrollo actual — mercado por fases y posición (candidata 3.43)
+
+- Base: main commit `b7d1accafc51ba9dc0037eafa7e1cea0d8368577` (3.42).
+- Respaldos inmutables: `backup/3.42-before-market-phases-v3-43-2026-11-17` y `backup/estado-3.42-before-market-phases-v3-43-2026-11-17`.
+- Rama: `work/market-phases-role-engine-v3-43`.
+- Cinco fases: Inicio 0–4, Línea 5–11, Transición 12–19, Core 20–29, Avanzada 30+.
+- Catálogo por Carry, Mid, Offlane, Support 4 y Support 5; condiciones por alcance/roles del héroe y señales del draft.
+- Próxima compra por fase, posición, oro e inventario. Las rutas individuales existentes tienen prioridad sobre el catálogo genérico desde la fase de línea.
+- El pool del mercado conserva opciones futuras, pero la UI de recomendaciones solo muestra las de la fase actual. El inventario manual incluye objetos de todas las fases del rol.
+- Costes de referencia 7.41f y distinción entre objetos gratuitos y precios desconocidos. Las recetas se mantienen parciales cuando no hay una fuente verificada para sus piezas.
+- Service Worker candidato v94; versión UI 3.43.
+- Fuentes de referencia: Dota 2 update 7.41f (https://www.dota2.com/news/updates/16749) y datafeed de precios 7.41f (https://senseos.gg/wiki/dota-2/items/).
+- Pendiente: verificar tests/CI y revisar diff; completar recetas de objetos frecuentes, rutas individuales por héroe/posición, lógica de amenaza activa y la separación entre inventario actual e historial de consumibles.
+- No integrado ni publicado; Pages y prueba Android pendientes; APK no generado.
