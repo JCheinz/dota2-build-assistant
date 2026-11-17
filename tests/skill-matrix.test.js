@@ -580,3 +580,15 @@ if (!html.includes('slice(0,2).toUpperCase()')) {
 for (const item of ["Robe of the Magi","Staff of Wizardry","Energy Booster","Void Stone","Ring of Health","Ultimate Orb","Receta de Battle Fury"]) {
   if (!html.includes("'"+item+"'")) throw new Error("Falta asociación de icono para "+item);
 }
+
+
+// Regression: problem selector values must map to Pugna situational counters, and late progression must continue beyond the first core list.
+for (const marker of ['problem==="issue:initiation"','problem==="issue:magic"','problem==="issue:control"','problem==="issue:illusions"','problem==="issue:invisibility"','problem.startsWith("enemy:")']) {
+ if (!html.includes(marker)) throw new Error("Falta respuesta contextual para "+marker);
+}
+for (const marker of ['"Kaya and Sange"','"Yasha and Kaya"','"Shiva’s Guard"','"Gem of True Sight"']) {
+ if (!html.includes(marker)) throw new Error("Falta progresión tardía: "+marker);
+}
+if (!html.includes('state.minute>=32&&state.owned.includes("Kaya")')) throw new Error("Kaya debe habilitar sus evoluciones al entrar en fase avanzada");
+if (!html.includes('!state.owned.includes(part.name)')) throw new Error("Las recetas deben reconocer objetos completos que ya están en el inventario como componentes");
+if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
