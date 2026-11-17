@@ -480,4 +480,15 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Ajuste: umbral de prioridad activa 8.5 → 8.0. Permite respuestas válidas de 8.0–8.49, por ejemplo Mekansm 8.4 para Support 5 ante teamfight.
 - Pruebas: coste, prioridad, compra anticipada, y continuación de ruta tras registrar Mekansm.
 - UI 3.48; Service Worker v99.
-- Pendiente CI, revisión e integración. No se genera APK en esta etapa.
+- PR #40 integrado por squash: commit 3ca2b2938ec4f38462ca0d5c7319a2415bb858e1.
+- CI run 44021015074, job 133830255635: success.
+- Pages no verificado independientemente; Android pendiente; APK no generado.
+
+
+## Integración PR #40 — versión 3.48 (17-11-2026)
+
+- Integrado por squash en main: 3ca2b2938ec4f38462ca0d5c7319a2415bb858e1.
+- CI run 44021015074, job 133830255635: success.
+- Umbral de respuestas activas 8.0; prueba de Mekansm (Support 5, teamfight), coste, primer componente Headdress y continuación de ruta después de comprar el objeto.
+- UI 3.48; Service Worker v99.
+- GitHub Pages no confirmado, Android pendiente, APK no generado.
