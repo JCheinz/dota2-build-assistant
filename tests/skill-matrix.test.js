@@ -681,6 +681,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const purchaseEnd=appHtml.indexOf("\nfunction pugnaFinalBuild",purchaseStart);
  if(purchaseStart<0||purchaseEnd<0)throw new Error("No se encontró el motor común de compras");
  const ctx={};vm.createContext(ctx);
+ ctx.getMarketPhase=minute=>{const m=Number(minute)||0;return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada",index:m<5?0:m<12?1:m<20?2:m<30?3:4};};
  vm.runInContext(appHtml.slice(purchaseStart,purchaseEnd),ctx);
  const route=(hero,names)=>names.map((name,index)=>({
   name,heroSpecific:true,heroKey:hero+"|Carry",routeIndex:index,
