@@ -761,8 +761,12 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(kayaUpgrade.length)throw new Error("Kaya + Sange deben completar los componentes de Kaya and Sange");
  const battleFury=missing("Battle Fury",["Perseverance"],["Quelling Blade","Receta de Battle Fury"]);
  if(battleFury.length!==1||battleFury[0].name!=="Broadsword"||battleFury[0].quantity!==2)throw new Error("Battle Fury debe representar las dos Broadswords como una cantidad de dos");
+ const battleFuryOneOwned=missing("Battle Fury",["Perseverance","Broadsword"],["Quelling Blade","Receta de Battle Fury"]);
+ if(battleFuryOneOwned.length!==1||battleFuryOneOwned[0].quantity!==1)throw new Error("Una Broadsword completa ya poseída debe descontarse de las dos requeridas");
  const quantities=vm.runInContext("getRecipeComponentQuantities()",recipeContext);
  if(quantities.get("Broadsword")!==2)throw new Error("El selector de componentes debe comunicar que se necesitan dos Broadswords");
+ const consumedDuplicateParts=vm.runInContext('getRecipePartsForConsumption("Battle Fury",new Set(["Broadsword"]),new Set(["Broadsword"]))',recipeContext);
+ if(consumedDuplicateParts.length!==2)throw new Error("Al completar Battle Fury deben consumirse las dos unidades registradas de Broadsword");
  const consumeFromCompleteYasha=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(["Yasha"]),new Set())',recipeContext);
  if(!consumeFromCompleteYasha.includes("Yasha")||consumeFromCompleteYasha.includes("Blade of Alacrity"))throw new Error("Al completar Manta debe consumir Yasha como objeto completo, no sus subcomponentes");
  const consumeFromYashaParts=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(),new Set(["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]))',recipeContext);
