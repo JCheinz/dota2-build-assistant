@@ -375,3 +375,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker `dota-build-v94`; UI 3.43.
 - Pages aún sin confirmación independiente; Android por validar; APK 3.43 no generado.
 - Próximo paso: aumentar la precisión contextual por problema activo y ampliar gradualmente las rutas específicas por héroe y posición.
+
+
+## Desarrollo actual — 3.44: motor de problemas activos (17-11-2026)
+
+- Base estable: 3.43, commit `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
+- Rama: `work/active-problem-response-v3-44`.
+- Respaldos: `backup/3.43-before-active-problem-v3-44-2026-11-17` y `backup/estado-3.43-before-active-problem-v3-44-2026-11-17`.
+- Respuestas activas para iniciación, magia, control, ilusiones, invisibilidad, movilidad, línea, teamfight y sustain.
+- El motor contempla posición, alcance, minuto mínimo, coste, inventario y selección explícita del problema. El draft por sí solo no fuerza la compra.
+- Amenazas seleccionadas reutilizan matchup/counter existentes; se añade la opción de sustain en el selector cuando corresponda.
+- UI 3.44; Service Worker `dota-build-v95`.
+- Pruebas nuevas agregadas; CI aún pendiente de ejecución.
+- Continuar: validar pruebas, corregir regresiones, integrar solo con CI exitoso y verificar Pages separadamente.
