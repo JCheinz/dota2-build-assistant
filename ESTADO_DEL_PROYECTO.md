@@ -314,3 +314,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Service Worker actualizado a `dota-build-v82`. Pendiente merge y verificación de publicación.
 
 - Resultado final: PR #20 integrado por squash en main, commit `31fbcd2a5d7ac94ca1f0d6d9ecb0de2dde155008`. CI post-merge run `43979731552`, success. GitHub Pages build/deploy run `43979731165`, success; publicación confirmada.
+
+
+## Corrección de compras por etapa e iconos — en desarrollo (16-11-2026)
+
+- Rama: `work/phase-aware-inventory-and-item-icons`, desde main `aedb9a10d3715e0685eb64616d8bf8fa43547045`.
+- Respaldos pre-etapa creados previamente: `backup/3.29-before-phase-aware-purchases` y `backup/estado-3.29-before-phase-aware-purchases`, ambos apuntan al commit base.
+- Se identificó que la rama especial de compras de Pugna Mid daba paso primero al núcleo y luego ordenaba alternativas solo por score, sin ponderar fase tardía. Ahora agrega bonus de etapa: inicio, medio y avanzada/cierre; las defensas situacionales no se descartan y pueden seguir ganando si tienen score real.
+- El inventario automático ahora ordena los objetos registrados por la fase actual y por las secciones de la ruta individual (early/core/situational). Las ubicaciones manuales guardadas por el usuario se conservan.
+- El fallback visual de imagen rota deja de mostrar una espada genérica y muestra una abreviatura del objeto. Se añadieron asociaciones para componentes de recetas observados en la prueba (Robe of the Magi, Staff of Wizardry, Energy Booster, Void Stone, Ring of Health, Ultimate Orb y recetas).
+- Service Worker actualizado a `dota-build-v84`.
+- Pruebas añadidas para las tres fases, ponderación tardía de Pugna, orden automático del inventario y fallback/iconos de componentes.
+- Pendiente: CI, revisión del diff, integración y despliegue. No afirmar publicación hasta verificar GitHub Pages.
