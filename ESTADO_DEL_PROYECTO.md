@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.43 + Service Worker v94; última versión estable respaldada: 3.43  
-**Etapa activa:** Mercado inteligente 3.43 integrado; siguiente trabajo: reforzar respuestas a problemas activos, ampliar rutas individuales verificadas y cubrir recetas de inicio/transición. Pages/Android pendientes de confirmación.
+**Etapa activa:** Motor de problemas activos 3.44 en desarrollo; 3.43 permanece como versión integrada estable. Pages/Android pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -642,3 +642,18 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Respaldos previos: `backup/3.42-before-market-phases-v3-43-2026-11-17` y `backup/estado-3.42-before-market-phases-v3-43-2026-11-17`.
 - GitHub Pages no confirmado por separado. Android no probado por el usuario. APK 3.43 no generado ni archivado.
 - Límites: seis rutas individuales de objetos conocidas; otras combinaciones todavía usan arquetipo/posición. Recetas parciales para objetos de inicio/transición. Próxima fase: reglas de amenaza activa (no solo draft), más rutas individuales verificadas, receta completa y separación inventario/historial de consumibles.
+
+
+## 23. Desarrollo — respuesta a problemas activos (candidata 3.44, 17-11-2026)
+
+- Rama: `work/active-problem-response-v3-44`.
+- Base: versión 3.43 integrada en main, commit `de88494d287b208e1cb57e3a45d67ee6a6f540ca`.
+- Respaldos previos: `backup/3.43-before-active-problem-v3-44-2026-11-17` y `backup/estado-3.43-before-active-problem-v3-44-2026-11-17`.
+- Nuevo motor común `getActiveProblemResponses`: respuestas seleccionadas para iniciación, daño mágico, control, ilusiones, invisibilidad, movilidad, hostigamiento en línea, peleas grupales y sustain.
+- Reglas explícitas por posición y alcance; filtros de minuto mínimo; razones de compra; objetos ya poseídos excluidos en el selector de próxima compra.
+- Seleccionar un problema activo puede adelantar una respuesta; la mera presencia de un héroe en el draft no lo hace. Una vez cubierta la respuesta, el motor continúa la ruta principal.
+- Amenazas por enemigo seleccionado utilizan la tabla de matchup y contadores existentes. El selector suma `issue:sustain` cuando el draft incluye héroes con curación/regeneración relevante.
+- Precios añadidos con referencia 7.41f: Dust of Appearance 80, Gem of True Sight 900. Fuentes: https://www.dota2.com/newsentry/677383425371407609 y https://sarjanaherald.com/item/ (catálogo de precios).
+- Interfaz/informe candidata 3.44; Service Worker candidato `dota-build-v95`.
+- Se agregaron regresiones para problema no seleccionado, respuestas por rol/alcance, invisibilidad, ilusiones, magia, sustain, enemigo concreto, oro, item comprado y anulación temporal de ruta.
+- Estado inicial de etapa: implementación en rama; CI pendiente. No integrar hasta aprobar suite completa. Pages/Android/APK no se consideran probados ni generados.
