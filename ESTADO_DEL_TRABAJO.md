@@ -275,3 +275,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker actualizado a `dota-build-v87`.
 - Pruebas funcionales nuevas: avance de núcleo, interrupción situacional por sustain, mejora Kaya → Kaya and Sange, y no repetir la mejora ya completada.
 - Pendiente: CI, revisión de diff, integración y deploy. La lógica de perfiles Support, Techies y Crystal Maiden no se altera.
+
+
+## Resultado — PR #25 integrado y desplegado (17-11-2026)
+
+- PR #25: https://github.com/JCheinz/dota2-build-assistant/pull/25, integrado por squash.
+- Commit integrado: `78b25a96ced89c6251313e7d3889b0c2057b3a66`.
+- CI PR run `43995986339`: success. CI post-merge run `43996069576`: success.
+- GitHub Pages build/deploy run `43996068769`: success.
+- Service Worker: `dota-build-v87`.
+- Pugna Mid mantiene el core Arcane Boots → Aether Lens, con interrupción por respuesta situacional explícita de prioridad alta. La mera presencia de Alchemist/Huskar no fuerza Spirit Vessel; seleccionar el problema de sustain sí lo eleva.
+- Evolución Kaya → Kaya and Sange: desde minuto 32 con Kaya registrada, el motor pide Sange; al registrar la mejora, la receta consume Kaya para evitar duplicarla. Las pruebas verifican avance del core, prioridad situacional, receta de mejora y que no se recomiende otra vez tras completarla.
+- Se preservó el contrato de compra de Crystal Maiden Support 5 y pasaron las regresiones existentes de perfiles y del inventario.
+- Publicación confirmada. Próxima prueba Android: Pugna Mid, registrar Arcane Boots y Aether Lens, luego Kaya; en minuto 33 comprobar que solicita Sange y al marcar Kaya and Sange verificar que Kaya desaparece del inventario. Probar también Alchemist seleccionado como problema frente a Alchemist presente sin problema seleccionado.
