@@ -754,11 +754,33 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   "Battle Fury":3900,"Yasha":2100,"Sange":2100,"Manta Style":4650,
   "Arcane Boots":1500,"Kaya and Sange":4200,"Yasha and Kaya":4200,
   "Sange and Yasha":4200,"Shiva’s Guard":4500,"Glimmer Cape":2150,
-  "Force Staff":2200,"Black King Bar":4050,"Dragon Lance":2000,"Hurricane Pike":4550
+  "Force Staff":2200,"Black King Bar":4050,"Dragon Lance":2000,"Hurricane Pike":4550,
+  "Magic Wand":460,"Bracer":505,"Maelstrom":2950,"Mjollnir":5500,"Vanguard":1700,
+  "Crimson Guard":3725,"Pipe of Insight":3725,"Headdress":425,"Mekansm":1775,
+  "Lotus Orb":3850,"Scythe of Vyse":5200,"Monkey King Bar":5000,
+  "Urn of Shadows":825,"Spirit Vessel":2725
  };
  for(const [name,cost] of Object.entries(expected)){
   if(total(name)!==cost)throw new Error(name+" debe sumar "+cost+" de oro, suma encontrada: "+total(name));
  }
+ // Recetas adicionales del mercado contextual, verificadas para 7.41f.
+ const spiritBase=missing("Spirit Vessel",[],[]);
+ if(!spiritBase.some(x=>x.name==="Urn of Shadows")||!spiritBase.some(x=>x.name==="Diadem"))throw new Error("Spirit Vessel debe solicitar Urn y Diadem completos cuando no hay progreso");
+ const spiritPartial=missing("Spirit Vessel",["Sage's Mask"],[]);
+ const spiritNames=spiritPartial.map(x=>x.name);
+ if(!spiritNames.includes("Ring of Protection")||!spiritNames.includes("Circlet")||!spiritNames.includes("Receta de Urn of Shadows")||!spiritNames.includes("Diadem"))throw new Error("Spirit Vessel debe expandir Urn cuando ya se posee una de sus piezas");
+ const crimsonPartial=missing("Crimson Guard",["Vitality Booster"],[]);
+ const crimsonNames=crimsonPartial.map(x=>x.name);
+ if(!crimsonNames.includes("Ring of Health")||!crimsonNames.includes("Helm of Iron Will")||crimsonNames.includes("Vitality Booster"))throw new Error("Crimson Guard debe expandir Vanguard descontando Vitality Booster ya poseída");
+ const mjollnirPartial=missing("Mjollnir",[],["Mithril Hammer"]);
+ const mjollnirNames=mjollnirPartial.map(x=>x.name);
+ if(!mjollnirNames.includes("Javelin")||!mjollnirNames.includes("Gloves of Haste")||mjollnirNames.includes("Mithril Hammer"))throw new Error("Mjollnir debe expandir Maelstrom al detectar progreso en sus piezas");
+ const vesselConsumption=vm.runInContext('getRecipePartsForConsumption("Spirit Vessel",new Set(["Urn of Shadows"]),new Set())',recipeContext);
+ if(!vesselConsumption.includes("Urn of Shadows")||!vesselConsumption.includes("Diadem"))throw new Error("Al completar Spirit Vessel debe consumirse Urn como objeto completo y Diadem");
+ const mekansmConsumption=vm.runInContext('getRecipePartsForConsumption("Mekansm",new Set(["Headdress"]),new Set())',recipeContext);
+ if(!mekansmConsumption.includes("Headdress"))throw new Error("Al completar Mekansm debe consumirse Headdress como objeto completo");
+ const newIconNames=["Circlet","Gauntlets of Strength","Javelin","Hyperstone","Helm of Iron Will","Ring of Tarrasque","Cloak","Headdress","Chainmail","Platemail","Mystic Staff","Tiara of Selemene","Demon Edge","Blitz Knuckles","Sage's Mask","Ring of Protection","Ring of Regen"];
+ for(const name of newIconNames)if(!html.includes("'"+name+"'"))throw new Error("Falta asociación visual de componente "+name);
  const mantaWithoutProgress=missing("Manta Style",[],[]);
  if(!mantaWithoutProgress.some(x=>x.name==="Yasha")||mantaWithoutProgress.some(x=>x.name==="Blade of Alacrity"))throw new Error("Sin piezas de Yasha registradas, el mercado debe proponer Yasha como objeto completo");
  const sangeUpgrade=missing("Kaya and Sange",["Kaya"],[]);
