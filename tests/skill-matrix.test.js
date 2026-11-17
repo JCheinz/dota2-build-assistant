@@ -752,6 +752,10 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  for(const [name,cost] of Object.entries(expected)){
   if(total(name)!==cost)throw new Error(name+" debe sumar "+cost+" de oro, suma encontrada: "+total(name));
  }
+ const mantaWithoutProgress=missing("Manta Style",[],[]);
+ if(!mantaWithoutProgress.some(x=>x.name==="Yasha")||mantaWithoutProgress.some(x=>x.name==="Blade of Alacrity"))throw new Error("Sin piezas de Yasha registradas, el mercado debe proponer Yasha como objeto completo");
+ const sangeUpgrade=missing("Kaya and Sange",["Kaya"],[]);
+ if(sangeUpgrade.length!==1||sangeUpgrade[0].name!=="Sange")throw new Error("Con Kaya ya comprada, el siguiente objetivo debe ser Sange como objeto completo");
  const mantaFromPieces=missing("Manta Style",[],["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]);
  const mantaNames=mantaFromPieces.map(x=>x.name).sort().join("|");
  if(mantaNames!=="Diadem|Receta de Manta Style")throw new Error("Manta debe reconocer la Yasha construida a partir de sus componentes: "+mantaNames);
