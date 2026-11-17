@@ -703,7 +703,6 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(passive.target?.name!=="Power Treads")throw new Error("La presencia de una amenaza sin problema seleccionado no debe romper el core");
  if(!appHtml.includes('const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid")'))throw new Error("La ruta especial de Anti-Mage debe identificarse por héroe y posición, no por nombres de objetos compartidos");
  console.log("OK: progresión común Drow/Luna/Anti-Mage, continuidad situacional y prioridad explícita");
-})();
  // El mercado nunca debe presentar como gratuito un objeto cuyo precio no está catalogado.
  const noRecipe=ctx.getNextPurchase([{name:"Objeto sin receta ni coste confirmado",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Objetivo de prueba"}],{minute:20,gold:0,owned:[],components:[],problem:"none"});
  if(noRecipe.kind!=="goal"||noRecipe.cost!==null||noRecipe.affordable!==null)throw new Error("Un objeto sin receta/precio no debe aparecer como gratuito ni como comprable con cero oro");
