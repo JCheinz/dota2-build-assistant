@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.47 + Service Worker v98; última versión estable respaldada: 3.47  
-**Etapa activa:** Mercado inteligente 3.47 integrado: cinco fases, respuestas a problemas activos, recetas recursivas y seguimiento cuantitativo de componentes. Diecisiete rutas individuales de objetos por héroe/posición. Próximo trabajo: ampliar perfiles con datos verificados y cubrir guías individuales de habilidades/talentos donde falten. Pages/Android pendientes de verificación.
+**Versión integrada:** 3.51 + Service Worker v102; última versión estable respaldada: 3.51  
+**Etapa activa:** Mercado inteligente 3.51 integrado: cinco fases, prioridad correcta de rutas individuales, respuestas a problemas activos, recetas recursivas y seguimiento cuantitativo de componentes. Veintitrés rutas individuales de objetos por héroe/posición. Próximo trabajo: separar inventario actual e historial de consumibles, ampliar perfiles verificados y validar Pages/Android.
 
 ## 1. Objetivo
 
