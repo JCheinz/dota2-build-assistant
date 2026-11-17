@@ -785,4 +785,16 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se agregó una regresión que verifica prioridad, coste de 1.775, adelanto del core y no repetición tras marcar el objeto comprado.
 - Se conserva el criterio: solo adelanta una respuesta cuando el jugador selecciona explícitamente el problema; el draft por sí solo no fuerza la compra.
 - UI 3.48; Service Worker dota-build-v99.
-- Pendiente CI e integración; Pages/Android/APK no se consideran validados.
+- PR #40 integrado por squash en main: commit 3ca2b2938ec4f38462ca0d5c7319a2415bb858e1. CI run 44021015074, job 133830255635: success.
+- Pages no verificado independientemente; Android no probado; APK 3.48 no generado.
+
+
+## 32. Integración — versión 3.48: prioridad de respuestas activas (17-11-2026)
+
+- PR #40 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/40.
+- Commit de main: 3ca2b2938ec4f38462ca0d5c7319a2415bb858e1.
+- CI run 44021015074, job 133830255635: success; sintaxis y suite completa aprobadas.
+- Se corrigió el umbral de respuesta activa de 8.5 a 8.0. Mekansm (8.4) puede adelantar la ruta de Support 5 cuando se selecciona perder teamfights; el motor recomienda su primer componente real (Headdress) y continúa cuando se registra el objeto terminado.
+- La presencia de enemigos sin problema seleccionado sigue sin forzar compras situacionales.
+- UI 3.48; Service Worker v99.
+- Pages no verificado independientemente; Android no probado; APK 3.48 no generado ni archivado.
