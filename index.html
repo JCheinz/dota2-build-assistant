@@ -1433,7 +1433,7 @@ function getNextPurchase(build,state,preferredName=null){
   return {...chosen.result,marketPhase:key,phaseLabel:marketPhase.label,
    routeReason:"Compra de "+key.toLocaleLowerCase("es")+" para "+state.role+". La selección respeta el rol, el presupuesto disponible y los objetos ya registrados."};
  };
- if((marketPhase.key==="Inicio"||marketPhase.key==="Línea")&&(!state.problem||state.problem==="none")){
+ if((marketPhase.key==="Inicio"||marketPhase.key==="Línea")&&(!state.problem||state.problem==="none")&&!build.some(x=>x.heroSpecific)){
   const rolePurchase=chooseRolePhase(marketPhase.key);
   if(rolePurchase)return rolePurchase;
  }
