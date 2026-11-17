@@ -342,13 +342,16 @@ const itemSlugs={
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
  'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots',
  'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb',
+ 'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe',
+ 'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
+ 'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
  'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
  'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe'
 };
 function renderItemIcon(name){
  const slug=itemSlugs[name];
- const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">⚔</span>';
+ const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span>';
  if(!slug)return fallback;
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">⚔</span></span>';
 }
@@ -358,10 +361,16 @@ function renderHeroInventory(state,hero=null,role=""){
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
  const plan=hero?getHeroPlan(hero,role):null;
+ const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
+ const phaseNames=plan?(phase==="Inicio"?plan.early:phase==="Medio"?[...(plan.core||[]),...(plan.early||[])]:[...(plan.situational||[]),...(plan.core||[])]):[];
+ const phaseRank=new Map(phaseNames.map((x,i)=>[Array.isArray(x)?x[0]:x.name,i]));
  const coreNames=new Set(plan?(plan.core||[]).map(x=>Array.isArray(x)?x[0]:x.name):[]);
  const manual=owned.filter(name=>["main","backpack","reserve"].includes(zones[name]));
  const automatic=owned.filter(name=>!["main","backpack","reserve"].includes(zones[name]));
- const ordered=[...manual,...automatic.sort((a,b)=>Number(coreNames.has(b))-Number(coreNames.has(a)))];
+ const ordered=[...manual,...automatic.sort((a,b)=>{
+  const ar=phaseRank.has(a)?phaseRank.get(a):999,br=phaseRank.has(b)?phaseRank.get(b):999;
+  return ar-br||Number(coreNames.has(b))-Number(coreNames.has(a));
+ })];
  ordered.forEach(name=>{
   let zone=zones[name];
   if(!["main","backpack","reserve"].includes(zone))zone=counts.main<6?"main":counts.backpack<3?"backpack":"reserve";
@@ -1112,7 +1121,15 @@ function getNextPurchase(build,state,preferredName=null){
    }
    return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Los componentes registrados están completos. Completá el objeto en la partida y marcá el objeto entero como comprado para avanzar. No se muestra un costo de receta no verificado."};
   }
-  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0).sort((a,b)=>(b.score||0)-(a.score||0));
+  const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.score>0).map(x=>{
+   let phaseBonus=0;
+   if(phase==="Inicio"&&x.stage==="Inicio")phaseBonus=1.4;
+   if(phase==="Medio"&&x.stage==="Núcleo")phaseBonus=1.0;
+   if(phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage))phaseBonus=1.8;
+   if(phase==="Avanzada"&&x.stage==="Defensa")phaseBonus=-0.6;
+   return {...x,decisionScore:(x.score||0)+phaseBonus};
+  }).sort((a,b)=>b.decisionScore-a.decisionScore);
   const toOption=target=>{
    const recipe=itemRecipes[target.name]||[];
    const missing=recipe.filter(part=>!state.components.includes(part.name));
