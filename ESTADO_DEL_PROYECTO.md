@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.27 + Service Worker v73  
-**Etapa activa:** Etapa 3 — Techies Support 5 validado por el usuario en Android; corrección de sinergia genérica de PR #10 integrada, CI y GitHub Pages aprobados. Pendiente validación visual Android de la corrección.
+**Versión integrada:** 3.38 + Service Worker v89  
+**Etapa activa:** Mercado automático y progresión de rutas por héroe; versión 3.38 integrada. PR #28 tiene CI aprobado; despliegue público de 3.38 y pruebas Android aún pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -433,3 +433,19 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Rutas individuales: el motor compartido respeta su orden principal sin depender de excepciones por héroe; las respuestas situacionales explícitas pueden adelantar el núcleo cuando alcanzan prioridad suficiente.
 - Se corrigió una detección demasiado amplia de Anti-Mage que podía contaminar rutas de otros héroes con objetos compartidos.
 - Pendiente: confirmar despliegue GitHub Pages y validar comportamiento real en Android. La suite automatizada no sustituye esa prueba.
+
+
+## 12. Respaldo estable y política de APK (16-11-2026)
+
+- Se creó una copia estable del código integrado 3.38 desde el commit `fcd8a020ba70e6e970cb3d9e68a7920c36739343`:
+  - Rama inmutable de respaldo de código: `backup/3.38-stable-2026-11-16`.
+  - Rama de respaldo del estado: `backup/estado-3.38-stable-2026-11-16`.
+- Estos respaldos conservan el snapshot del repositorio anterior a los próximos cambios. No se deben sobrescribir; cada nueva versión estable tendrá ramas nuevas.
+- Estado de la aplicación: el proyecto actualmente está publicado como aplicación web en GitHub Pages. En esta revisión no se encontró un APK versionado ni un flujo Android/Gradle de generación de APK en el repositorio. Por tanto, **no se afirma que exista un APK 3.38 descargable ni se inventa un respaldo binario**.
+- Política de respaldos APK a partir de ahora:
+  1. Cada APK generado y probado se conserva como archivo binario independiente, con nombre `Dota2-Build-Assistant-vX.YY-YYYY-MM-DD.apk`.
+  2. Registrar versión, fecha, commit fuente, checksum SHA-256, resultado de instalación y enlace/ubicación del archivo.
+  3. No reemplazar APK anteriores; conservar también el último APK estable conocido.
+  4. Si solo hay aplicación web y no se ha generado APK, indicarlo explícitamente como “APK no generado”.
+- Regla permanente de documentación: actualizar este archivo `ESTADO_DEL_PROYECTO.md` en cada respaldo, cambio relevante, PR integrado, resultado CI/Pages, generación de APK y validación Android. Este sigue siendo el único registro maestro del estado.
+- Estado de publicación 3.38: integración en `main` confirmada; CI del PR #28 aprobado. No hay confirmación independiente del despliegue de GitHub Pages ni prueba Android posterior a 3.38.
