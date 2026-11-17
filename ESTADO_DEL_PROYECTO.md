@@ -376,3 +376,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se añade Spirit Vessel al motor de Pugna Mid con prioridad condicional ante Alchemist/Huskar cuando el sustain sea la amenaza; se agrega a carga manual e iconografía.
 - Service Worker pasa a `dota-build-v86`. Se añadieron comprobaciones de regresión para botones separados y respuestas anti-sustain.
 - Pendiente CI/revisión del diff y prueba Android de los tres botones y de Spirit Vessel ante Alchemist/Huskar.
+
+
+## Resultado — PR #24 integrado (17-11-2026)
+
+- PR #24 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/24.
+- Commit: `55b036ff371128c14d8f08cab11e5acaa4d0f5cf`.
+- CI del PR, run `43992294471`: success tras corregir la expectativa de regresión para que Pugna tenga una sola evolución de Kaya.
+- Cambios integrados: `Borrar héroes` limpia solo el draft; `Borrar ítems` limpia inventario/componentes y estado de partida; `Restablecer todo` mantiene el borrado completo.
+- Pugna Mid: Kaya and Sange queda como única evolución de Kaya en su ruta. Spirit Vessel se incorpora al motor con prioridad condicional frente a Alchemist/Huskar por sustain alto.
+- Service Worker: `dota-build-v86`.
+- Pendiente: verificar CI post-merge y deploy de Pages, y prueba visual Android de los botones y de la compra anti-sustain.
