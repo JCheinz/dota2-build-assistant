@@ -590,8 +590,8 @@ for (const marker of ['"Kaya and Sange"','"Yasha and Kaya"','"Shiva’s Guard"',
  if (!html.includes(marker)) throw new Error("Falta progresión tardía: "+marker);
 }
 if (!html.includes('state.minute>=32&&state.owned.includes("Kaya")')) throw new Error("Kaya debe habilitar sus evoluciones al entrar en fase avanzada");
-if (!html.includes('!owned.has(part.name)')) throw new Error("Las recetas deben reconocer objetos completos que ya están en el inventario como componentes");
-if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
+if (!html.includes('remainingQuantity=quantity-(owned.has(part.name)?1:0)')) throw new Error("Las recetas deben descontar una unidad de objetos completos ya poseídos");
+if (!html.includes("const item=ownedInputs.find(x=>x.value===name&&x.checked)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
 
 
 (()=> {
