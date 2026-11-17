@@ -617,3 +617,37 @@ if (!html.includes('Única evolución de Kaya contemplada para Pugna Mid')) thro
 if (!html.includes('boost("Spirit Vessel"') || !html.includes('has("alchemist")||has("huskar")')) throw new Error('Pugna debe priorizar Spirit Vessel ante sustain alto');
 if (!html.includes('id="clearHeroes"') || !html.includes('id="clearItems"') || !html.includes('function clearHeroesOnly()') || !html.includes('function clearItemsOnly()')) throw new Error('Faltan controles independientes para borrar héroes e ítems');
 if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Restablecer todo debe seguir disponible como acción explícita');
+
+ 
+// Core purchase progression and item evolution: Pugna Mid.
+(()=>{
+ const html=appHtml;
+ const recipeStart=html.indexOf("const itemRecipes={");
+ const nextStart=html.indexOf("function getNextPurchase(",recipeStart);
+ const nextEnd=html.indexOf("\nfunction pugnaFinalBuild(",nextStart);
+ if(recipeStart<0||nextStart<0||nextEnd<0)throw new Error("No se encontró motor de progresión Pugna");
+ const ctx={};vm.createContext(ctx);
+ vm.runInContext(html.slice(recipeStart,nextStart),ctx);
+ vm.runInContext(html.slice(nextStart,nextEnd),ctx);
+ const build=[
+  {name:"Arcane Boots",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Núcleo",why:"Maná"},
+  {name:"Aether Lens",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Núcleo",why:"Alcance"},
+  {name:"Kaya",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Avanzada",score:2.1,pugnaScore:2.1},
+  {name:"Kaya and Sange",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Cierre",score:5,pugnaScore:5,cost:4200},
+  {name:"Spirit Vessel",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Situacional",score:5.4,pugnaScore:5.4,cost:2780}
+ ];
+ const run=state=>ctx.getNextPurchase(build,{minute:state.minute??25,gold:state.gold??2000,owned:state.owned||[],components:state.components||[],problem:state.problem||"none"});
+ const early=run({});
+ if(early.target?.name!=="Arcane Boots")throw new Error("Pugna debe comenzar por Arcane Boots");
+ const lens=run({owned:["Arcane Boots"]});
+ if(lens.target?.name!=="Aether Lens")throw new Error("Tras Arcane Boots debe avanzar a Aether Lens");
+ const urgent=run({owned:[],problem:"enemy:alchemist"});
+ if(urgent.target?.name!=="Spirit Vessel")throw new Error("Una amenaza de sustain seleccionada debe adelantar Spirit Vessel");
+ const upgrade=run({minute:33,owned:["Arcane Boots","Aether Lens","Kaya"]});
+ if(upgrade.target?.name!=="Kaya and Sange"||upgrade.name!=="Sange")throw new Error("Con Kaya adquirida, la mejora debe pedir Sange y proponer Kaya and Sange");
+ const consumed=ctx.itemRecipes["Kaya and Sange"].filter(p=>!["Kaya"].includes(p.name));
+ if(consumed.length!==1||consumed[0].name!=="Sange")throw new Error("La receta de mejora debe reconocer Kaya como base ya adquirida y solicitar solo Sange");
+ const finished=run({minute:33,owned:["Arcane Boots","Aether Lens","Kaya","Kaya and Sange"]});
+ if(finished.name==="Kaya and Sange")throw new Error("La mejora completada no debe volver a recomendarse");
+ console.log("OK: progresión del núcleo Pugna, prioridad situacional y evolución Kaya → Kaya and Sange");
+})();
