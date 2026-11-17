@@ -570,8 +570,8 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
 
 
 // Regression: phase-aware Pugna purchase selection and phase-aware automatic inventory order.
-if (!html.includes('const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada"')) {
-  throw new Error("El motor debe identificar las tres fases de compra");
+if (!html.includes('const phase=getMarketPhase(state.minute).key') || !html.includes('if(m<5)return {key:"Inicio"') || !html.includes('if(m<12)return {key:"Línea"') || !html.includes('if(m<20)return {key:"Transición"') || !html.includes('if(m<30)return {key:"Core"')) {
+  throw new Error("El motor debe identificar las cinco fases de compra");
 }
 if (!html.includes('phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage)')) {
   throw new Error("Pugna debe ponderar objetos avanzados/cierre desde minuto 28");
