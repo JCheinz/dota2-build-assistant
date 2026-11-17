@@ -938,18 +938,28 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   "npc_dota_hero_mars|Offlane",
   "npc_dota_hero_lion|Support 4",
   "npc_dota_hero_lion|Support 5",
-  "npc_dota_hero_zuus|Mid"
+  "npc_dota_hero_zuus|Mid",
+  "npc_dota_hero_skeleton_king|Carry",
+  "npc_dota_hero_nevermore|Mid",
+  "npc_dota_hero_tidehunter|Offlane",
+  "npc_dota_hero_pudge|Support 4"
  ];
  for(const key of required){
   if(!keys.includes(key))throw new Error("Falta ruta individual de héroe/posición: "+key);
   const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);
   if(!Array.isArray(plan.early)||!plan.early.length||!Array.isArray(plan.core)||!plan.core.length||!Array.isArray(plan.situational)||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta sin fases o sin fuente/fecha identificable: "+key);
  }
- if(keys.length!==13)throw new Error("El catálogo debe registrar 13 rutas individuales verificadas; encontradas: "+keys.length);
- for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500]]){
+ if(keys.length!==17)throw new Error("El catálogo debe registrar 17 rutas individuales verificadas; encontradas: "+keys.length);
+ for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500],["Eul’s Scepter of Divinity",2600],["Buckler",425],["Vladmir’s Offering",2200],["Radiance",4700]]){
   const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
   if(total!==cost)throw new Error(name+" debe tener receta desglosada por "+cost+"; encontrado "+total);
  }
+ const vladFull=vm.runInContext('getMissingRecipeParts("Vladmir’s Offering",new Set(),new Map())',recipeContext);
+ if(!["Buckler","Ring of Basilius","Morbid Mask","Blades of Attack"].every(n=>vladFull.some(x=>x.name===n)))throw new Error("Vladmir’s Offering debe exponer sus cuatro componentes confirmados");
+ const vladBucklerPartial=vm.runInContext('getMissingRecipeParts("Vladmir’s Offering",new Set(["Ring of Protection"]),new Map())',recipeContext);
+ if(!vladBucklerPartial.some(x=>x.name==="Receta de Buckler")||vladBucklerPartial.some(x=>x.name==="Ring of Protection"))throw new Error("Vladmir’s Offering debe expandir Buckler y descontar Ring of Protection ya poseído");
+ const radianceParts=vm.runInContext('getMissingRecipeParts("Radiance",new Set(),new Map())',recipeContext);
+ if(!radianceParts.some(x=>x.name==="Sacred Relic")||!radianceParts.some(x=>x.name==="Talisman of Evasion"))throw new Error("Radiance debe solicitar Sacred Relic y Talisman of Evasion");
  const purchaseStart=html.indexOf("function getNextPurchase(");
  const purchaseEnd=html.indexOf("\nfunction pugnaFinalBuild(",purchaseStart);
  vm.runInContext(html.slice(purchaseStart,purchaseEnd),recipeContext);
@@ -959,5 +969,5 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const bothParts=vm.runInContext('getMissingRecipeParts("Soul Ring",new Set(),new Map([["Gauntlets of Strength",2]]))',recipeContext);
  if(bothParts.some(x=>x.name==="Gauntlets of Strength"))throw new Error("Dos unidades marcadas deben descontar las dos piezas del objeto");
  if(!html.includes('normalizeQuantityMap(state.components||[])')||!html.includes('data-component-unit='))throw new Error("El mercado y la interfaz deben conservar cantidades duplicadas");
- console.log("OK: v3.46 — 13 rutas por héroe/posición y recetas necesarias para sus compras iniciales/core");
+ console.log("OK: v3.47 — 17 rutas por héroe/posición y recetas necesarias para sus compras iniciales/core");
 })();
