@@ -351,3 +351,15 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Las recetas reconocen objetos completos existentes como componentes de una evolución y al marcar la mejora como comprada se consume el objeto base del inventario. No se modifica la compra ni el inventario de otros héroes.
 - Se actualizó Service Worker a `dota-build-v85` y se agregaron regresiones estáticas para problemas contextuales, evolución de Kaya y continuidad tardía.
 - Pendiente: validar CI, revisar diff y verificar que las pruebas dinámicas no alteren perfiles Pugna Support, Techies o Crystal Maiden. Prueba Android posterior: variar el problema seleccionado con draft fijo y comprobar que cambie la respuesta; registrar Kaya en inventario y probar minuto 33 para observar evolución; marcar la evolución y confirmar consumo de Kaya.
+
+
+## Resultado — PR #23 integrado y desplegado (17-11-2026)
+
+- PR #23: https://github.com/JCheinz/dota2-build-assistant/pull/23, integrado por squash.
+- Commit de integración: `c907dd7040c7b5611df9e55d725f2db593448081`.
+- CI del PR, run `43990690370`: success, incluidas pruebas funcionales del motor Pugna para los ocho problemas, evoluciones de Kaya y opciones tardías.
+- CI post-merge, run `43990733161`: success.
+- GitHub Pages build/deploy, run `43990732518`: success; publicación confirmada.
+- Service Worker: `dota-build-v85`.
+- Alcance: se corrigió el enlace entre el selector de problemas y las respuestas de compra de Pugna Mid; se agregaron rutas de evolución de Kaya y opciones condicionales de late game. Se mantienen intactos los perfiles Pugna Support, Techies y Crystal Maiden.
+- Validación pendiente del usuario en Android: cambiar el problema seleccionado con draft fijo y verificar la próxima compra; registrar Kaya como objeto completo, fijar minuto 33 y comprobar que se recomiende una evolución apropiada; al marcar la evolución, confirmar que Kaya se consume del inventario.
