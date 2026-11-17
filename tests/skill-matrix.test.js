@@ -1002,7 +1002,20 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!witchPartial.some(x=>x.name==="Robe of the Magi")||witchPartial.some(x=>x.name==="Blitz Knuckles"))throw new Error("Witch Blade debe descontar Blitz Knuckles y continuar la receta de Oblivion Staff.");
  const meteorPartial=vm.runInContext('getMissingRecipeParts("Meteor Hammer",new Set(["Kaya"]),new Map())',recipeContext);
  if(meteorPartial.some(x=>x.name==="Kaya")||!meteorPartial.some(x=>x.name==="Crown"))throw new Error("Meteor Hammer debe descontar Kaya poseída y pedir Crown/receta.");
- console.log("OK: v3.50 — 23 rutas por héroe/posición, tres rutas Mid y cinco recetas recursivas verificadas");
+
+ const priorityBuild=[
+  {name:"Power Treads",roles:["Mid"],roleBaseline:true,marketRole:"Mid",marketPhase:"Línea",priority:1,cost:1400,why:"Plantilla de posición"},
+  {name:"Magic Wand",roles:["Mid"],heroSpecific:true,heroKey:"npc_dota_hero_puck|Mid",routeIndex:0,marketPhase:"Línea",stage:"Inicio",cost:460,why:"Ruta individual primero"},
+  {name:"Witch Blade",roles:["Mid"],heroSpecific:true,heroKey:"npc_dota_hero_puck|Mid",routeIndex:1,marketPhase:"Transición",stage:"Medio",cost:2775,why:"Ruta core"}
+ ];
+ const heroFirst=context.getNextPurchase(priorityBuild,{minute:5,gold:1400,owned:[],components:[],role:"Mid",problem:"none"});
+ if(heroFirst.target?.name!=="Magic Wand"||heroFirst.name!=="Magic Wand")throw new Error("La ruta individual del héroe debe tener prioridad sobre el catálogo genérico de posición");
+ const urgentFirst=context.getNextPurchase([...priorityBuild,{name:"Dust of Appearance",roles:["Mid"],activeProblem:true,activeProblemId:"issue:invisibility",activePriority:9.8,minMinute:5,cost:80,why:"Detección urgente"}],{minute:8,gold:80,owned:[],components:[],role:"Mid",problem:"issue:invisibility"});
+ if(urgentFirst.name!=="Dust of Appearance"||urgentFirst.urgentOverride!==true)throw new Error("Una respuesta urgente confirmada debe poder interrumpir la ruta individual");
+ const roleFallback=context.getNextPurchase([{name:"Power Treads",roles:["Mid"],roleBaseline:true,marketRole:"Mid",marketPhase:"Línea",priority:1,cost:1400,why:"Plantilla"}],{minute:5,gold:1400,owned:[],components:[],role:"Mid",problem:"none"});
+ if(roleFallback.target?.name!=="Power Treads")throw new Error("Sin ruta individual, el catálogo genérico de posición debe seguir funcionando");
+ console.log("OK: v3.51 — la ruta individual prevalece sobre la plantilla; las urgencias confirmadas pueden interrumpirla y el fallback genérico se conserva");
+
 
 
 })();
