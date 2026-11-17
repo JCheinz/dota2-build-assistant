@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.40 + Service Worker v91; última versión estable respaldada: 3.40  
-**Etapa activa:** Mercado automático y progresión de rutas por héroe; versión 3.38 integrada. PR #28 tiene CI aprobado; despliegue público de 3.38 y pruebas Android aún pendientes de confirmación.
+**Etapa activa:** Auditoría del catálogo de recetas y componentes del mercado automático. Versión estable integrada 3.40; desarrollo 3.41 en rama de trabajo, pendiente de CI y revisión.
 
 ## 1. Objetivo
 
@@ -507,3 +507,20 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
   - Estado: `backup/estado-3.40-full-market-pool-2026-11-16`.
 - GitHub Pages de 3.40 y validación Android: pendientes de confirmación independiente. APK 3.40: no generado; no existe binario Android comprobado en el repositorio.
 - Próxima etapa: ampliar el catálogo de recetas/costes con datos verificados y probar rutas completas por héroe/posición. El mercado ya no tiene el límite artificial de siete candidatos, pero todavía no está certificada la cobertura individual de todos los héroes.
+
+
+## 17. Desarrollo — catálogo recursivo de recetas y componentes (versión candidata 3.41, 16-11-2026)
+
+- Respaldos previos creados desde `main` después de integrar PR #31:
+  - Código: `backup/3.40-before-recipe-catalog-audit-2026-11-16`.
+  - Estado: `backup/estado-3.40-before-recipe-catalog-audit-2026-11-16`.
+- Rama de trabajo: `work/verified-item-recipe-catalog-v3-41`.
+- Se amplió el catálogo de recetas con Perseverance, Sange, Yasha, Manta Style, Kaya and Sange, Yasha and Kaya, Sange and Yasha, Shiva’s Guard, Glimmer Cape, Force Staff, Black King Bar, Dragon Lance y Hurricane Pike; se revisaron también las rutas de Battle Fury y Arcane Boots.
+- Costes de referencia de la candidata: Battle Fury 3.900; Yasha 2.100; Sange 2.100; Manta Style 4.650; Arcane Boots 1.500; Kaya and Sange / Yasha and Kaya / Sange and Yasha 4.200; Shiva’s Guard 4.500; Glimmer Cape 2.150; Force Staff 2.200; Black King Bar 4.050; Dragon Lance 2.000; Hurricane Pike 4.550.
+- El motor ahora expande recetas anidadas: por ejemplo, si se registran Blade of Alacrity, Band of Elvenskin y Receta de Yasha, Manta Style no vuelve a solicitar Yasha; solo muestra Diadem y la receta final.
+- La evolución Kaya → Kaya and Sange conserva el comportamiento: Kaya completa se reconoce como componente, y solo se solicita Sange cuando falta.
+- Se incorporó cantidad en piezas duplicadas: Battle Fury necesita dos Broadswords. Si ya hay una Broadsword completa en el inventario, el motor descuenta una y solicita una adicional; la interfaz muestra la cantidad pendiente.
+- Al completar un objeto, el consumo recorre la receta anidada y consume el objeto completo si está registrado; si no, consume las piezas registradas. Se preservan los componentes no relacionados.
+- Se añadieron regresiones para sumas de costes, expansión Manta/Yasha, evolución Kaya, duplicados de Battle Fury y consumo recursivo.
+- Versión candidata visible: 3.41. Service Worker: `dota-build-v92`; referencia de especializaciones `?v=3279`.
+- Estado: pendiente CI, revisión del diff e integración. No declarar desplegada la 3.41 hasta verificar Pages; Android y APK 3.41 siguen pendientes. La cobertura de recetas se amplía de forma incremental, no representa todavía el catálogo completo de Dota 2.
