@@ -1,11 +1,11 @@
 # Estado del proyecto — Dota 2 Build Assistant
 
-**Última actualización:** 16 de noviembre de 2026  
+**Última actualización:** 17 de noviembre de 2026  
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.41 + Service Worker v92; última versión estable respaldada: 3.41  
-**Etapa activa:** Auditoría y ampliación progresiva del mercado automático; catálogo recursivo de recetas integrado en 3.41. Pendiente validar despliegue público y comportamiento real en Android.
+**Versión integrada:** 3.42 + Service Worker v93; última versión estable respaldada: 3.42  
+**Etapa activa:** Desarrollo 3.43 — mercado inteligente por cinco fases y catálogo de compras por posición. Base integrada 3.42; Pages y prueba Android pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -575,3 +575,54 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Respaldo previo inmutable: `backup/3.41-before-intelligent-market-2026-11-16`; estado previo: `backup/estado-3.41-before-intelligent-market-2026-11-16`.
 - GitHub Pages no confirmado en este hito. Android no probado por el usuario. APK 3.42 no generado ni archivado.
 - Próxima fase prioritaria: construir rutas temporales por héroe y posición (inicio, línea, transición, core y situacionales), y ordenar la próxima compra por fase, oro, inventario y amenaza activa.
+
+
+## 20. Integración — versión 3.42: tempo y sinergias de composición (17-11-2026)
+
+- PR #33 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/33.
+- Commit: `3f0f481cc5018fef1c4e62478aad795e6f336886`.
+- CI del PR #33: run `44006505822`, job `133783045022`, success.
+- La secuencia de equipo completo de Pugna Mid requiere los cuatro aliados Mars, Rubick, Oracle y Juggernaut; las sinergias individuales dependen de los aliados realmente seleccionados.
+- Se retiraron textos genéricos que conservaban referencias a Mars/Oracle de otra composición.
+- Service Worker `dota-build-v93`; referencia `specializations.js?v=3280`.
+- GitHub Pages 3.42, Android y APK no confirmados. No se generó APK.
+
+## 21. Desarrollo — mercado inteligente por fases y posición (candidata 3.43, 17-11-2026)
+
+### Respaldos y rama
+- Commit base de `main`: `b7d1accafc51ba9dc0037eafa7e1cea0d8368577`.
+- Código: `backup/3.42-before-market-phases-v3-43-2026-11-17`.
+- Estado: `backup/estado-3.42-before-market-phases-v3-43-2026-11-17`.
+- Rama: `work/market-phases-role-engine-v3-43`.
+
+### Arquitectura implementada en la candidata
+- Cinco fases globales: Inicio (0–4), Línea (5–11), Transición (12–19), Core (20–29) y Avanzada (30+).
+- Catálogo de apertura y progreso por posición: Carry, Mid, Offlane, Support 4 y Support 5.
+- Condiciones por alcance y datos del héroe; por ejemplo, Quelling Blade no se incluye como compra inicial de un Carry a distancia.
+- Condiciones por draft: Magic Wand/Stick, Raindrops, BKB, Pipe y Crimson Guard aparecen según los roles/amenazas registrados o el problema activo.
+- Perfiles que ya tienen ruta individual conservan prioridad: el catálogo de rol aporta el comienzo y la ruta específica gobierna línea, transición y core.
+- La vista muestra solo los candidatos de la fase actual; el `marketPool` conserva los candidatos futuros para que no se pierdan al avanzar el reloj.
+- El selector de inventario manual se amplía con los objetos de todas las fases de la posición seleccionada.
+- La decisión de compra calcula componentes faltantes, compara oro disponible y distingue un objeto gratuito (Observer Ward) de un precio desconocido.
+- Costes comunes de referencia 7.41f registrados en `MARKET_ITEM_COSTS`; Spirit Vessel ajustado a 2.725. Las recetas continúan siendo una cobertura parcial: cuando falta una receta el mercado presenta el objeto completo con precio conocido, no inventa piezas.
+- Service Worker candidato `dota-build-v94`; interfaz e informe versión 3.43. No se modificaron datos de especializaciones.
+
+### Fuentes de datos y límites
+- Referencia oficial de versión: Dota 2, actualización 7.41f publicada el 15-09-2026: https://www.dota2.com/news/updates/16749.
+- Referencia de costes de objetos 7.41f basada en el datafeed de objetos: https://senseos.gg/wiki/dota-2/items/.
+- Los costes son una referencia del parche; los tiempos de compra son heurísticos iniciales, no timings garantizados. Los objetos situacionales no se convierten en obligatorios por el simple hecho de que el enemigo esté en el draft.
+- La candidata no representa todavía builds individualizadas para los 126 héroes ni todas sus posiciones. Actualmente hay seis rutas de objetos individuales conocidas; el resto usa el catálogo de rol y arquetipo.
+- Falta extender y verificar recetas de los objetos de inicio/transición que todavía no tienen `itemRecipes`, validar rutas por héroe/posición, y ampliar las reglas de situaciones activas.
+
+### Criterios permanentes del mercado inteligente
+1. Nunca recomendar objetos fuera de fase como próxima compra, salvo una respuesta urgente validada y compatible con el rol.
+2. Respetar orden de ruta individual y perfil de posición; las builds de héroes distintos no deben contaminarse.
+3. Distinguir enemigo presente, amenaza mecánica detectada y problema que el jugador confirma que está sufriendo.
+4. Calcular componentes recursivamente, cantidades duplicadas, progreso parcial, oro faltante y evolución de objetos.
+5. Separar inventario actual de historial de compras/consumibles para no confundir objetos consumidos con objetos que nunca se compraron.
+6. Mantener motivos, condiciones, confianza y fuente/versionado de cada recomendación.
+7. No presentar inferencias genéricas como builds individuales verificadas.
+
+### Estado
+- Implementado en la rama; CI, revisión de diff e integración pendientes.
+- GitHub Pages, validación visual Android y APK 3.43 pendientes. No se ha generado APK.
