@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.51 + Service Worker v102; última versión estable respaldada: 3.51  
-**Etapa activa:** versión 3.52 en desarrollo en `work/inventory-ledger-v3-52-refresh`. Se incorpora un libro de movimientos separado del inventario actual, historial de compras/ventas/mejoras, registro de consumibles usados, consumo cuantitativo de componentes, deduplicación de recomendaciones y persistencia local. Base integrada 3.51; pendiente CI completo, revisión y PR. No integrar hasta que las regresiones estén aprobadas.
+**Versión integrada:** 3.52 + Service Worker v103; última versión estable respaldada: 3.52  
+**Etapa activa:** versión 3.52 integrada mediante PR #44. Inventario actual e historial separados, registro de compras/ventas/mejoras, consumibles usados, consumo cuantitativo de componentes, deduplicación de recomendaciones y persistencia local. CI y regresiones aprobados; pendiente validación de publicación, Android y APK.
 
 ## 1. Objetivo
 
