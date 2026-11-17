@@ -1,0 +1,27 @@
+const assert=require("node:assert/strict");
+const {create}=require("../inventory-ledger.js");
+class MemoryStorage{constructor(){this.data=new Map()}getItem(k){return this.data.get(k)||null}setItem(k,v){this.data.set(k,v)}}
+const storage=new MemoryStorage(),ledger=create({storage});
+assert.equal(ledger.recordPurchase("Kaya",{minute:18}).recorded,true);
+assert.equal(ledger.recordPurchase("Kaya",{minute:19}).reason,"already-owned");
+assert.deepEqual(ledger.snapshot().inventory.map(x=>x.name),["Kaya"]);
+ledger.upgrade("Kaya and Sange",["Kaya"],{minute:28});
+assert.deepEqual(ledger.snapshot().inventory.map(x=>x.name),["Kaya and Sange"]);
+assert.ok(ledger.snapshot().history.some(x=>x.action==="component-consumed"&&x.name==="Kaya"));
+ledger.recordPurchase("Tango",{minute:0});
+assert.equal(ledger.useConsumable("Tango",{minute:7}).used,true);
+assert.ok(!ledger.snapshot().inventory.some(x=>x.name==="Tango"));
+assert.ok(ledger.snapshot().history.some(x=>x.action==="consumable-used"&&x.name==="Tango"));
+ledger.recordComponent("Broadsword",{minute:12});
+assert.equal(ledger.snapshot().components.length,1);
+assert.deepEqual(ledger.filterRecommendations([{name:"Kaya"},{name:"Manta Style"},{name:"Manta Style"}],["Kaya"]).map(x=>x.name),["Manta Style"]);
+const restored=create({storage});
+assert.deepEqual(restored.snapshot(),ledger.snapshot());
+restored.recordSale("Kaya and Sange",{minute:35});
+assert.equal(restored.snapshot().inventory.length,0);
+assert.ok(restored.snapshot().history.some(x=>x.action==="sold"));
+restored.clearInventory();
+assert.equal(restored.snapshot().history.length>0,true);
+restored.clearHistory();
+assert.equal(restored.snapshot().history.length,0);
+console.log("OK: inventory ledger v3.52 — separación inventario/historial, duplicados, consumibles, componentes, evolución, venta y persistencia");
