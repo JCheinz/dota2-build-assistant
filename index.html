@@ -1520,6 +1520,10 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.stage=== (live.minute<12?"Inicio":live.minute<28?"Medio":"Avanzada"))score+=1.8;else score-=0.35;}
+  const tempoMinimum=({ "Black King Bar":12,"Aeon Disk":16,"Hurricane Pike":16,"Aether Lens":12,"Blink Dagger":12,"Pipe of Insight":14,"Crimson Guard":14,"Shiva’s Guard":20,"Scythe of Vyse":24,"Satanic":20,"Daedalus":24,"Butterfly":24,"Heart of Tarrasque":24,"Silver Edge":20,"Nullifier":24,"Aghanim’s Scepter":20,"Aghanim’s Shard":15 })[x.name]||0;
+  if(live.minute<tempoMinimum)score=-100;
+  if(x.stage==="Medio"&&live.minute<8)score=-100;
+  if(x.stage==="Avanzada"&&live.minute<20)score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&["Linken’s Sphere","Black King Bar"].includes(x.name))score-=2.5;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&!["batrider","bane","beastmaster","legion_commander"].some(id=>enemyIds.has(id)))score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
@@ -1594,8 +1598,10 @@ function buildAdaptivePlan(hero,role,enemies,live){
    early=early.slice().sort((a,b)=>b.score-a.score).slice(0,1);
    core=core.filter(x=>x.name!=="Aghanim’s Shard");
    situational=[...situational,...optionalEarly,...scores.filter(x=>["Aghanim’s Shard","Null Talisman"].includes(x.name)&&!situational.some(y=>y.name===x.name))];
-  }else if(live.minute>=12){
-   early=[];
+  }else {
+   if(live.minute>=12)early=[];
+   if(live.minute<12)core=[];
+   if(live.minute<20)situational=situational.filter(x=>x.stage!=="Avanzada");
   }
   // Las respuestas de draft no desplazan los objetos de progresión salvo una amenaza concreta y activa.
   const responses=scores.filter(x=>(x.threatSpecific||pugnaResponses.some(p=>p.name===x.name))&&!plannedItems.some(p=>p.name===x.name));
