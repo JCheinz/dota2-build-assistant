@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.38</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.39</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -1103,11 +1103,21 @@ function getNextPurchase(build,state,preferredName=null){
  const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
-  const missing=recipe.filter(part=>!components.has(part.name)&&!state.owned.includes(part.name));
-  const next=missing.find(part=>state.gold>=part.cost)||missing[0]||null;
-  if(missing.length&&next)return {target,kind:"component",name:next.name,cost:next.cost,remaining:Math.max(0,next.cost-state.gold),affordable:state.gold>=next.cost,reason:target.condition||target.why};
-  if(recipe.length)return {target,kind:"goal",name:target.name,reason:target.condition||target.why,routeReason:"Los componentes están registrados. Completá el objeto en la partida y marcá el objeto terminado para actualizar el inventario."};
-  return {target,kind:"complete",name:target.name,cost:Number(target.cost)||0,remaining:Math.max(0,(Number(target.cost)||0)-state.gold),affordable:state.gold>=(Number(target.cost)||0),reason:target.condition||target.why};
+  // Un objeto completo registrado en el inventario también cuenta como componente
+  // de una evolución (por ejemplo, Kaya dentro de Kaya and Sange).
+  const missing=recipe.filter(part=>!components.has(part.name)&&!owned.has(part.name));
+  // Elegir una pieza que ya se pueda comprar; si ninguna alcanza, mostrar la primera
+  // pendiente y cuánto oro falta, sin marcarla como asequible.
+  const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost))||missing[0]||null;
+  if(missing.length&&next){
+   const cost=Number.isFinite(Number(next.cost))?Number(next.cost):null;
+   return {target,kind:"component",name:next.name,cost,remaining:cost===null?null:Math.max(0,cost-state.gold),affordable:cost===null?null:state.gold>=cost,reason:target.condition||target.why};
+  }
+  if(recipe.length)return {target,kind:"goal",name:target.name,cost:null,remaining:null,affordable:null,reason:target.condition||target.why,routeReason:"Los componentes están registrados. Completá el objeto en la partida y marcá el objeto terminado para actualizar el inventario."};
+  // No inventar precio cero: si el catálogo no tiene un coste confirmado, indicar
+  // que el objetivo es el objeto completo y dejar su precio como desconocido.
+  const directCost=Number(target.cost),hasDirectCost=Number.isFinite(directCost)&&directCost>0;
+  return {target,kind:"goal",name:target.name,cost:hasDirectCost?directCost:null,remaining:hasDirectCost?Math.max(0,directCost-state.gold):null,affordable:hasDirectCost?state.gold>=directCost:null,reason:target.condition||target.why};
  };
  const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
  if(isPugna){
@@ -1571,7 +1581,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.38',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.39',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -1590,7 +1600,7 @@ function analyze(options={}){
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
- html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span><small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
+ html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;

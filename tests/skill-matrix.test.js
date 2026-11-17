@@ -590,7 +590,7 @@ for (const marker of ['"Kaya and Sange"','"Yasha and Kaya"','"Shiva’s Guard"',
  if (!html.includes(marker)) throw new Error("Falta progresión tardía: "+marker);
 }
 if (!html.includes('state.minute>=32&&state.owned.includes("Kaya")')) throw new Error("Kaya debe habilitar sus evoluciones al entrar en fase avanzada");
-if (!html.includes('!state.owned.includes(part.name)')) throw new Error("Las recetas deben reconocer objetos completos que ya están en el inventario como componentes");
+if (!html.includes('!owned.has(part.name)')) throw new Error("Las recetas deben reconocer objetos completos que ya están en el inventario como componentes");
 if (!html.includes("const owned=[...document.querySelectorAll('.owned-item')].find(x=>x.value===part.name)")) throw new Error("Completar una evolución debe consumir el objeto base registrado");
 
 
@@ -703,4 +703,14 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(passive.target?.name!=="Power Treads")throw new Error("La presencia de una amenaza sin problema seleccionado no debe romper el core");
  if(!appHtml.includes('const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid")'))throw new Error("La ruta especial de Anti-Mage debe identificarse por héroe y posición, no por nombres de objetos compartidos");
  console.log("OK: progresión común Drow/Luna/Anti-Mage, continuidad situacional y prioridad explícita");
+ // El mercado nunca debe presentar como gratuito un objeto cuyo precio no está catalogado.
+ const noRecipe=ctx.getNextPurchase([{name:"Objeto sin receta ni coste confirmado",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Objetivo de prueba"}],{minute:20,gold:0,owned:[],components:[],problem:"none"});
+ if(noRecipe.kind!=="goal"||noRecipe.cost!==null||noRecipe.affordable!==null)throw new Error("Un objeto sin receta/precio no debe aparecer como gratuito ni como comprable con cero oro");
+ const knownCost=ctx.getNextPurchase([{name:"Objeto con coste",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",cost:1800,why:"Objetivo de prueba"}],{minute:20,gold:500,owned:[],components:[],problem:"none"});
+ if(knownCost.kind!=="goal"||knownCost.cost!==1800||knownCost.remaining!==1300||knownCost.affordable!==false)throw new Error("El mercado debe calcular correctamente el oro faltante para un objeto completo");
+ const recipeProgress=ctx.getNextPurchase([{name:"Aether Lens",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Receta"}],{minute:20,gold:600,owned:[],components:["Energy Booster"],problem:"none"});
+ if(recipeProgress.kind!=="component"||recipeProgress.name!=="Void Stone"||recipeProgress.cost!==700||recipeProgress.remaining!==100||recipeProgress.affordable!==false)throw new Error("El mercado debe descontar componentes ya adquiridos y calcular el faltante del siguiente componente");
+ const upgradeProgress=ctx.getNextPurchase([{name:"Kaya and Sange",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Evolución"}],{minute:33,gold:1000,owned:["Kaya"],components:[],problem:"none"});
+ if(upgradeProgress.kind!=="component"||upgradeProgress.name!=="Sange"||upgradeProgress.remaining!==1100)throw new Error("La evolución debe reconocer Kaya como objeto base y pedir solo Sange con su oro faltante");
+ console.log("OK: mercado universal — precios desconocidos no se convierten en cero, componentes descontados y evolución incremental");
 })();
