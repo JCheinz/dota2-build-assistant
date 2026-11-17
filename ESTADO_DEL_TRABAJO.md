@@ -288,3 +288,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Evolución Kaya → Kaya and Sange: desde minuto 32 con Kaya registrada, el motor pide Sange; al registrar la mejora, la receta consume Kaya para evitar duplicarla. Las pruebas verifican avance del core, prioridad situacional, receta de mejora y que no se recomiende otra vez tras completarla.
 - Se preservó el contrato de compra de Crystal Maiden Support 5 y pasaron las regresiones existentes de perfiles y del inventario.
 - Publicación confirmada. Próxima prueba Android: Pugna Mid, registrar Arcane Boots y Aether Lens, luego Kaya; en minuto 33 comprobar que solicita Sange y al marcar Kaya and Sange verificar que Kaya desaparece del inventario. Probar también Alchemist seleccionado como problema frente a Alchemist presente sin problema seleccionado.
+
+
+## Ajuste adicional — prioridad situacional en inventario (17-11-2026)
+
+- Respaldos desde main `59e845b53ec9c46946fa77136cd6aabf79c265a5`: `backup/3.37-before-situational-inventory-order` y `backup/estado-3.37-before-situational-inventory-order`.
+- Rama: `work/situational-inventory-priority`.
+- El orden automático del inventario ahora sube al frente la respuesta situacional ya adquirida cuando el problema seleccionado la justifica (Spirit Vessel, Aeon Disk, BKB, Glimmer, Blink, Shiva o Gem según la situación).
+- Los objetos ubicados manualmente en inventario, mochila o reserva conservan su ubicación; solo se reordena el conjunto automático.
+- Kaya and Sange ya adquirida recibe prioridad de orden como evolución completada desde minuto 32.
+- Cache previsto: `dota-build-v88`.
+- Pruebas añadidas para el mapeo situacional y preservación de zonas manuales. Pendiente CI/PR/deploy.
