@@ -634,14 +634,15 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   {name:"Aether Lens",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Núcleo",why:"Alcance"},
   {name:"Kaya",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Avanzada",score:2.1,pugnaScore:2.1},
   {name:"Kaya and Sange",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Cierre",score:5,pugnaScore:5,cost:4200},
-  {name:"Spirit Vessel",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Situacional",score:5.4,pugnaScore:5.4,cost:2780}
+  {name:"Spirit Vessel",heroSpecific:true,heroKey:"npc_dota_hero_pugna|Mid",stage:"Situacional",score:3.2,pugnaScore:3.2,cost:2780}
  ];
  const run=state=>ctx.getNextPurchase(build,{minute:state.minute??25,gold:state.gold??2000,owned:state.owned||[],components:state.components||[],problem:state.problem||"none"});
  const early=run({});
  if(early.target?.name!=="Arcane Boots")throw new Error("Pugna debe comenzar por Arcane Boots");
  const lens=run({owned:["Arcane Boots"]});
  if(lens.target?.name!=="Aether Lens")throw new Error("Tras Arcane Boots debe avanzar a Aether Lens");
- const urgent=run({owned:[],problem:"enemy:alchemist"});
+ const urgentBuild=build.map(x=>x.name==="Spirit Vessel"?{...x,score:5.4,pugnaScore:5.4}:x);
+ const urgent=ctx.getNextPurchase(urgentBuild,{minute:25,gold:2000,owned:[],components:[],problem:"enemy:alchemist"});
  if(urgent.target?.name!=="Spirit Vessel")throw new Error("Una amenaza de sustain seleccionada debe adelantar Spirit Vessel");
  const upgrade=run({minute:33,owned:["Arcane Boots","Aether Lens","Kaya"]});
  if(upgrade.target?.name!=="Kaya and Sange"||upgrade.name!=="Sange")throw new Error("Con Kaya adquirida, la mejora debe pedir Sange y proponer Kaya and Sange");
