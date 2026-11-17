@@ -492,3 +492,14 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Umbral de respuestas activas 8.0; prueba de Mekansm (Support 5, teamfight), coste, primer componente Headdress y continuación de ruta después de comprar el objeto.
 - UI 3.48; Service Worker v99.
 - GitHub Pages no confirmado, Android pendiente, APK no generado.
+
+
+## Trabajo 3.49 — rutas Phantom Lancer, Enigma y Winter Wyvern (17-11-2026)
+
+- Base: main 3.48.
+- Tres rutas individuales añadidas: Phantom Lancer Carry, Enigma Offlane y Winter Wyvern Support 5; total 20 combinaciones héroe/posición.
+- Fuentes StatsDota 7.41f actualizadas 16–17 noviembre de 2026, con muestras separadas por posición; referencias registradas en ESTADO_DEL_PROYECTO.md.
+- Receta nueva Drum of Endurance (1.625): Headdress 425 + Belt of Strength 450 + Wind Lace 225 + receta 525. Se expande Headdress recursivamente y descuenta Ring of Regen si ya existe.
+- Regresiones: 20 rutas, fases completas y fuente, suma de receta, progreso parcial de Headdress y slug de icono.
+- UI 3.49; Service Worker v100.
+- Pendiente CI e integración; Pages, Android y APK no se consideran probados/generados.

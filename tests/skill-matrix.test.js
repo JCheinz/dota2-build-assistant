@@ -961,7 +961,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);
   if(!Array.isArray(plan.early)||!plan.early.length||!Array.isArray(plan.core)||!plan.core.length||!Array.isArray(plan.situational)||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta sin fases o sin fuente/fecha identificable: "+key);
  }
- if(keys.length!==17)throw new Error("El catálogo debe registrar 17 rutas individuales verificadas; encontradas: "+keys.length);
+ if(keys.length!==20)throw new Error("El catálogo debe registrar 20 rutas individuales verificadas; encontradas: "+keys.length);
  for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500],["Eul’s Scepter of Divinity",2600],["Buckler",425],["Vladmir’s Offering",2200],["Radiance",4700]]){
   const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
   if(total!==cost)throw new Error(name+" debe tener receta desglosada por "+cost+"; encontrado "+total);
@@ -985,5 +985,14 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const bothParts=vm.runInContext('getMissingRecipeParts("Soul Ring",new Set(),new Map([["Gauntlets of Strength",2]]))',recipeContext);
  if(bothParts.some(x=>x.name==="Gauntlets of Strength"))throw new Error("Dos unidades marcadas deben descontar las dos piezas del objeto");
  if(!html.includes('normalizeQuantityMap(state.components||[])')||!html.includes('data-component-unit='))throw new Error("El mercado y la interfaz deben conservar cantidades duplicadas");
- console.log("OK: v3.47 — 17 rutas por héroe/posición y recetas necesarias para sus compras iniciales/core");
+
+ const newRoutes=["npc_dota_hero_phantom_lancer|Carry","npc_dota_hero_enigma|Offlane","npc_dota_hero_winter_wyvern|Support 5"];
+ for(const key of newRoutes){const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);if(!plan||!plan.early.length||!plan.core.length||!plan.situational.length||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta nueva incompleta o sin fuente: "+key);}
+ const drumTotal=vm.runInContext('(itemRecipes["Drum of Endurance"]||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
+ if(drumTotal!==1625)throw new Error("Drum of Endurance debe sumar 1.625 de oro; encontrado "+drumTotal);
+ const drumPartial=vm.runInContext('getMissingRecipeParts("Drum of Endurance",new Set(["Ring of Regen"]),new Map())',recipeContext);
+ if(!drumPartial.some(x=>x.name==="Receta de Headdress")||drumPartial.some(x=>x.name==="Ring of Regen"))throw new Error("Drum debe expandir Headdress y descontar Ring of Regen ya poseído");
+ if(!html.includes("'Drum of Endurance':'ancient_janggo'"))throw new Error("Falta el icono de Drum of Endurance");
+ console.log("OK: v3.49 — 20 rutas por héroe/posición, tres builds 7.41f nuevas y receta recursiva de Drum");
+
 })();
