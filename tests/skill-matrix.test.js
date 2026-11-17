@@ -856,7 +856,8 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  vm.runInContext(html.slice(helperStart,helperEnd),activeContext);
  const enemy=(id,roles=[])=>({name:"npc_dota_hero_"+id,roles,localized_name:id});
  const invis=activeContext.getActiveProblemResponses({roles:["Support"],attack_type:"Ranged"},"Support 5",[enemy("bounty_hunter")],"issue:invisibility",8);
- if(!invis.some(x=>x.name==="Dust of Appearance"&&x.activePriority>=9)||!invis.some(x=>x.name==="Gem of True Sight"&&x.minMinute===12))throw new Error("Invisibilidad debe priorizar Dust temprano y Gem condicional como detección persistente");
+ const invisLater=activeContext.getActiveProblemResponses({roles:["Support"],attack_type:"Ranged"},"Support 5",[enemy("bounty_hunter")],"issue:invisibility",12);
+ if(!invis.some(x=>x.name==="Dust of Appearance"&&x.activePriority>=9)||invis.some(x=>x.name==="Gem of True Sight")||!invisLater.some(x=>x.name==="Gem of True Sight"&&x.minMinute===12))throw new Error("Invisibilidad debe priorizar Dust temprano y habilitar Gem recién desde minuto 12");
  const noProblem=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("bounty_hunter")],"none",8);
  if(noProblem.length)throw new Error("La sola presencia de un enemigo no debe generar una compra forzada");
  const meleeIllusions=activeContext.getActiveProblemResponses({roles:["Carry"],attack_type:"Melee"},"Carry",[enemy("phantom_lancer")],"issue:illusions",20);
