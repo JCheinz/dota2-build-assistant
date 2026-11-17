@@ -961,7 +961,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);
   if(!Array.isArray(plan.early)||!plan.early.length||!Array.isArray(plan.core)||!plan.core.length||!Array.isArray(plan.situational)||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta sin fases o sin fuente/fecha identificable: "+key);
  }
- if(keys.length!==20)throw new Error("El catálogo debe registrar 20 rutas individuales verificadas; encontradas: "+keys.length);
+ if(keys.length!==23)throw new Error("El catálogo debe registrar 23 rutas individuales verificadas; encontradas: "+keys.length);
  for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500],["Eul’s Scepter of Divinity",2600],["Buckler",425],["Vladmir’s Offering",2200],["Radiance",4700]]){
   const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
   if(total!==cost)throw new Error(name+" debe tener receta desglosada por "+cost+"; encontrado "+total);
@@ -993,6 +993,16 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const drumPartial=vm.runInContext('getMissingRecipeParts("Drum of Endurance",new Set(["Ring of Regen"]),new Map())',recipeContext);
  if(!drumPartial.some(x=>x.name==="Receta de Headdress")||drumPartial.some(x=>x.name==="Ring of Regen"))throw new Error("Drum debe expandir Headdress y descontar Ring of Regen ya poseído");
  if(!html.includes("'Drum of Endurance':'ancient_janggo'"))throw new Error("Falta el icono de Drum of Endurance");
- console.log("OK: v3.49 — 20 rutas por héroe/posición, tres builds 7.41f nuevas y receta recursiva de Drum");
+
+ const midRoutes=["npc_dota_hero_puck|Mid","npc_dota_hero_obsidian_destroyer|Mid","npc_dota_hero_invoker|Mid"];
+ for(const key of midRoutes){const plan=vm.runInContext("heroPlans["+JSON.stringify(key)+"]",routeContext);if(!plan||!plan.early.length||!plan.core.length||!plan.situational.length||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta Mid nueva incompleta o sin fuente: "+key);}
+ const totals={"Oblivion Staff":1625,"Witch Blade":2775,"Meteor Hammer":2850,"Null Talisman":505,"Boots of Travel":2500};
+ for(const [name,cost] of Object.entries(totals)){const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);if(total!==cost)throw new Error(name+" debe sumar "+cost+"; encontrado "+total);}
+ const witchPartial=vm.runInContext('getMissingRecipeParts("Witch Blade",new Set(["Blitz Knuckles"]),new Map())',recipeContext);
+ if(!witchPartial.some(x=>x.name==="Robe of the Magi")||witchPartial.some(x=>x.name==="Blitz Knuckles"))throw new Error("Witch Blade debe descontar Blitz Knuckles y continuar la receta de Oblivion Staff.");
+ const meteorPartial=vm.runInContext('getMissingRecipeParts("Meteor Hammer",new Set(["Kaya"]),new Map())',recipeContext);
+ if(meteorPartial.some(x=>x.name==="Kaya")||!meteorPartial.some(x=>x.name==="Crown"))throw new Error("Meteor Hammer debe descontar Kaya poseída y pedir Crown/receta.");
+ console.log("OK: v3.50 — 23 rutas por héroe/posición, tres rutas Mid y cinco recetas recursivas verificadas");
+
 
 })();
