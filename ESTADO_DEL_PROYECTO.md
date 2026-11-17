@@ -740,3 +740,23 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Backups previos de base 3.45: `backup/3.45-before-hero-routes-v3-46-2026-11-17` y `backup/estado-3.45-before-hero-routes-v3-46-2026-11-17`.
 - GitHub Pages no confirmado independientemente; Android no probado por el usuario; APK 3.46 no generado ni archivado.
 - Próxima prioridad: continuar ampliación gradual de rutas de objetos por héroe/posición a partir de datos 7.41f, y luego cubrir builds/habilidades/talentos separados donde falten.
+
+
+## 29. Desarrollo — cuarta tanda de rutas individuales (candidata 3.47, 17-11-2026)
+
+- Base estable: 3.46, commit `030be1a9415127bc05852a4c21edbe3bfd410525`.
+- Rama: `work/next-hero-routes-v3-47`.
+- Respaldos previos: `backup/3.46-before-next-routes-v3-47-2026-11-17` y `backup/estado-3.46-before-next-routes-v3-47-2026-11-17`.
+- Se agregan cuatro rutas individuales: Wraith King Carry, Shadow Fiend Mid, Tidehunter Offlane y Pudge Support 4. El catálogo pasa de 17 a 21 combinaciones héroe/posición con ruta de objetos específica.
+- Cada ruta separa early/línea, core y situacionales; las notas señalan muestra y snapshot. Los timings son tendencias agregadas, no metas obligatorias.
+- Fuentes de builds 7.41f:
+  - Wraith King Carry (223.582 partidas; snapshot 17-11-2026): https://statsdota.com/en/heroes/wraith-king/carry
+  - Shadow Fiend Mid (snapshot 16-11-2026; data StatsDota 7.41f): https://statsdota.com/en/heroes/shadow-fiend/mid y guía de 100 partidas ganadoras/pro: https://statsdota.com/en/guides/shadow-fiend
+  - Tidehunter Offlane (468.256 partidas; actualización 14-11-2026): https://statsdota.com/en/heroes/tidehunter/offlane
+  - Pudge Support / Soft Support (512.148 partidas; actualizado 16-11-2026): https://statsdota.com/en/heroes/pudge/soft-support
+- Recetas añadidas para sostener esas rutas: Eul’s Scepter of Divinity (2.600), Buckler (425), Vladmir’s Offering (2.200) con subreceta Buckler, y Radiance (4.700).
+- Detalles de receta/precio contrastados en 7.41f: Eul’s Scepter https://sinceilastplayed.com/dota2/items/euls-scepter-of-divinity ; Vladmir’s Offering https://sinceilastplayed.com/dota2/items/vladmirs-offering ; Radiance https://sinceilastplayed.com/dota2/items/radiance .
+- No se activa Consecrated Wraps como compra porque su receta todavía no está verificada en este proyecto; queda como siguiente investigación, no como pieza inventada.
+- Se añadieron pruebas para cuatro perfiles, suma de costes, progresión de Vladmir’s con Ring of Protection ya poseído e iconos nuevos.
+- Interfaz/informe candidata 3.47; Service Worker `dota-build-v98`.
+- CI, revisión e integración pendientes. Pages/Android/APK no probados/generados.
