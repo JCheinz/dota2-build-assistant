@@ -341,13 +341,13 @@ const itemSlugs={
  'Ghost Scepter':'ghost','Eul’s Scepter of Divinity':'cyclone','Linken’s Sphere':'sphere',
  'Aeon Disk':'aeon_disk','Blink Dagger':'blink','Lotus Orb':'lotus_orb','Mekansm':'mekansm',
  'Urn of Shadows':'urn_of_shadows','Phase Boots':'phase_boots',
- 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb',
+ 'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb','Diadem':'diadem','Splintmail':'splintmail','Chasm Stone':'chasm_stone','Shawl':'shawl','Shadow Amulet':'shadow_amulet','Fluffy Hat':'fluffy_hat','Mithril Hammer':'mithril_hammer','Ogre Axe':'ogre_axe',
  'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe','Receta de Yasha':'recipe','Receta de Sange':'recipe','Receta de Shiva’s Guard':'recipe','Receta de Glimmer Cape':'recipe','Receta de Force Staff':'recipe','Receta de Black King Bar':'recipe','Receta de Dragon Lance':'recipe','Receta de Hurricane Pike':'recipe',
  'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
  'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
  'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
- 'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe'
+ 'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe','Receta de Perseverance':'recipe'
 };
 function renderItemIcon(name){
  const slug=itemSlugs[name];
@@ -1072,7 +1072,7 @@ function getLiveState(){
 const itemRecipes={
  "Power Treads":[{name:"Boots of Speed",cost:500},{name:"Gloves of Haste",cost:450},{name:"Belt of Strength",cost:450}],
  "Perseverance":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700}],
- "Battle Fury":[{name:"Perseverance",cost:1400},{name:"Broadsword",cost:1000},{name:"Claymore",cost:1350},{name:"Quelling Blade",cost:100},{name:"Receta de Battle Fury",cost:50}],
+ "Battle Fury":[{name:"Perseverance",cost:1400},{name:"Broadsword",cost:1000,quantity:2},{name:"Quelling Blade",cost:100},{name:"Receta de Battle Fury",cost:400}],
  "Yasha":[{name:"Blade of Alacrity",cost:1000},{name:"Band of Elvenskin",cost:450},{name:"Receta de Yasha",cost:650}],
  "Sange":[{name:"Ogre Axe",cost:1000},{name:"Belt of Strength",cost:450},{name:"Receta de Sange",cost:650}],
  "Manta Style":[{name:"Yasha",cost:2100},{name:"Diadem",cost:1000},{name:"Receta de Manta Style",cost:1550}],
@@ -1158,7 +1158,7 @@ function getNextPurchase(build,state,preferredName=null){
   const missing=getMissingRecipeParts(target.name,owned,components);
   // Elegir una pieza que ya se pueda comprar; si ninguna alcanza, mostrar la primera
   // pendiente y cuánto oro falta, sin marcarla como asequible.
-  const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost))||missing[0]||null;
+  const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*Math.max(1,Number(part.quantity)||1))||missing[0]||null;
   if(missing.length&&next){
    const cost=Number.isFinite(Number(next.cost))?Number(next.cost)*Math.max(1,Number(next.quantity)||1):null;
    return {target,kind:"component",name:next.name,cost,remaining:cost===null?null:Math.max(0,cost-state.gold),affordable:cost===null?null:state.gold>=cost,reason:target.condition||target.why};
