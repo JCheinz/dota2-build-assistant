@@ -869,7 +869,8 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const sustain=activeContext.getActiveProblemResponses({roles:["Offlane"]},"Offlane",[enemy("alchemist")],"issue:sustain",18);
  if(!sustain.some(x=>x.name==="Spirit Vessel"&&x.activePriority>=9&&x.cost===2725))throw new Error("Sustain activo contra Alchemist debe habilitar Spirit Vessel");
  const focused=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("bounty_hunter")],"enemy:bounty_hunter",10);
- if(!focused.some(x=>x.name==="Dust of Appearance"&&x.activeProblemId==="enemy:bounty_hunter")||!focused.some(x=>x.name==="Gem of True Sight"&&x.cost===900))throw new Error("Seleccionar un enemigo concreto debe traer sus respuestas específicas");
+ const focusedLater=activeContext.getActiveProblemResponses({roles:["Support"]},"Support 5",[enemy("bounty_hunter")],"enemy:bounty_hunter",12);
+ if(!focused.some(x=>x.name==="Dust of Appearance"&&x.activeProblemId==="enemy:bounty_hunter")||focused.some(x=>x.name==="Gem of True Sight")||!focusedLater.some(x=>x.name==="Gem of True Sight"&&x.cost===900))throw new Error("Seleccionar un enemigo concreto debe ofrecer Dust antes y Gem desde minuto 12");
  const route=[
   {name:"Power Treads",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,marketPhase:"Línea",stage:"Inicio",cost:1400,why:"Ruta core"},
   {name:"Dust of Appearance",activeProblem:true,activeProblemId:"issue:invisibility",activePriority:9.8,minMinute:5,threatSpecific:true,cost:80,stage:"Situacional",why:"Detección"}
