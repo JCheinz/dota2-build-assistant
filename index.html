@@ -204,7 +204,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.41</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -963,7 +963,8 @@ function buildPugnaMidAllySynergy(ownId,role,ids,cards,add){
   if(ids.has("oracle"))add("Oracle","SALVACIÓN + MITIGACIÓN","Oracle puede comprar tiempo para que Pugna siga lanzando hechizos","False Promise puede salvar temporalmente a un aliado enfocado; Fate's Edict puede reducir daño mágico recibido por un aliado, pero también lo desarma durante su efecto.","Acordá que Oracle reserve False Promise para el aliado que reciba la iniciación decisiva. Si te protege a vos, usá ese tiempo para reposicionarte o lanzar hechizos, no para quedarte expuesto.","Fate's Edict sobre un aliado que necesita pegar puede impedirle atacar mientras dure el desarme. Oracle no reemplaza el posicionamiento.");
   if(ids.has("rubick"))add("Rubick","CONTROL + INTERRUPCIÓN","Rubick puede iniciar el control y facilitar el seguimiento de Pugna","Telekinesis puede levantar y reposicionar un objetivo; ese tiempo puede facilitar que Pugna conecte Nether Blast o se acerque para otro hechizo.","Dejá que Rubick muestre el objetivo y coordiná Nether Blast cuando el rival vuelva a quedar expuesto. Rubick también puede interrumpir canalizaciones enemigas si tiene el ángulo.","No asumas que Rubick siempre tendrá el hechizo enemigo ideal robado: Spell Steal depende de lo que el rival haya lanzado y de la oportunidad.");
   if(ids.has("juggernaut"))add("Juggernaut","DAÑO FÍSICO + PRESIÓN","Juggernaut aporta daño físico sostenido mientras Pugna cubre daño mágico","Juggernaut puede perseguir y rematar objetivos con ataques y Omnislash; Pugna aporta daño mágico y presión de área para complementar el daño físico.","Elegí objetivos y coordiná el foco. Usá Nether Blast para aportar daño sin interferir con los ataques de Juggernaut.","Decrepify sobre un enemigo lo vuelve etéreo e impide que reciba ataques físicos durante el efecto: evitá lanzarlo sobre el objetivo al que Juggernaut está pegando o al que apunta Omnislash. Puede usarse defensivamente sobre un aliado, pero también le impide atacar.");
-  cards.push({hero:"Equipo completo",type:"SECUENCIA DE PELEA",title:"Mars inicia · Rubick controla · Pugna sigue · Oracle salva · Juggernaut remata",combo:"La secuencia es una guía de coordinación, no una cadena automática: Mars busca una entrada favorable; Rubick controla o interrumpe; Pugna aporta Nether Blast desde retaguardia; Oracle guarda False Promise para el aliado que reciba el foco; Juggernaut elige el objetivo que pueda atacar sin que Decrepify lo vuelva etéreo.",execution:"Antes de pelear, definan quién inicia y qué objetivo van a enfocar. Pugna no debe adelantarse a Mars y Oracle debe conservar su salvación para el momento crítico.",watchout:"No superpongas todos los controles sobre el mismo objetivo sin necesidad y no uses Decrepify ofensivamente sobre el blanco de Juggernaut."});
+  const fullCombo=["mars","rubick","oracle","juggernaut"].every(id=>ids.has(id));
+  if(fullCombo)cards.push({hero:"Equipo completo",type:"SECUENCIA DE PELEA",title:"Mars inicia · Rubick controla · Pugna sigue · Oracle salva · Juggernaut remata",combo:"La secuencia se muestra únicamente porque los cuatro aliados están seleccionados: Mars busca una entrada; Rubick controla o interrumpe; Pugna aporta daño desde retaguardia; Oracle guarda False Promise; Juggernaut elige un objetivo al que pueda atacar.",execution:"Antes de pelear, definan quién inicia y qué objetivo van a enfocar. Pugna no debe adelantarse a Mars y Oracle debe conservar su salvación para el momento crítico.",watchout:"No superpongas controles sin necesidad y no uses Decrepify ofensivamente sobre el blanco de Juggernaut."});
  }
 }
 function buildAllySynergy(me,role,allies,enemies){
@@ -1582,6 +1583,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   let situational=plannedItems.filter(x=>x.stage==="Avanzada"&&byName.has(x.name)).map(x=>byName.get(x.name));
   // Pugna: Bottle y Wand son compras de línea condicionales; Null Talisman nunca desplaza automáticamente el núcleo.
   if(pugnaMid){
+   if(live.minute<12)core=[];
    early=early.filter(x=>{
     if(x.name==="Bottle")return live.minute<=9&&!live.owned.includes("Bottle");
     if(x.name==="Magic Wand")return live.minute<=11&&(threatMagic||threatControl||enemyRoles.has("Support"));
@@ -1655,7 +1657,7 @@ function analyze(options={}){
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.41',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.42',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
