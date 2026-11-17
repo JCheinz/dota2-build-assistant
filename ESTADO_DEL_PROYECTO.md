@@ -4,8 +4,8 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.44 + Service Worker v95; última versión estable respaldada: 3.44  
-**Etapa activa:** Desarrollo 3.45 — cobertura de recetas del mercado por etapas y respuestas activas. Base estable integrada 3.44; Pages/Android pendientes de confirmación.
+**Versión integrada:** 3.45 + Service Worker v96; última versión estable respaldada: 3.45  
+**Etapa activa:** Mercado inteligente 3.45 integrado: cinco fases, respuestas a problemas activos y recetas ampliadas. Próximo trabajo: aumentar las rutas individuales verificadas por héroe/posición. Pages/Android pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -688,4 +688,22 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Referencias de coste/receta 7.41f (fuente de datos con historial de cambios y muestra de compras recientes en parche 7.41f):
   - Magic Wand, Bracer, Maelstrom, Mjollnir, Vanguard, Crimson Guard, Pipe, Headdress, Mekansm, Lotus Orb, Scythe, MKB, Urn y Spirit Vessel: https://sinceilastplayed.com/dota2/items/magic-wand ; https://sinceilastplayed.com/dota2/items/bracer ; https://sinceilastplayed.com/dota2/items/maelstrom ; https://sinceilastplayed.com/dota2/items/mjollnir ; https://sinceilastplayed.com/dota2/items/vanguard ; https://sinceilastplayed.com/dota2/items/crimson-guard ; https://sinceilastplayed.com/dota2/items/pipe-of-insight ; https://sinceilastplayed.com/dota2/items/headdress ; https://sinceilastplayed.com/dota2/items/mekansm ; https://sinceilastplayed.com/dota2/items/lotus-orb ; https://sinceilastplayed.com/dota2/items/scythe-of-vyse ; https://sinceilastplayed.com/dota2/items/monkey-king-bar ; https://sinceilastplayed.com/dota2/items/urn-of-shadows ; https://sinceilastplayed.com/dota2/items/spirit-vessel .
   - Patch notes de 7.41: https://liquipedia.net/dota2/7.41. La página de seguimiento muestra compras recientes del 7 de noviembre de 2026 dentro de 7.41f; los costes se fijan al desglose vigente, no a precios antiguos.
-- Estado: implementación y pruebas nuevas en rama; CI, revisión de diff e integración pendientes. Pages, Android y APK no probados/generados.
+- PR #36 integrado por squash en `main`: https://github.com/JCheinz/dota2-build-assistant/pull/36.
+- Commit integrado: `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
+- CI PR #36: run `44015909133`, job `133813663764`, success.
+- GitHub Pages, Android y APK 3.45 no probados/generados.
+
+
+## 26. Integración — versión 3.45: cobertura ampliada de recetas (17-11-2026)
+
+- PR #36 integrado por squash: https://github.com/JCheinz/dota2-build-assistant/pull/36.
+- Commit integrado: `d067de617e3639b8e709f5848ee1aadcd0e1ff5f`.
+- CI run `44015909133`, job `133813663764`: success; sintaxis y suite completa aprobadas.
+- Añadidas 14 recetas de objetos usados en respuestas activas y catálogos de rol: Magic Wand, Bracer, Maelstrom, Mjollnir, Vanguard, Crimson Guard, Pipe of Insight, Headdress, Mekansm, Lotus Orb, Scythe of Vyse, Monkey King Bar, Urn of Shadows y Spirit Vessel.
+- Recetas anidadas verificadas: Mjollnir → Maelstrom; Crimson Guard → Vanguard; Mekansm → Headdress; Spirit Vessel → Urn of Shadows.
+- Se sumaron iconos de componentes/recetas y pruebas para suma de coste, progreso parcial y consumo del objeto previo.
+- Dust of Appearance, Infused Raindrops y Gem of True Sight siguen sin receta fabricada.
+- Costes/ingredientes contrastados contra fichas con historial de cambios y compras recientes de 7.41f, más registro de cambios 7.41: https://sinceilastplayed.com/dota2/items/magic-wand ; https://sinceilastplayed.com/dota2/items/bracer ; https://sinceilastplayed.com/dota2/items/maelstrom ; https://sinceilastplayed.com/dota2/items/mjollnir ; https://sinceilastplayed.com/dota2/items/vanguard ; https://sinceilastplayed.com/dota2/items/crimson-guard ; https://sinceilastplayed.com/dota2/items/pipe-of-insight ; https://sinceilastplayed.com/dota2/items/headdress ; https://sinceilastplayed.com/dota2/items/mekansm ; https://sinceilastplayed.com/dota2/items/lotus-orb ; https://sinceilastplayed.com/dota2/items/scythe-of-vyse ; https://sinceilastplayed.com/dota2/items/monkey-king-bar ; https://sinceilastplayed.com/dota2/items/urn-of-shadows ; https://sinceilastplayed.com/dota2/items/spirit-vessel ; https://liquipedia.net/dota2/7.41.
+- UI 3.45; Service Worker `dota-build-v96`.
+- GitHub Pages no confirmado de forma independiente; Android no probado por el usuario; APK 3.45 no generado ni archivado.
+- Siguiente prioridad: ampliar rutas individuales verificadas. En la rama actual solo existen seis combinaciones de compra específicas: Pugna Mid, Drow Carry, Luna Carry, Anti-Mage Carry/Mid y Bristleback Offlane. El resto utiliza catálogo de rol/arquetipo, no build individual validada.
