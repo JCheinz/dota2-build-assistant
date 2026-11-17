@@ -490,4 +490,6 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Se separa el pool completo de candidatos (`marketPool`) de la selección visual resumida. El mercado recibe todos los candidatos puntuados; la interfaz conserva su límite visual para no saturar la pantalla.
 - Se añade una regresión con 24 objetivos core y dos situacionales: debe recorrer los 24 en orden y continuar con el situacional tras completar el núcleo.
 - Versión de trabajo: 3.40. Service Worker: `dota-build-v91`.
-- Estado: pendiente CI, revisión, integración, publicación y prueba Android. La cobertura de rutas individuales y recetas sigue siendo incremental; no se afirma que todos los héroes tengan una build individual validada.
+- CI del PR #31, run `44001992386`: success; sintaxis y suite completa de regresiones aprobadas, incluida la ruta sintética de 24 objetivos y continuidad situacional.
+- Revisión del diff: el pool completo se conserva por separado de las siete tarjetas visuales; no se modifican perfiles ni puntuaciones de héroes.
+- Estado: listo para integrar. Publicación y prueba Android pendientes. La cobertura de rutas individuales y recetas sigue siendo incremental; no se afirma que todos los héroes tengan una build individual validada.
