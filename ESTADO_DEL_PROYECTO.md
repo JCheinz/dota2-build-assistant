@@ -408,3 +408,10 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Pugna Mid: core secuencial Arcane Boots → Aether Lens; respuesta situacional explícita de prioridad alta puede adelantar el core. Spirit Vessel no se impone por presencia de Alchemist/Huskar sin seleccionar sustain.
 - Evolución Kaya → Kaya and Sange: Kaya se reconoce como objeto base poseído, se solicita Sange y al marcar la mejora se consume el objeto anterior.
 - Pruebas funcionales agregadas y suite de regresión completa aprobada. Próxima validación: Android, incluyendo avance core, selección de problema, mejora y consumo de Kaya.
+
+
+## Orden situacional del inventario (17-11-2026)
+
+- Se añadió un refinamiento para que el inventario automático priorice los objetos situacionales ya adquiridos según el problema seleccionado, sin mover objetos ubicados manualmente.
+- Se mantiene la organización por etapa y por núcleo del héroe; las evoluciones completadas pueden subir en el orden visual cuando corresponde.
+- Rama `work/situational-inventory-priority`; respaldos 3.37. Pendiente CI, revisión e integración.

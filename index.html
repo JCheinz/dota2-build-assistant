@@ -363,6 +363,11 @@ function renderHeroInventory(state,hero=null,role=""){
  const plan=hero?getHeroPlan(hero,role):null;
  const phase=state.minute<12?"Inicio":state.minute<28?"Medio":"Avanzada";
  const phaseNames=plan?(phase==="Inicio"?plan.early:phase==="Medio"?[...(plan.core||[]),...(plan.early||[])]:[...(plan.situational||[]),...(plan.core||[])]):[];
+ const selectedProblem=String(state.problem||"none");
+ const situationalInventoryPriority={"enemy:alchemist":"Spirit Vessel","enemy:huskar":"Spirit Vessel","issue:sustain":"Spirit Vessel","issue:initiation":"Aeon Disk","enemy:centaur":"Aeon Disk","enemy:dawnbreaker":"Aeon Disk","enemy:tidehunter":"Aeon Disk","issue:control":"Black King Bar","enemy:lion":"Black King Bar","enemy:bane":"Black King Bar","issue:magic":"Glimmer Cape","issue:teamfight":"Glimmer Cape","issue:mobility":"Blink Dagger","issue:illusions":"Shiva’s Guard","issue:invisibility":"Gem of True Sight"};
+ const situationalFirst=situationalInventoryPriority[selectedProblem];
+ if(situationalFirst&&owned.includes(situationalFirst))phaseNames.unshift([situationalFirst,"Respuesta prioritaria seleccionada para esta partida"]);
+ if(hero?.name==="npc_dota_hero_pugna"&&role==="Mid"&&state.minute>=32&&owned.includes("Kaya and Sange"))phaseNames.unshift(["Kaya and Sange","Evolución de Kaya completada"]);
  const phaseRank=new Map(phaseNames.map((x,i)=>[Array.isArray(x)?x[0]:x.name,i]));
  const coreNames=new Set(plan?(plan.core||[]).map(x=>Array.isArray(x)?x[0]:x.name):[]);
  const manual=owned.filter(name=>["main","backpack","reserve"].includes(zones[name]));
