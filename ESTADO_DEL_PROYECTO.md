@@ -5,7 +5,7 @@
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
 **Versión integrada:** 3.44 + Service Worker v95; última versión estable respaldada: 3.44  
-**Etapa activa:** Mercado inteligente 3.44 integrado: respuesta a problemas activos conectada al motor de compra. Próximo paso: ampliar rutas individuales verificadas y cobertura de recetas. Pages/Android pendientes de confirmación.
+**Etapa activa:** Desarrollo 3.45 — cobertura de recetas del mercado por etapas y respuestas activas. Base estable integrada 3.44; Pages/Android pendientes de confirmación.
 
 ## 1. Objetivo
 
@@ -674,3 +674,18 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Service Worker `dota-build-v95`; etiqueta de interfaz e informe 3.44.
 - Pages no verificado todavía por separado. Android no probado por el usuario. APK 3.44 no generado ni archivado.
 - Próximos hitos: ampliar recetas con precios/ingredientes verificados, construir más rutas específicas por héroe/posición y añadir pruebas de inventario/historial de consumibles.
+
+
+## 25. Desarrollo — ampliación de recetas de mercado (candidata 3.45, 17-11-2026)
+
+- Base integrada: 3.44, commit `7ceafca97d48b8d100bcc3e2923221fa7ae68b4c`.
+- Rama: `work/recipes-and-hero-routes-v3-45`.
+- Respaldos previos: `backup/3.44-before-recipes-and-hero-routes-v3-45-2026-11-17` y `backup/estado-3.44-before-recipes-and-hero-routes-v3-45-2026-11-17`.
+- Recetas nuevas para Magic Wand, Bracer, Maelstrom, Mjollnir, Vanguard, Crimson Guard, Pipe of Insight, Headdress, Mekansm, Lotus Orb, Scythe of Vyse, Monkey King Bar, Urn of Shadows y Spirit Vessel.
+- Se incorporan iconos para las piezas y nombres de recetas nuevas.
+- Regresiones: suma de coste total, expansión de recetas anidadas, descuento de componente ya poseído, consumo del objeto base al completar la mejora.
+- No se inventan recetas para Dust of Appearance, Infused Raindrops ni Gem of True Sight: son compras directas/consumibles o sin receta en esta versión del catálogo.
+- Referencias de coste/receta 7.41f (fuente de datos con historial de cambios y muestra de compras recientes en parche 7.41f):
+  - Magic Wand, Bracer, Maelstrom, Mjollnir, Vanguard, Crimson Guard, Pipe, Headdress, Mekansm, Lotus Orb, Scythe, MKB, Urn y Spirit Vessel: https://sinceilastplayed.com/dota2/items/magic-wand ; https://sinceilastplayed.com/dota2/items/bracer ; https://sinceilastplayed.com/dota2/items/maelstrom ; https://sinceilastplayed.com/dota2/items/mjollnir ; https://sinceilastplayed.com/dota2/items/vanguard ; https://sinceilastplayed.com/dota2/items/crimson-guard ; https://sinceilastplayed.com/dota2/items/pipe-of-insight ; https://sinceilastplayed.com/dota2/items/headdress ; https://sinceilastplayed.com/dota2/items/mekansm ; https://sinceilastplayed.com/dota2/items/lotus-orb ; https://sinceilastplayed.com/dota2/items/scythe-of-vyse ; https://sinceilastplayed.com/dota2/items/monkey-king-bar ; https://sinceilastplayed.com/dota2/items/urn-of-shadows ; https://sinceilastplayed.com/dota2/items/spirit-vessel .
+  - Patch notes de 7.41: https://liquipedia.net/dota2/7.41. La página de seguimiento muestra compras recientes del 7 de noviembre de 2026 dentro de 7.41f; los costes se fijan al desglose vigente, no a precios antiguos.
+- Estado: implementación y pruebas nuevas en rama; CI, revisión de diff e integración pendientes. Pages, Android y APK no probados/generados.
