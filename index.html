@@ -374,7 +374,7 @@ function renderItemIcon(name){
 }
 function renderHeroInventory(state,hero=null,role=""){
  const ledger=purchaseLedger.snapshot();
- const owned=[...new Set([...(state.owned||[]),...ledger.inventory.map(x=>x.name)])],components=[...(state.components||[]),...ledger.components.map(x=>x.name)];
+ const owned=[...new Set([...(state.owned||[]),...ledger.inventory.map(x=>x.name)])],components=[...(state.components||[])];
  const zones=state.zones||{};
  const assigned={main:[],backpack:[],reserve:[]};
  const counts={main:0,backpack:0};
@@ -1263,7 +1263,7 @@ function getLiveState(){
  const domOwned=[...document.querySelectorAll('.owned-item:checked')].map(x=>x.value);
  const domComponents=[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value);
  const owned=[...new Set([...domOwned,...ledger.inventory.map(x=>x.name)])];
- const components=[...domComponents,...ledger.components.flatMap(x=>Array(Math.max(1,Number(x.quantity)||1)).fill(x.name))];
+ const components=ledger.components.length?ledger.components.flatMap(x=>Array(Math.max(1,Number(x.quantity)||1)).fill(x.name)):domComponents;
  return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone])),components,history:ledger.history,ledgerInventory:ledger.inventory};
 }
 const itemRecipes={
