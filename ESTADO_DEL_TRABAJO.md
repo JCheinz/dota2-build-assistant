@@ -565,3 +565,16 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - Service Worker candidato: `dota-build-v104`.
 - CI ampliado para revisar sintaxis y ejecutar las pruebas del nuevo motor.
 - Estado: rama en desarrollo; pendiente CI, revisión de diff, PR e integración. No declarar datos completos de todos los héroes hasta ejecutar extracción real y medir cobertura. Las observaciones de Echo Slam y Charge of Darkness quedan separadas de los datos de fuente.
+
+
+## Desarrollo 3.54 — auditoría de esquema y descarga integral (18-11-2026)
+
+- Base integrada: 3.53, main commit `05571d490b7f445465d76054daf591aa3cc89d88`; PR #45 integrado y CI del PR aprobado.
+- Respaldo previo de la etapa: `backup/3.52-before-skill-data-engine-2026-11-18`.
+- Hallazgo de auditoría: los valores de cooldown/maná/daño de OpenDota pueden venir como cadenas separadas por `/`, y la asignación del héroe incluye talentos con nivel y facets.
+- Motor v2: conserva valor original y crea arrays numéricos por nivel; incorpora BKB pierce, dispellable, innate, imagen, talentos por nivel y facets. Busca radio/alcance en atributos cuando el campo explícito no está disponible.
+- Cobertura ampliada: separa ranuras de habilidades y talentos y reporta metadatos faltantes.
+- Interfaz: botón de descarga integral de la base OpenDota y reporte de cobertura real en sesión.
+- Service Worker candidato: `dota-build-v105`.
+- Pruebas actualizadas para cadenas por nivel, atributos, talentos, facets y cobertura.
+- Pendiente CI, revisión, PR e integración. La extracción real depende de ejecutar el botón con conexión; no declarar aún porcentajes reales.
