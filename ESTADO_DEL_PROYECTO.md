@@ -885,3 +885,14 @@ El usuario confirmó que la aplicación y la matriz funcionan correctamente en A
 - Rama de trabajo conservada: `work/inventory-ledger-v3-52-refresh`.
 - Pages/Android no verificados; APK 3.52 no generado. No declarar publicación o prueba Android completadas hasta comprobarlas.
 - «Borrar ítems» limpia el inventario activo y conserva historial; «Borrar historial» limpia solo el registro. Cambiar héroe/posición inicia un contexto nuevo.
+
+## Etapa 3.53 — Skill Data Engine (18-11-2026)
+
+Se incorpora la primera capa de extracción automática para construir el conocimiento de habilidades sin depender de pruebas manuales repetitivas.
+
+- Fuente inicial: OpenDota Constants API (`constants/abilities`, `constants/hero_abilities`, `constants/heroes`).
+- El módulo normaliza campos documentales y técnicos, conserva valores por nivel y el objeto fuente original.
+- No rellena datos ausentes ni interpreta una descripción como simulación completa de la mecánica.
+- Mantiene tres capas de evidencia separadas: fuente estructurada, inferencia táctica y observación reproducida en juego.
+- La cobertura se calcula sobre las ranuras de habilidades declaradas por héroe y señala metadatos faltantes.
+- Próxima fase: extraer el dataset real, auditar cobertura/ausencias y generar un índice de efectos para Threat Counter. Contrastar discrepancias con archivos de juego del parche correspondiente.
