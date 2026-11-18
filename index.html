@@ -221,6 +221,12 @@
     </div>
     <div class="status" id="loadStatus">Cargando héroes oficiales desde OpenDota…</div>
   </section>
+  <section class="panel" id="skillDataPanel">
+    <h2>Base de conocimiento de habilidades <span class="count" id="skillDataBadge">Sin actualizar</span></h2>
+    <p class="hint">Descarga de una sola vez las habilidades, talentos, enfriamientos, costes y metadatos disponibles para todos los héroes.</p>
+    <div class="actions"><button class="btn secondary" id="loadSkillDatabase" type="button">Actualizar base de habilidades</button></div>
+    <p class="status" id="skillDataStatus" aria-live="polite">La base todavía no se cargó en esta sesión.</p>
+  </section>
   <section class="panel">
     <h2>Tu configuración</h2>
     <div class="controls">
@@ -2160,5 +2166,19 @@ if('serviceWorker' in navigator){
   });
 }
 loadHeroes();
+
+$('loadSkillDatabase').addEventListener('click',async()=>{
+ const button=$('loadSkillDatabase'),status=$('skillDataStatus'),badge=$('skillDataBadge');
+ button.disabled=true;button.textContent='Descargando datos…';status.textContent='Consultando habilidades, asignaciones por héroe y catálogo…';
+ try{
+  const dataset=await window.DotaSkillDataEngine.load({force:true});
+  const coverage=window.DotaSkillDataEngine.getCoverage(dataset);
+  badge.textContent=coverage.metadataCoverage+'% de metadatos';
+  status.textContent='Fuente: OpenDota · '+dataset.counts.heroes+' héroes con asignación · '+dataset.counts.abilities+' habilidades catalogadas · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.missingMetadataSlots+' entradas sin metadatos asociados. Datos cargados en memoria para esta sesión.';
+  button.textContent='Actualizar nuevamente';
+ }catch(error){badge.textContent='Error de carga';status.textContent='No se pudo completar la descarga: '+error.message;button.textContent='Reintentar descarga';}
+ finally{button.disabled=false;}
+});
+
 </script>
 </body></html>
