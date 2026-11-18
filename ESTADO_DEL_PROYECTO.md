@@ -896,3 +896,12 @@ Se incorpora la primera capa de extracción automática para construir el conoci
 - Mantiene tres capas de evidencia separadas: fuente estructurada, inferencia táctica y observación reproducida en juego.
 - La cobertura se calcula sobre las ranuras de habilidades declaradas por héroe y señala metadatos faltantes.
 - Próxima fase: extraer el dataset real, auditar cobertura/ausencias y generar un índice de efectos para Threat Counter. Contrastar discrepancias con archivos de juego del parche correspondiente.
+
+
+## Etapa 3.54 — Auditoría del esquema y extracción integral
+
+- Se verificó la forma de los datos de OpenDota/dotaconstants: habilidades con valores por nivel serializados como cadenas o arrays; asignación por héroe con habilidades, talentos con nivel y facets.
+- Skill Data Engine v2 conserva el dato de origen y ofrece valores normalizados para cooldown, maná y daño; añade atributos de BKB pierce, dispellable, innate e imagen.
+- Se añade extracción bajo demanda desde la interfaz con recuento de héroes, habilidades, talentos, ranuras sin metadatos y porcentaje de cobertura.
+- El porcentaje será calculado con los datos descargados en el navegador, no estimado previamente.
+- Próximo: ejecutar la descarga, exportar snapshot versionado y generar índice de efectos para Threat Counter. Las relaciones tácticas se validarán por mecánica, no solo por coincidencia textual.
