@@ -549,3 +549,19 @@ Esperar el resultado de los workflows post-merge del commit `af5dbca8e8d3d79348a
 - CI run 44021956634, job 133833269323: success.
 - Corregido orden de compra: ruta individual antes del catálogo común en Inicio/Línea; problemas activos urgentes siguen adelantando; fallback genérico se conserva sin ruta individual.
 - UI 3.51; SW v102. Pages no verificado, Android pendiente, APK no generado.
+
+
+## Desarrollo 3.53 — motor de extracción de datos de habilidades (18-11-2026)
+
+- Base estable: versión 3.52, main commit `d817466f48e7d188e1e62848d7598f63925c2466`.
+- Respaldo previo: `backup/3.52-before-skill-data-engine-2026-11-18`.
+- Rama de trabajo: `work/skill-data-engine-v3-53`.
+- Nuevo módulo común `skill-data-engine.js`: adaptador OpenDota Constants API para obtener habilidades, asignación de habilidades/talentos por héroe y catálogo de héroes.
+- Normaliza descripción, notas, coste de maná, enfriamiento, daño/tipo, alcance, radio/área, comportamiento, equipo/tipo/banderas objetivo y atributos. Conserva valores por nivel, campos originales (`raw`) y ausencias explícitas.
+- Incluye consultas por héroe/habilidad y medición de cobertura; marca ranuras sin metadatos en lugar de inventar valores.
+- El módulo se carga en la aplicación y queda disponible como `window.DotaSkillDataEngine`; la extracción se ejecuta bajo demanda con `load()` y requiere conexión.
+- Documentación: `docs/SKILL_DATA_ENGINE.md`.
+- Pruebas nuevas: `tests/skill-data-engine.test.js` para normalización, valores por nivel, cobertura y los tres endpoints.
+- Service Worker candidato: `dota-build-v104`.
+- CI ampliado para revisar sintaxis y ejecutar las pruebas del nuevo motor.
+- Estado: rama en desarrollo; pendiente CI, revisión de diff, PR e integración. No declarar datos completos de todos los héroes hasta ejecutar extracción real y medir cobertura. Las observaciones de Echo Slam y Charge of Darkness quedan separadas de los datos de fuente.

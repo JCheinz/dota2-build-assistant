@@ -16,7 +16,10 @@ jobs:
         run: |
           node --check specializations.js
           node --check inventory-ledger.js
+          node --check skill-data-engine.js
       - name: Test dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
       - name: Test inventory ledger lifecycle and regressions
         run: node tests/inventory-ledger.test.js
+      - name: Test skill data extraction engine
+        run: node tests/skill-data-engine.test.js
