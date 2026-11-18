@@ -34,5 +34,5 @@ assert.equal(restored.snapshot().history.length>0,true);
 restored.clearHistory();
 assert.equal(restored.snapshot().history.length,0);
 const html=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
-for(const token of ["inventory-ledger.js?v=352","data-use-consumable","Historial de compras y consumibles","clearPurchaseHistory","purchaseLedger.recordSale","purchaseLedger.upgrade","purchaseLedger.setZone(name,next)","VERSIÓN 3.52"])assert.ok(html.includes(token),"Falta integración de interfaz: "+token);
+for(const token of ["inventory-ledger.js?v=352","data-use-consumable","Historial de compras y consumibles","clearPurchaseHistory","purchaseLedger.recordSale","purchaseLedger.upgrade","purchaseLedger.setZone(name,next)","VERSIÓN 3.54"])assert.ok(html.includes(token),"Falta integración de interfaz: "+token);
 console.log("OK: inventory ledger v3.52 — inventario/historial, consumibles, componentes duplicados, evolución, venta, persistencia, deduplicación e integración UI");
