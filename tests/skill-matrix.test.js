@@ -935,9 +935,9 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  {
   const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
   const start=source.indexOf("const BOOT_BASE=");
-  const end=source.indexOf("\\nfunction getNextPurchase(",start);
+  const end=source.indexOf("\nfunction getNextPurchase(",start);
   if(start<0||end<0)throw new Error("No se encontró filtro de botas");
-  const helper=source.slice(start,end)+"\\nthis.enforceSingleBootChoice=enforceSingleBootChoice;";
+  const helper=source.slice(start,end)+"\nthis.enforceSingleBootChoice=enforceSingleBootChoice;";
   const sandbox={};vm.runInNewContext(helper,sandbox);
   const inventory=sandbox.enforceSingleBootChoice([{name:"Boots of Speed"},{name:"Arcane Boots"},{name:"Phase Boots"},{name:"Guardian Greaves"}],["Arcane Boots","Boots of Speed"]);
   if(inventory.some(x=>x.name==="Boots of Speed"||x.name==="Phase Boots")||!inventory.some(x=>x.name==="Guardian Greaves"))throw new Error("Arcane Boots debe excluir botas base/alternativas y permitir Guardian Greaves");
