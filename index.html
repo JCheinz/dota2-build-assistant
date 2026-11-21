@@ -1758,7 +1758,8 @@ function renderDynamicStateControls(){
  const hint=$("problemHint");
  if(hint)hint.textContent=enemies.length?"Situaciones detectadas a partir de los cinco enemigos seleccionados; no aparecen amenazas de héroes ausentes.":"Elegí los enemigos para detectar situaciones específicas.";
  const candidates=[];
- const addItem=x=>{if(x&&x.name&&!candidates.some(y=>y.name===x.name))candidates.push({name:x.name,why:x.why||"Objeto contemplado por el análisis"})};
+ const removedPatchItems=window.DOTA_PATCH_742?.removedItems||new Set();
+  const addItem=x=>{if(x&&x.name&&!removedPatchItems.has(x.name)&&!candidates.some(y=>y.name===x.name))candidates.push({name:x.name,why:x.why||"Objeto contemplado por el análisis"})};
  const roleMarket=getUniversalRolePlan(role,Math.max(0,Number($("gameMinute").value)||0),me,enemies,problem.value);
  roleMarket.allItems.forEach(addItem);
  universalItems.forEach(addItem);
@@ -1774,19 +1775,29 @@ function renderDynamicStateControls(){
   const previousInputs=[...document.querySelectorAll(".owned-item")];
   const checked=new Set(previousInputs.filter(x=>x.checked).map(x=>x.value));
   const zones={...Object.fromEntries(purchaseLedger.snapshot().inventory.map(x=>[x.name,x.zone||"main"])),...Object.fromEntries(previousInputs.filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))};
-  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
+  const primary=candidates.filter(x=>!(itemRecipes[x.name]||[]).length);
+  const combined=candidates.filter(x=>(itemRecipes[x.name]||[]).length);
+  const itemChip=x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'>'+esc(x.name)+'</label>';
+  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados · '+candidates.length+' objetos</summary><div class="controls"><details open><summary>Objetos primarios / componentes</summary><div class="controls">'+primary.map(itemChip).join("")+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="controls">'+combined.map(x=>'<details><summary>'+esc(x.name)+'</summary><div class="controls">'+itemChip(x)+(itemRecipes[x.name]||[]).filter(p=>!removedPatchItems.has(p.name)).map(p=>'<small class="hint">Incluye: '+esc(p.name)+(p.quantity>1?' ×'+p.quantity:'')+'</small>').join("")+'</div></details>').join("")+'</div></details></div></details>';
  }
  const quantities=getRecipeComponentQuantities();
- const parts=[...quantities.keys()];
+ const parts=[...quantities.keys()].filter(x=>!removedPatchItems.has(x));
  const componentRoot=$("ownedComponents");
  if(componentRoot){
   const checkedCounts=normalizeQuantityMap([...document.querySelectorAll(".owned-component:checked")].map(x=>x.value));
   const ownedNames=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
-  componentRoot.innerHTML=parts.map(x=>{
-   const remainingQuantity=Math.max(0,Number(quantities.get(x)||1)-(ownedNames.has(x)?1:0));
-   const selectedQuantity=Math.min(remainingQuantity,checkedCounts.get(x)||0);
-   return Array.from({length:remainingQuantity},(_,i)=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" data-component-unit="'+(i+1)+'" '+(i<selectedQuantity?"checked":"")+'>'+esc(x)+(remainingQuantity>1?' '+(i+1)+'/'+remainingQuantity:'')+'</label>').join("");
-  }).join("");
+  const grouped=new Map();
+  candidates.filter(x=>(itemRecipes[x.name]||[]).length).forEach(item=>{
+   const recipeParts=(itemRecipes[item.name]||[]).filter(p=>!removedPatchItems.has(p.name));
+   if(recipeParts.length)grouped.set(item.name,recipeParts);
+  });
+  componentRoot.innerHTML='<details class="manual-owned"><summary>Componentes por objeto combinado · '+grouped.size+' recetas</summary><div class="controls">'+[...grouped.entries()].map(([itemName,recipeParts])=>{
+   const chips=recipeParts.map(part=>{
+    const name=part.name,remainingQuantity=Math.max(0,Number(part.quantity)||1),selectedQuantity=Math.min(remainingQuantity,checkedCounts.get(name)||0);
+    return Array.from({length:remainingQuantity},(_,i)=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(name)+'" data-component-unit="'+(i+1)+'" '+(i<selectedQuantity?'checked':'')+'>'+esc(name)+(remainingQuantity>1?' '+(i+1)+'/'+remainingQuantity:'')+'</label>').join('');
+   }).join('');
+   return '<details><summary>'+esc(itemName)+'</summary><div class="controls">'+chips+'</div></details>';
+  }).join('')+'</div></details>';
  }
  const ledgerSnapshot=purchaseLedger.snapshot();
  const ledgerOwned=new Set(ledgerSnapshot.inventory.map(x=>x.name.toLocaleLowerCase("en")));
