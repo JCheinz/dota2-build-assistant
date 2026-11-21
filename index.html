@@ -2234,7 +2234,7 @@ function analyze(options={}){
  try{return analyzeCore(options);}
  catch(error){
   console.error("Dota Build Assistant analysis failed:",error);
-  const stage=window.__DOTA_ANALYSIS_STAGE||"etapa no identificada";
+  const stage=(typeof window!=="undefined"&&window.__DOTA_ANALYSIS_STAGE)||"etapa no identificada";
   const stack=error&&error.stack?String(error.stack):String(error);
   const result=$('result'),report=$('report');
   if(result&&report){
