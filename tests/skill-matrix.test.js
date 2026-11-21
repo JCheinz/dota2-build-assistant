@@ -672,7 +672,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const end=appHtml.indexOf("\nfunction renderItemCards(items){",start);
  if(start<0||end<0)throw new Error("No se encontró render de inventario");
  const source=appHtml.slice(start,end);
- for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(tacticalName)priorityNames.unshift(tacticalName);','state.placements||{}','purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames)']) {
+ for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(tacticalName)priorityNames.unshift(tacticalName);','state.placements||{}','purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})']) {
   if(!source.includes(marker))throw new Error("El orden situacional del inventario no contempla "+marker);
  }
  console.log("OK: prioridad situacional del inventario y preservación de ubicaciones manuales");
