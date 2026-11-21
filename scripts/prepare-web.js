@@ -9,6 +9,7 @@ const requiredFiles = [
   'sw.js',
   'inventory-ledger.js',
   'skill-data-engine.js',
+  'build-data-engine.js',
   'specializations.js',
   'patch-data-742.js'
 ];
