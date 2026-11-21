@@ -12,14 +12,14 @@
   let state={inventory:[],components:[],history:[],sequence:0};
   const clone=()=>JSON.parse(JSON.stringify(state));
   const persist=()=>{try{if(storage&&typeof storage.setItem==="function")storage.setItem(storageKey,JSON.stringify(state));}catch(_){}};
-  try{const raw=storage&&storage.getItem&&storage.getItem(storageKey);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.inventory)&&Array.isArray(parsed.history))state={inventory:parsed.inventory,components:Array.isArray(parsed.components)?parsed.components:[],history:parsed.history,sequence:Number(parsed.sequence)||0};}}catch(_){}
+  try{const raw=storage&&storage.getItem&&storage.getItem(storageKey);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.inventory)&&Array.isArray(parsed.history))state={inventory:parsed.inventory.map(item=>({...item,placement:item.placement==="manual"?"manual":"auto",zone:item.placement==="manual"&&["main","backpack","reserve"].includes(item.zone)?item.zone:"auto"})),components:Array.isArray(parsed.components)?parsed.components:[],history:parsed.history,sequence:Number(parsed.sequence)||0};}}catch(_){}
   const event=(action,name,meta={})=>({id:++state.sequence,action,name,minute:Number.isFinite(Number(meta.minute))?Math.max(0,Number(meta.minute)):null,kind:meta.kind||"item",quantity:Math.max(1,Number(meta.quantity)||1),at:meta.at||new Date().toISOString(),note:meta.note||""});
   const find=(list,name)=>list.find(x=>keyOf(x.name)===keyOf(name));
   function recordPurchase(name,meta={}){
    name=cleanName(name);if(!name)return {recorded:false,reason:"invalid"};
    const existing=find(state.inventory,name);
    if(existing){existing.quantity=Math.max(existing.quantity||1,Number(meta.quantity)||1);persist();return {recorded:false,reason:"already-owned",item:{...existing}};}
-   const item={name,quantity:Math.max(1,Number(meta.quantity)||1),kind:meta.kind||(CONSUMABLES.has(name)?"consumable":"item"),zone:meta.zone||"main"};
+   const item={name,quantity:Math.max(1,Number(meta.quantity)||1),kind:meta.kind||(CONSUMABLES.has(name)?"consumable":"item"),zone:meta.placement==="manual"&&["main","backpack","reserve"].includes(meta.zone)?meta.zone:"auto",placement:meta.placement==="manual"?"manual":"auto",purchaseMinute:Number.isFinite(Number(meta.minute))?Math.max(0,Number(meta.minute)):null};
    state.inventory.push(item);state.history.unshift(event("purchase",name,{...meta,kind:item.kind}));
    persist();return {recorded:true,item:{...item}};
   }
@@ -44,18 +44,55 @@
    return {upgraded:true,consumed,added:added.recorded};
   }
   function recordSale(name,meta={}){return removeInventory(name,"sold",meta);}
-  function setZone(name,zone){const item=find(state.inventory,name);if(!item||!["main","backpack","reserve"].includes(zone))return false;item.zone=zone;persist();return true;}
+  function setZone(name,zone){const item=find(state.inventory,name);if(!item||!["main","backpack","reserve"].includes(zone))return false;item.zone=zone;item.placement="manual";persist();return true;}
+  function setAutomatic(name){const item=find(state.inventory,name);if(!item)return false;item.zone="auto";item.placement="auto";persist();return true;}
   function removeComponent(name,meta={}){const i=state.components.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return false;const [item]=state.components.splice(i,1);if(!meta.silent)state.history.unshift(event("component-removed",item.name,{...meta,kind:"component"}));persist();return true;}
   function clearInventory(){state.inventory=[];state.components=[];persist();}
   function clearHistory(){state.history=[];persist();}
   function reset(){state={inventory:[],components:[],history:[],sequence:0};persist();}
   function addComponents(names,meta={}){for(const name of names||[])recordComponent(name,meta);}
   function snapshot(){return clone();}
+  function arrange(inventory,options={}){
+   const minute=Math.max(0,Number(options.minute)||0),key=name=>keyOf(name);
+   const priorityRank=new Map((options.priorityNames||[]).map((name,index)=>[key(name),index]));
+   const core=new Set((options.coreNames||[]).map(key)),components=new Set((options.componentNames||[]).map(key));
+   const early=new Set((options.earlyNames||[]).map(key)),tactical=new Set((options.tacticalNames||[]).map(key));
+   const manual={main:[],backpack:[],reserve:[]},automatic=[];
+   (inventory||[]).forEach((item,index)=>{
+    const zone=item&&item.placement==="manual"&&["main","backpack","reserve"].includes(item.zone)?item.zone:null;
+    if(zone)manual[zone].push({...item,_index:index});
+    else automatic.push({...item,_index:index});
+   });
+   const score=item=>{
+    const name=key(item.name),rank=priorityRank.get(name);
+    let value=rank!==undefined?10000-rank*100:0;
+    if(core.has(name)&&rank===undefined)value+=350;
+    if(components.has(name)&&rank===undefined)value+=500;
+    if(tactical.has(name)&&rank===undefined)value+=250;
+    if(early.has(name)&&minute>=12)value-=650;
+    if(CONSUMABLES.has(item.name)){
+     value+=minute<5?120:-850;
+     if(tactical.has(name))value+=1000;
+    }
+    if(item.purchaseMinute!=null)value+=Math.min(30,Math.max(0,Number(item.purchaseMinute)||0))*0.2;
+    return value;
+   };
+   automatic.sort((a,b)=>score(b)-score(a)||a._index-b._index);
+   const result={main:manual.main.slice(0,6),backpack:manual.backpack.slice(0,3),reserve:manual.reserve.slice()};
+   const overflow=[...manual.main.slice(6),...manual.backpack.slice(3),...automatic];
+   for(const item of overflow){
+    if(result.main.length<6)result.main.push(item);
+    else if(result.backpack.length<3)result.backpack.push(item);
+    else result.reserve.push(item);
+   }
+   for(const zone of ["main","backpack","reserve"])result[zone]=result[zone].map(({_index,...item})=>item);
+   return result;
+  }
   function filterRecommendations(items,ownedNames=[]){
    const owned=new Set(ownedNames.map(keyOf));const seen=new Set();
    return (items||[]).filter(item=>{const name=cleanName(typeof item==="string"?item:Array.isArray(item)?item[0]:item&&item.name);if(!name)return false;const key=keyOf(name);if(owned.has(key)||seen.has(key))return false;seen.add(key);return true;});
   }
-  return {recordPurchase,recordComponent,removeInventory,useConsumable,upgrade,recordSale,setZone,removeComponent,clearInventory,clearHistory,reset,addComponents,snapshot,filterRecommendations,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
+  return {recordPurchase,recordComponent,removeInventory,useConsumable,upgrade,recordSale,setZone,setAutomatic,removeComponent,clearInventory,clearHistory,reset,addComponents,snapshot,arrange,filterRecommendations,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
  }
  return {create,isConsumable:name=>CONSUMABLES.has(cleanName(name))};
 });

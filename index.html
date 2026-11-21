@@ -185,7 +185,7 @@
 .inventory-overflow-item{display:inline-flex;align-items:center;gap:5px;margin:4px;padding:5px 8px;border:1px solid #465568;border-radius:8px;background:#202a37;color:var(--txt);font-size:.75rem}
 .inventory-overflow-item img,.inventory-component img{width:22px;height:22px;vertical-align:middle}
 .inventory-component{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
-.inventory-help{margin:8px 0 0;font-size:.72rem}
+.inventory-help{margin:8px 0 0;font-size:.72rem}.inventory-rotation-note{font-size:.7rem;margin:0 0 9px}.inventory-reserve-cell{position:relative;display:flex;align-items:center;gap:3px}.inventory-auto{border:1px solid #5a9b76;background:#183729;color:#a9f0c4;border-radius:6px;font-size:9px;padding:3px 5px;align-self:center}.inventory-reserve-cell .inventory-sell{position:static;flex:0 0 20px}.inventory-reserve-cell .inventory-auto{flex:0 0 auto}
 @media(max-width:420px){.hero-inventory-slots{gap:5px}.hero-inventory-slot img{width:29px;height:29px}.hero-inventory-slot span{font-size:.53rem}}
 
 .inventory-zone-title{margin:12px 0 7px;font-size:.78rem;font-weight:800;color:var(--muted)}
@@ -222,7 +222,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.57 · PARCHE 7.42</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.58 · PARCHE 7.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -285,7 +285,7 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./inventory-ledger.js?v=352"></script>
+<script src="./inventory-ledger.js?v=353"></script>
 <script src="./skill-data-engine.js?v=354"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
@@ -407,49 +407,50 @@ function renderItemIcon(name){
  if(!slug)return fallback;
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
 }
-function renderHeroInventory(state,hero=null,role=""){
+function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=null){
  const ledger=purchaseLedger.snapshot();
  const owned=[...new Set([...(state.owned||[]),...ledger.inventory.map(x=>x.name)])],components=[...(state.components||[])];
- const zones=state.zones||{};
- const assigned={main:[],backpack:[],reserve:[]};
- const counts={main:0,backpack:0};
  const plan=hero?getHeroPlan(hero,role):null;
- const marketPhaseKey=getMarketPhase(state.minute).key;
- const phase=marketPhaseKey==="Inicio"||marketPhaseKey==="Línea"?"Inicio":marketPhaseKey==="Transición"||marketPhaseKey==="Core"?"Medio":"Avanzada";
- const phaseNames=plan?(phase==="Inicio"?plan.early:phase==="Medio"?[...(plan.core||[]),...(plan.early||[])]:[...(plan.situational||[]),...(plan.core||[])]):[];
  const selectedProblem=String(state.problem||"none");
- const situationalInventoryPriority={"enemy:alchemist":"Spirit Vessel","enemy:huskar":"Spirit Vessel","issue:sustain":"Spirit Vessel","issue:initiation":"Aeon Disk","enemy:centaur":"Aeon Disk","enemy:dawnbreaker":"Aeon Disk","enemy:tidehunter":"Aeon Disk","issue:control":"Black King Bar","enemy:lion":"Black King Bar","enemy:bane":"Black King Bar","issue:magic":"Glimmer Cape","issue:teamfight":"Glimmer Cape","issue:mobility":"Blink Dagger","issue:illusions":"Shiva’s Guard","issue:invisibility":"Gem of True Sight"};
- const situationalFirst=situationalInventoryPriority[selectedProblem];
- if(situationalFirst&&owned.includes(situationalFirst))phaseNames.unshift([situationalFirst,"Respuesta prioritaria seleccionada para esta partida"]);
- if(hero?.name==="npc_dota_hero_pugna"&&role==="Mid"&&state.minute>=32&&owned.includes("Kaya and Sange"))phaseNames.unshift(["Kaya and Sange","Evolución de Kaya completada"]);
- const phaseRank=new Map(phaseNames.map((x,i)=>[Array.isArray(x)?x[0]:x.name,i]));
- const coreNames=new Set(plan?(plan.core||[]).map(x=>Array.isArray(x)?x[0]:x.name):[]);
- const manual=owned.filter(name=>["main","backpack","reserve"].includes(zones[name]));
- const automatic=owned.filter(name=>!["main","backpack","reserve"].includes(zones[name]));
- const ordered=[...manual,...automatic.sort((a,b)=>{
-  const ar=phaseRank.has(a)?phaseRank.get(a):999,br=phaseRank.has(b)?phaseRank.get(b):999;
-  return ar-br||Number(coreNames.has(b))-Number(coreNames.has(a));
- })];
- ordered.forEach(name=>{
-  let zone=zones[name];
-  if(!["main","backpack","reserve"].includes(zone))zone=counts.main<6?"main":counts.backpack<3?"backpack":"reserve";
-  if(zone==="main"&&counts.main>=6)zone=counts.backpack<3?"backpack":"reserve";
-  if(zone==="backpack"&&counts.backpack>=3)zone=counts.main<6?"main":"reserve";
-  if(zone==="main")counts.main++;
-  if(zone==="backpack")counts.backpack++;
-  assigned[zone].push(name);
- });
- const renderSlots=(zone,total,label)=>Array.from({length:total},(_,i)=>{
+ const tacticalPriority={"enemy:alchemist":"Spirit Vessel","enemy:huskar":"Spirit Vessel","issue:sustain":"Spirit Vessel","issue:initiation":"Aeon Disk","enemy:centaur":"Aeon Disk","enemy:dawnbreaker":"Aeon Disk","enemy:tidehunter":"Aeon Disk","issue:control":"Black King Bar","enemy:lion":"Black King Bar","enemy:bane":"Black King Bar","issue:magic":"Glimmer Cape","issue:teamfight":"Glimmer Cape","issue:mobility":"Blink Dagger","issue:illusions":"Shiva’s Guard","issue:invisibility":"Gem of True Sight"};
+ const tacticalName=tacticalPriority[selectedProblem];
+ const marketPhaseIndex=getMarketPhase(state.minute).index;
+ const planCorePriority=marketPhaseIndex>=2?(plan?.core||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const planEarlyPriority=marketPhaseIndex<2?(plan?.early||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const planSituationalPriority=marketPhaseIndex>=3?(plan?.situational||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])];
+ const priorityNames=[...new Set(route.map(x=>x&&x.name).filter(Boolean))];
+ if(!priorityNames.length&&plan){
+  const phase=getMarketPhase(state.minute).key;
+  const fallback=phase==="Inicio"||phase==="Línea"?[...(plan.early||[]),...(plan.core||[])]:phase==="Avanzada"?[...(plan.core||[]),...(plan.situational||[])]:[...(plan.core||[]),...(plan.early||[]),...(plan.situational||[])];
+  priorityNames.push(...fallback.map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean));
+ }
+ if(tacticalName)priorityNames.unshift(tacticalName);
+ if(nextPurchase?.target?.name)priorityNames.unshift(nextPurchase.target.name);
+ if(nextPurchase?.kind==="goal"&&nextPurchase.name)priorityNames.unshift(nextPurchase.name);
+ const componentNames=[];
+ if(nextPurchase?.kind==="component"&&nextPurchase.name)componentNames.push(nextPurchase.name);
+ const nextTarget=nextPurchase?.target?.name||nextPurchase?.target?.target?.name;
+ if(nextTarget&&itemRecipes[nextTarget])componentNames.push(...getRecipeLeafParts(nextTarget).map(x=>x.name));
+ const coreNames=(plan?.core||[]).map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean);
+ const earlyNames=(plan?.early||[]).map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean);
+ const tacticalNames=[tacticalName,selectedProblem==="issue:invisibility"?"Dust of Appearance":null].filter(Boolean);
+ const items=ledger.inventory.slice();
+ for(const name of owned)if(!items.some(x=>x.name===name))items.push({name,zone:"auto",placement:"auto",kind:purchaseLedger.isConsumable(name)?"consumable":"item"});
+ const arranged=purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames});
+ const assigned={main:arranged.main.map(x=>x.name),backpack:arranged.backpack.map(x=>x.name),reserve:arranged.reserve.map(x=>x.name)};
+ const placements=state.placements||{};
+ const renderSlots=(zone,total)=>Array.from({length:total},(_,i)=>{
   const name=assigned[zone][i];
   return name
-   ? '<div class="hero-inventory-cell"><button type="button" class="hero-inventory-slot filled" data-move-owned="'+esc(name)+'" title="Tocar para mover '+esc(name)+' entre inventario y mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>↔</small></button>'+(purchaseLedger.isConsumable(name)?'<button type="button" class="inventory-use" data-use-consumable="'+esc(name)+'">Usado</button>':'')+'<button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button></div>'
+   ? '<div class="hero-inventory-cell"><button type="button" class="hero-inventory-slot filled" data-move-owned="'+esc(name)+'" data-zone="'+zone+'" title="Tocar para mover '+esc(name)+' entre inventario y mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><small>↔</small></button>'+(purchaseLedger.isConsumable(name)?'<button type="button" class="inventory-use" data-use-consumable="'+esc(name)+'">Usado</button>':'')+'<button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button>'+(placements[name]==="manual"?'<button type="button" class="inventory-auto" data-auto-owned="'+esc(name)+'" title="Devolver a rotación automática">Auto</button>':'')+'</div>'
    : '<div class="hero-inventory-slot empty"><span>'+(i+1)+'</span></div>';
  }).join('');
- const reserve=assigned.reserve.map(name=>'<button type="button" class="inventory-reserve-item" data-remove-owned="'+esc(name)+'" title="Tocar para vender / quitar '+esc(name)+'">'+renderItemIcon(name)+'<span>'+esc(name)+'</span><b>×</b></button>').join('');
+ const reserve=assigned.reserve.map(name=>'<div class="inventory-reserve-cell"><button type="button" class="inventory-reserve-item" data-move-owned="'+esc(name)+'" data-zone="reserve" title="Tocar para mover a mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span></button><button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button>'+(placements[name]==="manual"?'<button type="button" class="inventory-auto" data-auto-owned="'+esc(name)+'">Auto</button>':'')+'</div>').join('');
  const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
  const ledgerHistory=ledger.history.slice(0,8);
  const historyView='<div class="inventory-history"><div class="inventory-zone-title">Historial de compras y consumibles</div>'+(ledgerHistory.length?'<ol>'+ledgerHistory.map(x=>'<li><b>'+esc(x.name)+'</b> · '+esc(({purchase:'Compra',upgrade:'Mejora','component-purchase':'Componente','component-consumed':'Componente consumido','component-removed':'Componente retirado','consumable-used':'Consumible usado',sold:'Venta',removed:'Retirado','purchase-undone':'Compra deshecha'}[x.action]||x.action))+(x.minute===null?'':' · min '+x.minute)+'</li>').join('')+'</ol>':'<p class="hint">Todavía no hay movimientos registrados.</p>')+'<button type="button" class="btn secondary" id="clearPurchaseHistory">Borrar historial</button></div>';
- return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. Las compras, ventas, mejoras y consumibles usados quedan en el historial. Tocá «Usado» al consumir un consumible.</p></div>';
+ return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><p class="hint inventory-rotation-note">Rotación automática por minuto, build y situación. Los objetos menos útiles pasan a mochila y reserva sin venderse. Tocá un objeto para fijar su posición; usá «Auto» para devolverlo a la rotación.</p><div class="inventory-zone-title">Inventario principal · mayor prioridad actual</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · objetos conservados fuera de los 9 espacios</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. La rotación cambia al actualizar el minuto, la build, el draft o la siguiente compra. Las compras, ventas, mejoras y consumibles usados quedan en el historial.</p></div>';
 }
 function renderFullMarketCatalog(){
  return '<button type="button" class="market-drawer-trigger" id="openMarketDrawer" aria-controls="marketDrawer" aria-expanded="false"><span class="market-trigger-icon">☷</span><span>Mercado</span></button><div class="market-drawer-backdrop" id="marketDrawerBackdrop" hidden></div><aside class="market-drawer" id="marketDrawer" aria-label="Mercado completo" aria-hidden="true"><div class="market-drawer-head"><div><b>Mercado completo</b><small>Catálogo de elección libre</small></div><button type="button" class="market-drawer-close" id="closeMarketDrawer" aria-label="Cerrar mercado">×</button></div><div class="market-drawer-body" id="marketCatalogContent"><p class="hint">Abrí el mercado para cargar los objetos…</p></div></aside>';
@@ -1360,7 +1361,7 @@ function getLiveState(){
  const domComponents=[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value);
  const owned=[...new Set([...domOwned,...ledger.inventory.map(x=>x.name)])];
  const components=ledger.components.length?ledger.components.flatMap(x=>Array(Math.max(1,Number(x.quantity)||1)).fill(x.name)):domComponents;
- return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.zone||'main'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))},components,history:ledger.history,ledgerInventory:ledger.inventory};
+ return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.zone||'auto'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))},placements:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.placement||'auto'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryPlacement).map(x=>[x.value,x.dataset.inventoryPlacement]))},components,history:ledger.history,ledgerInventory:ledger.inventory};
 }
 const itemRecipes={
  "Power Treads":[{name:"Boots of Speed",cost:500},{name:"Gloves of Haste",cost:450},{name:"Belt of Strength",cost:450}],
@@ -2227,7 +2228,7 @@ function analyzeCore(options={}){
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
- html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?'':(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?false:live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><small>Fase del mercado · '+esc(adaptive.phase)+'</small><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
+ html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role,adaptive,nextPurchase)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?'':(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?false:live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><small>Fase del mercado · '+esc(adaptive.phase)+'</small><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
  try{html.push(renderFullMarketCatalog());}
  catch(error){console.error("No se pudo renderizar el mercado completo:",error);html.push('<div class="warning"><b>El análisis continúa, pero el mercado completo no pudo cargarse.</b><p>'+esc(error&&error.message?error.message:"Error interno del catálogo")+"</p></div>");}
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
@@ -2331,7 +2332,9 @@ $('toggleLiveState').onclick=()=>{
 };
 $('report').addEventListener('click',e=>{
  const moveOwned=e.target.closest('[data-move-owned]');
- if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;purchaseLedger.setZone(name,next);analyze({scroll:false});}return;}}
+ if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=moveOwned.getAttribute('data-zone')||state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;input.dataset.inventoryPlacement='manual';purchaseLedger.setZone(name,next);analyze({scroll:false});}return;}}
+ const autoOwned=e.target.closest('[data-auto-owned]');
+ if(autoOwned){const name=autoOwned.getAttribute('data-auto-owned');purchaseLedger.setAutomatic(name);const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){input.dataset.inventoryZone='';input.dataset.inventoryPlacement='auto';}analyze({scroll:false});return;}
  const sellOwned=e.target.closest('[data-sell-owned]');
  const removeOwned=e.target.closest('[data-remove-owned]')||sellOwned;
  if(removeOwned){const name=removeOwned.getAttribute('data-remove-owned')||removeOwned.getAttribute('data-sell-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);purchaseLedger.recordSale(name,{minute:ledgerMinute()});if(input){input.checked=false;input.dataset.inventoryZone="";}analyze({scroll:false});return;}
@@ -2355,7 +2358,7 @@ $('report').addEventListener('click',e=>{
 ['gameMinute','currentGold','currentProblem','myRole','gameMode','rank'].forEach(id=>$(id).addEventListener('change',()=>{if($('result').classList.contains('show'))analyze({scroll:false});}));
 $('gameMinute').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
 $('currentGold').addEventListener('input',()=>{if($('result').classList.contains('show'))analyze({scroll:false});});
-$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),zone:e.target.dataset.inventoryZone||'main',note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
+$('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),zone:e.target.dataset.inventoryZone||'auto',placement:e.target.dataset.inventoryPlacement||'auto',note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',e=>{if(e.target.matches('.owned-component')){if(e.target.checked)purchaseLedger.recordComponent(e.target.value,{minute:ledgerMinute(),note:'Carga manual de componente'});else purchaseLedger.removeComponent(e.target.value);}if($('result').classList.contains('show'))analyze({scroll:false});});
 
 function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
