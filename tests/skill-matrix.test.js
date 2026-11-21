@@ -373,13 +373,16 @@ console.log("OK: compra directa desde recomendaciones, deshacer compra y carga m
 
 // Inventario visual del héroe: refleja compras y permite retirarlas del estado.
 const inventoryMarkers = [
-  'function renderHeroInventory(state,hero=null,role="")',
+  'function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=null)',
   'class="hero-inventory-slots"',
-  "renderHeroInventory(live,me,role)",
+  "renderHeroInventory(live,me,role,adaptive,nextPurchase)",
   'data-remove-owned=',
   'data-remove-component=',
   "Inventario del héroe",
-  "Inventario principal"
+  "Inventario principal",
+  "Rotación automática por minuto, build y situación",
+  "data-auto-owned",
+  "purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})"
 ];
 for (const marker of inventoryMarkers) {
   if (!appHtml.includes(marker)) throw new Error("Falta la interfaz de inventario: " + marker);
