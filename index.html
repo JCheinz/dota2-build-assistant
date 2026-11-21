@@ -230,7 +230,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.58 · PARCHE 7.42</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.59 · PARCHE 7.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -309,7 +309,7 @@ const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/h
 let heroes=[], ally=Array(5).fill(null), enemy=Array(5).fill(null), target={team:'ally',index:0}, lastReport='';
 const $=id=>document.getElementById(id);
 const matchClock=window.DOTA_MATCH_CLOCK.create({storage:window.localStorage,storageKey:'dota2-build-match-clock-v1'});
-const purchaseLedger=window.DOTA_INVENTORY_LEDGER.create({storageKey:'dota2-build-inventory-ledger-v359',storage:window.localStorage});
+const purchaseLedger=window.DOTA_INVENTORY_LEDGER.create({storageKey:'dota2-build-inventory-ledger-v352',storage:window.localStorage});
 const ledgerMinute=()=>matchClock.snapshot().minute;
 function heroImage(h){return IMG+h.name.replace('npc_dota_hero_','')+'.png'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
