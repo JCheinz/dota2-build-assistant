@@ -1,154 +1,69 @@
-# Dota 2 Build Assistant — versión 3.27
+# Dota 2 Build Assistant — versión 3.54
 
-## Novedades de la versión 3.27
-- Añadidas especializaciones individuales de Pugna Support 4 y Support 5, separadas de Pugna Mid.
-- Las dos guías incluyen progresión de habilidades, talentos contextuales, combos, posicionamiento y mecánicas del héroe.
-- La secuencia de soporte se basa en tendencias agregadas de Pugna support del parche 7.41f; debe adaptarse al draft y a la línea.
-- Se conserva Pugna Mid y la matriz visual de habilidades/talentos.
-- Service Worker actualizado a caché v69.
+Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar compras según héroe, posición, amenazas, fase de partida, oro e inventario.
 
-# Dota 2 Build Assistant — versión 3.26
+**Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
+**Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
+**Estado:** versión 3.54 integrada; estabilización y preparación Android en curso.
 
-## Novedades de la versión 3.26
-- La guía individual muestra una matriz de habilidades por nivel (1–25), con filas separadas por habilidad e iconos en los niveles aprendidos.
-- Los niveles de talento y los puntos de atributo quedan identificados en filas propias; el árbol de talentos mantiene las dos alternativas y su explicación contextual.
-- Los metadatos de iconos pasan a formar parte de cada guía individual, para permitir especializaciones visuales distintas por héroe.
-- Se conserva el catálogo, análisis de draft, rutas de compra y la guía de Pugna Mid de la versión estable 3.25.
-- Service Worker actualizado a caché v68.
+## Funcionalidades actuales
 
-# Dota 2 Build Assistant — versión 3.19
+- Selección de cinco héroes aliados y cinco enemigos.
+- Análisis contextual de amenazas y compatibilidad de roles.
+- Mercado general por posición y cinco fases de partida.
+- Rutas individuales para combinaciones héroe/posición disponibles.
+- Respuestas situacionales según amenazas y problemas declarados.
+- Catálogo de recetas y cálculo de componentes faltantes.
+- Inventario principal, mochila, reserva e historial local de compras, ventas y mejoras.
+- Registro de uso de consumibles.
+- Especializaciones individuales con progresión de habilidades, talentos y mecánicas.
+- Skill Data Engine v2 para descargar y normalizar constantes de OpenDota bajo demanda.
+- Diseño adaptable y Service Worker para experiencia PWA.
 
-## Novedades de la versión 3.19
-- Unificada la decisión defensiva prioritaria de Pugna Mid con la próxima compra recomendada: tras completar el núcleo, la respuesta condicional justificada puede guiar el siguiente objetivo.
-- La prioridad defensiva no desplaza Arcane Boots → Aether Lens ni convierte una respuesta condicional en compra obligatoria.
-- La ruta especial de Anti-Mage y el motor común se conservan.
-- Service Worker actualizado a caché v61.
+## Módulos principales
 
+| Archivo | Responsabilidad |
+|---|---|
+| `index.html` | Interfaz y lógica principal de draft, mercado y presentación |
+| `specializations.js` | Perfiles de héroes y posiciones |
+| `inventory-ledger.js` | Inventario, historial y movimientos |
+| `skill-data-engine.js` | Extracción y normalización de habilidades |
+| `sw.js` | Caché y actualización de recursos |
+| `tests/` | Pruebas automatizadas |
 
+## Validación
 
-## Novedades de la versión 3.18
-- Auditoría de la progresión de compras de Pugna Mid para 7.41f: Arcane Boots → Aether Lens quedan como núcleo ordenado; Bottle y Magic Wand siguen siendo compras tempranas condicionales.
-- Incorporadas como opciones situacionales Kaya, Dagon, Blink Dagger y Aghanim’s Scepter, con criterios de uso y sin convertir las tendencias estadísticas en compras obligatorias.
-- La próxima compra de Pugna respeta el núcleo antes de pasar a respuestas situacionales; muestra un componente pendiente por vez y no inventa un costo de receta cuando los componentes aparecen completos.
-- Añadidas recetas verificadas para Kaya, Dagon y Aghanim’s Scepter; Blink Dagger se trata como compra directa. Se mantiene la receta actualizada de Arcane Boots de 7.41.
-- Añadidos iconos para los objetos y componentes incorporados.
-- El motor común y la ruta corregida de Anti-Mage se conservan.
+El workflow `.github/workflows/validate-skill-matrix.yml` ejecuta:
 
-## Novedades de la versión 3.17
-- Actualizada la guía individual de Pugna Mid para 7.41f: prioridad Nether Blast → Decrepify → Nether Ward, con Life Drain en 6/12/18.
-- Corregida la explicación de habilidades: la guía ya no afirma que Nether Ward debe maximizarse antes de Decrepify.
-- Añadidas decisiones contextuales de talentos, combos que aprovechan Oblivion Savant, posicionamiento y mecánicas actuales (amplificación por torres y daño de Nether Blast a estructuras).
-- El renderizador muestra la prioridad de habilidades y las mecánicas específicas definidas por cada especialización.
-- No se modificó el motor de compras ni se añadieron precios o recetas no verificados.
+- Comprobación sintáctica de los módulos JavaScript.
+- `tests/skill-matrix.test.js`.
+- `tests/inventory-ledger.test.js`.
+- `tests/skill-data-engine.test.js`.
 
+Las pruebas automáticas no sustituyen la validación visual en Android ni las pruebas de uso en una partida.
 
+## Limitaciones conocidas y siguientes pasos
 
-## Novedades de la versión 3.16
-- Corregida la progresión de compra de Anti-Mage: recomienda componentes pendientes uno por vez y no informa costo cero ficticio al completar el objeto.
-- La interfaz distingue guía individual completa, ruta individual de objetos y perfil inferido por arquetipo.
-- Se mantiene el motor común y el registro modular de especializaciones.
+- Las especializaciones individuales cubren una parte pequeña del conjunto de héroes y posiciones.
+- Las recetas y precios requieren auditoría contra el parche vigente.
+- El inventario depende de la entrada manual del jugador y todavía necesita cantidades/cargas completas para consumibles.
+- Skill Data Engine descarga datos bajo demanda, pero aún no genera un snapshot versionado ni un índice táctico integrado con Threat Counter.
+- No se ha verificado todavía la publicación de 3.54 en Pages ni el funcionamiento de esta versión en Android.
+- No existe actualmente configuración nativa Android/Capacitor ni una APK generada en el repositorio.
 
+## Plan de estabilización y Android
 
-## Novedades de la versión 3.15
-- Se extraen las especializaciones individuales a `specializations.js`, separadas del motor común.
-- El motor consulta el registro por combinación héroe/posición y conserva el fallback general cuando no existe un perfil individual.
-- Pugna Mid es el primer perfil migrado; la interfaz y la guía existente se mantienen.
+1. Consolidar documentación y caché de la versión 3.54.
+2. Ejecutar CI completo y revisar regresiones.
+3. Verificar GitHub Pages y recursos PWA.
+4. Probar la aplicación en Android: instalación, selección de draft, mercado, inventario, persistencia y actualización.
+5. Elegir el empaquetado Android adecuado (PWA/TWA o wrapper nativo) según permisos y capacidades necesarias.
+6. Generar APK firmada, instalarla y ejecutar pruebas de uso antes de distribuirla.
 
+No considerar una APK terminada hasta que el artefacto se haya generado, instalado y probado en un dispositivo Android.
 
-Aplicación web progresiva (PWA) comunitaria para preparar drafts y orientar compras en Dota 2.
+## Fuentes
 
-## Novedades de la versión 3.14
-- Nueva capa común de especialización táctica por héroe y posición: combina perfiles explícitos ya cargados con un fallback conservador por arquetipo para el resto del catálogo.
-- El informe muestra identidad disponible del héroe (atributo, alcance y roles), fortalezas y riesgos generales, e indica claramente si existe una ruta individual o una inferencia por arquetipo.
-- La exportación incluye el perfil táctico utilizado para que el análisis posterior conserve el nivel de evidencia y sus limitaciones.
-- Esta etapa establece la arquitectura común; no implica todavía que los 126 héroes tengan builds, habilidades, combos o talentos individualizados.
-
-## Novedades de la versión 3.6
-- Separación visual y lógica entre ruta principal del héroe y compras situacionales.
-- La compra de línea de Pugna (Bottle o Magic Wand) es condicional y solo una puede encabezar la ruta; Null Talisman deja de desplazar automáticamente el núcleo.
-- Arcane Boots y Aether Lens conservan prioridad de progresión para Pugna Mid; Aghanim’s Shard pasa a alternativa según situación.
-- Recalculo de próxima compra con orden de progresión para héroes con ruta definida, inventario y componentes marcados.
-- Evita mostrar cálculos de oro ficticios cuando el objeto no tiene receta/costo configurado.
-
-## Novedades de la versión 3.5
-- Interacciones específicas entre héroe propio y enemigo para Pugna y Anti-Mage frente a Anti-Mage, Bristleback, Lion, Sniper y Tidehunter.
-- El informe distingue amenazas generales de interacciones concretas del enfrentamiento y ajusta consejos de posicionamiento, uso de habilidades y ventanas de entrada.
-- Se aclaran límites de respuestas como Linken’s Sphere, Manta Style y Ethereal Blade para evitar tratarlas como counters universales.
-
-## Novedades de la versión 3.4
-- Evaluación de amenazas personalizada según vulnerabilidades del héroe elegido y su posición.
-- Priorización contextual: distingue peligro general del enemigo e impacto específico sobre el héroe propio.
-- Recomendaciones situacionales de objetos generadas a partir de mecánicas que coinciden con esas vulnerabilidades.
-- Modelo general por roles y tipo de ataque para que héroes sin perfil individual también reciban evaluación contextual.
-
-## Novedades de la versión 3.3
-- Priorización de amenazas enemigas según mecánicas tácticas reconocibles, vulnerabilidad del héroe propio, posición y minuto de partida.
-- Perfiles explícitos cargados para 8 combinaciones héroe/posición (Pugna Mid, Drow Carry, Luna Carry, Anti-Mage Mid/Carry, Bristleback Offlane y Techies Offlane/Support 4); el resto conserva inferencia conservadora basada en el catálogo.
-- Cada amenaza muestra prioridad relativa, mecánicas detectadas, motivo de peligro y pauta de juego.
-- Orden dinámico de amenazas de mayor a menor prioridad.
-
-## Novedades de la versión 2.9
-- Corregido el cálculo de próxima compra de Anti-Mage: ahora usa oro, componentes marcados y objetos completos.
-- Ruta principal secuencial Power Treads → Battle Fury → Yasha → Manta Style.
-- El informe se recalcula automáticamente al cambiar minuto, oro, problema, inventario o componentes.
-- Unificada la versión 2.9 en encabezado, informe y exportación.
-
-## Novedades de la versión 2.8
-- Ruta de Anti-Mage actualizada para 7.41f: Power Treads → Battle Fury → Yasha → Manta Style.
-- La próxima compra respeta el orden del núcleo y avanza al siguiente objeto cuando marcás el anterior como comprado.
-- El estado de partida permite recalcular las recomendaciones al cambiar minuto, oro, inventario o amenaza seleccionada.
-
-## Qué incluye
-- Catálogo de héroes desde OpenDota.
-- Selección visual de 5 aliados y 5 enemigos.
-- Elección del héroe propio y cualquiera de las cinco posiciones.
-- Modos Ranked y Turbo, con rango como contexto.
-- Motor de análisis unificado para todos los héroes y posiciones.
-- Perfiles específicos cuando están disponibles (Pugna Mid, Anti-Mage Mid/Carry, Drow Carry, Luna Carry, Bristleback Offlane y Techies en las posiciones configuradas).
-- Para el resto de combinaciones, una ruta heurística por rol, arquetipo, tipo de ataque, fase de partida y amenazas detectadas.
-- Recomendaciones situacionales separadas de la ruta principal.
-- Estado de partida: minuto, oro, problema actual, objetos completos y componentes.
-- Exportación del draft y contexto para continuar el análisis con ChatGPT.
-- Diseño adaptable a escritorio y Android; service worker con actualización de HTML y limpieza de cachés anteriores.
-
-## Cómo interpretar las recomendaciones
-- Ruta principal: progresión del héroe y su posición; el orden se adapta a la fase de partida.
-- Compras situacionales: alternativas que solo se adelantan cuando una amenaza concreta o una necesidad del equipo lo justifica.
-- Verde: prioridades actuales. Azul: complementos o respuestas condicionales.
-- Los objetos marcados como comprados se excluyen de la ruta pendiente.
-- La próxima prioridad es un objetivo estratégico, no una orden de compra ni una comprobación de precio en vivo.
-
-## Limitaciones transparentes
-- Las posiciones se estiman con roles generales de OpenDota; no son estadísticas de lane ni garantizan que una elección sea meta.
-- Las rutas son heurísticas y no builds certificadas por rango, posición o parche.
-- Los counters específicos solo aparecen cuando hay una regla táctica cargada; para otros rivales se muestran señales generales sin inventar counters.
-- El oro ingresado se muestra como contexto, pero la aplicación no consulta precios de objetos en vivo ni calcula todavía todas las recetas y componentes de cada objeto.
-- Los datos de victorias por rango, cuando están disponibles, son agregados del héroe y no están separados por posición.
-- Requiere conexión para cargar el catálogo e imágenes. No es un APK nativo.
-- No está afiliada a Valve ni a Dota 2.
-
-## Publicar e instalar en Android
-1. Publicá los archivos en GitHub Pages.
-2. Abrí la URL desde Chrome en Android.
-3. Menú ⋮ → «Instalar aplicación» o «Añadir a pantalla de inicio».
-
-Al publicar cambios del service worker, incrementá la versión de caché en `sw.js`.
-
-
-## Historial
-- La versión 2.5 fue una etapa anterior; sus notas ya no describen el motor actual.
-
-### 3.20
-- Corrige la prioridad de compra defensiva: la respuesta indicada por el diagnóstico prevalece sobre alternativas situacionales después de completar el núcleo.
-- Ordena esa respuesta al inicio de las compras situacionales y alinea la explicación de próxima compra con el objeto realmente seleccionado.
-- Mantiene la ruta principal de Pugna y Anti-Mage.
-
-### 3.21
-- Las respuestas defensivas de Pugna Mid se presentan como alternativas condicionales comparadas; el draft o el selector de problema no fuerzan una compra única.
-- La próxima compra sigue calculándose por progresión, inventario, componentes y oro, separada del análisis comparativo de defensas.
-- Se elimina la inyección automática de BKB como compra prioritaria sin evidencia de la habilidad concreta que está afectando al jugador.
-
-### 3.22
-- Para Pugna Mid y Anti-Mage, la próxima compra presenta una opción orientativa y hasta tres rutas alternativas.
-- Cada alternativa muestra el siguiente componente pendiente, disponibilidad según oro y motivo contextual.
-- La puntuación ordena opciones, pero no obliga a seguir una única ruta; se preserva la progresión de núcleo.
+- OpenDota: https://www.opendota.com/
+- OpenDota API: https://docs.opendota.com/
+- Repositorio: https://github.com/JCheinz/dota2-build-assistant

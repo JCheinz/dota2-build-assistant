@@ -1,11 +1,11 @@
 # Estado del proyecto — Dota 2 Build Assistant
 
-**Última actualización:** 17 de noviembre de 2026  
+**Última actualización:** 21 de noviembre de 2026  
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.52 + Service Worker v103; última versión estable respaldada: 3.52  
-**Etapa activa:** versión 3.52 integrada mediante PR #44. Inventario actual e historial separados, registro de compras/ventas/mejoras, consumibles usados, consumo cuantitativo de componentes, deduplicación de recomendaciones y persistencia local. CI y regresiones aprobados; pendiente validación de publicación, Android y APK.
+**Versión integrada:** 3.54 + Service Worker v106 (propuesto en PR #47); última versión estable respaldada: 3.54  
+**Etapa activa:** estabilización de 3.54 en rama `work/stabilization-v3-55`. PR #44 (inventario), #45 (Skill Data Engine 3.53) y #46 (extracción 3.54) están integrados en `main`. Pendientes: ejecución completa de CI de 3.54, publicación Pages verificada, pruebas Android y decisión/implementación del empaquetado APK.
 
 ## 1. Objetivo
 
@@ -905,3 +905,15 @@ Se incorpora la primera capa de extracción automática para construir el conoci
 - Se añade extracción bajo demanda desde la interfaz con recuento de héroes, habilidades, talentos, ranuras sin metadatos y porcentaje de cobertura.
 - El porcentaje será calculado con los datos descargados en el navegador, no estimado previamente.
 - Próximo: ejecutar la descarga, exportar snapshot versionado y generar índice de efectos para Threat Counter. Las relaciones tácticas se validarán por mecánica, no solo por coincidencia textual.
+
+
+## Etapa 3.55 — estabilización, documentación y preparación Android (21-11-2026)
+
+- Rama de trabajo: `work/stabilization-v3-55`, creada desde el commit integrado de 3.54 `40b15872b80138c92ac1e7a3c3382d4bd5a68c65`.
+- Se confirma que la aplicación principal muestra versión 3.54; los módulos existentes son `inventory-ledger.js`, `skill-data-engine.js` y `specializations.js`.
+- Se confirma que el Service Worker vigente es `dota-build-v105` y que el workflow CI ejecuta sintaxis y tres suites de pruebas.
+- Se detecta deuda documental: el encabezado de este archivo todavía decía 3.52 y el README 3.27, pese a que main ya contenía 3.54.
+- No existe `package.json` ni configuración nativa Android/Capacitor en la raíz consultada. Por lo tanto, la APK no puede considerarse configurada ni generada. Antes de elegir empaquetado se debe decidir entre PWA instalable/TWA y wrapper nativo; verificar firma, permisos, navegación, almacenamiento local y distribución.
+- El extractor de habilidades aún carga bajo demanda y mantiene el dataset en memoria durante la sesión; snapshot versionado e índice de efectos para Threat Counter siguen pendientes.
+- Esta etapa actualiza la documentación y prepara el Service Worker para invalidar caché. No declara todavía CI, Pages, Android ni APK como aprobados.
+- Próximos criterios de salida: CI verde en PR, Pages actualizado, prueba visual en Android del draft/mercado/inventario, prueba de persistencia y flujo de instalación Android documentados. Solo después generar y probar APK firmada.
