@@ -16,6 +16,7 @@ jobs:
         run: |
           node --check specializations.js
           node --check inventory-ledger.js
+          node --check match-clock.js
           node --check skill-data-engine.js
           node --check build-data-engine.js
           node --check patch-data-742.js
@@ -23,6 +24,8 @@ jobs:
         run: node tests/skill-matrix.test.js
       - name: Test inventory ledger lifecycle and regressions
         run: node tests/inventory-ledger.test.js
+      - name: Test pausable match clock and phase boundaries
+        run: node tests/match-clock.test.js
       - name: Test skill data extraction engine
         run: node tests/skill-data-engine.test.js
       - name: Test live build data engine
