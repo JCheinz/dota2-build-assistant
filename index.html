@@ -371,6 +371,7 @@ const itemSlugs={
  'Boots of Speed':'boots','Ring of Health':'ring_of_health','Void Stone':'void_stone','Ultimate Orb':'ultimate_orb','Diadem':'diadem','Splintmail':'splintmail','Chasm Stone':'chasm_stone','Shawl':'shawl','Shadow Amulet':'shadow_amulet','Fluffy Hat':'fluffy_hat','Mithril Hammer':'mithril_hammer','Ogre Axe':'ogre_axe',
  'Perseverance':'pers','Receta de Battle Fury':'recipe','Receta de Manta Style':'recipe','Receta de Yasha':'recipe','Receta de Sange':'recipe','Receta de Shiva’s Guard':'recipe','Receta de Glimmer Cape':'recipe','Receta de Force Staff':'recipe','Receta de Black King Bar':'recipe','Receta de Dragon Lance':'recipe','Receta de Hurricane Pike':'recipe',
  'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
+ 'Quarterstaff':'quarterstaff','Bloodslinger':'bloodslinger','Caduceus':'caduceus','Ristul's Devotion':'ristuls_devotion','Sabatons of Mordiggian':'sabatons_of_mordiggian','Skypiercer':'skypiercer','Starforge':'starforge',
  'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
  'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
@@ -1358,7 +1359,6 @@ Object.assign(itemRecipes,{
  "Skypiercer":[{name:"Heaven's Halberd",cost:2400},{name:"Sange",cost:2000},{name:"Talisman of Evasion",cost:1300},{name:"Receta de Skypiercer",cost:300}],
  "Starforge":[{name:"Meteor Hammer",cost:2750},{name:"Ultimate Orb",cost:2800},{name:"Receta de Starforge",cost:450}]
 });
-Object.assign(itemSlugs,{"Quarterstaff":"quarterstaff","Bloodslinger":"bloodslinger","Caduceus":"caduceus","Ristul's Devotion":"ristuls_devotion","Sabatons of Mordiggian":"sabatons_of_mordiggian","Skypiercer":"skypiercer","Starforge":"starforge"});
 function getTrackedQuantity(collection,name){
  if(collection instanceof Map)return Math.max(0,Number(collection.get(name)||0));
  if(Array.isArray(collection))return collection.filter(x=>x===name).length;
