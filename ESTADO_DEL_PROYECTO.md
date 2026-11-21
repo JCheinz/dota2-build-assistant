@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Rama principal:** `main`  
-**Versión integrada:** 3.54 + Service Worker v105; última versión estable respaldada: 3.54  
+**Versión integrada:** 3.54 + Service Worker v106 (propuesto en PR #47); última versión estable respaldada: 3.54  
 **Etapa activa:** estabilización de 3.54 en rama `work/stabilization-v3-55`. PR #44 (inventario), #45 (Skill Data Engine 3.53) y #46 (extracción 3.54) están integrados en `main`. Pendientes: ejecución completa de CI de 3.54, publicación Pages verificada, pruebas Android y decisión/implementación del empaquetado APK.
 
 ## 1. Objetivo
