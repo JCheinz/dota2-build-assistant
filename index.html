@@ -206,7 +206,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.54</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.56 · PARCHE 7.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -344,7 +344,7 @@ const itemSlugs={
  'Kaya':'kaya','Dagon':'dagon','Staff of Wizardry':'staff_of_wizardry','Robe of the Magi':'robe_of_the_magi','Crown':'crown','Point Booster':'point_booster','Ogre Axe':'ogre_axe','Blade of Alacrity':'blade_of_alacrity','Receta de Kaya':'recipe','Receta de Dagon':'recipe',
  'Aghanim’s Shard':'aghanims_shard','Glimmer Cape':'glimmer_cape','Force Staff':'force_staff',
  'Ethereal Blade':'ethereal_blade','Black King Bar':'black_king_bar','Scythe of Vyse':'sheepstick',
- 'Circlet':'circlet','Gauntlets of Strength':'gauntlets','Javelin':'javelin','Hyperstone':'hyperstone',
+ 'Circlet':'circlet','Gauntlets of Strength':'gauntlets','Quarterstaff':'quarterstaff','Hyperstone':'hyperstone',
  'Helm of Iron Will':'helm_of_iron_will','Ring of Tarrasque':'ring_of_tarrasque','Cloak':'cloak',
  'Headdress':'headdress','Drum of Endurance':'ancient_janggo','Receta de Drum of Endurance':'recipe','Witch Blade':'witch_blade','Oblivion Staff':'oblivion_staff','Meteor Hammer':'meteor_hammer','Boots of Travel':'boots_of_travel','Orb of Venom':'orb_of_venom','Receta de Witch Blade':'recipe','Receta de Meteor Hammer':'recipe','Receta de Null Talisman':'recipe','Receta de Boots of Travel':'recipe','Chainmail':'chainmail','Platemail':'platemail','Mystic Staff':'mystic_staff',
  'Tiara of Selemene':'tiara_of_selemene','Demon Edge':'demon_edge','Blitz Knuckles':'blitz_knuckles',
@@ -427,7 +427,8 @@ function renderHeroInventory(state,hero=null,role=""){
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
- const unique=purchaseLedger.filterRecommendations(items,getLiveState().owned);
+ const patchSafe=(items||[]).filter(x=>!window.DOTA_PATCH_742?.removedItems?.has(Array.isArray(x)?x[0]:x.name));
+ const unique=purchaseLedger.filterRecommendations(patchSafe,getLiveState().owned);
  return '<div class="item-list">'+unique.map((x,i)=>{
   const name=Array.isArray(x)?x[0]:x.name,why=Array.isArray(x)?x[1]:x.why;
   const priority=!Array.isArray(x)&&x.priority===true, bought=owned.has(name);
@@ -1330,6 +1331,18 @@ const itemRecipes={
  "Boots of Travel":[{name:"Boots of Speed",cost:500},{name:"Receta de Boots of Travel",cost:2000}],
  "Gem of True Sight":[]
 };
+Object.assign(itemRecipes,{
+ "Quarterstaff":[],
+ "Maelstrom":[{name:"Mithril Hammer",cost:1600},{name:"Receta de Maelstrom",cost:900},{name:"Gloves of Haste",cost:450}],
+ "Monkey King Bar":[{name:"Demon Edge",cost:2200},{name:"Blitz Knuckles",cost:1000},{name:"Quarterstaff",cost:900},{name:"Receta de Monkey King Bar",cost:900}],
+ "Bloodslinger":[{name:"Sage's Mask",cost:175},{name:"Mantle of Intelligence",cost:140,quantity:2},{name:"Blood Grenade",cost:50},{name:"Receta de Bloodslinger",cost:420}],
+ "Caduceus":[{name:"Force Staff",cost:2200},{name:"Phylactery",cost:2600},{name:"Receta de Caduceus",cost:600}],
+ "Ristul's Devotion":[{name:"Vladmir’s Offering",cost:2200},{name:"Splintmail",cost:950},{name:"Voodoo Mask",cost:650}],
+ "Sabatons of Mordiggian":[{name:"Phase Boots",cost:1450},{name:"Armlet of Mordiggian",cost:2500},{name:"Receta de Sabatons of Mordiggian",cost:2000}],
+ "Skypiercer":[{name:"Heaven's Halberd",cost:2400},{name:"Sange",cost:2000},{name:"Talisman of Evasion",cost:1300},{name:"Receta de Skypiercer",cost:300}],
+ "Starforge":[{name:"Meteor Hammer",cost:2750},{name:"Ultimate Orb",cost:2800},{name:"Receta de Starforge",cost:450}]
+});
+Object.assign(itemSlugs,{"Quarterstaff":"quarterstaff","Bloodslinger":"bloodslinger","Caduceus":"caduceus","Ristul's Devotion":"ristuls_devotion","Sabatons of Mordiggian":"sabatons_of_mordiggian","Skypiercer":"skypiercer","Starforge":"starforge"});
 function getTrackedQuantity(collection,name){
  if(collection instanceof Map)return Math.max(0,Number(collection.get(name)||0));
  if(Array.isArray(collection))return collection.filter(x=>x===name).length;
