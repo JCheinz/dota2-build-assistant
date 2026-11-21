@@ -1,10 +1,10 @@
-# Dota 2 Build Assistant — versión 3.54
+# Dota 2 Build Assistant — versión 3.59
 
 Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar compras según héroe, posición, amenazas, fase de partida, oro e inventario.
 
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
-**Estado:** versión 3.54 integrada; estabilización y preparación Android en curso.
+**Estado:** rama 3.59 en validación; incorpora reloj de partida paus able y rotación de inventario por fases.
 
 ## Funcionalidades actuales
 
@@ -14,7 +14,9 @@ Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar
 - Rutas individuales para combinaciones héroe/posición disponibles.
 - Respuestas situacionales según amenazas y problemas declarados.
 - Catálogo de recetas y cálculo de componentes faltantes.
-- Inventario principal, mochila, reserva e historial local de compras, ventas y mejoras.
+- Inventario principal de seis espacios, mochila, reserva de venta e historial local de compras, ventas y mejoras.
+- Componentes de recetas registrados también como objetos físicos del inventario, con prioridad según los objetivos de build adquiridos.
+- Reloj persistente de partida con iniciar, pausar, reanudar y fases Early (0–11), Mid (12–24) y Late (25+).
 - Registro de uso de consumibles.
 - Especializaciones individuales con progresión de habilidades, talentos y mecánicas.
 - Skill Data Engine v2 para descargar y normalizar constantes de OpenDota bajo demanda.
@@ -26,7 +28,8 @@ Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar
 |---|---|
 | `index.html` | Interfaz y lógica principal de draft, mercado y presentación |
 | `specializations.js` | Perfiles de héroes y posiciones |
-| `inventory-ledger.js` | Inventario, historial y movimientos |
+| `inventory-ledger.js` | Inventario físico, componentes, historial, rotación y movimientos |
+| `match-clock.js` | Reloj persistente y paus able de partida, con límites de fase |
 | `skill-data-engine.js` | Extracción y normalización de habilidades |
 | `build-data-engine.js` | Builds dinámicas por posición desde Dota2ProTracker y respaldo de popularidad de objetos de OpenDota |
 | `sw.js` | Caché y actualización de recursos |
@@ -39,6 +42,7 @@ El workflow `.github/workflows/validate-skill-matrix.yml` ejecuta:
 - Comprobación sintáctica de los módulos JavaScript.
 - `tests/skill-matrix.test.js`.
 - `tests/inventory-ledger.test.js`.
+- `tests/match-clock.test.js`.
 - `tests/skill-data-engine.test.js`.
 - `tests/build-data-engine.test.js`.
 
