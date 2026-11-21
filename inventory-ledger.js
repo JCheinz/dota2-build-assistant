@@ -25,7 +25,11 @@
   }
   function recordComponent(name,meta={}){
    name=cleanName(name);if(!name)return {recorded:false};
+   const minute=Number.isFinite(Number(meta.minute))?Math.max(0,Number(meta.minute)):null;
    state.components.push({name,quantity:1});
+   // Una pieza de receta también es un objeto físico: debe ocupar un espacio
+   // del inventario y poder rotar igual que cualquier otro objeto comprado.
+   state.inventory.push({name,quantity:1,kind:"component",zone:"auto",placement:"auto",purchaseMinute:minute});
    state.history.unshift(event("component-purchase",name,{...meta,kind:"component"}));persist();return {recorded:true};
   }
   function removeInventory(name,reason="removed",meta={}){
@@ -38,15 +42,28 @@
   }
   function upgrade(finalName,consumedNames=[],meta={}){
    const consumed=[];
-   for(const name of consumedNames){const item=removeInventory(name,"component-consumed",{...meta,note:"Consumido para "+finalName});if(item.removed){consumed.push(name);continue;}if(removeComponent(name,{silent:true})){consumed.push(name);state.history.unshift(event("component-consumed",name,{...meta,kind:"component",note:"Consumido para "+finalName}));}}
+   for(const name of consumedNames){const item=removeInventory(name,"component-consumed",{...meta,note:"Consumido para "+finalName});if(item.removed){if(item.item.kind==="component")removeComponent(name,{silent:true});consumed.push(name);continue;}if(removeComponent(name,{silent:true})){consumed.push(name);state.history.unshift(event("component-consumed",name,{...meta,kind:"component",note:"Consumido para "+finalName}));}}
    const added=recordPurchase(finalName,{...meta,kind:"item",note:"Mejora completada"});
    state.history.unshift(event("upgrade",finalName,{...meta,note:"Componentes consumidos: "+consumed.join(", ")}));persist();
    return {upgraded:true,consumed,added:added.recorded};
   }
-  function recordSale(name,meta={}){return removeInventory(name,"sold",meta);}
+  function recordSale(name,meta={}){
+   const result=removeInventory(name,"sold",meta);
+   if(result.removed&&result.item.kind==="component")removeComponent(name,{silent:true});
+   return result;
+  }
   function setZone(name,zone){const item=find(state.inventory,name);if(!item||!["main","backpack","reserve"].includes(zone))return false;item.zone=zone;item.placement="manual";persist();return true;}
   function setAutomatic(name){const item=find(state.inventory,name);if(!item)return false;item.zone="auto";item.placement="auto";persist();return true;}
-  function removeComponent(name,meta={}){const i=state.components.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return false;const [item]=state.components.splice(i,1);if(!meta.silent)state.history.unshift(event("component-removed",item.name,{...meta,kind:"component"}));persist();return true;}
+  function removeComponent(name,meta={}){
+   const i=state.components.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return false;
+   const [item]=state.components.splice(i,1);
+   if(!meta.silent){
+    const physical=state.inventory.findIndex(x=>keyOf(x.name)===keyOf(name)&&x.kind==="component");
+    if(physical>=0)state.inventory.splice(physical,1);
+    state.history.unshift(event("component-removed",item.name,{...meta,kind:"component"}));
+   }
+   persist();return true;
+  }
   function clearInventory(){state.inventory=[];state.components=[];persist();}
   function clearHistory(){state.history=[];persist();}
   function reset(){state={inventory:[],components:[],history:[],sequence:0};persist();}
