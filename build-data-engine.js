@@ -97,8 +97,9 @@ async function loadHeroBuild(options){
    const data=mapD2ptItems(build,constants);
    const updatedAt=safeDate(build.updated_at||raw.updated_at);
    const patchIsFresh=!o.patchReleaseDate||(!!updatedAt&&new Date(updatedAt)>=new Date(o.patchReleaseDate));
-   if(data.length&&patchIsFresh){
-    const matches=asNumber(build.num_matches||build.build_data.num_matches,0),winRate=Number.isFinite(Number(build.win_rate??build.build_data.win_rate))?Number(build.win_rate??build.build_data.win_rate):null;
+   const matches=asNumber(build&&build.num_matches||build&&build.build_data&&build.build_data.num_matches,0);
+   if(data.length&&patchIsFresh&&matches>=20){
+    const winRate=Number.isFinite(Number(build.win_rate??build.build_data.win_rate))?Number(build.win_rate??build.build_data.win_rate):null;
     const itemsForPlan=data.map(x=>({...x,stage:x.minute<12?"early":x.minute<28?"mid":"late"}));
     const result={heroId,role,position,patch,source:"Dota2ProTracker",sourceUrl:"https://dota2protracker.com/hero/"+heroId,updatedAt,matches,winRate,items:data,plan:buildPlan(o.heroName||"Héroe",role,itemsForPlan,{source:"Dota2ProTracker",patch,matches,winRate}),quality:matches>=100?"alta":matches>=30?"media":"baja",scope:"posición",rankScope:"7.000+ MMR/pro"};
     memory.set(key,result);writeCache(storage,CACHE_KEY+":"+key,result);return result;
