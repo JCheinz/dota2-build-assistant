@@ -548,8 +548,9 @@ function getHeroSpecialization(hero,role){
  risks.push(ranged?"si lo alcanzan, el posicionamiento puede ser más importante que el daño adicional":"necesita elegir bien cuándo entrar y cómo salir del combate");
  const style=role==="Carry"?(ranged?"Carry a distancia":"Carry cuerpo a cuerpo"):role==="Mid"?(roles.has("Nuker")?"Mid de daño por habilidades":roles.has("Escape")?"Mid móvil":"Mid de perfil mixto"):role==="Offlane"?(roles.has("Initiator")?"Offlane iniciador":roles.has("Durable")?"Offlane resistente":"Offlane de utilidad"):roles.has("Disabler")?"Support de control":roles.has("Nuker")?"Support de daño y habilidades":"Support de utilidad";
  const guide=window.DOTA_HERO_SPECIALIZATIONS?.[hero.name.replace("npc_dota_hero_","")+"|"+role]?.guide||null;
- const level=guide?"GUÍA INDIVIDUAL COMPLETA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
- const source=guide?"Guía individual cargada para este héroe y posición.":plan?"Existe una ruta individual de objetos, pero todavía no una guía completa de habilidades, talentos y combos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
+ const liveBuild=plan?.liveData||null;
+ const level=guide?"GUÍA INDIVIDUAL COMPLETA":liveBuild?"BUILD ESTADÍSTICA ACTUALIZADA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
+ const source=guide?"Guía individual cargada para este héroe y posición.":liveBuild?(liveBuild.source+" · "+(liveBuild.scope==="posición"?"datos por posición":"datos generales sin separación por posición")+" · "+(liveBuild.matches?liveBuild.matches.toLocaleString("es-AR")+" partidas":"muestra sin tamaño informado")):plan?"Existe una ruta individual local de respaldo, pero todavía no una guía completa de habilidades, talentos y combos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
  return {heroId:hero.name.replace("npc_dota_hero_",""),heroName:hero.localized_name,role,identity,style,strengths:strengths.slice(0,4),risks:risks.slice(0,2),plan,guide,level,source,principle:plan?plan.note:"La ruta de compra debe ajustarse a su función, fase de partida, draft e inventario. No se inventan habilidades, combos ni talentos cuando no hay un perfil verificado."};
 }
 
