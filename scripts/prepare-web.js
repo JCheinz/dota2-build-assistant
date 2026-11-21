@@ -9,7 +9,8 @@ const requiredFiles = [
   'sw.js',
   'inventory-ledger.js',
   'skill-data-engine.js',
-  'specializations.js'
+  'specializations.js',
+  'patch-data-742.js'
 ];
 
 for (const file of requiredFiles) {
