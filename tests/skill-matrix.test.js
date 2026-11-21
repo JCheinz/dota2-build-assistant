@@ -582,8 +582,8 @@ if (!html.includes('const phase=getMarketPhase(state.minute).key') || !html.incl
 if (!html.includes('phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage)')) {
   throw new Error("Pugna debe ponderar objetos avanzados/cierre desde minuto 28");
 }
-if (!html.includes('const phaseNames=plan?(phase==="Inicio"?plan.early:phase==="Medio"?[...(plan.core||[]),...(plan.early||[])]:[...(plan.situational||[]),...(plan.core||[])])')) {
-  throw new Error("El inventario automático debe ordenar por etapa y plan del héroe");
+if (!html.includes('const route=[...(adaptive?.mainRoute||[]),...(adaptive?.selected||[])]') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})')) {
+  throw new Error("El inventario automático debe ordenar por build adaptativa, componentes y fase");
 }
 if (!html.includes('slice(0,2).toUpperCase()')) {
   throw new Error("El fallback de iconos debe identificar el objeto y no mostrar una espada genérica");
