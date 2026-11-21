@@ -3,9 +3,9 @@ const {create}=require("../inventory-ledger.js");
 class MemoryStorage{constructor(){this.data=new Map()}getItem(k){return this.data.get(k)||null}setItem(k,v){this.data.set(k,v)}}
 const storage=new MemoryStorage(),ledger=create({storage});
 const legacyStorage=new MemoryStorage();
-legacyStorage.setItem("legacy",JSON.stringify({inventory:[],components:[{name:"Fluffy Hat",quantity:1},{name:"Staff of Wizardry",quantity:1}],history:[],sequence:0}));
+legacyStorage.setItem("legacy",JSON.stringify({inventory:[],components:[{name:"Fluffy Hat",quantity:1},{name:"Staff of Wizardry",quantity:1},{name:"Broadsword",quantity:1},{name:"Broadsword",quantity:1}],history:[],sequence:0}));
 const migrated=create({storage:legacyStorage,storageKey:"legacy"});
-assert.deepEqual(migrated.snapshot().inventory.filter(x=>x.kind==="component").map(x=>x.name),["Fluffy Hat","Staff of Wizardry"],"Las piezas antiguas deben migrar al inventario físico sin perderse.");
+assert.deepEqual(migrated.snapshot().inventory.filter(x=>x.kind==="component").map(x=>x.name),["Fluffy Hat","Staff of Wizardry","Broadsword","Broadsword"],"Las piezas antiguas deben migrar al inventario físico sin perderse.");
 assert.equal(ledger.recordPurchase("Kaya",{minute:18}).recorded,true);
 assert.equal(ledger.isConsumable("Tango"),true);
 assert.equal(ledger.isConsumable("Bottle"),false);
