@@ -1017,7 +1017,31 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(urgentFirst.name!=="Dust of Appearance"||urgentFirst.urgentOverride!==true)throw new Error("Una respuesta urgente confirmada debe poder interrumpir la ruta individual");
  const roleFallback=context.getNextPurchase([{name:"Power Treads",roles:["Mid"],roleBaseline:true,marketRole:"Mid",marketPhase:"Línea",priority:1,cost:1400,why:"Plantilla"}],{minute:5,gold:1400,owned:[],components:[],role:"Mid",problem:"none"});
  if(roleFallback.target?.name!=="Power Treads")throw new Error("Sin ruta individual, el catálogo genérico de posición debe seguir funcionando");
- console.log("OK: v3.51 — la ruta individual prevalece sobre la plantilla; las urgencias confirmadas pueden interrumpirla y el fallback genérico se conserva");
+ 
+// Regresión: el mercado debe ofrecer una sola ruta de botas y respetar la ya comprada.
+{
+ const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
+ const start=source.indexOf("const BOOT_FAMILY=new Set(");
+ const end=source.indexOf("\nfunction getNextPurchase(",start);
+ if(start<0||end<0)throw new Error("No se encontró el filtro de botas excluyentes");
+ const helper=source.slice(start,end)+"\nthis.enforceSingleBootChoice=enforceSingleBootChoice;";
+ const sandbox={};vm.runInNewContext(helper,sandbox);
+ const choice=sandbox.enforceSingleBootChoice([
+  {name:"Power Treads",heroSpecific:true,score:8},
+  {name:"Phase Boots",roleBaseline:true,score:12},
+  {name:"Arcane Boots",roleBaseline:true,score:11},
+  {name:"Blink Dagger"}
+ ],[]);
+ if(choice.filter(x=>["Power Treads","Phase Boots","Arcane Boots"].includes(x.name)).length!==1)throw new Error("El mercado muestra más de una alternativa de botas");
+ if(choice.find(x=>x.name==="Power Treads")===undefined)throw new Error("Debe priorizar la bota específica de la build del héroe");
+ const owned=sandbox.enforceSingleBootChoice([
+  {name:"Power Treads"},{name:"Phase Boots"},{name:"Arcane Boots"},{name:"Daedalus"}
+ ],["Phase Boots"]);
+ if(owned.some(x=>["Power Treads","Arcane Boots"].includes(x.name))||!owned.some(x=>x.name==="Phase Boots"))throw new Error("Una vez compradas las botas, no debe recomendar otra pareja");
+ const upgrade=sandbox.enforceSingleBootChoice([{name:"Arcane Boots"},{name:"Guardian Greaves"},{name:"Phase Boots"}],["Arcane Boots"]);
+ if(!upgrade.some(x=>x.name==="Guardian Greaves")||upgrade.some(x=>x.name==="Phase Boots"))throw new Error("Debe permitir la evolución de Arcane Boots a Guardian Greaves, no otra bota");
+}
+console.log("OK: v3.51 — la ruta individual prevalece sobre la plantilla; las urgencias confirmadas pueden interrumpirla y el fallback genérico se conserva");
 
 
 
