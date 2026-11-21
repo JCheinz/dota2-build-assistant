@@ -73,7 +73,7 @@ assert.ok(html.includes("purchaseLedger.recordComponent(name,{minute:ledgerMinut
 for(const token of ["inventory-ledger.js?v=359","match-clock.js?v=359","toggleMatchClock","resetMatchClock","matchClock.snapshot().minute","data-use-consumable","Historial de compras y consumibles","clearPurchaseHistory","purchaseLedger.recordSale","purchaseLedger.upgrade","purchaseLedger.setZone(name,next)","VERSIÓN 3.59 · PARCHE 7.42"])assert.ok(html.includes(token),"Falta integración de interfaz: "+token);
 assert.ok(html.includes("purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})"),"El inventario visual debe recalcular prioridades por fase, build y reserva de venta.");
 assert.ok(html.includes("const matchStage=state.minute<12?\"early\":state.minute<25?\"mid\":\"late\""),"La rotación debe respetar los límites de fase 12 y 25.");
-assert.ok(html.includes("for(const part of getRecipeLeafParts(targetName))"),"Los componentes adquiridos de los objetos core deben ascender en la prioridad del inventario.");
+assert.ok(html.includes("for(const part of collectRecipeParts(targetName))"),"Los componentes adquiridos de los objetos core deben ascender en la prioridad del inventario.");
 assert.ok(html.includes("matchClock.pause()")&&html.includes("matchClock.start()"),"El reloj debe poder pausarse y reanudarse.");
 assert.ok(html.includes("data-auto-owned"),"Debe existir una acción para devolver posiciones manuales a rotación automática.");
 console.log("OK: inventory ledger v3.53 — rotación automática por build/fase, posiciones manuales, componentes, consumibles, evolución, venta y persistencia");
