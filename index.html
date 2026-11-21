@@ -2149,20 +2149,31 @@ function getRankHeroContext(hero,rank){
  return picks>0?{picks,wins,rate:wins/picks*100}:null;
 }
 function analyzeCore(options={}){
+ window.__DOTA_ANALYSIS_STAGE="selección de héroe y posición";
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  if(!me||ally.some(h=>!h)||enemy.some(h=>!h))return;
- const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean),live=getLiveState();
- const matchups=getMatchupData(me,enemies,role,live.minute),adaptive=buildAdaptivePlan(me,role,enemies,live);
+ const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean);
+ window.__DOTA_ANALYSIS_STAGE="lectura del estado de partida";
+ const live=getLiveState();
+ window.__DOTA_ANALYSIS_STAGE="cálculo de enfrentamientos";
+ const matchups=getMatchupData(me,enemies,role,live.minute);
+ window.__DOTA_ANALYSIS_STAGE="construcción del plan adaptativo";
+ const adaptive=buildAdaptivePlan(me,role,enemies,live);
+ window.__DOTA_ANALYSIS_STAGE="priorización de amenazas";
  const threatPriority=buildThreatPriority(matchups,me,role,allies);
+ window.__DOTA_ANALYSIS_STAGE="decisión de compra";
  const purchaseDecision=buildPurchaseDecision(me,role,matchups,threatPriority,live);
+ window.__DOTA_ANALYSIS_STAGE="consulta de estadísticas de rango";
  const rankContext=getRankHeroContext(me,$('rank').value);
  const rankSummary=rankContext?('OpenDota · '+$('rank').value+': '+rankContext.rate.toFixed(1)+'% de victorias en '+rankContext.picks.toLocaleString('es-AR')+' partidas. Dato agregado del héroe; no separa posiciones.'):'OpenDota: muestra insuficiente para este héroe en el rango seleccionado.';
+ window.__DOTA_ANALYSIS_STAGE="selección de siguiente compra";
  const purchasePool=[...(adaptive.marketPool||[]),...adaptive.selected,...adaptive.situational,...(adaptive.specialization.heroId==="crystal_maiden"?adaptive.plannedItems:[])].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i);
  const nextPurchase=getNextPurchase(purchasePool,{...live,role,hero:me.name},purchaseDecision&&purchaseDecision.primary?purchaseDecision.primary.name:null);
  const next=adaptive.selected.find(x=>x.priority)||adaptive.selected[0];
  const crystalPlan=adaptive.specialization.heroId==="crystal_maiden"?adaptive.specialization.plan:null;
  const crystalCore=crystalPlan?crystalPlan.core.filter(x=>!live.owned.includes(x[0])&&!adaptive.mainRoute.some(y=>y.name===x[0])):[];
  const crystalSituational=crystalPlan?[...crystalPlan.situational.filter(x=>!live.owned.includes(x[0])),...adaptive.situational.filter(x=>!crystalPlan.situational.some(y=>y[0]===x.name)).map(x=>[x.name,x.why])]:adaptive.situational;
+ window.__DOTA_ANALYSIS_STAGE="cálculo de sinergias aliadas";
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
   'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.52',
@@ -2216,12 +2227,15 @@ function analyzeCore(options={}){
   html.push('<div class="result-section"><h3>Sinergias entre aliados</h3><p class="hint">Interacciones tácticas detectadas por los héroes seleccionados. Son pautas de coordinación, no una simulación de habilidades en tiempo real.</p>'+synergyCards+genericTips+'</div>');
  }
  html.push('<div class="warning">Asistente de builds Dota 2 · perfiles especializados por héroe y posición; matriz visual de habilidades por nivel e iconos oficiales; guías individuales y rutas de objetos adaptativas. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
+ window.__DOTA_ANALYSIS_STAGE="renderizado final del informe";
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function analyze(options={}){
  try{return analyzeCore(options);}
  catch(error){
   console.error("Dota Build Assistant analysis failed:",error);
+  const stage=window.__DOTA_ANALYSIS_STAGE||"etapa no identificada";
+  const stack=error&&error.stack?String(error.stack):String(error);
   const result=$('result'),report=$('report');
   if(result&&report){
    result.classList.add('show');
