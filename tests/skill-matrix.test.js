@@ -1056,6 +1056,28 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const upgrade=sandbox.enforceSingleBootChoice([{name:"Arcane Boots"},{name:"Guardian Greaves"},{name:"Phase Boots"}],["Arcane Boots"]);
  if(!upgrade.some(x=>x.name==="Guardian Greaves")||upgrade.some(x=>x.name==="Phase Boots"))throw new Error("Debe permitir la evolución de Arcane Boots a Guardian Greaves, no otra bota");
 }
+// Regresión: la tienda completa permite elegir cualquier objeto sin depender de las recomendaciones.
+{
+ const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
+ const start=source.indexOf("function renderFullMarketCatalog(){");
+ const end=source.indexOf("\nfunction renderItemCards(",start);
+ if(start<0||end<0)throw new Error("No se encontró el catálogo manual completo");
+ const fn=source.slice(start,end)+"\nthis.renderFullMarketCatalog=renderFullMarketCatalog;";
+ const sandbox={
+  window:{DOTA_PATCH_742:{removedItems:new Set(["Javelin","Khanda","Helm of the Overlord"])}},
+  MARKET_ITEM_COSTS:{"Tango":90,"Iron Branch":55,"Manta Style":4550,"Javelin":1100},
+  itemRecipes:{"Manta Style":[{name:"Yasha"},{name:"Diadem"},{name:"Javelin"}],"Soul Ring":[{name:"Gauntlets of Strength",quantity:2}]},
+  purchaseLedger:{snapshot:()=>({inventory:[]})},
+  esc:x=>String(x),
+  renderItemIcon:x=>"<i>"+x+"</i>"
+ };
+ vm.runInNewContext(fn,sandbox);
+ const html=sandbox.renderFullMarketCatalog();
+ if(!html.includes("Tango")||!html.includes("Iron Branch")||!html.includes("Manta Style"))throw new Error("El catálogo debe mostrar objetos básicos y combinados");
+ if(html.includes("Javelin")||html.includes("Khanda")||html.includes("Helm of the Overlord"))throw new Error("El catálogo no debe mostrar objetos retirados del parche");
+ if(!html.includes("marketCatalogSearch")||!html.includes("data-buy-item"))throw new Error("El catálogo debe permitir buscar y elegir objetos manualmente");
+ if(!html.includes("Objetos combinados")||!html.includes("Objetos básicos y componentes"))throw new Error("El mercado debe separar objetos básicos y combinados");
+}
 console.log("OK: v3.51 — la ruta individual prevalece sobre la plantilla; las urgencias confirmadas pueden interrumpirla y el fallback genérico se conserva");
 
 
