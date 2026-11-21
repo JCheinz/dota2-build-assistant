@@ -464,7 +464,8 @@ function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=
  const coreNames=(plan?.core||[]).map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean);
  const earlyNames=(plan?.early||[]).map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean);
  const tacticalNames=[tacticalName,selectedProblem==="issue:invisibility"?"Dust of Appearance":null].filter(Boolean);
- const reserveNames=matchStage==="late"?earlyNames.filter(name=>!coreNames.includes(name)&&!priorityNames.includes(name)&&!tacticalNames.includes(name)&&!["Boots of Speed","Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Magic Wand","Bottle","Blink Dagger"].includes(name)):[];
+ const reserveCandidates=matchStage==="late"?[...earlyNames,...ledger.inventory.filter(item=>item.purchaseMinute!==null&&item.purchaseMinute!==undefined&&Number(item.purchaseMinute)<12).map(item=>item.name)]:[];
+ const reserveNames=[...new Set(reserveCandidates)].filter(name=>!coreNames.includes(name)&&!priorityNames.includes(name)&&!tacticalNames.includes(name)&&!purchaseLedger.isConsumable(name)&&!["Boots of Speed","Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Magic Wand","Bottle","Blink Dagger","Gem of True Sight","Force Staff","Glimmer Cape"].includes(name));
  const items=ledger.inventory.slice();
  for(const name of owned)if(!items.some(x=>x.name===name))items.push({name,zone:"auto",placement:"auto",kind:purchaseLedger.isConsumable(name)?"consumable":"item"});
  const arranged=purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames});
