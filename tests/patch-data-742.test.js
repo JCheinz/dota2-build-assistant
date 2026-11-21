@@ -1,0 +1,11 @@
+"use strict";
+const assert=require("node:assert/strict"),fs=require("node:fs"),vm=require("node:vm");
+const context={window:{}};vm.runInNewContext(fs.readFileSync("patch-data-742.js","utf8"),context);
+const p=context.window.DOTA_PATCH_742;
+assert.equal(p.patch,"7.42");
+assert.deepEqual([...p.removedItems].sort(),["Helm of the Overlord","Javelin","Khanda"].sort());
+for(const [name,cost] of [["Bloodslinger",925],["Caduceus",5400],["Ristul's Devotion",3800],["Sabatons of Mordiggian",5950],["Skypiercer",6000],["Starforge",6000]])assert.equal(p.itemChanges[name].cost,cost);
+const recipes={};p.applyRecipeCompatibility(recipes);
+assert.ok(recipes.Maelstrom.some(x=>x.name==="Receta de Maelstrom"));
+assert.ok(recipes["Monkey King Bar"].some(x=>x.name==="Quarterstaff"));
+console.log("Patch 7.42 compatibility tests passed.");
