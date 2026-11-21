@@ -1036,7 +1036,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
 // Regresión: el mercado debe ofrecer una sola ruta de botas y respetar la ya comprada.
 {
  const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
- const start=source.indexOf("const BOOT_FAMILY=new Set(");
+ const start=source.indexOf("const BOOT_BASE=");
  const end=source.indexOf("\nfunction getNextPurchase(",start);
  if(start<0||end<0)throw new Error("No se encontró el filtro de botas excluyentes");
  const helper=source.slice(start,end)+"\nthis.enforceSingleBootChoice=enforceSingleBootChoice;";
