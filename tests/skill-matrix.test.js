@@ -930,6 +930,21 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const teamfightCovered=context.getNextPurchase(teamfightRoute,{minute:16,gold:2150,owned:["Mekansm"],components:[],role:"Support 5",problem:"issue:teamfight"});
  if(teamfightCovered.name==="Mekansm")throw new Error("Una respuesta activa ya comprada no debe repetirse");
 
+
+ // Regresiones: una sola familia de botas y compras repetidas de componentes.
+ {
+  const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
+  const start=source.indexOf("const BOOT_BASE=");
+  const end=source.indexOf("\nfunction getNextPurchase(",start);
+  if(start<0||end<0)throw new Error("No se encontró filtro de botas");
+  const helper=source.slice(start,end)+"\nthis.enforceSingleBootChoice=enforceSingleBootChoice;";
+  const sandbox={};vm.runInNewContext(helper,sandbox);
+  const inventory=sandbox.enforceSingleBootChoice([{name:"Boots of Speed"},{name:"Arcane Boots"},{name:"Phase Boots"},{name:"Guardian Greaves"}],["Arcane Boots","Boots of Speed"]);
+  if(inventory.some(x=>x.name==="Boots of Speed"||x.name==="Phase Boots")||!inventory.some(x=>x.name==="Guardian Greaves"))throw new Error("Arcane Boots debe excluir botas base/alternativas y permitir Guardian Greaves");
+  const phase=sandbox.enforceSingleBootChoice([{name:"Boots of Speed"},{name:"Phase Boots"},{name:"Sabatons of Mordiggian"},{name:"Arcane Boots"}],["Phase Boots"]);
+  if(phase.some(x=>x.name==="Boots of Speed"||x.name==="Arcane Boots")||!phase.some(x=>x.name==="Sabatons of Mordiggian"))throw new Error("Phase Boots debe permitir únicamente su mejora Sabatons");
+  if(!source.includes("if(nextUnit)nextUnit.checked=true;purchaseLedger.recordComponent(name,{minute:ledgerMinute()});analyze({scroll:false});return;"))throw new Error("La acción de compra debe registrar componentes incluso sin otra casilla visible");
+ }
  console.log("OK: v3.44 problemas activos — detección, ilusiones, magia, sustain, amenaza individual, oro e interrupción de ruta");
 })();
 
@@ -1021,7 +1036,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
 // Regresión: el mercado debe ofrecer una sola ruta de botas y respetar la ya comprada.
 {
  const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
- const start=source.indexOf("const BOOT_FAMILY=new Set(");
+ const start=source.indexOf("const BOOT_BASE=");
  const end=source.indexOf("\nfunction getNextPurchase(",start);
  if(start<0||end<0)throw new Error("No se encontró el filtro de botas excluyentes");
  const helper=source.slice(start,end)+"\nthis.enforceSingleBootChoice=enforceSingleBootChoice;";
