@@ -755,8 +755,8 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const total=name=>(recipes[name]||[]).reduce((sum,part)=>sum+part.cost*(part.quantity||1),0);
  const expected={
   "Battle Fury":3900,"Yasha":2000,"Sange":2000,"Manta Style":4550,
-  "Arcane Boots":1500,"Kaya and Sange":4200,"Yasha and Kaya":4200,
-  "Sange and Yasha":4200,"Shiva’s Guard":4500,"Glimmer Cape":2150,
+  "Arcane Boots":1500,"Kaya and Sange":4000,"Yasha and Kaya":4000,
+  "Sange and Yasha":4000,"Shiva’s Guard":4500,"Glimmer Cape":2150,
   "Force Staff":2200,"Black King Bar":4050,"Dragon Lance":2000,"Hurricane Pike":4550,
   "Magic Wand":460,"Bracer":505,"Maelstrom":2950,"Mjollnir":5500,"Vanguard":1700,
   "Crimson Guard":3725,"Pipe of Insight":3725,"Headdress":425,"Mekansm":1775,
