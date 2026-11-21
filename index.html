@@ -436,10 +436,14 @@ function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=
  const routeTargets=[...new Set(route.map(x=>x&&x.name).filter(Boolean))];
  const ownedKeys=new Set(owned.map(name=>String(name).toLocaleLowerCase("en")));
  const ownedBuildParts=[];
+ const collectRecipeParts=(name,path=[])=>{
+  if(path.includes(name))return[];
+  return (itemRecipes[name]||[]).flatMap(part=>[part,...collectRecipeParts(part.name,[...path,name])]);
+ };
  for(const targetName of routeTargets){
   if(ownedKeys.has(String(targetName).toLocaleLowerCase("en")))ownedBuildParts.push(targetName);
   if(itemRecipes[targetName]?.length){
-   for(const part of getRecipeLeafParts(targetName)){
+   for(const part of collectRecipeParts(targetName)){
     if(ownedKeys.has(String(part.name).toLocaleLowerCase("en")))ownedBuildParts.push(part.name);
    }
   }
