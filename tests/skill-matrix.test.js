@@ -582,7 +582,7 @@ if (!html.includes('const phase=getMarketPhase(state.minute).key') || !html.incl
 if (!html.includes('phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage)')) {
   throw new Error("Pugna debe ponderar objetos avanzados/cierre desde minuto 28");
 }
-if (!html.includes('const planCorePriority=marketPhaseIndex>=2?') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})')) {
+if (!html.includes('const planCorePriority=marketPhaseIndex>=2?') || !html.includes('const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])]') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})')) {
   throw new Error("El inventario automático debe ordenar por build adaptativa, componentes y fase");
 }
 if (!html.includes('slice(0,2).toUpperCase()')) {
