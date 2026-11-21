@@ -444,19 +444,28 @@ function renderHeroInventory(state,hero=null,role=""){
  return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. Las compras, ventas, mejoras y consumibles usados quedan en el historial. Tocá «Usado» al consumir un consumible.</p></div>';
 }
 function renderFullMarketCatalog(){
+ return '<button type="button" class="market-drawer-trigger" id="openMarketDrawer" aria-controls="marketDrawer" aria-expanded="false"><span class="market-trigger-icon">☷</span><span>Mercado</span></button><div class="market-drawer-backdrop" id="marketDrawerBackdrop" hidden></div><aside class="market-drawer" id="marketDrawer" aria-label="Mercado completo" aria-hidden="true"><div class="market-drawer-head"><div><b>Mercado completo</b><small>Catálogo de elección libre</small></div><button type="button" class="market-drawer-close" id="closeMarketDrawer" aria-label="Cerrar mercado">×</button></div><div class="market-drawer-body" id="marketCatalogContent"><p class="hint">Abrí el mercado para cargar los objetos…</p></div></aside>';
+}
+function renderMarketCatalogContent(){
  const removed=window.DOTA_PATCH_742?.removedItems||new Set();
- const names=new Set([...Object.keys(MARKET_ITEM_COSTS||{}),...Object.keys(itemRecipes||{}),...Object.values(itemRecipes||{}).flat().map(x=>x.name)]);
+ const names=new Set([...Object.keys(MARKET_ITEM_COSTS||{}),...Object.keys(itemRecipes||{}),...Object.values(itemRecipes||{}).flat().filter(x=>x&&typeof x==="object").map(x=>x.name)]);
  const valid=[...names].filter(name=>name&&!/^Receta de /i.test(name)&&!removed.has(name)).sort((a,b)=>a.localeCompare(b,"es"));
  const basic=valid.filter(name=>!(itemRecipes[name]||[]).length);
  const combined=valid.filter(name=>(itemRecipes[name]||[]).length);
  const entry=name=>{
   const bought=purchaseLedger.snapshot().inventory.some(x=>x.name===name);
   const cost=MARKET_ITEM_COSTS[name];
-  const recipe=(itemRecipes[name]||[]).filter(x=>!removed.has(x.name));
+  const recipe=(itemRecipes[name]||[]).filter(x=>x&&!removed.has(x.name));
   const detail=recipe.length?"Incluye: "+recipe.map(x=>x.name+(x.quantity>1?" ×"+x.quantity:"")).join(" · "):"Objeto básico / componente";
   return '<button type="button" class="item-card item-buy-toggle '+(bought?'bought':'complement')+'" data-buy-item="'+esc(name)+'" data-market-entry="'+esc(name.toLowerCase())+'" aria-pressed="'+bought+'">'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(detail)+'</span><small class="item-priority-label">'+(bought?'✓ EN INVENTARIO · TOCÁ PARA DESHACER':Number.isFinite(Number(cost))?Number(cost).toLocaleString('es-AR')+' de oro · ELEGIR COMPRA':'Precio no disponible · ELEGIR COMPRA')+'</small></div></button>';
  };
- return '<button type="button" class="market-drawer-trigger" id="openMarketDrawer" aria-controls="marketDrawer" aria-expanded="false"><span class="market-trigger-icon">☷</span><span>Mercado</span></button><div class="market-drawer-backdrop" id="marketDrawerBackdrop" hidden></div><aside class="market-drawer" id="marketDrawer" aria-label="Mercado completo" aria-hidden="true"><div class="market-drawer-head"><div><b>Mercado completo</b><small>'+valid.length+' objetos · elección libre</small></div><button type="button" class="market-drawer-close" id="closeMarketDrawer" aria-label="Cerrar mercado">×</button></div><div class="market-drawer-body"><input type="search" class="market-search" id="marketCatalogSearch" placeholder="Buscar objeto..." aria-label="Buscar objeto en el mercado"><details open><summary>Objetos básicos y componentes · '+basic.length+'</summary><div class="item-list">'+basic.map(entry).join('')+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="item-list">'+combined.map(entry).join('')+'</div></details><p class="hint">La compra manual no está limitada por la fase ni por la prioridad recomendada. Al elegir un objeto, se registra y el asistente recalcula la siguiente sugerencia.</p></div></aside>';
+ return '<input type="search" class="market-search" id="marketCatalogSearch" placeholder="Buscar objeto..." aria-label="Buscar objeto en el mercado"><details open><summary>Objetos básicos y componentes · '+basic.length+'</summary><div class="item-list">'+basic.map(entry).join('')+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="item-list">'+combined.map(entry).join('')+'</div></details><p class="hint">La compra manual no está limitada por la fase ni por la prioridad recomendada. Al elegir un objeto, se registra y el asistente recalcula la siguiente sugerencia.</p>';
+}
+function populateMarketDrawer(){
+ const content=$('marketCatalogContent');
+ if(!content||content.dataset.loaded==="true")return;
+ content.innerHTML=renderMarketCatalogContent();
+ content.dataset.loaded="true";
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
@@ -2137,7 +2146,7 @@ function getRankHeroContext(hero,rank){
  const picks=Number(hero[tier+"_pick"]||0),wins=Number(hero[tier+"_win"]||0);
  return picks>0?{picks,wins,rate:wins/picks*100}:null;
 }
-function analyze(options={}){
+function analyzeCore(options={}){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  if(!me||ally.some(h=>!h)||enemy.some(h=>!h))return;
  const enemies=enemy.filter(Boolean),allies=ally.filter(Boolean),live=getLiveState();
@@ -2206,6 +2215,16 @@ function analyze(options={}){
  html.push('<div class="warning">Asistente de builds Dota 2 · perfiles especializados por héroe y posición; matriz visual de habilidades por nivel e iconos oficiales; guías individuales y rutas de objetos adaptativas. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+function analyze(options={}){
+ try{return analyzeCore(options);}
+ catch(error){
+  console.error("Dota Build Assistant analysis failed:",error);
+  $('result').classList.add('show');
+  $('report').innerHTML='<div class="warning"><b>No se pudo completar el análisis.</b><p>'+esc(error&&error.message?error.message:String(error))+'</p><p>El error quedó identificado para corregirlo sin bloquear la aplicación.</p></div>';
+  if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
+  return null;
+ }
+}
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
 $('myHero').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value;if($('result').classList.contains('show'))analyze({scroll:false});};
 $('myRole').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
@@ -2257,6 +2276,7 @@ $('clearHeroes').onclick=clearHeroesOnly;
 function setMarketDrawer(open){
  const drawer=$('marketDrawer'),backdrop=$('marketDrawerBackdrop'),trigger=$('openMarketDrawer');
  if(!drawer||!backdrop)return;
+ if(open)populateMarketDrawer();
  drawer.classList.toggle('open',open);backdrop.hidden=!open;
  requestAnimationFrame(()=>backdrop.classList.toggle('open',open));
  drawer.setAttribute('aria-hidden',String(!open));if(trigger)trigger.setAttribute('aria-expanded',String(open));
