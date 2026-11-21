@@ -395,7 +395,7 @@ console.log("OK: inventario visual de seis espacios, objetos extra y componentes
 
 (()=>{
 // Auditoría transversal del seguimiento de compras para cualquier héroe/posición.
-const purchaseStart = appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\",adaptive=null,nextPurchase=null){");
+const purchaseStart = appHtml.indexOf("function renderHeroInventory(state,hero=null,role=");
 const purchaseEnd = appHtml.indexOf("\nconst heroPlans =", purchaseStart);
 if (purchaseStart < 0 || purchaseEnd < 0) {
   throw new Error("No se encontró el bloque común de inventario y tarjetas de objetos");
@@ -548,7 +548,7 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
 
 
 (()=> {
-  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\",adaptive=null,nextPurchase=null){");
+  const inventoryStart=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=");
   const inventoryEnd=appHtml.indexOf("\nfunction renderItemCards(items){",inventoryStart);
   if(inventoryStart<0||inventoryEnd<0)throw new Error("No se encontró el inventario ampliado");
   const renderer=appHtml.slice(inventoryStart,inventoryEnd);
@@ -668,7 +668,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  
 // Situational inventory priority follows the selected problem without overriding manually placed slots.
 (()=>{
- const start=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=\"\",adaptive=null,nextPurchase=null){");
+ const start=appHtml.indexOf("function renderHeroInventory(state,hero=null,role=");
  const end=appHtml.indexOf("\nfunction renderItemCards(items){",start);
  if(start<0||end<0)throw new Error("No se encontró render de inventario");
  const source=appHtml.slice(start,end);
