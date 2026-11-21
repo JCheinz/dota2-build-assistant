@@ -559,7 +559,7 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
     'data-move-owned=',
     'data-sell-owned=',
     'data-auto-owned=',
-    'purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})'
+    'purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})'
   ])if(!renderer.includes(marker))throw new Error("Inventario sin soporte para: "+marker);
   if(!appHtml.includes("input.dataset.inventoryPlacement")||!appHtml.includes("purchaseLedger.setAutomatic(name)"))throw new Error("No se preservan los movimientos manuales ni el retorno a rotación automática");
   const clickStart=appHtml.indexOf("$('report').addEventListener('click'");
