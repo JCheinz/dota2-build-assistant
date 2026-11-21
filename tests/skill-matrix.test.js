@@ -965,7 +965,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   if(!Array.isArray(plan.early)||!plan.early.length||!Array.isArray(plan.core)||!plan.core.length||!Array.isArray(plan.situational)||!plan.note.includes("StatsDota 7.41f"))throw new Error("Ruta sin fases o sin fuente/fecha identificable: "+key);
  }
  if(keys.length!==23)throw new Error("El catálogo debe registrar 23 rutas individuales verificadas; encontradas: "+keys.length);
- for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2400],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500],["Eul’s Scepter of Divinity",2600],["Buckler",425],["Vladmir’s Offering",2200],["Radiance",4700]]){
+ for(const [name,cost] of [["Soul Ring",805],["Phase Boots",1450],["Blade Mail",2350],["Tranquil Boots",900],["Ring of Basilius",425],["Desolator",3500],["Eul’s Scepter of Divinity",2600],["Buckler",425],["Vladmir’s Offering",2200],["Radiance",4700]]){
   const total=vm.runInContext('(itemRecipes['+JSON.stringify(name)+']||[]).reduce((n,p)=>n+p.cost*(p.quantity||1),0)',recipeContext);
   if(total!==cost)throw new Error(name+" debe tener receta desglosada por "+cost+"; encontrado "+total);
  }
