@@ -428,7 +428,8 @@ function renderHeroInventory(state,hero=null,role=""){
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
- const patchSafe=(items||[]).filter(x=>!window.DOTA_PATCH_742?.removedItems?.has(Array.isArray(x)?x[0]:x.name));
+ const removedPatchItems=typeof window!=="undefined"?window.DOTA_PATCH_742?.removedItems:null;
+ const patchSafe=(items||[]).filter(x=>!removedPatchItems?.has(Array.isArray(x)?x[0]:x.name));
  const unique=purchaseLedger.filterRecommendations(patchSafe,getLiveState().owned);
  return '<div class="item-list">'+unique.map((x,i)=>{
   const name=Array.isArray(x)?x[0]:x.name,why=Array.isArray(x)?x[1]:x.why;
