@@ -23,13 +23,14 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  const cached=await engine.loadHeroBuild({heroId:2,heroName:"Axe",role:"Offlane",patch:"7.42",patchReleaseDate:"2026-11-18",fetch:async()=>{throw new Error("Should use cache")},storage});
  assert.equal(cached.cached,true);
  engine.clear();
+ const fallbackStorage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}})();
  const fallback=async url=>{
   if(url.endsWith("/constants/items"))return{ok:true,json:async()=>items};
   if(url.includes("/hero/2/builds?"))return{ok:false,status:403};
   if(url.endsWith("/heroes/2/itemPopularity"))return{ok:true,json:async()=>({early_game:{phase_boots:70,magic_wand:40},mid_game:{blink:55}})};
   throw new Error("Unexpected URL "+url);
  };
- const open=await engine.loadHeroBuild({heroId:2,heroName:"Axe",role:"Offlane",patch:"7.42",fetch:fallback,storage});
+ const open=await engine.loadHeroBuild({heroId:2,heroName:"Axe",role:"Offlane",patch:"7.42",fetch:fallback,storage:fallbackStorage});
  assert.equal(open.source,"OpenDota");
  assert.equal(open.scope,"todas las posiciones");
  assert.ok(open.warning.includes("no separa por posición"));
