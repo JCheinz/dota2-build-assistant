@@ -248,7 +248,7 @@
     <p class="hint">Al analizar, consulta una build del héroe y posición seleccionados. Prioridad: Dota2ProTracker por posición; respaldo: OpenDota, que no separa las compras por rol.</p>
     <div class="actions"><button class="btn secondary" id="refreshBuildData" type="button">Actualizar build del héroe seleccionado</button></div>
     <p class="status" id="buildDataStatus" aria-live="polite">La build estadística se consulta al analizar el draft. Las rutas manuales quedan como respaldo si las fuentes no responden.</p>
-    <p class="hint">Fuentes: <a href="https://dota2protracker.com/" target="_blank" rel="noopener">Dota2ProTracker</a> · <a href="https://www.opendota.com/" target="_blank" rel="noopener">OpenDota</a> · <a href="https://statsdota.com/en/guides" target="_blank" rel="noopener">StatsDota</a>. StatsDota se usa como contraste: se verifica el parche de cada guía antes de tomarla como actual.</p>
+    <p class="hint">Fuentes: <a href="https://dota2protracker.com/" target="_blank" rel="noopener">Dota2ProTracker</a> · <a href="https://www.opendota.com/" target="_blank" rel="noopener">OpenDota</a> · <a href="https://statsdota.com/en/guides" target="_blank" rel="noopener">StatsDota</a>. La guía de Centaur consultada aún figuraba como 7.41f; no se usa para sustituir rutas 7.42 hasta que publique datos del parche vigente.</p>
   </section>
   <section class="panel">
     <h2>Tu configuración</h2>
@@ -522,11 +522,13 @@ function canonicalBuildItemName(name){
 }
 function getHeroPlan(hero,role){
  const live=window.DotaBuildDataEngine?.get(hero.id,role,window.DOTA_PATCH_742?.patch);
- if(live?.plan){
+ const manual=heroPlans[hero.name+"|"+role]||null;
+ // Solo una fuente con datos por posición puede desplazar la ruta individual manual.
+ if(live?.plan&&(live.source==="Dota2ProTracker"||!manual)){
   const adapt=rows=>(rows||[]).map(([name,why])=>[canonicalBuildItemName(name),why]);
   return {...live.plan,early:adapt(live.plan.early),core:adapt(live.plan.core),situational:adapt(live.plan.situational),liveData:live};
  }
- return heroPlans[hero.name+"|"+role]||null;
+ return manual||null;
 }
 function getHeroSpecialization(hero,role){
  const plan=getHeroPlan(hero,role),roles=new Set(hero.roles||[]),ranged=hero.attack_type==="Ranged";
@@ -1988,6 +1990,8 @@ function buildAdaptivePlan(hero,role,enemies,live){
   .map(([name,data])=>({name,why:"Respuesta contextual: "+data.why.slice(0,2).join("; ")+". Confirmá que el efecto del objeto resuelva esa amenaza y que tu héroe lo aproveche.",roles:[role],tags:["threat-response"],threatSpecific:true,threatWeight:data.score}));
  const specialization=getHeroSpecialization(hero,role);
  const heroPlan=specialization.plan;
+ const liveBuildData=window.DotaBuildDataEngine?.get(hero.id,role,window.DOTA_PATCH_742?.patch)||null;
+ const livePopularityItems=liveBuildData?.source==="OpenDota"?(liveBuildData.items||[]).slice(0,12).map(x=>({name:canonicalBuildItemName(x.name),why:"OpenDota · compra observada en partidas parseadas recientes del héroe. No está separada por posición ni parche; úsala como señal secundaria, no como núcleo automático.",roles:[role],tags:["live-popularity"],livePopularity:true,stage:x.stage,liveCount:x.count})): [];
  const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada"}))]:[];
  const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:(MARKET_ITEM_COSTS[x.name]||undefined)}));
  const heroRoles=new Set(hero.roles||[]);
@@ -2038,7 +2042,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
  const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live).map(x=>({...x,roles:[role],tags:["threat-response"],threatSpecific:true})):[];
  const pugnaPlannedItems=pugnaMid?plannedItems.map(x=>{const response=pugnaResponses.find(p=>p.name===x.name);return response?{...x,pugnaScore:response.score,cost:response.cost,condition:response.condition,threatSpecific:true}:x;}):plannedItems;
- const candidates=[...activeProblemResponses,...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const candidates=[...activeProblemResponses,...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...livePopularityItems,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.marketPhase===getMarketPhase(live.minute).key)score+=1.8;else score-=0.35;}
@@ -2051,6 +2055,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(hero.name==="npc_dota_hero_antimage"&&["Linken’s Sphere","Black King Bar"].includes(x.name))score-=2.5;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&!["batrider","bane","beastmaster","legion_commander"].some(id=>enemyIds.has(id)))score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
+  if(x.livePopularity)score+=0.7;
   if(x.heroArchetype)score+=2.6;
   if(x.roleBaseline)score+=1.35;
   if(Number.isFinite(x.pugnaScore))score+=x.pugnaScore;
