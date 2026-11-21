@@ -2356,7 +2356,7 @@ $('toggleLiveState').onclick=()=>{
  button.setAttribute('aria-expanded',String(!expanded));
  button.textContent=expanded?'Maximizar':'Minimizar';
 };
-let matchClockInterval=null,lastClockMinute=null;
+let matchClockInterval=null,lastClockPhase=null;
 function renderMatchClock(recalculate=false){
  const snap=matchClock.snapshot();
  const time=String(Math.floor(snap.elapsedSeconds/60)).padStart(2,'0')+':'+String(snap.second).padStart(2,'0');
@@ -2366,8 +2366,8 @@ function renderMatchClock(recalculate=false){
  if(status)status.textContent=snap.running?'Reloj en marcha':snap.elapsedSeconds?'Partida pausada':'Partida sin iniciar';
  if(toggle)toggle.textContent=snap.running?'Pausar reloj':snap.elapsedSeconds?'Reanudar partida':'Iniciar partida';
  $('gameMinute').value=String(snap.minute);
- if(recalculate&&lastClockMinute!==null&&snap.minute!==lastClockMinute&&$('result').classList.contains('show'))analyze({scroll:false});
- lastClockMinute=snap.minute;
+ if(recalculate&&lastClockPhase!==null&&snap.phase.key!==lastClockPhase&&$('result').classList.contains('show'))analyze({scroll:false});
+ lastClockPhase=snap.phase.key;
 }
 function startMatchClockTicker(){
  if(matchClockInterval!==null)return;
