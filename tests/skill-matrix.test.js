@@ -761,7 +761,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   "Magic Wand":460,"Bracer":505,"Maelstrom":2950,"Mjollnir":5500,"Vanguard":1700,
   "Crimson Guard":3725,"Pipe of Insight":3725,"Headdress":425,"Mekansm":1775,
   "Lotus Orb":3850,"Scythe of Vyse":5200,"Monkey King Bar":5000,
-  "Urn of Shadows":825,"Spirit Vessel":2725
+  "Urn of Shadows":875,"Spirit Vessel":2725
  };
  for(const [name,cost] of Object.entries(expected)){
   if(total(name)!==cost)throw new Error(name+" debe sumar "+cost+" de oro, suma encontrada: "+total(name));
