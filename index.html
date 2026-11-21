@@ -445,7 +445,7 @@ function renderHeroInventory(state,hero=null,role=""){
 }
 function renderFullMarketCatalog(){
  const removedSource=window.DOTA_PATCH_742?.removedItems;
- const removed=removedSource instanceof Set?removedSource:new Set(Array.isArray(removedSource)?removedSource:[]);
+ const removed=removedSource&&typeof removedSource.has==="function"?removedSource:new Set(Array.isArray(removedSource)?removedSource:[]);
  const names=new Set([...Object.keys(MARKET_ITEM_COSTS||{}),...Object.keys(itemRecipes||{}),...Object.values(itemRecipes||{}).flat().map(x=>x.name)]);
  const valid=[...names].filter(name=>name&&!/^Receta de /i.test(name)&&!removed.has(name)).sort((a,b)=>a.localeCompare(b,"es"));
  const basic=valid.filter(name=>!(itemRecipes[name]||[]).length);
