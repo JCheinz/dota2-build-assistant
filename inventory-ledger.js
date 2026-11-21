@@ -42,7 +42,7 @@
   }
   function upgrade(finalName,consumedNames=[],meta={}){
    const consumed=[];
-   for(const name of consumedNames){const item=removeInventory(name,"component-consumed",{...meta,note:"Consumido para "+finalName});if(item.removed){if(item.item.kind==="component")removeComponent(name,{silent:true});consumed.push(name);continue;}if(removeComponent(name,{silent:true})){consumed.push(name);state.history.unshift(event("component-consumed",name,{...meta,kind:"component",note:"Consumido para "+finalName}));}}
+   for(const name of consumedNames){const item=removeInventory(name,"component-consumed",{...meta,note:"Consumido para "+finalName});if(item.removed){removeComponent(name,{silent:true});consumed.push(name);continue;}if(removeComponent(name,{silent:true})){consumed.push(name);state.history.unshift(event("component-consumed",name,{...meta,kind:"component",note:"Consumido para "+finalName}));}}
    const added=recordPurchase(finalName,{...meta,kind:"item",note:"Mejora completada"});
    state.history.unshift(event("upgrade",finalName,{...meta,note:"Componentes consumidos: "+consumed.join(", ")}));persist();
    return {upgraded:true,consumed,added:added.recorded};
@@ -74,10 +74,12 @@
    const priorityRank=new Map((options.priorityNames||[]).map((name,index)=>[key(name),index]));
    const core=new Set((options.coreNames||[]).map(key)),components=new Set((options.componentNames||[]).map(key));
    const early=new Set((options.earlyNames||[]).map(key)),tactical=new Set((options.tacticalNames||[]).map(key));
-   const manual={main:[],backpack:[],reserve:[]},automatic=[];
+   const sellCandidates=new Set((options.reserveNames||[]).map(key));
+   const manual={main:[],backpack:[],reserve:[]},automatic=[],automaticReserve=[];
    (inventory||[]).forEach((item,index)=>{
     const zone=item&&item.placement==="manual"&&["main","backpack","reserve"].includes(item.zone)?item.zone:null;
     if(zone)manual[zone].push({...item,_index:index});
+    else if(sellCandidates.has(key(item.name))&&!priorityRank.has(key(item.name))&&!core.has(key(item.name))&&!tactical.has(key(item.name)))automaticReserve.push({...item,_index:index});
     else automatic.push({...item,_index:index});
    });
    const score=item=>{
@@ -95,7 +97,7 @@
     return value;
    };
    automatic.sort((a,b)=>score(b)-score(a)||a._index-b._index);
-   const result={main:manual.main.slice(0,6),backpack:manual.backpack.slice(0,3),reserve:manual.reserve.slice()};
+   const result={main:manual.main.slice(0,6),backpack:manual.backpack.slice(0,3),reserve:[...manual.reserve,...automaticReserve]};
    const overflow=[...manual.main.slice(6),...manual.backpack.slice(3),...automatic];
    for(const item of overflow){
     if(result.main.length<6)result.main.push(item);
