@@ -2277,14 +2277,25 @@ function showBuildDataStatus(data,error=null){
   status.textContent="OpenDota · datos recientes del héroe, sin separación por posición ni parche verificable. Se usa solo como orientación general."+(data.cached?" · caché local":"");
  }
 }
-async function analyze(options={}){
- const selected=ally.find(h=>String(h.id)===$('myHero').value);
- if(selected&&window.DotaBuildDataEngine){
-  try{const data=await loadSelectedBuildData(false);showBuildDataStatus(data);}
-  catch(error){showBuildDataStatus(null,error);}
- }
- try{return analyzeCore(options);}
- catch(error){
+function analyze(options={}){
+ try{
+  const report=analyzeCore(options);
+  const selected=ally.find(h=>String(h.id)===$('myHero').value);
+  if(selected&&window.DotaBuildDataEngine){
+   const cached=window.DotaBuildDataEngine.get(selected.id,$('myRole').value,window.DOTA_PATCH_742?.patch);
+   if(cached)showBuildDataStatus(cached);
+   else{
+    const status=$('buildDataStatus'),badge=$('buildDataBadge');
+    if(status)status.textContent="Análisis inicial listo. Consultando builds estadísticas en segundo plano…";
+    if(badge)badge.textContent="Consultando…";
+    loadSelectedBuildData(false).then(data=>{
+     showBuildDataStatus(data);
+     if($('result').classList.contains('show'))analyzeCore({scroll:false});
+    }).catch(error=>showBuildDataStatus(null,error));
+   }
+  }
+  return report;
+ }catch(error){
   console.error("Dota Build Assistant analysis failed:",error);
   const stage=(typeof window!=="undefined"&&window.__DOTA_ANALYSIS_STAGE)||"etapa no identificada";
   const stack=error&&error.stack?String(error.stack):String(error);
