@@ -33,7 +33,9 @@
    state.history.unshift(event("component-purchase",name,{...meta,kind:"component"}));persist();return {recorded:true};
   }
   function removeInventory(name,reason="removed",meta={}){
-   const i=state.inventory.findIndex(x=>keyOf(x.name)===keyOf(name));if(i<0)return {removed:false};
+   let i=state.inventory.findIndex(x=>keyOf(x.name)===keyOf(name)&&(reason!=="component-consumed"||x.kind==="component"));
+   if(i<0&&reason==="component-consumed")i=state.inventory.findIndex(x=>keyOf(x.name)===keyOf(name));
+   if(i<0)return {removed:false};
    const [item]=state.inventory.splice(i,1);state.history.unshift(event(reason,item.name,{...meta,kind:item.kind,quantity:item.quantity}));persist();return {removed:true,item:{...item}};
   }
   function useConsumable(name,meta={}){
