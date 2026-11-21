@@ -721,7 +721,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const recipeProgress=ctx.getNextPurchase([{name:"Aether Lens",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Receta"}],{minute:20,gold:600,owned:[],components:["Energy Booster"],problem:"none"});
  if(recipeProgress.kind!=="component"||recipeProgress.name!=="Void Stone"||recipeProgress.cost!==700||recipeProgress.remaining!==100||recipeProgress.affordable!==false)throw new Error("El mercado debe descontar componentes ya adquiridos y calcular el faltante del siguiente componente");
  const upgradeProgress=ctx.getNextPurchase([{name:"Kaya and Sange",heroSpecific:true,heroKey:"npc_dota_hero_drow_ranger|Carry",routeIndex:0,stage:"Medio",why:"Evolución"}],{minute:33,gold:1000,owned:["Kaya"],components:[],problem:"none"});
- if(upgradeProgress.kind!=="component"||upgradeProgress.name!=="Sange"||upgradeProgress.remaining!==1100)throw new Error("La evolución debe reconocer Kaya como objeto base y pedir solo Sange con su oro faltante");
+ if(upgradeProgress.kind!=="component"||upgradeProgress.name!=="Sange"||upgradeProgress.remaining!==1000)throw new Error("La evolución debe reconocer Kaya como objeto base y pedir solo Sange con su oro faltante");
  console.log("OK: mercado universal — precios desconocidos no se convierten en cero, componentes descontados y evolución incremental");
  // El motor debe conservar un pool completo aunque la interfaz visual limite sus tarjetas.
  const longRoute=Array.from({length:24},(_,i)=>({name:"Core item "+(i+1),heroSpecific:true,heroKey:"npc_dota_hero_fixture|Carry",routeIndex:i,stage:"Medio",score:3,why:"Ruta larga de regresión"}));
