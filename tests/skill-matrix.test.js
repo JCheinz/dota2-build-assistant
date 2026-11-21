@@ -1056,13 +1056,13 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const upgrade=sandbox.enforceSingleBootChoice([{name:"Arcane Boots"},{name:"Guardian Greaves"},{name:"Phase Boots"}],["Arcane Boots"]);
  if(!upgrade.some(x=>x.name==="Guardian Greaves")||upgrade.some(x=>x.name==="Phase Boots"))throw new Error("Debe permitir la evolución de Arcane Boots a Guardian Greaves, no otra bota");
 }
-// Regresión: la tienda completa permite elegir cualquier objeto sin depender de las recomendaciones.
+// Regresión: el análisis mantiene el render ligero y difiere el catálogo hasta abrir el panel.
 {
  const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
  const start=source.indexOf("function renderFullMarketCatalog(){");
  const end=source.indexOf("\nfunction renderItemCards(",start);
- if(start<0||end<0)throw new Error("No se encontró el catálogo manual completo");
- const fn=source.slice(start,end)+"\nthis.renderFullMarketCatalog=renderFullMarketCatalog;";
+ if(start<0||end<0)throw new Error("No se encontró el render del mercado");
+ const fn=source.slice(start,end)+"\nthis.renderFullMarketCatalog=renderFullMarketCatalog;this.renderMarketCatalogContent=renderMarketCatalogContent;";
  const sandbox={
   window:{DOTA_PATCH_742:{removedItems:new Set(["Javelin","Khanda","Helm of the Overlord"])}},
   MARKET_ITEM_COSTS:{"Tango":90,"Iron Branch":55,"Manta Style":4550,"Javelin":1100},
@@ -1072,12 +1072,31 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
   renderItemIcon:x=>"<i>"+x+"</i>"
  };
  vm.runInNewContext(fn,sandbox);
- const html=sandbox.renderFullMarketCatalog();
- if(!html.includes("Tango")||!html.includes("Iron Branch")||!html.includes("Manta Style"))throw new Error("El catálogo debe mostrar objetos básicos y combinados");
- if(html.includes("Javelin")||html.includes("Khanda")||html.includes("Helm of the Overlord"))throw new Error("El catálogo no debe mostrar objetos retirados del parche");
- if(!html.includes("marketCatalogSearch")||!html.includes("data-buy-item"))throw new Error("El catálogo debe permitir buscar y elegir objetos manualmente");
+ const shell=sandbox.renderFullMarketCatalog();
+ if(!shell.includes("openMarketDrawer")||!shell.includes("marketCatalogContent")||shell.includes("data-buy-item"))throw new Error("El análisis debe insertar solo el botón y el contenedor vacío del mercado");
+ const html=sandbox.renderMarketCatalogContent();
+ if(!html.includes("Tango")||!html.includes("Iron Branch")||!html.includes("Manta Style"))throw new Error("El mercado abierto debe mostrar objetos básicos y combinados");
+ if(html.includes("Javelin")||html.includes("Khanda")||html.includes("Helm of the Overlord"))throw new Error("El mercado no debe mostrar objetos retirados del parche");
+ if(!html.includes("marketCatalogSearch")||!html.includes("data-buy-item"))throw new Error("El mercado debe permitir buscar y elegir objetos manualmente");
  if(!html.includes("Objetos combinados")||!html.includes("Objetos básicos y componentes"))throw new Error("El mercado debe separar objetos básicos y combinados");
+ if(!source.includes("if(open)populateMarketDrawer();"))throw new Error("El catálogo debe cargarse únicamente al abrir el panel");
 }
+// Regresión: un error interno del análisis debe mostrarse en pantalla y no convertirse en un botón sin respuesta.
+{
+ const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
+ const start=source.indexOf("function analyze(options={}){");
+ const end=source.indexOf("\n$('search').addEventListener",start);
+ if(start<0||end<0)throw new Error("No se encontró el límite de errores del análisis");
+ const wrapper=source.slice(start,end)+"\nthis.runAnalyze=analyze;";
+ const result={classes:[],classList:{add(x){result.classes.push(x)}},scrollIntoView(){}};
+ const report={innerHTML:""};
+ const confidence={textContent:""};
+ const sandbox={analyzeCore(){throw new Error("SMOKE_TEST_ANALYSIS_ERROR")},$:id=>({result,report,confidence})[id]||null,esc:x=>String(x),console:{error(){}}};
+ vm.runInNewContext(wrapper,sandbox);
+ sandbox.runAnalyze({scroll:false});
+ if(!result.classes.includes("show")||!report.innerHTML.includes("SMOKE_TEST_ANALYSIS_ERROR")||!confidence.textContent.includes("Error de análisis"))throw new Error("El fallo del motor debe mostrarse como diagnóstico visible");
+}
+
 console.log("OK: v3.51 — la ruta individual prevalece sobre la plantilla; las urgencias confirmadas pueden interrumpirla y el fallback genérico se conserva");
 
 
