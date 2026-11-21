@@ -202,6 +202,22 @@
 @media(max-width:420px){.hero-backpack-slots{max-width:68%}.inventory-sell{width:18px;height:18px}}
 
 .inventory-use{display:block;position:absolute;left:2px;bottom:1px;border:1px solid #5a9b76;background:#183729;color:#a9f0c4;border-radius:6px;font-size:9px;padding:2px 5px;z-index:3}.hero-inventory-cell{position:relative}.inventory-history{margin-top:14px;padding-top:10px;border-top:1px solid #3b4b5d}.inventory-history ol{margin:6px 0 10px;padding-left:20px;color:#c5ced9;font-size:.72rem;line-height:1.6}.inventory-history li{margin:3px 0}.inventory-history button{font-size:.72rem;padding:7px 10px}
+
+    .market-drawer-trigger{position:fixed;right:0;top:48%;z-index:20;display:flex;align-items:center;gap:7px;padding:13px 10px;border:1px solid #8e693b;border-right:0;border-radius:12px 0 0 12px;background:linear-gradient(145deg,#e1ad53,#bd713b);color:#17130e;font-weight:800;box-shadow:0 5px 22px #0008;writing-mode:vertical-rl;transform:translateY(-50%);}
+    .market-trigger-icon{font-size:20px;writing-mode:horizontal-tb}
+    .market-drawer-backdrop{position:fixed;inset:0;background:#05070bd9;z-index:29;opacity:0;transition:opacity .22s ease}
+    .market-drawer-backdrop.open{opacity:1}
+    .market-drawer{position:fixed;z-index:30;right:0;top:0;height:100dvh;width:min(520px,94vw);background:#151b24;border-left:1px solid #46556a;box-shadow:-16px 0 44px #0009;transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column;padding:0;visibility:hidden}
+    .market-drawer.open{transform:translateX(0);visibility:visible}
+    .market-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(14px + env(safe-area-inset-top)) 15px 13px;border-bottom:1px solid #3b485a;background:#1b2430}
+    .market-drawer-head b{display:block;font-size:17px}.market-drawer-head small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+    .market-drawer-close{width:38px;height:38px;border:1px solid #526176;border-radius:10px;background:#2b3544;color:#fff;font-size:25px;line-height:1}
+    .market-drawer-body{overflow:auto;overscroll-behavior:contain;padding:12px 13px calc(22px + env(safe-area-inset-bottom))}
+    .market-drawer-body>details{border-bottom:1px solid #344153;padding:10px 0}.market-drawer-body>details>summary{font-weight:750;color:#e6bd70;cursor:pointer;padding:5px 0}
+    .market-search{width:100%;background:#0e141d;border:1px solid #46556a;border-radius:10px;color:var(--txt);padding:12px;margin:0 0 10px;position:sticky;top:0;z-index:2}
+    .market-drawer-body .item-list{grid-template-columns:1fr;gap:7px}.market-drawer-body .item-card{min-height:66px}
+    body.market-drawer-open{overflow:hidden}
+    @media(min-width:700px){.market-drawer{width:min(600px,48vw)}}
 </style>
 </head>
 <body>
@@ -440,7 +456,7 @@ function renderFullMarketCatalog(){
   const detail=recipe.length?"Incluye: "+recipe.map(x=>x.name+(x.quantity>1?" ×"+x.quantity:"")).join(" · "):"Objeto básico / componente";
   return '<button type="button" class="item-card item-buy-toggle '+(bought?'bought':'complement')+'" data-buy-item="'+esc(name)+'" data-market-entry="'+esc(name.toLowerCase())+'" aria-pressed="'+bought+'">'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(detail)+'</span><small class="item-priority-label">'+(bought?'✓ EN INVENTARIO · TOCÁ PARA DESHACER':Number.isFinite(Number(cost))?Number(cost).toLocaleString('es-AR')+' de oro · ELEGIR COMPRA':'Precio no disponible · ELEGIR COMPRA')+'</small></div></button>';
  };
- return '<details class="result-section full-market-catalog"><summary><b>Mercado completo · '+valid.length+' objetos</b><span class="hint"> Elegí cualquier objeto; la recomendación del asistente sigue siendo orientativa.</span></summary><div class="market-catalog-body"><input type="search" class="market-search" id="marketCatalogSearch" placeholder="Buscar objeto..." aria-label="Buscar objeto en el mercado"><details open><summary>Objetos básicos y componentes · '+basic.length+'</summary><div class="item-list">'+basic.map(entry).join('')+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="item-list">'+combined.map(entry).join('')+'</div></details><p class="hint">La compra manual no está limitada por la fase ni por la prioridad recomendada. Al elegir un objeto, se registra y el asistente recalcula la siguiente sugerencia.</p></div></details>';
+ return '<button type="button" class="market-drawer-trigger" id="openMarketDrawer" aria-controls="marketDrawer" aria-expanded="false"><span class="market-trigger-icon">☷</span><span>Mercado</span></button><div class="market-drawer-backdrop" id="marketDrawerBackdrop" hidden></div><aside class="market-drawer" id="marketDrawer" aria-label="Mercado completo" aria-hidden="true"><div class="market-drawer-head"><div><b>Mercado completo</b><small>'+valid.length+' objetos · elección libre</small></div><button type="button" class="market-drawer-close" id="closeMarketDrawer" aria-label="Cerrar mercado">×</button></div><div class="market-drawer-body"><input type="search" class="market-search" id="marketCatalogSearch" placeholder="Buscar objeto..." aria-label="Buscar objeto en el mercado"><details open><summary>Objetos básicos y componentes · '+basic.length+'</summary><div class="item-list">'+basic.map(entry).join('')+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="item-list">'+combined.map(entry).join('')+'</div></details><p class="hint">La compra manual no está limitada por la fase ni por la prioridad recomendada. Al elegir un objeto, se registra y el asistente recalcula la siguiente sugerencia.</p></div></aside>';
 }
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
@@ -2238,6 +2254,21 @@ function clearItemsOnly(){
  if($('result').classList.contains('show'))analyze({scroll:false});
 }
 $('clearHeroes').onclick=clearHeroesOnly;
+function setMarketDrawer(open){
+ const drawer=$('marketDrawer'),backdrop=$('marketDrawerBackdrop'),trigger=$('openMarketDrawer');
+ if(!drawer||!backdrop)return;
+ drawer.classList.toggle('open',open);backdrop.hidden=!open;
+ requestAnimationFrame(()=>backdrop.classList.toggle('open',open));
+ drawer.setAttribute('aria-hidden',String(!open));if(trigger)trigger.setAttribute('aria-expanded',String(open));
+ document.body.classList.toggle('market-drawer-open',open);
+ if(open)$('marketCatalogSearch')?.focus({preventScroll:true});
+}
+document.addEventListener('click',e=>{
+ if(e.target.closest('#openMarketDrawer')){setMarketDrawer(true);return;}
+ if(e.target.closest('#closeMarketDrawer')||e.target.id==='marketDrawerBackdrop'){setMarketDrawer(false);return;}
+ if(e.target.closest('#marketDrawer [data-buy-item]')){setMarketDrawer(false);}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')setMarketDrawer(false);});
 document.addEventListener('input',e=>{
  if(e.target&&e.target.id==="marketCatalogSearch"){
   const q=e.target.value.trim().toLocaleLowerCase();
