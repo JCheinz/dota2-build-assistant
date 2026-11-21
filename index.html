@@ -444,13 +444,15 @@ function renderHeroInventory(state,hero=null,role=""){
  return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. Las compras, ventas, mejoras y consumibles usados quedan en el historial. Tocá «Usado» al consumir un consumible.</p></div>';
 }
 function renderFullMarketCatalog(){
- const removed=window.DOTA_PATCH_742?.removedItems||new Set();
+ const removedSource=window.DOTA_PATCH_742?.removedItems;
+ const removed=removedSource instanceof Set?removedSource:new Set(Array.isArray(removedSource)?removedSource:[]);
  const names=new Set([...Object.keys(MARKET_ITEM_COSTS||{}),...Object.keys(itemRecipes||{}),...Object.values(itemRecipes||{}).flat().map(x=>x.name)]);
  const valid=[...names].filter(name=>name&&!/^Receta de /i.test(name)&&!removed.has(name)).sort((a,b)=>a.localeCompare(b,"es"));
  const basic=valid.filter(name=>!(itemRecipes[name]||[]).length);
  const combined=valid.filter(name=>(itemRecipes[name]||[]).length);
  const entry=name=>{
-  const bought=purchaseLedger.snapshot().inventory.some(x=>x.name===name);
+  const inventory=purchaseLedger.snapshot()?.inventory||[];
+  const bought=inventory.some(x=>x.name===name);
   const cost=MARKET_ITEM_COSTS[name];
   const recipe=(itemRecipes[name]||[]).filter(x=>!removed.has(x.name));
   const detail=recipe.length?"Incluye: "+recipe.map(x=>x.name+(x.quantity>1?" ×"+x.quantity:"")).join(" · "):"Objeto básico / componente";
@@ -2175,7 +2177,8 @@ function analyze(options={}){
  ].join('\n');
  const html=[];
  html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?'':(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?false:live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><small>Fase del mercado · '+esc(adaptive.phase)+'</small><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
- html.push(renderFullMarketCatalog());
+ try{html.push(renderFullMarketCatalog());}
+ catch(error){console.error("No se pudo renderizar el mercado completo:",error);html.push('<div class="warning"><b>El análisis continúa, pero el mercado completo no pudo cargarse.</b><p>'+esc(error&&error.message?error.message:"Error interno del catálogo")+"</p></div>");}
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
