@@ -66,9 +66,9 @@
    const score=item=>{
     const name=key(item.name),rank=priorityRank.get(name);
     let value=rank!==undefined?10000-rank*100:0;
-    if(core.has(name))value+=350;
-    if(components.has(name))value+=500;
-    if(tactical.has(name))value+=250;
+    if(core.has(name)&&rank===undefined)value+=350;
+    if(components.has(name)&&rank===undefined)value+=500;
+    if(tactical.has(name)&&rank===undefined)value+=250;
     if(early.has(name)&&minute>=12)value-=650;
     if(CONSUMABLES.has(item.name)){
      value+=minute<5?120:-850;
