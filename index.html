@@ -2239,7 +2239,7 @@ function analyze(options={}){
   const result=$('result'),report=$('report');
   if(result&&report){
    result.classList.add('show');
-   report.innerHTML='<div class="warning"><b>No se pudo completar el análisis.</b><p>'+esc(error&&error.message?error.message:String(error))+'</p><p>El error quedó identificado para corregirlo sin bloquear la aplicación.</p></div>';
+   report.innerHTML='<div class="warning"><b>No se pudo completar el análisis.</b><p>'+esc(error&&error.message?error.message:String(error))+'</p><p><b>Etapa:</b> '+esc(stage)+'</p><details><summary>Detalle técnico</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(stack)+'</pre></details><p>El diagnóstico técnico permite localizar la función exacta sin bloquear la aplicación.</p></div>';
    const confidence=$('confidence');if(confidence)confidence.textContent="Error de análisis · diagnóstico disponible";
    if(options.scroll!==false)result.scrollIntoView({behavior:'smooth',block:'start'});
   }
