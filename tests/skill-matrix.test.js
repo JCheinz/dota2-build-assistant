@@ -584,7 +584,7 @@ if (!html.includes('const phase=getMarketPhase(state.minute).key') || !html.incl
 if (!html.includes('phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage)')) {
   throw new Error("Pugna debe ponderar objetos avanzados/cierre desde minuto 28");
 }
-if (!html.includes('const planCorePriority=matchStage!=="early"?') || !html.includes('const matchStage=state.minute<12?"early":state.minute<25?"mid":"late"') || !html.includes('const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])]') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})')) {
+if (!html.includes('const planCorePriority=matchStage!=="early"?') || !html.includes('const matchStage=state.minute<12?"early":state.minute<25?"mid":"late"') || !html.includes('const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])]') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})')) {
   throw new Error("El inventario automático debe ordenar por build adaptativa, componentes y fase");
 }
 if (!html.includes('slice(0,2).toUpperCase()')) {
@@ -674,7 +674,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const end=appHtml.indexOf("\nfunction renderItemCards(items){",start);
  if(start<0||end<0)throw new Error("No se encontró render de inventario");
  const source=appHtml.slice(start,end);
- for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(tacticalName)priorityNames.unshift(tacticalName);','state.placements||{}','purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})']) {
+ for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(tacticalName)priorityNames.unshift(tacticalName);','state.placements||{}','purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})']) {
   if(!source.includes(marker))throw new Error("El orden situacional del inventario no contempla "+marker);
  }
  console.log("OK: prioridad situacional del inventario y preservación de ubicaciones manuales");
