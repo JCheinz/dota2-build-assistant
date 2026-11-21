@@ -1445,20 +1445,24 @@ function consumeRecipeComponents(itemName){
 function clearTrackedPurchases(){
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
 }
-const BOOT_FAMILY=new Set(["Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Guardian Greaves"]);
+const BOOT_BASE="Boots of Speed";
+const BOOT_FAMILY=new Set([BOOT_BASE,"Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Guardian Greaves","Sabatons of Mordiggian"]);
+const BOOT_UPGRADES={"Arcane Boots":["Guardian Greaves"],"Phase Boots":["Sabatons of Mordiggian"]};
 function enforceSingleBootChoice(items,ownedNames=[]){
  const owned=new Set((ownedNames||[]).map(x=>String(x).toLowerCase()));
- const ownedBoot=[...BOOT_FAMILY].find(name=>owned.has(name.toLowerCase()));
+ const ownedBoot=[...BOOT_FAMILY].filter(name=>name!==BOOT_BASE).find(name=>owned.has(name.toLowerCase()));
  const boots=(items||[]).filter(x=>BOOT_FAMILY.has(x.name));
  let chosen=ownedBoot;
  if(!chosen&&boots.length){
-  const heroBoots=boots.filter(x=>x.heroSpecific);
-  const roleBoots=boots.filter(x=>x.roleBaseline);
-  const pool=heroBoots.length?heroBoots:roleBoots.length?roleBoots:boots;
+  const finals=boots.filter(x=>x.name!==BOOT_BASE);
+  const heroBoots=finals.filter(x=>x.heroSpecific);
+  const roleBoots=finals.filter(x=>x.roleBaseline);
+  const pool=heroBoots.length?heroBoots:roleBoots.length?roleBoots:finals.length?finals:boots;
   chosen=pool.slice().sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)||(Number(b.score)||0)-(Number(a.score)||0))[0]?.name;
  }
  if(!chosen)return (items||[]).slice();
- return (items||[]).filter(x=>!BOOT_FAMILY.has(x.name)||x.name===chosen||(chosen==="Arcane Boots"&&x.name==="Guardian Greaves"));
+ const allowed=new Set([chosen,...(BOOT_UPGRADES[chosen]||[])]);
+ return (items||[]).filter(x=>!BOOT_FAMILY.has(x.name)||allowed.has(x.name));
 }
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
@@ -2192,7 +2196,7 @@ $('report').addEventListener('click',e=>{
  const used=e.target.closest('[data-use-consumable]');
  if(used){const name=used.getAttribute('data-use-consumable');purchaseLedger.useConsumable(name,{minute:ledgerMinute()});const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input)input.checked=false;analyze({scroll:false});return;}
  const component=e.target.closest('[data-buy-component]');
- if(component){const name=component.getAttribute('data-buy-component');const inputs=[...document.querySelectorAll('.owned-component')].filter(x=>x.value===name);const nextUnit=inputs.find(x=>!x.checked);if(nextUnit){nextUnit.checked=true;purchaseLedger.recordComponent(name,{minute:ledgerMinute()});analyze({scroll:false});return;}}
+ if(component){const name=component.getAttribute('data-buy-component');const inputs=[...document.querySelectorAll('.owned-component')].filter(x=>x.value===name);const nextUnit=inputs.find(x=>!x.checked);if(nextUnit)nextUnit.checked=true;purchaseLedger.recordComponent(name,{minute:ledgerMinute()});analyze({scroll:false});return;}
  const buy=e.target.closest('[data-buy-item]');
  if(buy){
   const name=buy.getAttribute('data-buy-item');
