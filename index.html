@@ -1592,7 +1592,8 @@ function getNextPurchase(build,state,preferredName=null){
   return {target,kind:"goal",name:target.name,cost:hasDirectCost?directCost:null,remaining:hasDirectCost?Math.max(0,directCost-state.gold):null,affordable:hasDirectCost?state.gold>=directCost:null,reason:target.condition||target.why};
  };
  const marketPhase=getMarketPhase(state.minute);
- const phaseIndex=marketPhase.index;
+ const phaseIndex=state.minute>=25?4:state.minute>=12?3:marketPhase.index;
+ const phaseLabel=state.minute<12?marketPhase.label:state.minute<25?"Mid game · 12–24 min":"Late game · 25+ min";
  const chooseRolePhase=key=>{
   if(!state.role)return null;
   const candidates=build.filter(x=>x.roleBaseline&&x.marketRole===state.role&&x.marketPhase===key&&!owned.has(x.name))
