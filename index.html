@@ -265,6 +265,7 @@
 <script src="./inventory-ledger.js?v=352"></script>
 <script src="./skill-data-engine.js?v=354"></script>
 <script src="./specializations.js?v=3280"></script>
+<script src="./patch-data-742.js?v=742"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -1281,13 +1282,13 @@ const itemRecipes={
  "Perseverance":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700}],
  "Battle Fury":[{name:"Perseverance",cost:1400},{name:"Broadsword",cost:1000,quantity:2},{name:"Quelling Blade",cost:100},{name:"Receta de Battle Fury",cost:400}],
  "Yasha":[{name:"Blade of Alacrity",cost:1000},{name:"Band of Elvenskin",cost:450},{name:"Receta de Yasha",cost:650}],
- "Sange":[{name:"Ogre Axe",cost:1000},{name:"Belt of Strength",cost:450},{name:"Receta de Sange",cost:650}],
+ "Sange":[{name:"Ogre Axe",cost:1000},{name:"Belt of Strength",cost:450},{name:"Receta de Sange",cost:550}],
  "Manta Style":[{name:"Yasha",cost:2100},{name:"Diadem",cost:1000},{name:"Receta de Manta Style",cost:1550}],
- "Aether Lens":[{name:"Energy Booster",cost:800},{name:"Void Stone",cost:700},{name:"Receta de Aether Lens",cost:775}],
+ "Aether Lens":[{name:"Energy Booster",cost:800},{name:"Void Stone",cost:700},{name:"Receta de Aether Lens",cost:600}],
  "Linken’s Sphere":[{name:"Ring of Health",cost:700},{name:"Void Stone",cost:700},{name:"Ultimate Orb",cost:2800},{name:"Receta de Linken’s Sphere",cost:600}],
  "Aeon Disk":[{name:"Vitality Booster",cost:1000},{name:"Energy Booster",cost:800},{name:"Receta de Aeon Disk",cost:1200}],
  "Arcane Boots":[{name:"Boots of Speed",cost:500},{name:"Ring of Basilius",cost:425},{name:"Wizard Hat",cost:250},{name:"Receta de Arcane Boots",cost:325}],
- "Kaya":[{name:"Staff of Wizardry",cost:1000},{name:"Robe of the Magi",cost:450},{name:"Receta de Kaya",cost:650}],
+ "Kaya":[{name:"Staff of Wizardry",cost:1000},{name:"Robe of the Magi",cost:450},{name:"Receta de Kaya",cost:550}],
  "Kaya and Sange":[{name:"Kaya",cost:2100},{name:"Sange",cost:2100}],
  "Yasha and Kaya":[{name:"Yasha",cost:2100},{name:"Kaya",cost:2100}],
  "Sange and Yasha":[{name:"Sange",cost:2100},{name:"Yasha",cost:2100}],
@@ -1304,7 +1305,7 @@ const itemRecipes={
  "Maelstrom":[{name:"Mithril Hammer",cost:1600},{name:"Javelin",cost:900},{name:"Gloves of Haste",cost:450}],
  "Mjollnir":[{name:"Maelstrom",cost:2950},{name:"Hyperstone",cost:2000},{name:"Receta de Mjollnir",cost:550}],
  "Vanguard":[{name:"Vitality Booster",cost:1000},{name:"Ring of Health",cost:700}],
- "Crimson Guard":[{name:"Vanguard",cost:1700},{name:"Helm of Iron Will",cost:975},{name:"Receta de Crimson Guard",cost:1050}],
+ "Crimson Guard":[{name:"Vanguard",cost:1700},{name:"Helm of Iron Will",cost:975},{name:"Buckler",cost:425},{name:"Receta de Crimson Guard",cost:625}],
  "Pipe of Insight":[{name:"Ring of Tarrasque",cost:1700},{name:"Cloak",cost:900},{name:"Shawl",cost:450},{name:"Receta de Pipe of Insight",cost:675}],
  "Headdress":[{name:"Ring of Regen",cost:175},{name:"Receta de Headdress",cost:250}],
  "Drum of Endurance":[{name:"Headdress",cost:425},{name:"Belt of Strength",cost:450},{name:"Wind Lace",cost:225},{name:"Receta de Drum of Endurance",cost:525}],
@@ -1316,7 +1317,7 @@ const itemRecipes={
  "Spirit Vessel":[{name:"Urn of Shadows",cost:825},{name:"Diadem",cost:1000},{name:"Receta de Spirit Vessel",cost:900}],
  "Soul Ring":[{name:"Ring of Protection",cost:175},{name:"Gauntlets of Strength",cost:140,quantity:2},{name:"Receta de Soul Ring",cost:350}],
  "Phase Boots":[{name:"Boots of Speed",cost:500},{name:"Chainmail",cost:500},{name:"Blades of Attack",cost:450}],
- "Blade Mail":[{name:"Broadsword",cost:1000},{name:"Splintmail",cost:950},{name:"Receta de Blade Mail",cost:450}],
+ "Blade Mail":[{name:"Broadsword",cost:1000},{name:"Splintmail",cost:950},{name:"Receta de Blade Mail",cost:400}],
  "Tranquil Boots":[{name:"Boots of Speed",cost:500},{name:"Wind Lace",cost:225},{name:"Ring of Regen",cost:175}],
  "Ring of Basilius":[{name:"Sage's Mask",cost:175},{name:"Receta de Ring of Basilius",cost:250}],
  "Desolator":[{name:"Mithril Hammer",cost:1600,quantity:2},{name:"Orb of Blight",cost:300}],
