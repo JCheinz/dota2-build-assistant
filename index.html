@@ -1455,7 +1455,9 @@ function getNextPurchase(build,state,preferredName=null){
   const missing=getMissingRecipeParts(target.name,owned,components);
   // Elegir una pieza que ya se pueda comprar; si ninguna alcanza, mostrar la primera
   // pendiente y cuánto oro falta, sin marcarla como asequible.
-  const next=missing.find(part=>!String(part.name||"").startsWith("Receta de "))||missing[0]||null;
+  const affordablePart=missing.find(part=>!String(part.name||"").startsWith("Receta de ")&&Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*Math.max(1,Number(part.quantity)||1));
+   const affordableNestedRecipe=missing.find(part=>String(part.name||"").startsWith("Receta de ")&&part.name!=="Receta de "+target.name&&Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*Math.max(1,Number(part.quantity)||1));
+   const next=affordablePart||affordableNestedRecipe||missing.find(part=>!String(part.name||"").startsWith("Receta de "))||missing[0]||null;
   if(missing.length&&next){
    const cost=Number.isFinite(Number(next.cost))?Number(next.cost)*Math.max(1,Number(next.quantity)||1):null;
    return {target,kind:"component",name:next.name,cost,remaining:cost===null?null:Math.max(0,cost-state.gold),affordable:cost===null?null:state.gold>=cost,reason:target.condition||target.why};
