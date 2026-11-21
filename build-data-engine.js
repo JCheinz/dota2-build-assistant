@@ -75,7 +75,7 @@ function buildPlan(heroName,role,items,meta){
   else if(stage==="Core"||stage==="mid")core.push(row);
   else situational.push(row);
  }
- return{title:heroName+" · "+role+" · build estadística dinámica",early:early.slice(0,5),core:core.slice(0,6),situational:situational.slice(0,6),note:meta.source+" · parche "+(meta.patch||"no confirmado")+(meta.matches?" · "+meta.matches.toLocaleString("es-AR")+" partidas":"")+(meta.winRate!=null?" · "+(meta.winRate*100).toFixed(1)+"% victorias":"")+". Datos estadísticos: orientan la frecuencia y el orden; el draft y el inventario deciden la compra."};
+ return{title:heroName+" · "+role+" · build estadística dinámica",early:early.slice(0,5),core:core.slice(0,6),situational:situational.slice(0,6),source:meta.source,patch:meta.patch||null,matches:meta.matches||null,winRate:meta.winRate??null,note:meta.source+" · parche "+(meta.patch||"no confirmado")+(meta.matches?" · "+meta.matches.toLocaleString("es-AR")+" partidas":"")+(meta.winRate!=null?" · "+(meta.winRate*100).toFixed(1)+"% victorias":"")+". Datos estadísticos: orientan la frecuencia y el orden; el draft y el inventario deciden la compra."};
 }
 async function loadHeroBuild(options){
  const o=options||{},fetchImpl=o.fetch||root.fetch,storage=o.storage||(root&&root.localStorage),heroId=asNumber(o.heroId,-1),role=String(o.role||""),position=rolePosition(role),patch=String(o.patch||"");
@@ -96,7 +96,7 @@ async function loadHeroBuild(options){
   if(build&&build.build_data){
    const data=mapD2ptItems(build,constants);
    const updatedAt=safeDate(build.updated_at||raw.updated_at);
-   const patchIsFresh=!patch||!o.patchReleaseDate||!updatedAt||new Date(updatedAt)>=new Date(o.patchReleaseDate);
+   const patchIsFresh=!o.patchReleaseDate||(!!updatedAt&&new Date(updatedAt)>=new Date(o.patchReleaseDate));
    if(data.length&&patchIsFresh){
     const matches=asNumber(build.num_matches||build.build_data.num_matches,0),winRate=Number.isFinite(Number(build.win_rate??build.build_data.win_rate))?Number(build.win_rate??build.build_data.win_rate):null;
     const itemsForPlan=data.map(x=>({...x,stage:x.minute<12?"early":x.minute<28?"mid":"late"}));
