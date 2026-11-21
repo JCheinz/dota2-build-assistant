@@ -754,7 +754,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  };
  const total=name=>(recipes[name]||[]).reduce((sum,part)=>sum+part.cost*(part.quantity||1),0);
  const expected={
-  "Battle Fury":3900,"Yasha":2100,"Sange":2100,"Manta Style":4650,
+  "Battle Fury":3900,"Yasha":2000,"Sange":2000,"Manta Style":4550,
   "Arcane Boots":1500,"Kaya and Sange":4200,"Yasha and Kaya":4200,
   "Sange and Yasha":4200,"Shiva’s Guard":4500,"Glimmer Cape":2150,
   "Force Staff":2200,"Black King Bar":4050,"Dragon Lance":2000,"Hurricane Pike":4550,
@@ -766,7 +766,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  for(const [name,cost] of Object.entries(expected)){
   if(total(name)!==cost)throw new Error(name+" debe sumar "+cost+" de oro, suma encontrada: "+total(name));
  }
- // Recetas adicionales del mercado contextual, verificadas para 7.41f.
+ // Recetas y costes del mercado contextual, actualizados para 7.42.
  const spiritBase=missing("Spirit Vessel",[],[]);
  if(!spiritBase.some(x=>x.name==="Urn of Shadows")||!spiritBase.some(x=>x.name==="Diadem"))throw new Error("Spirit Vessel debe solicitar Urn y Diadem completos cuando no hay progreso");
  const spiritPartial=missing("Spirit Vessel",["Sage's Mask"],[]);
@@ -777,12 +777,12 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!crimsonNames.includes("Ring of Health")||!crimsonNames.includes("Helm of Iron Will")||crimsonNames.includes("Vitality Booster"))throw new Error("Crimson Guard debe expandir Vanguard descontando Vitality Booster ya poseída");
  const mjollnirPartial=missing("Mjollnir",[],["Mithril Hammer"]);
  const mjollnirNames=mjollnirPartial.map(x=>x.name);
- if(!mjollnirNames.includes("Javelin")||!mjollnirNames.includes("Gloves of Haste")||mjollnirNames.includes("Mithril Hammer"))throw new Error("Mjollnir debe expandir Maelstrom al detectar progreso en sus piezas");
+ if(!mjollnirNames.includes("Receta de Maelstrom")||!mjollnirNames.includes("Gloves of Haste")||mjollnirNames.includes("Mithril Hammer"))throw new Error("Mjollnir debe expandir Maelstrom con la receta 7.42 al detectar progreso en sus piezas");
  const vesselConsumption=vm.runInContext('getRecipePartsForConsumption("Spirit Vessel",new Set(["Urn of Shadows"]),new Set())',recipeContext);
  if(!vesselConsumption.includes("Urn of Shadows")||vesselConsumption.includes("Diadem"))throw new Error("Al completar Spirit Vessel debe consumirse solo la pieza que realmente está registrada");
  const mekansmConsumption=vm.runInContext('getRecipePartsForConsumption("Mekansm",new Set(["Headdress"]),new Set())',recipeContext);
  if(!mekansmConsumption.includes("Headdress"))throw new Error("Al completar Mekansm debe consumirse Headdress como objeto completo");
- const newIconNames=["Circlet","Gauntlets of Strength","Javelin","Hyperstone","Helm of Iron Will","Ring of Tarrasque","Cloak","Headdress","Chainmail","Platemail","Mystic Staff","Tiara of Selemene","Demon Edge","Blitz Knuckles","Sage's Mask","Ring of Protection","Ring of Regen"];
+ const newIconNames=["Circlet","Gauntlets of Strength","Quarterstaff","Hyperstone","Helm of Iron Will","Ring of Tarrasque","Cloak","Headdress","Chainmail","Platemail","Mystic Staff","Tiara of Selemene","Demon Edge","Blitz Knuckles","Sage's Mask","Ring of Protection","Ring of Regen"];
  for(const name of newIconNames)if(!html.includes(name))throw new Error("Falta asociación visual de componente "+name);
  if((recipes["Dust of Appearance"]||[]).length||(recipes["Infused Raindrops"]||[]).length||(recipes["Gem of True Sight"]||[]).length)throw new Error("Dust, Raindrops y Gem no deben recibir recetas fabricadas");
  // Inventario cuantitativo: no descontar dos piezas por marcar una sola casilla.
@@ -819,7 +819,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!consumeFromCompleteYasha.includes("Yasha")||consumeFromCompleteYasha.includes("Blade of Alacrity"))throw new Error("Al completar Manta debe consumir Yasha como objeto completo, no sus subcomponentes");
  const consumeFromYashaParts=vm.runInContext('getRecipePartsForConsumption("Manta Style",new Set(),new Set(["Blade of Alacrity","Band of Elvenskin","Receta de Yasha"]))',recipeContext);
  if(!consumeFromYashaParts.includes("Blade of Alacrity")||!consumeFromYashaParts.includes("Receta de Yasha"))throw new Error("Al completar Manta debe consumir las piezas de Yasha si no se registró como objeto completo");
- console.log("OK: recetas 7.41f, expansión recursiva, cantidades duplicadas y consumo de componentes");
+ console.log("OK: recetas 7.42, expansión recursiva, cantidades duplicadas y consumo de componentes");
 })();
 
 
