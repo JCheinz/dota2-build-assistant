@@ -1054,7 +1054,7 @@ function genericThreatAdvice(hero,tags){
  const id=hero.name.replace("npc_dota_hero_","");
  const advice=[],plans=[],items=[];
  const add=(name,why)=>{items.push(item(name,why))};
- if(matchupRules[id])return {...matchupRules[id],hero};
+ if(matchupRules[id])return {...matchupRules[id],hero,tags:[...tags],source:"regla táctica específica + perfil de amenazas"};
  if(tags.includes("iniciación")){advice.push("Puede iniciar sobre un objetivo mal posicionado y habilitar el seguimiento de su equipo.");plans.push("Mantené visión, respetá su rango de entrada y evitá mostrarte solo.");add("Aeon Disk","Solo si la iniciación seguida de daño te elimina antes de poder actuar.");add("Force Staff","Reposicionamiento preventivo; no elimina todos los controles.");}
  if(tags.includes("daño explosivo / hechizos")){advice.push("Puede concentrar daño de habilidades y castigar a héroes frágiles.");plans.push("No gastes defensas antes de ver sus habilidades principales; jugá con visión y distancia.");add("Glimmer Cape","Salvación situacional si no hay detección que la neutralice.");add("Black King Bar","Solo si los efectos concretos del rival pueden ser evitados por BKB en este parche.");}
  if(tags.includes("daño sostenido")){advice.push("Puede desgastar durante peleas prolongadas y obligarte a gastar recursos para frenarlo.");plans.push("No concentres todos tus recursos sobre él si no podés rematarlo; coordiná control y daño sostenido.");add("Spirit Vessel","Solo si su sustain es una parte importante del problema y el equipo puede aplicar cargas.");}
@@ -1186,7 +1186,8 @@ function getHeroVulnerabilities(me,role){
 function scoreThreatAgainstHero(me,role,hero,profile,minute){
  const id=hero.name.replace("npc_dota_hero_","");
  const data=heroThreatMechanics[id];
- const mechanics=data?data.mechanics:profile.tags.map(t=>({"iniciación":"initiation","control / interrupciones":"hard_control","daño explosivo / hechizos":"burst","daño físico a distancia":"ranged","escalado / amenaza de late game":"late","ilusiones / unidades":"illusions","presión sobre maná":"mana_burn","silencios / limitación de habilidades":"silence","invisibilidad / emboscadas":"invisibility","presión de líneas / unidades":"push","daño sostenido":"sustained","primera línea / resistencia":"frontline"}[t])).filter(Boolean);
+ const profileTags=Array.isArray(profile?.tags)?profile.tags:(Array.isArray(profile?.adviceTags)?profile.adviceTags:inferThreatProfile(hero));
+ const mechanics=data?data.mechanics:profileTags.map(t=>({"iniciación":"initiation","control / interrupciones":"hard_control","daño explosivo / hechizos":"burst","daño físico a distancia":"ranged","escalado / amenaza de late game":"late","ilusiones / unidades":"illusions","presión sobre maná":"mana_burn","silencios / limitación de habilidades":"silence","invisibilidad / emboscadas":"invisibility","presión de líneas / unidades":"push","daño sostenido":"sustained","primera línea / resistencia":"frontline"}[t])).filter(Boolean);
  const own=new Set(me.roles||[]),vuln=getHeroVulnerabilities(me,role);
  let base=mechanics.reduce((n,m)=>n+(mechanicWeight[m]||0),0);
  let fit=0,matched=[];

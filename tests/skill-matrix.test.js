@@ -1097,6 +1097,37 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  if(!result.classes.includes("show")||!report.innerHTML.includes("SMOKE_TEST_ANALYSIS_ERROR")||!confidence.textContent.includes("Error de análisis"))throw new Error("El fallo del motor debe mostrarse como diagnóstico visible");
 }
 
+// Regresión: una regla específica de matchup debe conservar tags antes del score universal.
+{
+ const source=require("node:fs").readFileSync(require("node:path").join(__dirname,"..","index.html"),"utf8");
+ const extract=(startText,endText)=>{
+  const start=source.indexOf(startText),end=source.indexOf(endText,start);
+  if(start<0||end<0)throw new Error("No se encontró función de matchup: "+startText);
+  return source.slice(start,end);
+ };
+ const generic=extract("function genericThreatAdvice(hero,tags){","// Biblioteca táctica de habilidades/condiciones");
+ const score=extract("function scoreThreatAgainstHero(me,role,hero,profile,minute){","// Interacciones concretas entre el héroe propio");
+ const matchup=extract("function getMatchupData(me,enemies,role=\"Mid\",minute=0){","\nfunction ");
+ const sandbox={
+  matchupRules:{bloodseeker:{title:"Bloodseeker · Rupture",items:[],advice:"Rupture",plan:"Controlá el movimiento"}},
+  item:(name,why)=>({name,why}),uniqueItems:x=>x,
+  inferThreatProfile:()=>["iniciación","control / interrupciones"],
+  heroThreatMechanics:{},mechanicWeight:{initiation:3,hard_control:3},
+  getHeroVulnerabilities:()=>({hard_control:1}),
+  matchupPairRules:{}
+ };
+ vm.createContext(sandbox);
+ vm.runInContext(generic+"\n"+score+"\n"+matchup+"\nthis.runMatchup=getMatchupData;",sandbox);
+ const me={name:"npc_dota_hero_centaur",roles:["Durable"],attack_type:"Melee"};
+ const enemy={name:"npc_dota_hero_bloodseeker",localized_name:"Bloodseeker",roles:["Carry"],attack_type:"Melee"};
+ const result=sandbox.runMatchup(me,[enemy],"Offlane",0);
+ if(result.length!==1)throw new Error("El motor debe devolver el enfrentamiento Bloodseeker");
+ if(!Array.isArray(result[0].tags)||!result[0].tags.includes("iniciación"))throw new Error("La regla específica de Bloodseeker debe conservar tags tácticos");
+ if(!result[0].threat||!Number.isFinite(result[0].threat.score))throw new Error("El score universal debe calcularse sin profile.tags.map undefined");
+ // El scorer también debe tolerar perfiles incompletos procedentes de reglas antiguas.
+ const safe=sandbox.scoreThreatAgainstHero(me,"Offlane",enemy,{title:"Perfil legado"},0);
+ if(!Number.isFinite(safe.score))throw new Error("El scorer debe inferir tags cuando un perfil legado no los contiene");
+}
 console.log("OK: v3.51 — la ruta individual prevalece sobre la plantilla; las urgencias confirmadas pueden interrumpirla y el fallback genérico se conserva");
 
 
