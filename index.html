@@ -520,7 +520,9 @@ function renderSpecializationGuide(g){
 
 function renderHeroPlan(plan){
  const section=(heading,items)=>'<div class="result-section"><h3>'+heading+'</h3>'+renderItemCards(items)+'</div>';
- return '<div class="result-section"><h3>'+esc(plan.title)+'</h3></div>'+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
+ const legacy=/7\\.41f/.test(plan.note||"");
+ const patchWarning=legacy?'<div class="warning"><b>Datos de parche anterior:</b> esta ruta contiene referencias de 7.41f y todavía requiere validación individual para 7.42. Usala como orientación, no como build actual certificada.</div>':"";
+ return '<div class="result-section"><h3>'+esc(plan.title)+'</h3></div>'+patchWarning+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
 }
 
 
