@@ -1445,8 +1445,24 @@ function consumeRecipeComponents(itemName){
 function clearTrackedPurchases(){
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
 }
+const BOOT_FAMILY=new Set(["Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Guardian Greaves"]);
+function enforceSingleBootChoice(items,ownedNames=[]){
+ const owned=new Set((ownedNames||[]).map(x=>String(x).toLowerCase()));
+ const ownedBoot=[...BOOT_FAMILY].find(name=>owned.has(name.toLowerCase()));
+ const boots=(items||[]).filter(x=>BOOT_FAMILY.has(x.name));
+ let chosen=ownedBoot;
+ if(!chosen&&boots.length){
+  const heroBoots=boots.filter(x=>x.heroSpecific);
+  const roleBoots=boots.filter(x=>x.roleBaseline);
+  const pool=heroBoots.length?heroBoots:roleBoots.length?roleBoots:boots;
+  chosen=pool.slice().sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)||(Number(b.score)||0)-(Number(a.score)||0))[0]?.name;
+ }
+ if(!chosen)return (items||[]).slice();
+ return (items||[]).filter(x=>!BOOT_FAMILY.has(x.name)||x.name===chosen||(chosen==="Arcane Boots"&&x.name==="Guardian Greaves"));
+}
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
+ build=enforceSingleBootChoice(build,state.owned||[]);
  const phase=getMarketPhase(state.minute).key;
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
@@ -1742,7 +1758,8 @@ function renderDynamicStateControls(){
  const hint=$("problemHint");
  if(hint)hint.textContent=enemies.length?"Situaciones detectadas a partir de los cinco enemigos seleccionados; no aparecen amenazas de héroes ausentes.":"Elegí los enemigos para detectar situaciones específicas.";
  const candidates=[];
- const addItem=x=>{if(x&&x.name&&!candidates.some(y=>y.name===x.name))candidates.push({name:x.name,why:x.why||"Objeto contemplado por el análisis"})};
+ const removedPatchItems=window.DOTA_PATCH_742?.removedItems||new Set();
+  const addItem=x=>{if(x&&x.name&&!removedPatchItems.has(x.name)&&!candidates.some(y=>y.name===x.name))candidates.push({name:x.name,why:x.why||"Objeto contemplado por el análisis"})};
  const roleMarket=getUniversalRolePlan(role,Math.max(0,Number($("gameMinute").value)||0),me,enemies,problem.value);
  roleMarket.allItems.forEach(addItem);
  universalItems.forEach(addItem);
@@ -1758,19 +1775,29 @@ function renderDynamicStateControls(){
   const previousInputs=[...document.querySelectorAll(".owned-item")];
   const checked=new Set(previousInputs.filter(x=>x.checked).map(x=>x.value));
   const zones={...Object.fromEntries(purchaseLedger.snapshot().inventory.map(x=>[x.name,x.zone||"main"])),...Object.fromEntries(previousInputs.filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))};
-  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados</summary><div class="controls">'+candidates.map(x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'> '+esc(x.name)+'</label>').join("")+'</div></details>';
+  const primary=candidates.filter(x=>!(itemRecipes[x.name]||[]).length);
+  const combined=candidates.filter(x=>(itemRecipes[x.name]||[]).length);
+  const itemChip=x=>'<label class="chip"><input type="checkbox" class="owned-item" value="'+esc(x.name)+'" data-inventory-zone="'+esc(zones[x.name]||"")+'" '+(checked.has(x.name)?"checked":"")+'>'+esc(x.name)+'</label>';
+  ownedRoot.innerHTML='<details class="manual-owned"><summary>Carga manual opcional de objetos comprados · '+candidates.length+' objetos</summary><div class="controls"><details open><summary>Objetos primarios / componentes</summary><div class="controls">'+primary.map(itemChip).join("")+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="controls">'+combined.map(x=>'<details><summary>'+esc(x.name)+'</summary><div class="controls">'+itemChip(x)+(itemRecipes[x.name]||[]).filter(p=>!removedPatchItems.has(p.name)).map(p=>'<small class="hint">Incluye: '+esc(p.name)+(p.quantity>1?' ×'+p.quantity:'')+'</small>').join("")+'</div></details>').join("")+'</div></details></div></details>';
  }
  const quantities=getRecipeComponentQuantities();
- const parts=[...quantities.keys()];
+ const parts=[...quantities.keys()].filter(x=>!removedPatchItems.has(x));
  const componentRoot=$("ownedComponents");
  if(componentRoot){
   const checkedCounts=normalizeQuantityMap([...document.querySelectorAll(".owned-component:checked")].map(x=>x.value));
   const ownedNames=new Set([...document.querySelectorAll(".owned-item:checked")].map(x=>x.value));
-  componentRoot.innerHTML=parts.map(x=>{
-   const remainingQuantity=Math.max(0,Number(quantities.get(x)||1)-(ownedNames.has(x)?1:0));
-   const selectedQuantity=Math.min(remainingQuantity,checkedCounts.get(x)||0);
-   return Array.from({length:remainingQuantity},(_,i)=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(x)+'" data-component-unit="'+(i+1)+'" '+(i<selectedQuantity?"checked":"")+'>'+esc(x)+(remainingQuantity>1?' '+(i+1)+'/'+remainingQuantity:'')+'</label>').join("");
-  }).join("");
+  const grouped=new Map();
+  candidates.filter(x=>(itemRecipes[x.name]||[]).length).forEach(item=>{
+   const recipeParts=(itemRecipes[item.name]||[]).filter(p=>!removedPatchItems.has(p.name));
+   if(recipeParts.length)grouped.set(item.name,recipeParts);
+  });
+  componentRoot.innerHTML='<details class="manual-owned"><summary>Componentes por objeto combinado · '+grouped.size+' recetas</summary><div class="controls">'+[...grouped.entries()].map(([itemName,recipeParts])=>{
+   const chips=recipeParts.map(part=>{
+    const name=part.name,remainingQuantity=Math.max(0,Number(part.quantity)||1),selectedQuantity=Math.min(remainingQuantity,checkedCounts.get(name)||0);
+    return Array.from({length:remainingQuantity},(_,i)=>'<label class="chip"><input type="checkbox" class="owned-component" value="'+esc(name)+'" data-component-unit="'+(i+1)+'" '+(i<selectedQuantity?'checked':'')+'>'+esc(name)+(remainingQuantity>1?' '+(i+1)+'/'+remainingQuantity:'')+'</label>').join('');
+   }).join('');
+   return '<details><summary>'+esc(itemName)+'</summary><div class="controls">'+chips+'</div></details>';
+  }).join('')+'</div></details>';
  }
  const ledgerSnapshot=purchaseLedger.snapshot();
  const ledgerOwned=new Set(ledgerSnapshot.inventory.map(x=>x.name.toLocaleLowerCase("en")));
@@ -2005,6 +2032,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(live.owned.includes(x.name))score=-100;
   return {...x,score,priority:false};
  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+ scores.splice(0,scores.length,...enforceSingleBootChoice(scores,live.owned));
  const visibleScores=scores.filter(x=>!x.roleBaseline||x.marketPhase===getMarketPhase(live.minute).key);
 
  let selected;
@@ -2111,7 +2139,7 @@ function analyze(options={}){
   'Ruta heurística; no inventar estadísticas ni precios. Diferenciar perfil específico, rol y respuestas situacionales.'
  ].join('\n');
  const html=[];
- html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?(live.components.includes(nextPurchase.name)?'bought':''):(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?live.components.includes(nextPurchase.name):live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><small>Fase del mercado · '+esc(adaptive.phase)+'</small><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
+ html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?'':(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?false:live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><small>Fase del mercado · '+esc(adaptive.phase)+'</small><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
@@ -2164,7 +2192,7 @@ $('report').addEventListener('click',e=>{
  const used=e.target.closest('[data-use-consumable]');
  if(used){const name=used.getAttribute('data-use-consumable');purchaseLedger.useConsumable(name,{minute:ledgerMinute()});const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input)input.checked=false;analyze({scroll:false});return;}
  const component=e.target.closest('[data-buy-component]');
- if(component){const name=component.getAttribute('data-buy-component');const input=[...document.querySelectorAll('.owned-component')].find(x=>x.value===name);if(input){const marking=!input.checked;input.checked=marking;if(marking)purchaseLedger.recordComponent(name,{minute:ledgerMinute()});else purchaseLedger.removeComponent(name);analyze({scroll:false});return;}}
+ if(component){const name=component.getAttribute('data-buy-component');const inputs=[...document.querySelectorAll('.owned-component')].filter(x=>x.value===name);const nextUnit=inputs.find(x=>!x.checked);if(nextUnit){nextUnit.checked=true;purchaseLedger.recordComponent(name,{minute:ledgerMinute()});analyze({scroll:false});return;}}
  const buy=e.target.closest('[data-buy-item]');
  if(buy){
   const name=buy.getAttribute('data-buy-item');
