@@ -1992,8 +1992,9 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const heroPlan=specialization.plan;
  const liveBuildData=window.DotaBuildDataEngine?.get(hero.id,role,window.DOTA_PATCH_742?.patch)||null;
  const livePopularityItems=liveBuildData?.source==="OpenDota"?(liveBuildData.items||[]).slice(0,12).map(x=>({name:canonicalBuildItemName(x.name),why:"OpenDota · compra observada en partidas parseadas recientes del héroe. No está separada por posición ni parche; úsala como señal secundaria, no como núcleo automático.",roles:[role],tags:["live-popularity"],livePopularity:true,stage:x.stage,liveCount:x.count})): [];
- const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada"}))]:[];
- const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:(MARKET_ITEM_COSTS[x.name]||undefined)}));
+ const liveCost=name=>liveBuildData?.items?.find(row=>canonicalBuildItemName(row.name)===canonicalBuildItemName(name))?.cost||undefined;
+ const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea",cost:liveCost(x[0])})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición",cost:liveCost(x[0])})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada",cost:liveCost(x[0])}))]:[];
+ const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.cost||(x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:(MARKET_ITEM_COSTS[x.name]||undefined))}));
  const heroRoles=new Set(hero.roles||[]);
  const archetypeItems=[];
  const addArchetype=(name,why,roles,tags)=>archetypeItems.push({name,why,roles,tags,heroArchetype:true});
