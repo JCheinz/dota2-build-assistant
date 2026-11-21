@@ -408,6 +408,8 @@ const purchaseContext = {
   getLiveState: () => ({ owned: [], components: [] }),
   purchaseLedger: { snapshot: () => ({inventory:[],components:[],history:[]}), arrange: (items,options={}) => { const ranks=new Map((options.priorityNames||[]).map((name,index)=>[name,index])); const ordered=items.slice().sort((a,b)=>(ranks.get(a.name)??999)-(ranks.get(b.name)??999)); return {main:ordered.slice(0,6),backpack:ordered.slice(6,9),reserve:ordered.slice(9)}; }, isConsumable: () => false, filterRecommendations: (items,owned=[]) => { const seen=new Set(),have=new Set(owned.map(x=>String(x).toLowerCase())); return items.filter(x=>{const n=String(Array.isArray(x)?x[0]:typeof x==="string"?x:x.name||"").toLowerCase();if(!n||have.has(n)||seen.has(n))return false;seen.add(n);return true;}); } },
   getMarketPhase: minute => { const m=Number(minute)||0; return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada"}; },
+  itemRecipes: {"Arcane Boots":[{name:"Boots of Speed"}],"Aether Lens":[{name:"Energy Booster"},{name:"Void Stone"}]},
+  getRecipeLeafParts: name => ({ "Arcane Boots":[{name:"Boots of Speed"}], "Aether Lens":[{name:"Energy Booster"},{name:"Void Stone"}] }[name]||[]),
   getHeroPlan: () => ({early:[["Tango","early"]],core:[["Arcane Boots","core"],["Aether Lens","core"]],situational:[["Glimmer Cape","late"]]}),
   renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
 };
