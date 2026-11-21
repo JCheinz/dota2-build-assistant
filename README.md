@@ -28,6 +28,7 @@ Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar
 | `specializations.js` | Perfiles de héroes y posiciones |
 | `inventory-ledger.js` | Inventario, historial y movimientos |
 | `skill-data-engine.js` | Extracción y normalización de habilidades |
+| `build-data-engine.js` | Builds dinámicas por posición desde Dota2ProTracker y respaldo de popularidad de objetos de OpenDota |
 | `sw.js` | Caché y actualización de recursos |
 | `tests/` | Pruebas automatizadas |
 
@@ -39,6 +40,7 @@ El workflow `.github/workflows/validate-skill-matrix.yml` ejecuta:
 - `tests/skill-matrix.test.js`.
 - `tests/inventory-ledger.test.js`.
 - `tests/skill-data-engine.test.js`.
+- `tests/build-data-engine.test.js`.
 
 Las pruebas automáticas no sustituyen la validación visual en Android ni las pruebas de uso en una partida.
 
