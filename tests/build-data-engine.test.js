@@ -35,5 +35,15 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  assert.equal(open.scope,"todas las posiciones");
  assert.ok(open.warning.includes("no separa por posición"));
  assert.deepEqual(open.items.map(x=>x.name),["Phase Boots","Magic Wand","Blink Dagger"]);
- console.log("Build data engine: Dota2ProTracker role build, current patch gate, cache and OpenDota fallback passed.");
+ engine.clear();
+ const staleStorage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}})();
+ const stale=async url=>{
+  if(url.endsWith("/constants/items"))return{ok:true,json:async()=>items};
+  if(url.includes("/hero/2/builds?"))return{ok:true,json:async()=>[{num_matches:150,updated_at:"2026-11-17T23:59:00Z",build_data:{anchor_items:[{raw_item_id:2,avg_minute:6,rel_pr:.8,rel_count:100}]}}]};
+  if(url.endsWith("/heroes/2/itemPopularity"))return{ok:true,json:async()=>({early_game:{phase_boots:20}})};
+  throw new Error("Unexpected URL "+url);
+ };
+ const staleResult=await engine.loadHeroBuild({heroId:2,heroName:"Axe",role:"Offlane",patch:"7.42",patchReleaseDate:"2026-11-18",fetch:stale,storage:staleStorage});
+ assert.equal(staleResult.source,"OpenDota","Una build con datos anteriores al lanzamiento 7.42 no debe reemplazar la ruta actual.");
+ console.log("Build data engine: D2PT role build, patch timestamp gate, sample validation, cache and OpenDota fallback passed.");
 })().catch(error=>{console.error(error);process.exitCode=1});
