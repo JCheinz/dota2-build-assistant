@@ -376,7 +376,7 @@ const inventoryMarkers = [
   'function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=null)',
   'class="hero-inventory-slots"',
   "renderHeroInventory(live,me,role,adaptive,nextPurchase)",
-  'data-remove-owned=',
+  'data-sell-owned=',
   'data-remove-component=',
   "Inventario del héroe",
   "Inventario principal",
@@ -406,7 +406,7 @@ const purchaseContext = {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[ch])),
   getLiveState: () => ({ owned: [], components: [] }),
-  purchaseLedger: { snapshot: () => ({inventory:[],components:[],history:[]}), isConsumable: () => false, filterRecommendations: (items,owned=[]) => { const seen=new Set(),have=new Set(owned.map(x=>String(x).toLowerCase())); return items.filter(x=>{const n=String(Array.isArray(x)?x[0]:typeof x==="string"?x:x.name||"").toLowerCase();if(!n||have.has(n)||seen.has(n))return false;seen.add(n);return true;}); } },
+  purchaseLedger: { snapshot: () => ({inventory:[],components:[],history:[]}), arrange: (items,options={}) => { const ranks=new Map((options.priorityNames||[]).map((name,index)=>[name,index])); const ordered=items.slice().sort((a,b)=>(ranks.get(a.name)??999)-(ranks.get(b.name)??999)); return {main:ordered.slice(0,6),backpack:ordered.slice(6,9),reserve:ordered.slice(9)}; }, isConsumable: () => false, filterRecommendations: (items,owned=[]) => { const seen=new Set(),have=new Set(owned.map(x=>String(x).toLowerCase())); return items.filter(x=>{const n=String(Array.isArray(x)?x[0]:typeof x==="string"?x:x.name||"").toLowerCase();if(!n||have.has(n)||seen.has(n))return false;seen.add(n);return true;}); } },
   getMarketPhase: minute => { const m=Number(minute)||0; return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada"}; },
   getHeroPlan: () => ({early:[["Tango","early"]],core:[["Arcane Boots","core"],["Aether Lens","core"]],situational:[["Glimmer Cape","late"]]}),
   renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
@@ -558,10 +558,10 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
     'assigned.reserve.map',
     'data-move-owned=',
     'data-sell-owned=',
-    'data-remove-owned=',
-    'state.zones||{}'
+    'data-auto-owned=',
+    'purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})'
   ])if(!renderer.includes(marker))throw new Error("Inventario sin soporte para: "+marker);
-  if(!appHtml.includes("zones[x.name]||"))throw new Error("No se preservan las zonas al reconstruir los controles");
+  if(!appHtml.includes("input.dataset.inventoryPlacement")||!appHtml.includes("purchaseLedger.setAutomatic(name)"))throw new Error("No se preservan los movimientos manuales ni el retorno a rotación automática");
   const clickStart=appHtml.indexOf("$('report').addEventListener('click'");
   const clickEnd=appHtml.indexOf("\n});",clickStart);
   const handler=appHtml.slice(clickStart,clickEnd);
