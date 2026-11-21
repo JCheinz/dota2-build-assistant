@@ -2356,6 +2356,36 @@ $('toggleLiveState').onclick=()=>{
  button.setAttribute('aria-expanded',String(!expanded));
  button.textContent=expanded?'Maximizar':'Minimizar';
 };
+let matchClockInterval=null,lastClockMinute=null;
+function renderMatchClock(recalculate=false){
+ const snap=matchClock.snapshot();
+ const time=String(Math.floor(snap.elapsedSeconds/60)).padStart(2,'0')+':'+String(snap.second).padStart(2,'0');
+ const display=$('matchClockDisplay'),phase=$('matchClockPhase'),status=$('matchClockStatus'),toggle=$('toggleMatchClock');
+ if(display)display.textContent=time;
+ if(phase)phase.textContent=snap.phase.key.toUpperCase()+' · '+(snap.phase.key==='early'?'0–11 MIN':snap.phase.key==='mid'?'12–24 MIN':'25+ MIN');
+ if(status)status.textContent=snap.running?'Reloj en marcha':snap.elapsedSeconds?'Partida pausada':'Partida sin iniciar';
+ if(toggle)toggle.textContent=snap.running?'Pausar reloj':snap.elapsedSeconds?'Reanudar partida':'Iniciar partida';
+ $('gameMinute').value=String(snap.minute);
+ if(recalculate&&lastClockMinute!==null&&snap.minute!==lastClockMinute&&$('result').classList.contains('show'))analyze({scroll:false});
+ lastClockMinute=snap.minute;
+}
+function startMatchClockTicker(){
+ if(matchClockInterval!==null)return;
+ matchClockInterval=setInterval(()=>renderMatchClock(true),250);
+}
+function stopMatchClockTicker(){
+ if(matchClockInterval!==null){clearInterval(matchClockInterval);matchClockInterval=null;}
+}
+$('toggleMatchClock').onclick=()=>{
+ if(matchClock.isRunning()){matchClock.pause();stopMatchClockTicker();renderMatchClock(false);}
+ else{matchClock.start();renderMatchClock(false);startMatchClockTicker();}
+};
+$('resetMatchClock').onclick=()=>{
+ if(!confirm('¿Reiniciar el reloj a 00:00? Se conservarán el inventario y el historial de compras.'))return;
+ matchClock.reset();stopMatchClockTicker();renderMatchClock(true);
+};
+renderMatchClock(false);
+if(matchClock.isRunning())startMatchClockTicker();
 $('report').addEventListener('click',e=>{
  const moveOwned=e.target.closest('[data-move-owned]');
  if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=moveOwned.getAttribute('data-zone')||state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;input.dataset.inventoryPlacement='manual';purchaseLedger.setZone(name,next);analyze({scroll:false});}return;}}
@@ -2387,10 +2417,11 @@ $('currentGold').addEventListener('input',()=>{if($('result').classList.contains
 $('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),zone:e.target.dataset.inventoryZone||'auto',placement:e.target.dataset.inventoryPlacement||'auto',note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',e=>{if(e.target.matches('.owned-component')){if(e.target.checked)purchaseLedger.recordComponent(e.target.value,{minute:ledgerMinute(),note:'Carga manual de componente'});else purchaseLedger.removeComponent(e.target.value);}if($('result').classList.contains('show'))analyze({scroll:false});});
 
-function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
+function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();matchClock.reset();stopMatchClockTicker();renderMatchClock(false);$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
 function clearItemsOnly(){
  purchaseLedger.clearInventory();
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
+ matchClock.reset();stopMatchClockTicker();renderMatchClock(false);
  $('gameMinute').value='0';$('currentGold').value='0';$('currentProblem').value='none';
  if($('result').classList.contains('show'))analyze({scroll:false});
 }
