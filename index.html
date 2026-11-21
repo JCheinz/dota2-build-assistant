@@ -1445,8 +1445,24 @@ function consumeRecipeComponents(itemName){
 function clearTrackedPurchases(){
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
 }
+const BOOT_FAMILY=new Set(["Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Guardian Greaves"]);
+function enforceSingleBootChoice(items,ownedNames=[]){
+ const owned=new Set((ownedNames||[]).map(x=>String(x).toLowerCase()));
+ const ownedBoot=[...BOOT_FAMILY].find(name=>owned.has(name.toLowerCase()));
+ const boots=(items||[]).filter(x=>BOOT_FAMILY.has(x.name));
+ let chosen=ownedBoot;
+ if(!chosen&&boots.length){
+  const heroBoots=boots.filter(x=>x.heroSpecific);
+  const roleBoots=boots.filter(x=>x.roleBaseline);
+  const pool=heroBoots.length?heroBoots:roleBoots.length?roleBoots:boots;
+  chosen=pool.slice().sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)||(Number(b.score)||0)-(Number(a.score)||0))[0]?.name;
+ }
+ if(!chosen)return (items||[]).slice();
+ return (items||[]).filter(x=>!BOOT_FAMILY.has(x.name)||x.name===chosen||(chosen==="Arcane Boots"&&x.name==="Guardian Greaves"));
+}
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
+ build=enforceSingleBootChoice(build,state.owned||[]);
  const phase=getMarketPhase(state.minute).key;
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
@@ -2005,6 +2021,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(live.owned.includes(x.name))score=-100;
   return {...x,score,priority:false};
  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+ scores.splice(0,scores.length,...enforceSingleBootChoice(scores,live.owned));
  const visibleScores=scores.filter(x=>!x.roleBaseline||x.marketPhase===getMarketPhase(live.minute).key);
 
  let selected;
