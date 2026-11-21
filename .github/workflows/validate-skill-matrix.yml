@@ -17,6 +17,7 @@ jobs:
           node --check specializations.js
           node --check inventory-ledger.js
           node --check skill-data-engine.js
+          node --check build-data-engine.js
           node --check patch-data-742.js
       - name: Test dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
@@ -24,5 +25,7 @@ jobs:
         run: node tests/inventory-ledger.test.js
       - name: Test skill data extraction engine
         run: node tests/skill-data-engine.test.js
+      - name: Test live build data engine
+        run: node tests/build-data-engine.test.js
       - name: Test Dota 2 7.42 compatibility data
         run: node tests/patch-data-742.test.js

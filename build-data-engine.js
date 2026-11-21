@@ -38,7 +38,7 @@ async function loadItemConstants(fetchImpl,baseUrl){
  return itemConstantsPromise;
 }
 function mapD2ptItems(build,constants){
- const raw=build&&build.build_data||{},items=Array.isArray(raw.anchor_items)?raw.anchor_items.slice():[];
+ const raw=build&&build.build_data||{},items=Array.isArray(raw.anchor_items)&&raw.anchor_items.length?raw.anchor_items.slice():(Array.isArray(raw.anchor_items2)?raw.anchor_items2.slice():[]);
  const seen=new Set();
  return items.sort((a,b)=>asNumber(a.avg_minute)-asNumber(b.avg_minute)).map(row=>{
   const id=asNumber(row.raw_item_id??String(row.key||"").split("::")[0],-1),meta=constants.byId[id];
@@ -75,7 +75,7 @@ function buildPlan(heroName,role,items,meta){
   else if(stage==="Core"||stage==="mid")core.push(row);
   else situational.push(row);
  }
- return{title:heroName+" · "+role+" · build estadística dinámica",early:early.slice(0,5),core:core.slice(0,6),situational:situational.slice(0,6),note:meta.source+" · parche "+(meta.patch||"no confirmado")+(meta.matches?" · "+meta.matches.toLocaleString("es-AR")+" partidas":"")+(meta.winRate!=null?" · "+(meta.winRate*100).toFixed(1)+"% victorias":"")+". Datos estadísticos: orientan la frecuencia y el orden; el draft y el inventario deciden la compra."};
+ return{title:heroName+" · "+role+" · build estadística dinámica",early:early.slice(0,5),core:core.slice(0,6),situational:situational.slice(0,6),source:meta.source,patch:meta.patch||null,matches:meta.matches||null,winRate:meta.winRate??null,note:(meta.source==="Dota2ProTracker"?"Dota2ProTracker · referencia de alto MMR (7.000+ MMR/pro)":meta.source)+" · parche "+(meta.patch||"no confirmado")+(meta.matches?" · "+meta.matches.toLocaleString("es-AR")+" partidas":"")+(meta.winRate!=null?" · "+(meta.winRate*100).toFixed(1)+"% victorias":"")+". Datos estadísticos: orientan la frecuencia y el orden; el draft y el inventario deciden la compra."};
 }
 async function loadHeroBuild(options){
  const o=options||{},fetchImpl=o.fetch||root.fetch,storage=o.storage||(root&&root.localStorage),heroId=asNumber(o.heroId,-1),role=String(o.role||""),position=rolePosition(role),patch=String(o.patch||"");
@@ -96,14 +96,15 @@ async function loadHeroBuild(options){
   if(build&&build.build_data){
    const data=mapD2ptItems(build,constants);
    const updatedAt=safeDate(build.updated_at||raw.updated_at);
-   const patchIsFresh=!patch||!o.patchReleaseDate||!updatedAt||new Date(updatedAt)>=new Date(o.patchReleaseDate);
-   if(data.length&&patchIsFresh){
-    const matches=asNumber(build.num_matches||build.build_data.num_matches,0),winRate=Number.isFinite(Number(build.win_rate??build.build_data.win_rate))?Number(build.win_rate??build.build_data.win_rate):null;
+   const patchIsFresh=!o.patchReleaseDate||(!!updatedAt&&new Date(updatedAt)>=new Date(o.patchReleaseDate));
+   const matches=asNumber(build&&build.num_matches||build&&build.build_data&&build.build_data.num_matches,0);
+   if(data.length&&patchIsFresh&&matches>=20){
+    const winRate=Number.isFinite(Number(build.win_rate??build.build_data.win_rate))?Number(build.win_rate??build.build_data.win_rate):null;
     const itemsForPlan=data.map(x=>({...x,stage:x.minute<12?"early":x.minute<28?"mid":"late"}));
-    const result={heroId,role,position,patch,source:"Dota2ProTracker",sourceUrl:"https://dota2protracker.com/hero/"+heroId,updatedAt,matches,winRate,items:data,plan:buildPlan(o.heroName||"Héroe",role,itemsForPlan,{source:"Dota2ProTracker",patch,matches,winRate}),quality:matches>=100?"alta":matches>=30?"media":"baja",scope:"posición"};
+    const result={heroId,role,position,patch,source:"Dota2ProTracker",sourceUrl:"https://dota2protracker.com/hero/"+heroId,updatedAt,matches,winRate,items:data,plan:buildPlan(o.heroName||"Héroe",role,itemsForPlan,{source:"Dota2ProTracker",patch,matches,winRate}),quality:matches>=100?"alta":matches>=30?"media":"baja",scope:"posición",rankScope:"7.000+ MMR/pro"};
     memory.set(key,result);writeCache(storage,CACHE_KEY+":"+key,result);return result;
    }
-   d2ptError=new Error("Dota2ProTracker no tiene una muestra suficiente o actualizada para "+patch+".");
+   d2ptError=new Error("Dota2ProTracker no tiene al menos 20 partidas recientes y actualizadas para "+patch+" en esta posición.");
   }else d2ptError=new Error("Dota2ProTracker no devolvió una build válida para esta posición.");
  }catch(error){d2ptError=error}
  try{

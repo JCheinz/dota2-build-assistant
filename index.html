@@ -222,7 +222,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.56 · PARCHE 7.42</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.57 · PARCHE 7.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -242,6 +242,13 @@
     <p class="hint">Descarga de una sola vez las habilidades, talentos, enfriamientos, costes y metadatos disponibles para todos los héroes.</p>
     <div class="actions"><button class="btn secondary" id="loadSkillDatabase" type="button">Actualizar base de habilidades</button></div>
     <p class="status" id="skillDataStatus" aria-live="polite">La base todavía no se cargó en esta sesión.</p>
+  </section>
+  <section class="panel" id="buildDataPanel">
+    <h2>Base de builds y mercado <span class="count" id="buildDataBadge">Sin consultar</span></h2>
+    <p class="hint">Al analizar, consulta una build del héroe y posición seleccionados. Prioridad: Dota2ProTracker por posición; respaldo: OpenDota, que no separa las compras por rol.</p>
+    <div class="actions"><button class="btn secondary" id="refreshBuildData" type="button">Actualizar build del héroe seleccionado</button></div>
+    <p class="status" id="buildDataStatus" aria-live="polite">La build estadística se consulta al analizar el draft. Las rutas manuales quedan como respaldo si las fuentes no responden.</p>
+    <p class="hint">Fuentes: <a href="https://dota2protracker.com/" target="_blank" rel="noopener">Dota2ProTracker</a> · <a href="https://www.opendota.com/" target="_blank" rel="noopener">OpenDota</a> · <a href="https://statsdota.com/en/guides" target="_blank" rel="noopener">StatsDota</a>. La guía de Centaur consultada aún figuraba como 7.41f; no se usa para sustituir rutas 7.42 hasta que publique datos del parche vigente.</p>
   </section>
   <section class="panel">
     <h2>Tu configuración</h2>
@@ -282,6 +289,7 @@
 <script src="./skill-data-engine.js?v=354"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
+<script src="./build-data-engine.js?v=7421"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -506,7 +514,22 @@ const heroPlans = {
 "npc_dota_hero_puck|Mid": {title:"Puck Mid · movilidad, Witch Blade y control",early:[["Magic Wand","Sustain temprano si el rival genera cargas."],["Power Treads","Atributos y velocidad de ataque para sostener la fase de línea."]],core:[["Oblivion Staff","Atributos y velocidad de ataque; componente de Witch Blade."],["Witch Blade","Daño y ralentización para aprovechar ataques después de usar habilidades."],["Blink Dagger","Reposicionamiento para iniciar, esquivar y mantener el control de la pelea."]],situational:[["Eul’s Scepter of Divinity","Dispel propio y preparación de combo si la interacción concreta aplica."],["Black King Bar","Si el control enemigo te impide usar Phase Shift o ejecutar el combo."],["Linken’s Sphere","Contra habilidades unitarias decisivas que puedan bloquearse con el escudo."]],note:"StatsDota 7.41f, snapshot 16-11-2026: Puck Mid 25.434 partidas con objetos conocidos; 94,9% de las partidas del héroe. Compras típicas: Magic Wand ~3:55, Power Treads ~9:43, Oblivion Staff ~12:15, Witch Blade ~14:28 y Blink Dagger ~18:50. La secuencia refleja compras observadas; el orden puede variar según el enfrentamiento."},
 "npc_dota_hero_obsidian_destroyer|Mid": {title:"Outworld Destroyer Mid · Astral, Witch Blade y alcance",early:[["Null Talisman","Atributos y regeneración de maná; compra inicial frecuente."],["Power Treads","Botas de atributos para sostener el ritmo de línea."]],core:[["Witch Blade","Daño y velocidad de ataque para aprovechar ataques después de Astral Imprisonment."],["Blink Dagger","Reposicionamiento para alcanzar objetivos o salir de una entrada desfavorable."],["Hurricane Pike","Alcance y separación si los rivales pueden alcanzarte."]],situational:[["Meteor Hammer","Ruta alternativa de presión y canalización; no desplaza Witch Blade como obligación universal."],["Force Staff","Reposicionamiento cuando necesitás salvarte o crear distancia."],["Black King Bar","Si el control concreto te impide usar Astral o mantener daño."],["Scythe of Vyse","Control de cierre contra una amenaza prioritaria."]],note:"StatsDota 7.41f, snapshot 16-11-2026: Outworld Destroyer Mid 507.229 partidas en la muestra del parche y 113.830 en el corte por posición. Compras típicas: Null Talisman ~1:55, Power Treads ~8:16, Oblivion Staff ~13:10, Witch Blade ~15:21, Blink Dagger ~18:50 y Force Staff/Dragon Lance ~24 min. Meteor Hammer aparece en una ruta alternativa, no como compra universal."},
 "npc_dota_hero_invoker|Mid": {title:"Invoker Mid · Null Talisman, Kaya y Meteor Hammer",early:[["Null Talisman","Atributos y regeneración de maná; compra temprana frecuente."],["Kaya","Amplificación y regeneración para potenciar la rotación de hechizos."]],core:[["Meteor Hammer","Presión y control de área; compra típica alrededor de minuto 12."],["Boots of Travel","Movilidad global para acelerar rotaciones y presión de líneas."]],situational:[["Black King Bar","Si el control rival impide ejecutar combos."],["Force Staff","Reposicionamiento para evitar capturas o ajustar el ángulo."],["Octarine Core","Enfriamientos y alcance si el estilo de partida aprovecha sus efectos."],["Shiva’s Guard","Armadura y utilidad contra daño físico, velocidad de ataque o sustain."]],note:"StatsDota 7.41f, snapshot 16-11-2026: Invoker Mid 99.019 partidas con build por posición. Compras típicas: Null Talisman ~1:58, Kaya ~10:30, Meteor Hammer ~11:42 y Boots of Travel ~19:09. El orden puede variar por estilo Quas-Wex/Exort y por necesidades de la partida."}};
-function getHeroPlan(hero,role){return heroPlans[hero.name+"|"+role]||null;}
+function canonicalBuildItemName(name){
+ const clean=value=>String(value||"").toLocaleLowerCase("en").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[’‘`]/g,"'").replace(/[^a-z0-9]+/g," ").trim();
+ const wanted=clean(name);
+ const known=Object.keys(itemSlugs||{}).find(key=>clean(key)===wanted);
+ return known||name;
+}
+function getHeroPlan(hero,role){
+ const live=window.DotaBuildDataEngine?.get(hero.id,role,window.DOTA_PATCH_742?.patch);
+ const manual=heroPlans[hero.name+"|"+role]||null;
+ // Solo una fuente con datos por posición puede desplazar la ruta individual manual.
+ if(live?.plan&&(live.source==="Dota2ProTracker"||!manual)){
+  const adapt=rows=>(rows||[]).map(([name,why])=>[canonicalBuildItemName(name),why]);
+  return {...live.plan,early:adapt(live.plan.early),core:adapt(live.plan.core),situational:adapt(live.plan.situational),liveData:live};
+ }
+ return manual||null;
+}
 function getHeroSpecialization(hero,role){
  const plan=getHeroPlan(hero,role),roles=new Set(hero.roles||[]),ranged=hero.attack_type==="Ranged";
  const attr=({str:"Fuerza",agi:"Agilidad",int:"Inteligencia",all:"Universal"})[hero.primary_attr]||"atributo no informado";
@@ -527,8 +550,9 @@ function getHeroSpecialization(hero,role){
  risks.push(ranged?"si lo alcanzan, el posicionamiento puede ser más importante que el daño adicional":"necesita elegir bien cuándo entrar y cómo salir del combate");
  const style=role==="Carry"?(ranged?"Carry a distancia":"Carry cuerpo a cuerpo"):role==="Mid"?(roles.has("Nuker")?"Mid de daño por habilidades":roles.has("Escape")?"Mid móvil":"Mid de perfil mixto"):role==="Offlane"?(roles.has("Initiator")?"Offlane iniciador":roles.has("Durable")?"Offlane resistente":"Offlane de utilidad"):roles.has("Disabler")?"Support de control":roles.has("Nuker")?"Support de daño y habilidades":"Support de utilidad";
  const guide=window.DOTA_HERO_SPECIALIZATIONS?.[hero.name.replace("npc_dota_hero_","")+"|"+role]?.guide||null;
- const level=guide?"GUÍA INDIVIDUAL COMPLETA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
- const source=guide?"Guía individual cargada para este héroe y posición.":plan?"Existe una ruta individual de objetos, pero todavía no una guía completa de habilidades, talentos y combos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
+ const liveBuild=plan?.liveData||null;
+ const level=guide?"GUÍA INDIVIDUAL COMPLETA":liveBuild?"BUILD ESTADÍSTICA ACTUALIZADA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
+ const source=guide?"Guía individual cargada para este héroe y posición.":liveBuild?(liveBuild.source+" · "+(liveBuild.scope==="posición"?"datos por posición":"datos generales sin separación por posición")+" · "+(liveBuild.matches?liveBuild.matches.toLocaleString("es-AR")+" partidas":"muestra sin tamaño informado")):plan?"Existe una ruta individual local de respaldo, pero todavía no una guía completa de habilidades, talentos y combos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
  return {heroId:hero.name.replace("npc_dota_hero_",""),heroName:hero.localized_name,role,identity,style,strengths:strengths.slice(0,4),risks:risks.slice(0,2),plan,guide,level,source,principle:plan?plan.note:"La ruta de compra debe ajustarse a su función, fase de partida, draft e inventario. No se inventan habilidades, combos ni talentos cuando no hay un perfil verificado."};
 }
 
@@ -564,11 +588,13 @@ function renderSpecializationGuide(g){
 
 function renderHeroPlan(plan){
  const section=(heading,items)=>'<div class="result-section"><h3>'+heading+'</h3>'+renderItemCards(items)+'</div>';
- const legacy=/7\.41f/.test(plan.note||"");
+ const legacy=/7\\.41f/.test(plan.note||"");
  const patchWarning=legacy?'<div class="warning"><b>Datos de parche anterior:</b> esta ruta contiene referencias de 7.41f y todavía requiere validación individual para 7.42. Usala como orientación, no como build actual certificada.</div>':"";
- return '<div class="result-section"><h3>'+esc(plan.title)+'</h3></div>'+patchWarning+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+' Ruta orientativa, no build estadística certificada por rango.</div>';
+ const live=plan.liveData;
+ const source=live?'<div class="chips"><span class="chip">'+esc(live.source)+'</span><span class="chip">Parche '+esc(live.patch||"no confirmado")+'</span><span class="chip">'+esc(live.scope==="posición"?"Build por posición":"Datos sin separación por posición")+'</span>'+(live.matches?'<span class="chip">'+live.matches.toLocaleString('es-AR')+' partidas</span>':'')+'</div>':"";
+ const warning=live?.warning?'<div class="warning">'+esc(live.warning)+'</div>':"";
+ return '<div class="result-section"><h3>'+esc(plan.title)+'</h3>'+source+'</div>'+patchWarning+warning+section('Compra inicial / línea',plan.early)+section('Núcleo orientativo',plan.core)+section('Alternativas situacionales',plan.situational)+'<div class="warning">'+esc(plan.note)+(live?' Fuente: '+esc(live.sourceUrl||"")+'.':' Ruta manual de respaldo; no equivale a build estadística certificada por rango.')+'</div>';
 }
-
 
 heroPlans["npc_dota_hero_pugna|Support 4"]={
  title:"Pugna · Support 4 · presión de línea y utilidad ofensiva",
@@ -1964,8 +1990,11 @@ function buildAdaptivePlan(hero,role,enemies,live){
   .map(([name,data])=>({name,why:"Respuesta contextual: "+data.why.slice(0,2).join("; ")+". Confirmá que el efecto del objeto resuelva esa amenaza y que tu héroe lo aproveche.",roles:[role],tags:["threat-response"],threatSpecific:true,threatWeight:data.score}));
  const specialization=getHeroSpecialization(hero,role);
  const heroPlan=specialization.plan;
- const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea"})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición"})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada"}))]:[];
- const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:(MARKET_ITEM_COSTS[x.name]||undefined)}));
+ const liveBuildData=window.DotaBuildDataEngine?.get(hero.id,role,window.DOTA_PATCH_742?.patch)||null;
+ const livePopularityItems=liveBuildData?.source==="OpenDota"?(liveBuildData.items||[]).slice(0,12).map(x=>({name:canonicalBuildItemName(x.name),why:"OpenDota · compra observada en partidas parseadas recientes del héroe. No está separada por posición ni parche; úsala como señal secundaria, no como núcleo automático.",roles:[role],tags:["live-popularity"],livePopularity:true,stage:x.stage,liveCount:x.count})): [];
+ const liveCost=name=>liveBuildData?.items?.find(row=>canonicalBuildItemName(row.name)===canonicalBuildItemName(name))?.cost||undefined;
+ const heroRoute=heroPlan?[...heroPlan.early.map(x=>({name:x[0],why:x[1],stage:"Inicio",marketPhase:"Línea",cost:liveCost(x[0])})),...heroPlan.core.map(x=>({name:x[0],why:x[1],stage:"Medio",marketPhase:"Transición",cost:liveCost(x[0])})),...heroPlan.situational.map(x=>({name:x[0],why:x[1],stage:"Avanzada",marketPhase:"Avanzada",cost:liveCost(x[0])}))]:[];
+ const plannedItems=heroRoute.map((x,routeIndex)=>({...x,roles:[role],tags:["hero-fit"],heroSpecific:true,routeIndex,heroKey:hero.name+"|"+role,cost:x.cost||(x.name==="Blink Dagger"?2250:x.name==="Aghanim’s Shard"?1400:(MARKET_ITEM_COSTS[x.name]||undefined))}));
  const heroRoles=new Set(hero.roles||[]);
  const archetypeItems=[];
  const addArchetype=(name,why,roles,tags)=>archetypeItems.push({name,why,roles,tags,heroArchetype:true});
@@ -2014,7 +2043,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
  const pugnaMid=hero.name==="npc_dota_hero_pugna"&&mid;
  const pugnaResponses=pugnaMid?pugnaFinalBuild(matchupContext,live).map(x=>({...x,roles:[role],tags:["threat-response"],threatSpecific:true})):[];
  const pugnaPlannedItems=pugnaMid?plannedItems.map(x=>{const response=pugnaResponses.find(p=>p.name===x.name);return response?{...x,pugnaScore:response.score,cost:response.cost,condition:response.condition,threatSpecific:true}:x;}):plannedItems;
- const candidates=[...activeProblemResponses,...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
+ const candidates=[...activeProblemResponses,...roleItemsForCandidates,...pugnaPlannedItems,...focusedItems,...threatItems,...archetypeItems,...pugnaResponses,...livePopularityItems,...(heroPlan?[]:universalItems)].filter((x,i,a)=>a.findIndex(y=>y.name===x.name)===i).filter(x=>!(hero.name==="npc_dota_hero_antimage"&&["Aeon Disk","Force Staff","Satanic","Daedalus","Butterfly","Nullifier","Scythe of Vyse"].includes(x.name)));
  const scores=candidates.map(x=>{
   let score=x.roles.includes(role)?2.2:0.4;
   if(x.heroSpecific){score+=4.2;if(x.marketPhase===getMarketPhase(live.minute).key)score+=1.8;else score-=0.35;}
@@ -2027,6 +2056,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   if(hero.name==="npc_dota_hero_antimage"&&["Linken’s Sphere","Black King Bar"].includes(x.name))score-=2.5;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&!["batrider","bane","beastmaster","legion_commander"].some(id=>enemyIds.has(id)))score=-100;
   if(hero.name==="npc_dota_hero_antimage"&&x.name==="Linken’s Sphere"&&focusedEnemy&&["batrider","bane","beastmaster","legion_commander"].includes(focusedEnemy))score+=4.5;
+  if(x.livePopularity)score+=0.7;
   if(x.heroArchetype)score+=2.6;
   if(x.roleBaseline)score+=1.35;
   if(Number.isFinite(x.pugnaScore))score+=x.pugnaScore;
@@ -2231,9 +2261,42 @@ function analyzeCore(options={}){
  window.__DOTA_ANALYSIS_STAGE="renderizado final del informe";
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+async function loadSelectedBuildData(force=false){
+ const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
+ if(!me)return null;
+ return window.DotaBuildDataEngine.loadHeroBuild({heroId:me.id,heroName:me.localized_name,role,patch:window.DOTA_PATCH_742?.patch||"7.42",patchReleaseDate:window.DOTA_PATCH_742?.releaseDate||"2026-11-18",force});
+}
+function showBuildDataStatus(data,error=null){
+ const status=$('buildDataStatus'),badge=$('buildDataBadge');
+ if(!status||!badge)return;
+ if(error){badge.textContent="Fuente no disponible";status.textContent="No se pudieron actualizar las builds: "+error.message+". Se conserva la ruta local de respaldo; no se presenta como estadística 7.42.";return;}
+ if(!data){badge.textContent="Sin héroe";status.textContent="Seleccioná tu héroe y posición para consultar una build.";return;}
+ badge.textContent=data.source==="Dota2ProTracker"?"Build por posición":"Respaldo general";
+ if(data.source==="Dota2ProTracker"){
+  status.textContent="Dota2ProTracker · "+data.role+" · parche "+(data.patch||"sin confirmar")+" · "+(data.matches||0).toLocaleString('es-AR')+" partidas"+(data.updatedAt?" · actualizado "+new Date(data.updatedAt).toLocaleString('es-AR'):"")+(data.cached?" · caché local":"");
+ }else{
+  status.textContent="OpenDota · datos recientes del héroe, sin separación por posición ni parche verificable. Se usa solo como orientación general."+(data.cached?" · caché local":"");
+ }
+}
 function analyze(options={}){
- try{return analyzeCore(options);}
- catch(error){
+ try{
+  const report=analyzeCore(options);
+  const selected=ally.find(h=>String(h.id)===$('myHero').value);
+  if(selected&&window.DotaBuildDataEngine){
+   const cached=window.DotaBuildDataEngine.get(selected.id,$('myRole').value,window.DOTA_PATCH_742?.patch);
+   if(cached)showBuildDataStatus(cached);
+   else{
+    const status=$('buildDataStatus'),badge=$('buildDataBadge');
+    if(status)status.textContent="Análisis inicial listo. Consultando builds estadísticas en segundo plano…";
+    if(badge)badge.textContent="Consultando…";
+    loadSelectedBuildData(false).then(data=>{
+     showBuildDataStatus(data);
+     if($('result').classList.contains('show'))analyzeCore({scroll:false});
+    }).catch(error=>showBuildDataStatus(null,error));
+   }
+  }
+  return report;
+ }catch(error){
   console.error("Dota Build Assistant analysis failed:",error);
   const stage=(typeof window!=="undefined"&&window.__DOTA_ANALYSIS_STAGE)||"etapa no identificada";
   const stack=error&&error.stack?String(error.stack):String(error);
@@ -2251,6 +2314,14 @@ $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('m
 $('myHero').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value;if($('result').classList.contains('show'))analyze({scroll:false});};
 $('myRole').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
 $('analyze').onclick=analyze;
+$('refreshBuildData').onclick=async()=>{
+ const button=$('refreshBuildData');button.disabled=true;button.textContent="Actualizando…";
+ try{
+  const data=await loadSelectedBuildData(true);showBuildDataStatus(data);
+  if(ally.filter(Boolean).length===5&&enemy.filter(Boolean).length===5&&$('result').classList.contains('show'))analyzeCore({scroll:false});
+ }catch(error){showBuildDataStatus(null,error);}
+ finally{button.disabled=false;button.textContent="Actualizar build del héroe seleccionado";}
+};
 $('toggleLiveState').onclick=()=>{
  const content=$('liveStateContent'),button=$('toggleLiveState');
  const expanded=button.getAttribute('aria-expanded')==='true';
