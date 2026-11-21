@@ -427,6 +427,21 @@ function renderHeroInventory(state,hero=null,role=""){
  const historyView='<div class="inventory-history"><div class="inventory-zone-title">Historial de compras y consumibles</div>'+(ledgerHistory.length?'<ol>'+ledgerHistory.map(x=>'<li><b>'+esc(x.name)+'</b> · '+esc(({purchase:'Compra',upgrade:'Mejora','component-purchase':'Componente','component-consumed':'Componente consumido','component-removed':'Componente retirado','consumable-used':'Consumible usado',sold:'Venta',removed:'Retirado','purchase-undone':'Compra deshecha'}[x.action]||x.action))+(x.minute===null?'':' · min '+x.minute)+'</li>').join('')+'</ol>':'<p class="hint">Todavía no hay movimientos registrados.</p>')+'<button type="button" class="btn secondary" id="clearPurchaseHistory">Borrar historial</button></div>';
  return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><div class="inventory-zone-title">Inventario principal</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · tocá un objeto para venderlo</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. Las compras, ventas, mejoras y consumibles usados quedan en el historial. Tocá «Usado» al consumir un consumible.</p></div>';
 }
+function renderFullMarketCatalog(){
+ const removed=window.DOTA_PATCH_742?.removedItems||new Set();
+ const names=new Set([...Object.keys(MARKET_ITEM_COSTS||{}),...Object.keys(itemRecipes||{}),...Object.values(itemRecipes||{}).flat().map(x=>x.name)]);
+ const valid=[...names].filter(name=>name&&!/^Receta de /i.test(name)&&!removed.has(name)).sort((a,b)=>a.localeCompare(b,"es"));
+ const basic=valid.filter(name=>!(itemRecipes[name]||[]).length);
+ const combined=valid.filter(name=>(itemRecipes[name]||[]).length);
+ const entry=name=>{
+  const bought=purchaseLedger.snapshot().inventory.some(x=>x.name===name);
+  const cost=MARKET_ITEM_COSTS[name];
+  const recipe=(itemRecipes[name]||[]).filter(x=>!removed.has(x.name));
+  const detail=recipe.length?"Incluye: "+recipe.map(x=>x.name+(x.quantity>1?" ×"+x.quantity:"")).join(" · "):"Objeto básico / componente";
+  return '<button type="button" class="item-card item-buy-toggle '+(bought?'bought':'complement')+'" data-buy-item="'+esc(name)+'" data-market-entry="'+esc(name.toLowerCase())+'" aria-pressed="'+bought+'">'+renderItemIcon(name)+'<div class="item-copy"><b>'+esc(name)+'</b><span>'+esc(detail)+'</span><small class="item-priority-label">'+(bought?'✓ EN INVENTARIO · TOCÁ PARA DESHACER':Number.isFinite(Number(cost))?Number(cost).toLocaleString('es-AR')+' de oro · ELEGIR COMPRA':'Precio no disponible · ELEGIR COMPRA')+'</small></div></button>';
+ };
+ return '<details class="result-section full-market-catalog"><summary><b>Mercado completo · '+valid.length+' objetos</b><span class="hint"> Elegí cualquier objeto; la recomendación del asistente sigue siendo orientativa.</span></summary><div class="market-catalog-body"><input type="search" class="market-search" id="marketCatalogSearch" placeholder="Buscar objeto..." aria-label="Buscar objeto en el mercado"><details open><summary>Objetos básicos y componentes · '+basic.length+'</summary><div class="item-list">'+basic.map(entry).join('')+'</div></details><details><summary>Objetos combinados · '+combined.length+'</summary><div class="item-list">'+combined.map(entry).join('')+'</div></details><p class="hint">La compra manual no está limitada por la fase ni por la prioridad recomendada. Al elegir un objeto, se registra y el asistente recalcula la siguiente sugerencia.</p></div></details>';
+}
 function renderItemCards(items){
  const owned=new Set(getLiveState().owned);
  const removedPatchItems=typeof window!=="undefined"?window.DOTA_PATCH_742?.removedItems:null;
@@ -2144,6 +2159,7 @@ function analyze(options={}){
  ].join('\n');
  const html=[];
  html.push('<div class="result-section purchase-workspace"><h3>Compras y seguimiento</h3><p class="hint">Tocá cualquier objeto recomendado cuando lo compres. Se agregará al inventario y el motor actualizará la siguiente recomendación. Desde el inventario podés quitarlo si te equivocaste o lo vendiste.</p>'+renderHeroInventory(live,me,role)+'<div class="inventory-count">'+(live.owned.length+' objetos completos · '+live.components.length+' componentes registrados')+'</div>'+(nextPurchase&&!nextPurchase.done?'<button type="button" class="item-card priority item-buy-toggle '+(nextPurchase.kind==='component'?'':(live.owned.includes(nextPurchase.target?.name||nextPurchase.name)?'bought':''))+'" '+(nextPurchase.kind==='component'?'data-buy-component="'+esc(nextPurchase.name)+'"':'data-buy-item="'+esc(nextPurchase.target?.name||nextPurchase.name||'')+'"')+' aria-pressed="'+(nextPurchase.kind==='component'?false:live.owned.includes(nextPurchase.target?.name||nextPurchase.name))+'">'+renderItemIcon(nextPurchase.name||nextPurchase.target?.name||'')+'<div class="item-copy"><b>Próxima compra: '+esc(nextPurchase.name||nextPurchase.target?.name||'')+'</b><small>Fase del mercado · '+esc(adaptive.phase)+'</small><span>'+esc(nextPurchase.reason||nextPurchase.routeReason||'Prioridad calculada para tu héroe y draft.')+'</span>'+(nextPurchase.kind==='component'&&Number.isFinite(nextPurchase.cost)?'<small>Componente · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':Number.isFinite(nextPurchase.cost)?'<small>Objeto completo · '+nextPurchase.cost.toLocaleString('es-AR')+' de oro'+(nextPurchase.remaining>0?' · faltan '+nextPurchase.remaining.toLocaleString('es-AR'):' · disponible')+'</small>':'<small>Precio no verificado por el catálogo · comprobá el coste en la tienda</small>')+'<small class="item-priority-label">TOCÁ AL COMPRAR</small></div></button>':'<p class="hint">No hay una compra siguiente definida con el estado actual.</p>')+'</div>');
+ html.push(renderFullMarketCatalog());
  html.push('<div class="result-section"><h3>Resumen del draft</h3><p class="hint">'+esc(rankSummary)+'</p><div class="chips"><span class="chip">'+esc(me.localized_name)+'</span><span class="chip">'+esc(role)+'</span><span class="chip">'+esc($('gameMode').value)+' · '+esc($('rank').value)+'</span><span class="chip">Minuto '+live.minute+'</span><span class="chip">'+live.gold.toLocaleString('es-AR')+' de oro</span></div><p class="hint"><b>Aliados:</b> '+allies.map(h=>esc(h.localized_name)).join(' · ')+'</p><p class="hint"><b>Enemigos:</b> '+enemies.map(h=>esc(h.localized_name)).join(' · ')+'</p></div>');
  if(purchaseDecision){
   const primary=purchaseDecision.primary;
@@ -2222,6 +2238,12 @@ function clearItemsOnly(){
  if($('result').classList.contains('show'))analyze({scroll:false});
 }
 $('clearHeroes').onclick=clearHeroesOnly;
+document.addEventListener('input',e=>{
+ if(e.target&&e.target.id==="marketCatalogSearch"){
+  const q=e.target.value.trim().toLocaleLowerCase();
+  document.querySelectorAll('[data-market-entry]').forEach(el=>{el.hidden=!!q&&!el.getAttribute('data-market-entry').includes(q);});
+ }
+});
 document.addEventListener('click',e=>{if(e.target&&e.target.id==='clearItems')clearItemsOnly();});
 $('reset').onclick=()=>{clearHeroesOnly();clearItemsOnly();$('result').classList.remove('show');};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastReport);$('copy').textContent='¡Análisis copiado!';setTimeout(()=>$('copy').textContent='Copiar análisis para ChatGPT',1800)}catch(e){alert('No se pudo copiar automáticamente.');}};
