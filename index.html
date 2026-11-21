@@ -1569,7 +1569,8 @@ function enforceSingleBootChoice(items,ownedNames=[]){
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
  build=enforceSingleBootChoice(build,state.owned||[]);
- const phase=getMarketPhase(state.minute).key;
+ const initialMarketPhase=getMarketPhase(state.minute);
+  const phase=state.minute<12?initialMarketPhase.key:state.minute<25?"Core":"Avanzada";
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
   // Un objeto completo registrado en el inventario también cuenta como componente
@@ -1600,7 +1601,7 @@ function getNextPurchase(build,state,preferredName=null){
   const options=candidates.map(target=>({target,result:recipeTarget(target)}));
   const affordable=options.find(x=>x.result.cost!==null&&x.result.remaining===0);
   const chosen=affordable||options[0];
-  return {...chosen.result,marketPhase:key,phaseLabel:marketPhase.label,
+  return {...chosen.result,marketPhase:key,phaseLabel:phaseLabel,
    routeReason:"Compra de "+key.toLocaleLowerCase("es")+" para "+state.role+". La selección respeta el rol, el presupuesto disponible y los objetos ya registrados."};
  };
  if((marketPhase.key==="Inicio"||marketPhase.key==="Línea")&&(!state.problem||state.problem==="none")&&!build.some(x=>x.heroSpecific)){
@@ -1610,14 +1611,14 @@ function getNextPurchase(build,state,preferredName=null){
  const activeProblemChoice=build.filter(x=>x.activeProblem&&x.activeProblemId===String(state.problem||"none")&&!owned.has(x.name)&&state.minute>=(x.minMinute||0))
   .sort((a,b)=>(Number(b.activePriority)||0)-(Number(a.activePriority)||0))[0];
  if(activeProblemChoice&&Number(activeProblemChoice.activePriority)>=8.0){
-  return {...recipeTarget(activeProblemChoice),marketPhase:marketPhase.key,phaseLabel:marketPhase.label,urgentOverride:true,routeReason:"Respuesta adelantada porque seleccionaste un problema que estás sufriendo. La ruta vuelve a su orden normal cuando esta respuesta ya está cubierta."};
+  return {...recipeTarget(activeProblemChoice),marketPhase:marketPhase.key,phaseLabel:phaseLabel,urgentOverride:true,routeReason:"Respuesta adelantada porque seleccionaste un problema que estás sufriendo. La ruta vuelve a su orden normal cuando esta respuesta ya está cubierta."};
  }
  const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
  if(isPugna){
   if(state.minute>=5&&state.minute<12){
    const laneTargets=build.filter(x=>["Bottle","Magic Wand"].includes(x.name)&&!owned.has(x.name))
     .sort((a,b)=>(Number(b.pugnaScore)||Number(b.score)||0)-(Number(a.pugnaScore)||Number(a.score)||0));
-   if(laneTargets.length)return {...recipeTarget(laneTargets[0]),marketPhase:"Línea",phaseLabel:marketPhase.label,routeReason:"Compra de línea de Pugna Mid. Bottle depende del control de runas; Magic Wand depende de que los rivales generen cargas."};
+   if(laneTargets.length)return {...recipeTarget(laneTargets[0]),marketPhase:"Línea",phaseLabel:phaseLabel,routeReason:"Compra de línea de Pugna Mid. Bottle depende del control de runas; Magic Wand depende de que los rivales generen cargas."};
    return {done:true,message:"La fase de línea de Pugna está cubierta. El núcleo de Arcane Boots → Aether Lens se habilita desde el minuto 12."};
   }
   if(state.minute<5)return {done:true,message:"Inicio de partida: completá los consumibles y atributos de línea antes de activar los objetos de progresión."};
@@ -1651,7 +1652,7 @@ function getNextPurchase(build,state,preferredName=null){
   const coreOrder=["Blink Dagger","Glimmer Cape","Aghanim’s Shard"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
   if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."};}
-  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&state.minute>=25&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
   return situational[0]?{target:situational[0],kind:"goal",name:situational[0].name,reason:situational[0].why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
  }
  const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid");
@@ -1659,7 +1660,7 @@ function getNextPurchase(build,state,preferredName=null){
   if(state.minute>=5&&state.minute<12){
    const laneTarget=build.filter(x=>x.heroSpecific&&x.heroKey?.startsWith("npc_dota_hero_antimage|")&&x.marketPhase==="Línea"&&!owned.has(x.name))
     .sort((a,b)=>(Number(a.routeIndex)||0)-(Number(b.routeIndex)||0))[0];
-   if(laneTarget)return {...recipeTarget(laneTarget),marketPhase:"Línea",phaseLabel:marketPhase.label,routeReason:"Primero completá la progresión de línea de Anti-Mage; Battle Fury no desplaza los objetos previos antes del minuto 12."};
+   if(laneTarget)return {...recipeTarget(laneTarget),marketPhase:"Línea",phaseLabel:phaseLabel,routeReason:"Primero completá la progresión de línea de Anti-Mage; Battle Fury no desplaza los objetos previos antes del minuto 12."};
    return {done:true,message:"La fase inicial de Anti-Mage está cubierta. La ruta de farmeo de Battle Fury se habilita desde el minuto 12."};
   }
   if(state.minute<5)return {done:true,message:"Inicio de partida: priorizá consumibles y atributos de línea antes de completar Power Treads."};
@@ -1677,15 +1678,15 @@ function getNextPurchase(build,state,preferredName=null){
  // Progresión común: respetar el orden de la ruta individual de cualquier héroe,
  // sin depender de una excepción escrita para cada personaje.
  const orderedHeroRoute=build
-  .filter(x=>x.heroSpecific&&x.stage!=="Avanzada"&&!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex))
+  .filter(x=>x.heroSpecific&&(x.stage!=="Avanzada"||state.minute>=25)&&!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex))
   .sort((a,b)=>(Number.isFinite(a.routeIndex)?a.routeIndex:999)-(Number.isFinite(b.routeIndex)?b.routeIndex:999));
  if(orderedHeroRoute.length){
   const target=orderedHeroRoute[0];
-  return {...recipeTarget(target),marketPhase:target.marketPhase||marketPhase.key,phaseLabel:marketPhase.label,routeReason:"Progresión individual de "+(state.role||"la posición seleccionada")+": se respeta el orden y el tempo de su ruta. Las respuestas situacionales pueden adelantarla solo cuando la amenaza activa lo justifica."};
+  return {...recipeTarget(target),marketPhase:target.marketPhase||marketPhase.key,phaseLabel:phaseLabel,routeReason:"Progresión individual de "+(state.role||"la posición seleccionada")+": se respeta el orden y el tempo de su ruta. Las respuestas situacionales pueden adelantarla solo cuando la amenaza activa lo justifica."};
  }
- const rolePhasePurchase=chooseRolePhase(marketPhase.key);
+ const rolePhasePurchase=chooseRolePhase(state.minute>=25?"Avanzada":marketPhase.key);
  if(rolePhasePurchase)return rolePhasePurchase;
- const options=build.filter(x=>!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex)&&!(phaseIndex===0&&x.stage==="Inicio"&&!x.roleBaseline)&&!(phaseIndex<2&&x.stage==="Medio")&&!(phaseIndex<4&&x.stage==="Avanzada")).map(target=>{
+ const options=build.filter(x=>!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex)&&!(phaseIndex===0&&x.stage==="Inicio"&&!x.roleBaseline)&&!(phaseIndex<2&&x.stage==="Medio")&&!(state.minute<25&&x.stage==="Avanzada")).map(target=>{
   const recipe=itemRecipes[target.name]||[];
   const missing=getMissingRecipeParts(target.name,owned,components);
   const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*part.quantity)||missing[0]||null;
@@ -1700,7 +1701,7 @@ function getNextPurchase(build,state,preferredName=null){
  }).filter(x=>(x.score||0)>0).sort((a,b)=>b.decisionScore-a.decisionScore);
  if(!options.length)return {done:true,message:"No hay una compra pendiente con prioridad suficiente en esta ruta. Revisá el inventario, el minuto y el problema seleccionado."};
  const chosen=options[0],alt=options[1];
- return {...recipeTarget(chosen),marketPhase:chosen.marketPhase||marketPhase.key,phaseLabel:marketPhase.label,alternative:alt?recipeTarget(alt):null,routeReason:"La elección pondera fase, prioridad de posición, oro e inventario y progreso de componentes."};
+ return {...recipeTarget(chosen),marketPhase:chosen.marketPhase||marketPhase.key,phaseLabel:phaseLabel,alternative:alt?recipeTarget(alt):null,routeReason:"La elección pondera fase, prioridad de posición, oro e inventario y progreso de componentes."};
 }
 function pugnaFinalBuild(matchups,state){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
