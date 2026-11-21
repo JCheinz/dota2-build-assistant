@@ -414,7 +414,11 @@ function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=
  const selectedProblem=String(state.problem||"none");
  const tacticalPriority={"enemy:alchemist":"Spirit Vessel","enemy:huskar":"Spirit Vessel","issue:sustain":"Spirit Vessel","issue:initiation":"Aeon Disk","enemy:centaur":"Aeon Disk","enemy:dawnbreaker":"Aeon Disk","enemy:tidehunter":"Aeon Disk","issue:control":"Black King Bar","enemy:lion":"Black King Bar","enemy:bane":"Black King Bar","issue:magic":"Glimmer Cape","issue:teamfight":"Glimmer Cape","issue:mobility":"Blink Dagger","issue:illusions":"Shiva’s Guard","issue:invisibility":"Gem of True Sight"};
  const tacticalName=tacticalPriority[selectedProblem];
- const route=[...(adaptive?.mainRoute||[]),...(adaptive?.selected||[])];
+ const marketPhaseIndex=getMarketPhase(state.minute).index;
+ const planCorePriority=marketPhaseIndex>=2?(plan?.core||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const planEarlyPriority=marketPhaseIndex<2?(plan?.early||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const planSituationalPriority=marketPhaseIndex>=3?(plan?.situational||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])];
  const priorityNames=[...new Set(route.map(x=>x&&x.name).filter(Boolean))];
  if(!priorityNames.length&&plan){
   const phase=getMarketPhase(state.minute).key;
