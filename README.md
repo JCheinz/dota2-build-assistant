@@ -4,7 +4,7 @@ Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar
 
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
-**Estado:** rama 3.59 en validación; incorpora reloj de partida paus able y rotación de inventario por fases.
+**Estado:** rama 3.59 en validación; incorpora reloj de partida pausable y rotación de inventario por fases.
 
 ## Funcionalidades actuales
 
