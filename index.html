@@ -218,11 +218,19 @@
     .market-drawer-body .item-list{grid-template-columns:1fr;gap:7px}.market-drawer-body .item-card{min-height:66px}
     body.market-drawer-open{overflow:hidden}
     @media(min-width:700px){.market-drawer{width:min(600px,48vw)}}
+    .match-clock{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px;margin:0 0 13px;border:1px solid #43536a;border-radius:13px;background:linear-gradient(145deg,#202d3c,#141c27)}
+    .match-clock-time{font-size:clamp(30px,7vw,42px);font-weight:850;letter-spacing:1px;font-variant-numeric:tabular-nums;line-height:1.05}
+    .match-clock-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .match-clock-phase{display:inline-flex;padding:4px 8px;border:1px solid #55745f;border-radius:99px;background:#183729;color:#a9f0c4;font-size:11px;font-weight:800}
+    .match-clock-status{font-size:11px;color:var(--muted)}
+    .match-clock-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+    .match-clock-actions .btn{min-width:112px}
+    @media(max-width:430px){.match-clock{grid-template-columns:1fr}.match-clock-actions{justify-content:stretch}.match-clock-actions .btn{flex:1;min-width:0}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.58 · PARCHE 7.42</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.59 · PARCHE 7.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -262,8 +270,12 @@
         <button class="btn secondary live-toggle" id="toggleLiveState" type="button" aria-expanded="false" aria-controls="liveStateContent">Maximizar</button>
       </div>
       <div id="liveStateContent" hidden>
+        <div class="match-clock" aria-live="polite">
+          <div><div class="match-clock-time" id="matchClockDisplay">00:00</div><div class="match-clock-meta"><span class="match-clock-phase" id="matchClockPhase">EARLY · 0–11 MIN</span><span class="match-clock-status" id="matchClockStatus">Partida sin iniciar</span></div></div>
+          <div class="match-clock-actions"><button class="btn" id="toggleMatchClock" type="button">Iniciar partida</button><button class="btn secondary" id="resetMatchClock" type="button">Reiniciar reloj</button></div>
+        </div>
+        <input id="gameMinute" type="hidden" value="0">
         <div class="controls">
-          <div class="field"><label for="gameMinute">Minuto de partida</label><input id="gameMinute" type="number" min="0" max="120" value="0" placeholder="Ej. 18"></div>
           <div class="field"><label for="currentGold">Oro disponible</label><input id="currentGold" type="number" min="0" max="100000" value="0" placeholder="Ej. 1200"></div>
           <div class="field"><label for="currentProblem">¿Qué problema estás sufriendo?</label><select id="currentProblem"><option value="none">Todavía ninguno / no sé</option></select><small id="problemHint" class="hint">Las situaciones se generan según los enemigos seleccionados.</small></div>
         </div>
@@ -285,7 +297,8 @@
   <footer>Datos de héroes: OpenDota · Imágenes: CDN de Dota 2/Steam · Herramienta comunitaria no oficial.</footer>
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
-<script src="./inventory-ledger.js?v=353"></script>
+<script src="./match-clock.js?v=359"></script>
+<script src="./inventory-ledger.js?v=359"></script>
 <script src="./skill-data-engine.js?v=354"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
@@ -295,8 +308,9 @@ const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
 let heroes=[], ally=Array(5).fill(null), enemy=Array(5).fill(null), target={team:'ally',index:0}, lastReport='';
 const $=id=>document.getElementById(id);
+const matchClock=window.DOTA_MATCH_CLOCK.create({storage:window.localStorage,storageKey:'dota2-build-match-clock-v1'});
 const purchaseLedger=window.DOTA_INVENTORY_LEDGER.create({storageKey:'dota2-build-inventory-ledger-v352',storage:window.localStorage});
-const ledgerMinute=()=>Math.max(0,Number($('gameMinute')?.value)||0);
+const ledgerMinute=()=>matchClock.snapshot().minute;
 function heroImage(h){return IMG+h.name.replace('npc_dota_hero_','')+'.png'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let heroLoadPromise=null;
@@ -414,12 +428,27 @@ function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=
  const selectedProblem=String(state.problem||"none");
  const tacticalPriority={"enemy:alchemist":"Spirit Vessel","enemy:huskar":"Spirit Vessel","issue:sustain":"Spirit Vessel","issue:initiation":"Aeon Disk","enemy:centaur":"Aeon Disk","enemy:dawnbreaker":"Aeon Disk","enemy:tidehunter":"Aeon Disk","issue:control":"Black King Bar","enemy:lion":"Black King Bar","enemy:bane":"Black King Bar","issue:magic":"Glimmer Cape","issue:teamfight":"Glimmer Cape","issue:mobility":"Blink Dagger","issue:illusions":"Shiva’s Guard","issue:invisibility":"Gem of True Sight"};
  const tacticalName=tacticalPriority[selectedProblem];
- const marketPhaseIndex=getMarketPhase(state.minute).index;
- const planCorePriority=marketPhaseIndex>=2?(plan?.core||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
- const planEarlyPriority=marketPhaseIndex<2?(plan?.early||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
- const planSituationalPriority=marketPhaseIndex>=3?(plan?.situational||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const matchStage=state.minute<12?"early":state.minute<25?"mid":"late";
+ const planCorePriority=matchStage!=="early"?(plan?.core||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const planEarlyPriority=matchStage==="early"?(plan?.early||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
+ const planSituationalPriority=matchStage==="late"?(plan?.situational||[]).map(x=>({name:Array.isArray(x)?x[0]:x.name})).filter(x=>x.name):[];
  const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])];
- const priorityNames=[...new Set(route.map(x=>x&&x.name).filter(Boolean))];
+ const routeTargets=[...new Set(route.map(x=>x&&x.name).filter(Boolean))];
+ const ownedKeys=new Set(owned.map(name=>String(name).toLocaleLowerCase("en")));
+ const ownedBuildParts=[];
+ const collectRecipeParts=(name,path=[])=>{
+  if(path.includes(name))return[];
+  return (itemRecipes[name]||[]).flatMap(part=>[part,...collectRecipeParts(part.name,[...path,name])]);
+ };
+ for(const targetName of routeTargets){
+  if(ownedKeys.has(String(targetName).toLocaleLowerCase("en")))ownedBuildParts.push(targetName);
+  if(itemRecipes[targetName]?.length){
+   for(const part of collectRecipeParts(targetName)){
+    if(ownedKeys.has(String(part.name).toLocaleLowerCase("en")))ownedBuildParts.push(part.name);
+   }
+  }
+ }
+ const priorityNames=[...new Set([...ownedBuildParts,...routeTargets])];
  if(!priorityNames.length&&plan){
   const phase=getMarketPhase(state.minute).key;
   const fallback=phase==="Inicio"||phase==="Línea"?[...(plan.early||[]),...(plan.core||[])]:phase==="Avanzada"?[...(plan.core||[]),...(plan.situational||[])]:[...(plan.core||[]),...(plan.early||[]),...(plan.situational||[])];
@@ -428,16 +457,18 @@ function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=
  if(tacticalName)priorityNames.unshift(tacticalName);
  if(nextPurchase?.target?.name)priorityNames.unshift(nextPurchase.target.name);
  if(nextPurchase?.kind==="goal"&&nextPurchase.name)priorityNames.unshift(nextPurchase.name);
- const componentNames=[];
+ const componentNames=[...ownedBuildParts];
  if(nextPurchase?.kind==="component"&&nextPurchase.name)componentNames.push(nextPurchase.name);
  const nextTarget=nextPurchase?.target?.name||nextPurchase?.target?.target?.name;
  if(nextTarget&&itemRecipes[nextTarget])componentNames.push(...getRecipeLeafParts(nextTarget).map(x=>x.name));
  const coreNames=(plan?.core||[]).map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean);
  const earlyNames=(plan?.early||[]).map(x=>Array.isArray(x)?x[0]:x.name).filter(Boolean);
  const tacticalNames=[tacticalName,selectedProblem==="issue:invisibility"?"Dust of Appearance":null].filter(Boolean);
+ const reserveCandidates=matchStage==="late"?[...earlyNames,...ledger.inventory.filter(item=>item.purchaseMinute!==null&&item.purchaseMinute!==undefined&&Number(item.purchaseMinute)<12).map(item=>item.name)]:[];
+ const reserveNames=[...new Set(reserveCandidates)].filter(name=>!coreNames.includes(name)&&!priorityNames.includes(name)&&!tacticalNames.includes(name)&&!purchaseLedger.isConsumable(name)&&!["Boots of Speed","Power Treads","Phase Boots","Arcane Boots","Tranquil Boots","Boots of Travel","Magic Wand","Bottle","Blink Dagger","Gem of True Sight","Force Staff","Glimmer Cape"].includes(name));
  const items=ledger.inventory.slice();
  for(const name of owned)if(!items.some(x=>x.name===name))items.push({name,zone:"auto",placement:"auto",kind:purchaseLedger.isConsumable(name)?"consumable":"item"});
- const arranged=purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames});
+ const arranged=purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames});
  const assigned={main:arranged.main.map(x=>x.name),backpack:arranged.backpack.map(x=>x.name),reserve:arranged.reserve.map(x=>x.name)};
  const placements=state.placements||{};
  const renderSlots=(zone,total)=>Array.from({length:total},(_,i)=>{
@@ -447,10 +478,11 @@ function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=
    : '<div class="hero-inventory-slot empty"><span>'+(i+1)+'</span></div>';
  }).join('');
  const reserve=assigned.reserve.map(name=>'<div class="inventory-reserve-cell"><button type="button" class="inventory-reserve-item" data-move-owned="'+esc(name)+'" data-zone="reserve" title="Tocar para mover a mochila">'+renderItemIcon(name)+'<span>'+esc(name)+'</span></button><button type="button" class="inventory-sell" data-sell-owned="'+esc(name)+'" title="Vender / quitar '+esc(name)+'">×</button>'+(placements[name]==="manual"?'<button type="button" class="inventory-auto" data-auto-owned="'+esc(name)+'">Auto</button>':'')+'</div>').join('');
+ const reserveView='<div class="inventory-zone-title">Reserva de venta · objetos que perdieron prioridad</div><div class="inventory-reserve">'+(reserve||'<p class="hint">No hay objetos pendientes de revisar para venta.</p>')+'</div>';
  const componentView=components.length?'<div class="inventory-components"><b>Componentes / piezas</b><div class="chips">'+components.map(name=>'<button type="button" class="chip bought-chip inventory-component" data-remove-component="'+esc(name)+'">'+renderItemIcon(name)+' '+esc(name)+' ×</button>').join('')+'</div></div>':'';
  const ledgerHistory=ledger.history.slice(0,8);
  const historyView='<div class="inventory-history"><div class="inventory-zone-title">Historial de compras y consumibles</div>'+(ledgerHistory.length?'<ol>'+ledgerHistory.map(x=>'<li><b>'+esc(x.name)+'</b> · '+esc(({purchase:'Compra',upgrade:'Mejora','component-purchase':'Componente','component-consumed':'Componente consumido','component-removed':'Componente retirado','consumable-used':'Consumible usado',sold:'Venta',removed:'Retirado','purchase-undone':'Compra deshecha'}[x.action]||x.action))+(x.minute===null?'':' · min '+x.minute)+'</li>').join('')+'</ol>':'<p class="hint">Todavía no hay movimientos registrados.</p>')+'<button type="button" class="btn secondary" id="clearPurchaseHistory">Borrar historial</button></div>';
- return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><p class="hint inventory-rotation-note">Rotación automática por minuto, build y situación. Los objetos menos útiles pasan a mochila y reserva sin venderse. Tocá un objeto para fijar su posición; usá «Auto» para devolverlo a la rotación.</p><div class="inventory-zone-title">Inventario principal · mayor prioridad actual</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+(reserve?'<div class="inventory-zone-title">Reserva · objetos conservados fuera de los 9 espacios</div><div class="inventory-reserve">'+reserve+'</div>':'')+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. La rotación cambia al actualizar el minuto, la build, el draft o la siguiente compra. Las compras, ventas, mejoras y consumibles usados quedan en el historial.</p></div>';
+ return '<div class="hero-inventory"><div class="hero-inventory-heading"><b>Inventario del héroe · actual</b><button type="button" class="btn secondary" id="clearItems">Borrar ítems</button><span>'+assigned.main.length+'/6 espacios · '+assigned.backpack.length+'/3 mochila</span></div><p class="hint inventory-rotation-note">Rotación automática por reloj, build y situación. Los objetos menos útiles pasan a mochila; los objetos iniciales que ya no acompañan la build pasan a reserva de venta para que decidas si venderlos. Nunca se venden solos.</p><div class="inventory-zone-title">Inventario principal · mayor prioridad actual</div><div class="hero-inventory-slots">'+renderSlots("main",6)+'</div><div class="inventory-zone-title">Mochila · objetos para rotar</div><div class="hero-backpack-slots">'+renderSlots("backpack",3)+'</div>'+reserveView+componentView+historyView+'<p class="hint inventory-help">El inventario muestra solo lo que conservás. La rotación cambia al actualizar el minuto, la build, el draft o la siguiente compra. Las compras, ventas, mejoras y consumibles usados quedan en el historial.</p></div>';
 }
 function renderFullMarketCatalog(){
  return '<button type="button" class="market-drawer-trigger" id="openMarketDrawer" aria-controls="marketDrawer" aria-expanded="false"><span class="market-trigger-icon">☷</span><span>Mercado</span></button><div class="market-drawer-backdrop" id="marketDrawerBackdrop" hidden></div><aside class="market-drawer" id="marketDrawer" aria-label="Mercado completo" aria-hidden="true"><div class="market-drawer-head"><div><b>Mercado completo</b><small>Catálogo de elección libre</small></div><button type="button" class="market-drawer-close" id="closeMarketDrawer" aria-label="Cerrar mercado">×</button></div><div class="market-drawer-body" id="marketCatalogContent"><p class="hint">Abrí el mercado para cargar los objetos…</p></div></aside>';
@@ -1361,7 +1393,7 @@ function getLiveState(){
  const domComponents=[...document.querySelectorAll('.owned-component:checked')].map(x=>x.value);
  const owned=[...new Set([...domOwned,...ledger.inventory.map(x=>x.name)])];
  const components=ledger.components.length?ledger.components.flatMap(x=>Array(Math.max(1,Number(x.quantity)||1)).fill(x.name)):domComponents;
- return {minute:Math.max(0,Number($('gameMinute').value)||0),gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.zone||'auto'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))},placements:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.placement||'auto'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryPlacement).map(x=>[x.value,x.dataset.inventoryPlacement]))},components,history:ledger.history,ledgerInventory:ledger.inventory};
+ return {minute:matchClock.snapshot().minute,gold:Math.max(0,Number($('currentGold').value)||0),problem:$('currentProblem').value,owned,zones:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.zone||'auto'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryZone).map(x=>[x.value,x.dataset.inventoryZone]))},placements:{...Object.fromEntries(ledger.inventory.map(x=>[x.name,x.placement||'auto'])),...Object.fromEntries([...document.querySelectorAll('.owned-item:checked')].filter(x=>x.dataset.inventoryPlacement).map(x=>[x.value,x.dataset.inventoryPlacement]))},components,history:ledger.history,ledgerInventory:ledger.inventory};
 }
 const itemRecipes={
  "Power Treads":[{name:"Boots of Speed",cost:500},{name:"Gloves of Haste",cost:450},{name:"Belt of Strength",cost:450}],
@@ -1537,7 +1569,8 @@ function enforceSingleBootChoice(items,ownedNames=[]){
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
  build=enforceSingleBootChoice(build,state.owned||[]);
- const phase=getMarketPhase(state.minute).key;
+ const initialMarketPhase=getMarketPhase(state.minute);
+  const phase=state.minute<12?initialMarketPhase.key:state.minute<25?"Core":"Avanzada";
  const recipeTarget=target=>{
   const recipe=itemRecipes[target.name]||[];
   // Un objeto completo registrado en el inventario también cuenta como componente
@@ -1559,7 +1592,8 @@ function getNextPurchase(build,state,preferredName=null){
   return {target,kind:"goal",name:target.name,cost:hasDirectCost?directCost:null,remaining:hasDirectCost?Math.max(0,directCost-state.gold):null,affordable:hasDirectCost?state.gold>=directCost:null,reason:target.condition||target.why};
  };
  const marketPhase=getMarketPhase(state.minute);
- const phaseIndex=marketPhase.index;
+ const phaseIndex=state.minute>=25?4:state.minute>=12?3:marketPhase.index;
+ const phaseLabel=state.minute<12?marketPhase.label:state.minute<25?"Mid game · 12–24 min":"Late game · 25+ min";
  const chooseRolePhase=key=>{
   if(!state.role)return null;
   const candidates=build.filter(x=>x.roleBaseline&&x.marketRole===state.role&&x.marketPhase===key&&!owned.has(x.name))
@@ -1568,7 +1602,7 @@ function getNextPurchase(build,state,preferredName=null){
   const options=candidates.map(target=>({target,result:recipeTarget(target)}));
   const affordable=options.find(x=>x.result.cost!==null&&x.result.remaining===0);
   const chosen=affordable||options[0];
-  return {...chosen.result,marketPhase:key,phaseLabel:marketPhase.label,
+  return {...chosen.result,marketPhase:key,phaseLabel:phaseLabel,
    routeReason:"Compra de "+key.toLocaleLowerCase("es")+" para "+state.role+". La selección respeta el rol, el presupuesto disponible y los objetos ya registrados."};
  };
  if((marketPhase.key==="Inicio"||marketPhase.key==="Línea")&&(!state.problem||state.problem==="none")&&!build.some(x=>x.heroSpecific)){
@@ -1578,14 +1612,14 @@ function getNextPurchase(build,state,preferredName=null){
  const activeProblemChoice=build.filter(x=>x.activeProblem&&x.activeProblemId===String(state.problem||"none")&&!owned.has(x.name)&&state.minute>=(x.minMinute||0))
   .sort((a,b)=>(Number(b.activePriority)||0)-(Number(a.activePriority)||0))[0];
  if(activeProblemChoice&&Number(activeProblemChoice.activePriority)>=8.0){
-  return {...recipeTarget(activeProblemChoice),marketPhase:marketPhase.key,phaseLabel:marketPhase.label,urgentOverride:true,routeReason:"Respuesta adelantada porque seleccionaste un problema que estás sufriendo. La ruta vuelve a su orden normal cuando esta respuesta ya está cubierta."};
+  return {...recipeTarget(activeProblemChoice),marketPhase:marketPhase.key,phaseLabel:phaseLabel,urgentOverride:true,routeReason:"Respuesta adelantada porque seleccionaste un problema que estás sufriendo. La ruta vuelve a su orden normal cuando esta respuesta ya está cubierta."};
  }
  const isPugna=build.some(x=>x.heroKey==="npc_dota_hero_pugna|Mid");
  if(isPugna){
   if(state.minute>=5&&state.minute<12){
    const laneTargets=build.filter(x=>["Bottle","Magic Wand"].includes(x.name)&&!owned.has(x.name))
     .sort((a,b)=>(Number(b.pugnaScore)||Number(b.score)||0)-(Number(a.pugnaScore)||Number(a.score)||0));
-   if(laneTargets.length)return {...recipeTarget(laneTargets[0]),marketPhase:"Línea",phaseLabel:marketPhase.label,routeReason:"Compra de línea de Pugna Mid. Bottle depende del control de runas; Magic Wand depende de que los rivales generen cargas."};
+   if(laneTargets.length)return {...recipeTarget(laneTargets[0]),marketPhase:"Línea",phaseLabel:phaseLabel,routeReason:"Compra de línea de Pugna Mid. Bottle depende del control de runas; Magic Wand depende de que los rivales generen cargas."};
    return {done:true,message:"La fase de línea de Pugna está cubierta. El núcleo de Arcane Boots → Aether Lens se habilita desde el minuto 12."};
   }
   if(state.minute<5)return {done:true,message:"Inicio de partida: completá los consumibles y atributos de línea antes de activar los objetos de progresión."};
@@ -1619,7 +1653,7 @@ function getNextPurchase(build,state,preferredName=null){
   const coreOrder=["Blink Dagger","Glimmer Cape","Aghanim’s Shard"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
   if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return {target,kind:"goal",name:coreTarget,reason:target.why,routeReason:"Objetivo de núcleo de Crystal Maiden Support 5. Confirmá el oro y la necesidad de la partida antes de comprar; no es una orden rígida."};}
-  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
+  const situational=build.filter(x=>!coreOrder.includes(x.name)&&!owned.has(x.name)&&state.minute>=25&&x.stage==="Avanzada"&&(x.score||0)>0).sort((a,b)=>(b.score||0)-(a.score||0));
   return situational[0]?{target:situational[0],kind:"goal",name:situational[0].name,reason:situational[0].why,routeReason:"El núcleo está cubierto. Elegí esta respuesta situacional solo si resuelve una amenaza real."}:{done:true,message:"El núcleo está cubierto y no hay una compra situacional prioritaria demostrada por el draft."};
  }
  const isAntiMage=build.some(x=>x.heroKey==="npc_dota_hero_antimage|Carry"||x.heroKey==="npc_dota_hero_antimage|Mid");
@@ -1627,7 +1661,7 @@ function getNextPurchase(build,state,preferredName=null){
   if(state.minute>=5&&state.minute<12){
    const laneTarget=build.filter(x=>x.heroSpecific&&x.heroKey?.startsWith("npc_dota_hero_antimage|")&&x.marketPhase==="Línea"&&!owned.has(x.name))
     .sort((a,b)=>(Number(a.routeIndex)||0)-(Number(b.routeIndex)||0))[0];
-   if(laneTarget)return {...recipeTarget(laneTarget),marketPhase:"Línea",phaseLabel:marketPhase.label,routeReason:"Primero completá la progresión de línea de Anti-Mage; Battle Fury no desplaza los objetos previos antes del minuto 12."};
+   if(laneTarget)return {...recipeTarget(laneTarget),marketPhase:"Línea",phaseLabel:phaseLabel,routeReason:"Primero completá la progresión de línea de Anti-Mage; Battle Fury no desplaza los objetos previos antes del minuto 12."};
    return {done:true,message:"La fase inicial de Anti-Mage está cubierta. La ruta de farmeo de Battle Fury se habilita desde el minuto 12."};
   }
   if(state.minute<5)return {done:true,message:"Inicio de partida: priorizá consumibles y atributos de línea antes de completar Power Treads."};
@@ -1645,15 +1679,15 @@ function getNextPurchase(build,state,preferredName=null){
  // Progresión común: respetar el orden de la ruta individual de cualquier héroe,
  // sin depender de una excepción escrita para cada personaje.
  const orderedHeroRoute=build
-  .filter(x=>x.heroSpecific&&x.stage!=="Avanzada"&&!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex))
+  .filter(x=>x.heroSpecific&&(x.stage!=="Avanzada"||state.minute>=25)&&!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex))
   .sort((a,b)=>(Number.isFinite(a.routeIndex)?a.routeIndex:999)-(Number.isFinite(b.routeIndex)?b.routeIndex:999));
  if(orderedHeroRoute.length){
   const target=orderedHeroRoute[0];
-  return {...recipeTarget(target),marketPhase:target.marketPhase||marketPhase.key,phaseLabel:marketPhase.label,routeReason:"Progresión individual de "+(state.role||"la posición seleccionada")+": se respeta el orden y el tempo de su ruta. Las respuestas situacionales pueden adelantarla solo cuando la amenaza activa lo justifica."};
+  return {...recipeTarget(target),marketPhase:target.marketPhase||marketPhase.key,phaseLabel:phaseLabel,routeReason:"Progresión individual de "+(state.role||"la posición seleccionada")+": se respeta el orden y el tempo de su ruta. Las respuestas situacionales pueden adelantarla solo cuando la amenaza activa lo justifica."};
  }
- const rolePhasePurchase=chooseRolePhase(marketPhase.key);
+ const rolePhasePurchase=chooseRolePhase(state.minute>=25?"Avanzada":marketPhase.key);
  if(rolePhasePurchase)return rolePhasePurchase;
- const options=build.filter(x=>!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex)&&!(phaseIndex===0&&x.stage==="Inicio"&&!x.roleBaseline)&&!(phaseIndex<2&&x.stage==="Medio")&&!(phaseIndex<4&&x.stage==="Avanzada")).map(target=>{
+ const options=build.filter(x=>!owned.has(x.name)&&(!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex)&&!(phaseIndex===0&&x.stage==="Inicio"&&!x.roleBaseline)&&!(phaseIndex<2&&x.stage==="Medio")&&!(state.minute<25&&x.stage==="Avanzada")).map(target=>{
   const recipe=itemRecipes[target.name]||[];
   const missing=getMissingRecipeParts(target.name,owned,components);
   const next=missing.find(part=>Number.isFinite(Number(part.cost))&&state.gold>=Number(part.cost)*part.quantity)||missing[0]||null;
@@ -1668,7 +1702,7 @@ function getNextPurchase(build,state,preferredName=null){
  }).filter(x=>(x.score||0)>0).sort((a,b)=>b.decisionScore-a.decisionScore);
  if(!options.length)return {done:true,message:"No hay una compra pendiente con prioridad suficiente en esta ruta. Revisá el inventario, el minuto y el problema seleccionado."};
  const chosen=options[0],alt=options[1];
- return {...recipeTarget(chosen),marketPhase:chosen.marketPhase||marketPhase.key,phaseLabel:marketPhase.label,alternative:alt?recipeTarget(alt):null,routeReason:"La elección pondera fase, prioridad de posición, oro e inventario y progreso de componentes."};
+ return {...recipeTarget(chosen),marketPhase:chosen.marketPhase||marketPhase.key,phaseLabel:phaseLabel,alternative:alt?recipeTarget(alt):null,routeReason:"La elección pondera fase, prioridad de posición, oro e inventario y progreso de componentes."};
 }
 function pugnaFinalBuild(matchups,state){
  const active=new Set(matchups.map(m=>m.hero.name.replace("npc_dota_hero_","")));
@@ -2135,7 +2169,7 @@ function buildAdaptivePlan(hero,role,enemies,live){
   }else {
    if(live.minute>=12)early=[];
    if(live.minute<12)core=[];
-   if(live.minute<30)situational=situational.filter(x=>x.stage!=="Avanzada");
+   if(live.minute<25)situational=situational.filter(x=>x.stage!=="Avanzada");
   }
   // Las respuestas de draft no desplazan los objetos de progresión salvo una amenaza concreta y activa.
   const responses=scores.filter(x=>(x.threatSpecific||pugnaResponses.some(p=>p.name===x.name))&&!plannedItems.some(p=>p.name===x.name));
@@ -2330,6 +2364,36 @@ $('toggleLiveState').onclick=()=>{
  button.setAttribute('aria-expanded',String(!expanded));
  button.textContent=expanded?'Maximizar':'Minimizar';
 };
+let matchClockInterval=null,lastClockPhase=null;
+function renderMatchClock(recalculate=false){
+ const snap=matchClock.snapshot();
+ const time=String(Math.floor(snap.elapsedSeconds/60)).padStart(2,'0')+':'+String(snap.second).padStart(2,'0');
+ const display=$('matchClockDisplay'),phase=$('matchClockPhase'),status=$('matchClockStatus'),toggle=$('toggleMatchClock');
+ if(display)display.textContent=time;
+ if(phase)phase.textContent=snap.phase.key.toUpperCase()+' · '+(snap.phase.key==='early'?'0–11 MIN':snap.phase.key==='mid'?'12–24 MIN':'25+ MIN');
+ if(status)status.textContent=snap.running?'Reloj en marcha':snap.elapsedSeconds?'Partida pausada':'Partida sin iniciar';
+ if(toggle)toggle.textContent=snap.running?'Pausar reloj':snap.elapsedSeconds?'Reanudar partida':'Iniciar partida';
+ $('gameMinute').value=String(snap.minute);
+ if(recalculate&&lastClockPhase!==null&&snap.phase.key!==lastClockPhase&&$('result').classList.contains('show'))analyze({scroll:false});
+ lastClockPhase=snap.phase.key;
+}
+function startMatchClockTicker(){
+ if(matchClockInterval!==null)return;
+ matchClockInterval=setInterval(()=>renderMatchClock(true),250);
+}
+function stopMatchClockTicker(){
+ if(matchClockInterval!==null){clearInterval(matchClockInterval);matchClockInterval=null;}
+}
+$('toggleMatchClock').onclick=()=>{
+ if(matchClock.isRunning()){matchClock.pause();stopMatchClockTicker();renderMatchClock(false);}
+ else{matchClock.start();renderMatchClock(false);startMatchClockTicker();}
+};
+$('resetMatchClock').onclick=()=>{
+ if(!confirm('¿Reiniciar el reloj a 00:00? Se conservarán el inventario y el historial de compras.'))return;
+ matchClock.reset();stopMatchClockTicker();renderMatchClock(true);
+};
+renderMatchClock(false);
+if(matchClock.isRunning())startMatchClockTicker();
 $('report').addEventListener('click',e=>{
  const moveOwned=e.target.closest('[data-move-owned]');
  if(moveOwned){const name=moveOwned.getAttribute('data-move-owned');const input=[...document.querySelectorAll('.owned-item')].find(x=>x.value===name);if(input){const state=getLiveState();const current=moveOwned.getAttribute('data-zone')||state.zones[name]||(state.owned.indexOf(name)<6?"main":state.owned.indexOf(name)<9?"backpack":"reserve");const next=current==="main"?"backpack":"main";const count=state.owned.filter(x=>(state.zones[x]||(state.owned.indexOf(x)<6?"main":state.owned.indexOf(x)<9?"backpack":"reserve"))===next).length;if(count<(next==="main"?6:3)){input.dataset.inventoryZone=next;input.dataset.inventoryPlacement='manual';purchaseLedger.setZone(name,next);analyze({scroll:false});}return;}}
@@ -2361,10 +2425,11 @@ $('currentGold').addEventListener('input',()=>{if($('result').classList.contains
 $('ownedItems').addEventListener('change',e=>{if(e.target.matches('.owned-item')){if(e.target.checked)purchaseLedger.recordPurchase(e.target.value,{minute:ledgerMinute(),zone:e.target.dataset.inventoryZone||'auto',placement:e.target.dataset.inventoryPlacement||'auto',note:'Carga manual del inventario'});else purchaseLedger.removeInventory(e.target.value,'removed',{minute:ledgerMinute(),note:'Retirado desde carga manual'});}if($('result').classList.contains('show'))analyze({scroll:false});});
 $('ownedComponents').addEventListener('change',e=>{if(e.target.matches('.owned-component')){if(e.target.checked)purchaseLedger.recordComponent(e.target.value,{minute:ledgerMinute(),note:'Carga manual de componente'});else purchaseLedger.removeComponent(e.target.value);}if($('result').classList.contains('show'))analyze({scroll:false});});
 
-function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
+function clearHeroesOnly(){ally=Array(5).fill(null);enemy=Array(5).fill(null);$('myHero').value='';purchaseLedger.reset();matchClock.reset();stopMatchClockTicker();renderMatchClock(false);$('result').classList.remove('show');renderSlots();renderDynamicStateControls();}
 function clearItemsOnly(){
  purchaseLedger.clearInventory();
  document.querySelectorAll('.owned-item,.owned-component').forEach(input=>{input.checked=false;});
+ matchClock.reset();stopMatchClockTicker();renderMatchClock(false);
  $('gameMinute').value='0';$('currentGold').value='0';$('currentProblem').value='none';
  if($('result').classList.contains('show'))analyze({scroll:false});
 }

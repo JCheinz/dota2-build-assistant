@@ -380,9 +380,9 @@ const inventoryMarkers = [
   'data-remove-component=',
   "Inventario del héroe",
   "Inventario principal",
-  "Rotación automática por minuto, build y situación",
+  "Rotación automática por reloj, build y situación",
   "data-auto-owned",
-  "purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})"
+  "purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})"
 ];
 for (const marker of inventoryMarkers) {
   if (!appHtml.includes(marker)) throw new Error("Falta la interfaz de inventario: " + marker);
@@ -408,6 +408,8 @@ const purchaseContext = {
   getLiveState: () => ({ owned: [], components: [] }),
   purchaseLedger: { snapshot: () => ({inventory:[],components:[],history:[]}), arrange: (items,options={}) => { const ranks=new Map((options.priorityNames||[]).map((name,index)=>[name,index])); const ordered=items.slice().sort((a,b)=>(ranks.get(a.name)??999)-(ranks.get(b.name)??999)); return {main:ordered.slice(0,6),backpack:ordered.slice(6,9),reserve:ordered.slice(9)}; }, isConsumable: () => false, filterRecommendations: (items,owned=[]) => { const seen=new Set(),have=new Set(owned.map(x=>String(x).toLowerCase())); return items.filter(x=>{const n=String(Array.isArray(x)?x[0]:typeof x==="string"?x:x.name||"").toLowerCase();if(!n||have.has(n)||seen.has(n))return false;seen.add(n);return true;}); } },
   getMarketPhase: minute => { const m=Number(minute)||0; return {key:m<5?"Inicio":m<12?"Línea":m<20?"Transición":m<30?"Core":"Avanzada"}; },
+  itemRecipes: {"Arcane Boots":[{name:"Boots of Speed"}],"Aether Lens":[{name:"Energy Booster"},{name:"Void Stone"}]},
+  getRecipeLeafParts: name => ({ "Arcane Boots":[{name:"Boots of Speed"}], "Aether Lens":[{name:"Energy Booster"},{name:"Void Stone"}] }[name]||[]),
   getHeroPlan: () => ({early:[["Tango","early"]],core:[["Arcane Boots","core"],["Aether Lens","core"]],situational:[["Glimmer Cape","late"]]}),
   renderItemIcon: name => '<i data-icon="' + String(name) + '"></i>'
 };
@@ -559,7 +561,7 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
     'data-move-owned=',
     'data-sell-owned=',
     'data-auto-owned=',
-    'purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})'
+    'purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})'
   ])if(!renderer.includes(marker))throw new Error("Inventario sin soporte para: "+marker);
   if(!appHtml.includes("input.dataset.inventoryPlacement")||!appHtml.includes("purchaseLedger.setAutomatic(name)"))throw new Error("No se preservan los movimientos manuales ni el retorno a rotación automática");
   const clickStart=appHtml.indexOf("$('report').addEventListener('click'");
@@ -582,7 +584,7 @@ if (!html.includes('const phase=getMarketPhase(state.minute).key') || !html.incl
 if (!html.includes('phase==="Avanzada"&&["Avanzada","Cierre"].includes(x.stage)')) {
   throw new Error("Pugna debe ponderar objetos avanzados/cierre desde minuto 28");
 }
-if (!html.includes('const planCorePriority=marketPhaseIndex>=2?') || !html.includes('const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])]') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})')) {
+if (!html.includes('const planCorePriority=matchStage!=="early"?') || !html.includes('const matchStage=state.minute<12?"early":state.minute<25?"mid":"late"') || !html.includes('const route=[...planCorePriority,...(adaptive?.mainRoute||[]),...(adaptive?.selected||[]),...planEarlyPriority,...planSituationalPriority,...(adaptive?.plannedItems||[])]') || !html.includes('purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})')) {
   throw new Error("El inventario automático debe ordenar por build adaptativa, componentes y fase");
 }
 if (!html.includes('slice(0,2).toUpperCase()')) {
@@ -672,7 +674,7 @@ if (!html.includes('clearHeroesOnly();clearItemsOnly()')) throw new Error('Resta
  const end=appHtml.indexOf("\nfunction renderItemCards(items){",start);
  if(start<0||end<0)throw new Error("No se encontró render de inventario");
  const source=appHtml.slice(start,end);
- for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(tacticalName)priorityNames.unshift(tacticalName);','state.placements||{}','purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames})']) {
+ for(const marker of ['"enemy:alchemist":"Spirit Vessel"','"issue:initiation":"Aeon Disk"','"issue:control":"Black King Bar"','"issue:magic":"Glimmer Cape"','if(tacticalName)priorityNames.unshift(tacticalName);','state.placements||{}','purchaseLedger.arrange(items,{minute:state.minute,priorityNames,coreNames,componentNames,earlyNames,tacticalNames,reserveNames})']) {
   if(!source.includes(marker))throw new Error("El orden situacional del inventario no contempla "+marker);
  }
  console.log("OK: prioridad situacional del inventario y preservación de ubicaciones manuales");
