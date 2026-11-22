@@ -9,6 +9,15 @@ Corte de auditoría: 22 de noviembre de 2026 · parche de aplicación 7.42. Audi
 - La matriz base puede construirse para 127/127 héroes cuando el conjunto de constantes se descarga correctamente.
 - Esta cobertura describe metadatos y renderizado; no significa que existan recomendaciones estadísticas de habilidades para todos los héroes.
 
+## Auditoría real de fuentes públicas · 22 de noviembre de 2026
+
+- StatsDota publicó enlaces para 126 de los 127 héroes del catálogo.
+- Se descargaron y analizaron las 126 páginas: 48 devolvieron una secuencia interpretable de al menos seis puntos y 78 quedaron incompletas por falta de una secuencia extraíble. No hubo errores HTTP de descarga en esa ejecución.
+- La cobertura observada de StatsDota fue 48/126 (38,1 %). Es una guía del rol principal, no una cobertura de las cinco posiciones.
+- La prueba end-to-end de Dota2ProTracker con Centaur Warrunner / Offlane devolvió 254 partidas, 21 niveles de progresión y cuatro tiers de talentos para 7.42.
+- El endpoint directo de Dota2ProTracker devolvió HTTP 403 en la red de CI. La ruta Jina con URL de origen HTTP sí devolvió JSON; la variante HTTPS de origen fue denegada. El motor ahora intenta primero la ruta funcional HTTP, después la HTTPS y finalmente el endpoint directo.
+- Se agregó `scripts/audit-d2pt-hero-positions.js` para auditar las 127 × 5 combinaciones (635 consultas), sin heredar builds entre roles. El workflow `.github/workflows/audit-d2pt-hero-positions.yml` conserva el informe completo como artefacto. La cobertura final de esas 635 combinaciones queda pendiente de la ejecución del workflow; no se declara completada hasta revisar ese artefacto.
+
 ## Cobertura estratégica local
 
 El archivo `specializations.js` contiene 7 perfiles manuales para 3 héroes:
