@@ -26,7 +26,7 @@ Los 7 perfiles manuales incluyen secuencia, cuatro tiers de talentos y contenido
 ## Qué aporta cada fuente
 
 - **dotaconstants / OpenDota constants:** identidad de habilidades, orden de ranuras, innatas, talentos, descripciones e iconos. No aporta por sí sola la secuencia recomendada por nivel.
-- **Dota2ProTracker:** secuencias de habilidades y elecciones de talentos por posición cuando existe una muestra y el endpoint está accesible. `abilities_new` contiene órdenes frecuentes y `talents` contiene ambos lados, tasa de elección y victoria.
+- **Dota2ProTracker:** secuencias de habilidades, talentos y builds por posición. El endpoint directo puede devolver HTTP 403 desde navegadores o redes de servidor; la aplicación intenta una lectura JSON mediante Jina Reader y conserva el acceso directo como respaldo. `abilities_new` contiene órdenes frecuentes y `talents` contiene ambos lados, tasa de elección y victoria.
 - **StatsDota:** el snapshot diario extrae la secuencia visible de habilidades de sus guías públicas basadas en partidas ganadoras Immortal/pro. Se usa solo si el rol principal coincide exactamente con la posición elegida (Soft Support/Hard Support se distinguen; el rótulo genérico Support no se adivina). No se mezcla su muestra con D2PT. El catálogo local conserva muestra, parche, fecha y URL de origen.
 
 ## Limitaciones que deben permanecer visibles
