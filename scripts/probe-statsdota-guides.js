@@ -13,7 +13,7 @@ const BASE="https://statsdota.com/en/guides",RAW="https://raw.githubusercontent.
  for(const scheme of ["http://","https://"]){
   try{
    const url="https://r.jina.ai/"+scheme+"dota2protracker.com/api/hero/96/builds?position=pos%203";
-   const response=await fetch(url,{headers:{"Accept":"application/json,text/plain","X-Return-Format":"text"}});
+   const response=await fetch(url,{headers:{"Accept":"application/json"}});
    const body=await response.text();
    let data=null;try{data=JSON.parse(body)}catch(_){}
    console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,status:response.status,bytes:body.length,isJson:!!data,preview:body.slice(0,350)}));
