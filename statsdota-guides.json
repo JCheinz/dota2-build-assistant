@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "source": "StatsDota public hero guides",
+  "fetchedAt": null,
+  "indexUrl": "https://statsdota.com/en/guides",
+  "guideCount": 0,
+  "heroesListed": 0,
+  "guides": {},
+  "incomplete": [],
+  "errors": []
+}
