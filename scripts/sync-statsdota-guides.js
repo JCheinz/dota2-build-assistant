@@ -37,7 +37,7 @@ async function main(){
    const html=await fetchText(url);
    const guide=parseGuidePage(html,link.hero,heroAbilities,url);
    if(guide&&guide.status==="ready")guides[link.hero.name]=guide;
-   else incomplete.push({hero:link.hero.name,slug:link.slug,reason:!guide?"missing guide section":!guide.role?"main role not separable into an app position":guide.roleGames<10?"fewer than 10 games in main role":"no skill sequence with at least six points"});
+   else incomplete.push({hero:link.hero.name,heroName:link.hero.localized_name,slug:link.slug,role:guide&&guide.role||null,roleGames:guide&&guide.roleGames||0,positionCounts:guide&&guide.positionCounts||[],patch:guide&&guide.patch||null,matches:guide&&guide.matches||0,updatedAt:guide&&guide.updatedAt||null,sourceUrl:url,reason:guide&&guide.incompleteReason||(!guide?"unparseable guide page":"no usable skill sequence")});
    if((i+1)%20===0)console.log("Fetched "+(i+1)+"/"+selected.length+" · guides with skill order: "+Object.keys(guides).length);
   }catch(error){errors.push({hero:link.hero.name,error:String(error)});console.warn("Skipped "+link.hero.localized_name+": "+String(error))}
  }
