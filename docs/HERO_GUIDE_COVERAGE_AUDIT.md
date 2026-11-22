@@ -17,6 +17,9 @@ Corte de auditoría: 22 de noviembre de 2026 · parche de aplicación 7.42. Audi
 - La prueba end-to-end de Dota2ProTracker con Centaur Warrunner / Offlane devolvió 254 partidas, 21 niveles de progresión y cuatro tiers de talentos para 7.42.
 - El endpoint directo de Dota2ProTracker devolvió HTTP 403 en la red de CI. La ruta Jina con URL de origen HTTP sí devolvió JSON; la variante HTTPS de origen fue denegada. El motor ahora intenta primero la ruta funcional HTTP, después la HTTPS y finalmente el endpoint directo.
 - Se agregó `scripts/audit-d2pt-hero-positions.js` para auditar las 127 × 5 combinaciones (635 consultas), sin heredar builds entre roles. El workflow `.github/workflows/audit-d2pt-hero-positions.yml` conserva el informe completo como artefacto. La cobertura final de esas 635 combinaciones queda pendiente de la ejecución del workflow; no se declara completada hasta revisar ese artefacto.
+- La primera auditoría de 635 combinaciones quedó limitada por HTTP 429: solo 4 posiciones pudieron validarse; no se interpreta el resto como falta de builds.
+- La sincronización nueva conserva el rol principal aun cuando StatsDota no publique una secuencia extraíble. `scripts/sync-d2pt-primary-guides.js` consulta únicamente ese rol para cada una de las 78 guías incompletas, con concurrencia 1, espera mínima de 3,5 s y reintentos exponenciales (30 s iniciales ante 429). No consulta cinco posiciones por héroe ni inventa un rol si la fuente no lo identifica.
+- Las guías D2PT sincronizadas se guardan en `d2pt-primary-guides.json` y la app las utiliza solo cuando el rol seleccionado coincide exactamente con el rol principal y el registro está validado para 7.42. La guía en vivo por posición conserva prioridad. El workflow `.github/workflows/sync-d2pt-primary-guides.yml` ejecuta la sincronización diaria, conserva artefacto y publica snapshots con guías válidas.
 
 ## Cobertura estratégica local
 
