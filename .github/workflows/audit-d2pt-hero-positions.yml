@@ -7,6 +7,9 @@ on:
       - 'build-data-engine.js'
       - 'scripts/audit-d2pt-hero-positions.js'
       - '.github/workflows/audit-d2pt-hero-positions.yml'
+concurrency:
+  group: d2pt-coverage-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   audit:
     runs-on: ubuntu-latest
