@@ -195,7 +195,7 @@ if (legacyOutput.includes("Datos de guía:") || legacyOutput.includes("Habilidad
 }
 const guideEntries = Object.entries(context.window.DOTA_HERO_SPECIALIZATIONS || {});
 const guideHeroes = new Set(guideEntries.map(([key]) => key.split("|")[0]));
-const oldPatchEntries = guideEntries.filter(([, value]) => /7\\.41/.test(value?.guide?.title || ""));
+const oldPatchEntries = guideEntries.filter(([, value]) => /7\.41/.test(value?.guide?.title || ""));
 for (const [key, value] of guideEntries) {
   const guide = value?.guide;
   if (!guide || !Array.isArray(guide.skillBuild) || !Array.isArray(guide.talentChoices) ||
