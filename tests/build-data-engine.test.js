@@ -10,6 +10,12 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
   return{ok:true,json:async()=>({code:200,status:20000,data:{content:'[{"hero_id":96,"position":"pos 3"}]'}})};
  });
  assert.deepEqual(proxied,[{hero_id:96,position:"pos 3"}],"Jina wrapper content must be decoded into the original D2PT JSON");
+ const rateLimitCalls=[];
+ await assert.rejects(()=>engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async url=>{rateLimitCalls.push(url);return{ok:false,status:429,json:async()=>({})}}),/HTTP 429/);
+ assert.equal(rateLimitCalls.length,1,"A 429 must stop proxy/direct fallbacks so the caller can back off without multiplying requests");
+ const textProxy=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async()=>({ok:true,text:async()=> 'HTTP/1.1 200 OK\\n\\n[{"hero_id":96}]'}));
+ assert.deepEqual(textProxy,[{hero_id:96}],"Jina plain-text responses with an HTTP preamble must still parse the embedded JSON");
+
  assert.ok(proxyCalls[0].url.startsWith("https://r.jina.ai/http://dota2protracker.com/api/"),"The HTTP-origin Jina route is the working public endpoint.");
  const directCalls=[];
  const direct=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async(url)=>{
