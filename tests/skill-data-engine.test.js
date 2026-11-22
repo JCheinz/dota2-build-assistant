@@ -26,6 +26,10 @@ assert.equal(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrun
 assert.equal(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.41f","https://stats-guide.test/api"),null,"Do not use an older patch guide as current");
 assert.equal(statsGuide.talentChoices.length,4,"Official talent tiers must remain visible with StatsDota skill order");
 assert.equal(engine.getCoverage(statsLoaded).statsDotaSkillGuides,1);
+const remoteFetch=async url=>url.endsWith("/statsdota-guides.json")?{ok:true,json:async()=>statsSnapshot}:mockFetch(url);
+const remoteLoaded=await engine.load({fetch:remoteFetch,force:true});
+assert.equal(remoteLoaded.statsDotaMeta.guideCount,1,"Latest remote StatsDota snapshot should load before bundled fallback");
+assert.ok(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42"),"Remote snapshot should produce a role-matched guide");
 
 const audit=engine.getCoverage(coverageDataset);
 assert.equal(audit.heroes,127);assert.equal(audit.skillReady,127);assert.equal(audit.talentReady,127);assert.equal(audit.fullReady,127);
