@@ -153,6 +153,9 @@ const fixture = {
   innateAbilities: [
     { name: "Innate Fixture", description: "Descripción sintética de habilidad innata." }
   ],
+  additionalAbilities: [
+    { name: "Ability Form Fixture", description: "Habilidad adicional sintética." }
+  ],
   maxLevel: 30,
   skillIcons: {
     ABILITY_ALPHA: { name: "Habilidad Alfa", slug: "fixture_alpha" },
@@ -180,7 +183,7 @@ for (const name of ["Habilidad Alfa", "Habilidad Beta", "Habilidad Omega"]) {
 if (!fixtureOutput.includes("grid-template-columns:150px repeat(30,41px)")) {
   throw new Error("La matriz no generó columnas dinámicas desde los niveles esperados");
 }
-for (const value of ["Datos de guía:", "fixture-patch", "Support 4", "Innate Fixture", "Descripción sintética de habilidad innata."]) {
+for (const value of ["Datos de guía:", "fixture-patch", "Support 4", "Innate Fixture", "Descripción sintética de habilidad innata.", "Habilidades adicionales", "Ability Form Fixture"]) {
   if (!fixtureOutput.includes(value)) throw new Error("El renderizador omitió metadatos/habilidad innata: " + value);
 }
 if (fixtureOutput.indexOf("Innate Fixture") > fixtureOutput.indexOf("Orden de habilidades por nivel")) {
@@ -190,7 +193,20 @@ const legacyOutput = context.renderSpecializationGuide(context.window.DOTA_HERO_
 if (legacyOutput.includes("Datos de guía:") || legacyOutput.includes("Habilidades innatas")) {
   throw new Error("Los perfiles Pugna antiguos deben seguir funcionando sin bloques nuevos");
 }
-console.log("OK: Pugna x3 + matriz sintética 30 niveles + metadatos + innatas + compatibilidad legacy");
+const guideEntries = Object.entries(context.window.DOTA_HERO_SPECIALIZATIONS || {});
+const guideHeroes = new Set(guideEntries.map(([key]) => key.split("|")[0]));
+const oldPatchEntries = guideEntries.filter(([, value]) => /7\\.41/.test(value?.guide?.title || ""));
+for (const [key, value] of guideEntries) {
+  const guide = value?.guide;
+  if (!guide || !Array.isArray(guide.skillBuild) || !Array.isArray(guide.talentChoices) ||
+      ![10, 15, 20, 25].every(level => guide.talentChoices.some(t => Number(t.level) === level))) {
+    throw new Error("Perfil individual incompleto en la auditoría: " + key);
+  }
+}
+console.log("AUDITORÍA: " + guideHeroes.size + "/127 héroes con guía manual; " +
+  guideEntries.length + " perfiles por posición; " + oldPatchEntries.length +
+  " perfiles todavía marcados 7.41. El resto depende de guía estadística o matriz base provisional.");
+console.log("OK: Pugna x3 + matriz sintética 30 niveles + metadatos + innatas/adicionales + compatibilidad legacy");
 
 // Regresiones de ruta de objetos Crystal Maiden Support 5.
 const iconStart=html.indexOf("const ITEM_IMG=");
