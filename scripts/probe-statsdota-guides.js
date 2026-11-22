@@ -11,6 +11,18 @@ const BASE="https://statsdota.com/en/guides",RAW="https://raw.githubusercontent.
  const links=parseGuideIndex(indexHtml,heroes);
  console.log(JSON.stringify({source:"StatsDota guide index",status:indexResponse.status,heroes:heroes.length,guideLinks:links.length,sample:links.slice(0,8).map(x=>({name:x.hero.localized_name,slug:x.slug}))}));
  const checks=["centaur-warrunner","enigma","pugna","crystal-maiden","techies"];
+ const d2ptChecks=[{hero:"Centaur Warrunner",id:96,position:3},{hero:"Pugna",id:45,position:2},{hero:"Enigma",id:33,position:3}];
+ for(const item of d2ptChecks){
+  try{
+   const url="https://dota2protracker.com/api/hero/"+item.id+"/builds?position=pos%20"+item.position;
+   const response=await fetch(url,{headers:{"User-Agent":"Mozilla/5.0 Dota2BuildAssistant audit","Accept":"application/json"}});
+   const body=await response.text();
+   let data=null;try{data=JSON.parse(body)}catch(_){}
+   const rows=Array.isArray(data)?data:Array.isArray(data?.builds)?data.builds:[];
+   const first=rows.find(x=>x&&x.build_data)||null;
+   console.log(JSON.stringify({source:"Dota2ProTracker",hero:item.hero,position:item.position,status:response.status,bytes:body.length,isJson:!!data,buildCount:rows.length,firstBuildKeys:first?Object.keys(first.build_data||{}):[],abilityOrders:first?.build_data?.abilities_new?.length||0,talentRows:first?.build_data?.talents?.length||0,bodyPreview:data?undefined:body.slice(0,240)}));
+  }catch(error){console.log(JSON.stringify({source:"Dota2ProTracker",hero:item.hero,error:String(error)}))}
+ }
  for(const slug of checks){
   try{
    const response=await fetch(BASE+"/"+slug,{headers:{"User-Agent":"Mozilla/5.0 Dota2BuildAssistant audit"}});
