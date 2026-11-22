@@ -19,7 +19,7 @@ async function fetchJson(url,fetchImpl,timeoutMs=11000){
  }finally{if(timer)clearTimeout(timer)}
 }
 async function fetchD2ptJson(url,fetchImpl){
- const proxyUrl="https://r.jina.ai/https://"+url.replace(/^https?:\\/\\//,"");
+ const proxyUrl="https://r.jina.ai/https://"+url.split("://").slice(1).join("://");
  let proxyError=null;
  try{
   const wrapped=await fetchJson(proxyUrl,fetchImpl,20000);
