@@ -14,7 +14,7 @@ for(let i=1;i<=127;i++){
 const coverageFetch=async url=>{const name=url.split("/").pop().replace(".json","");const data=name==="abilities"?allAbilities:name==="hero_abilities"?allHeroAbilities:allHeroes;return{ok:true,json:async()=>data}};
 const coverageDataset=await engine.load({fetch:coverageFetch,baseUrl:"https://coverage.test/api",force:true});
 const statsSnapshot={guideCount:1,guides:{"npc_dota_hero_centaur":{hero:"npc_dota_hero_centaur",heroName:"Centaur Warrunner",role:"Offlane",patch:"7.42",matches:100,updatedAt:"2026-11-22T00:00:00.000Z",abilityOrder:["centaur_hoof_stomp","centaur_double_edge","centaur_return","centaur_hoof_stomp","centaur_stampede","centaur_return"],sourceUrl:"https://statsdota.com/en/guides/centaur-warrunner",status:"ready"}}};
-const statsLoaded=await engine.load({fetch:mockFetch,baseUrl:"https://stats-guide.test/api",force:true,statsDotaData:statsSnapshot});
+const statsLoaded=await engine.load({fetch:mockFetch,baseUrl:"https://stats-guide.test/api",patch:"7.42",force:true,statsDotaData:statsSnapshot});
 const statsGuide=engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42","https://stats-guide.test/api");
 assert.ok(statsGuide,"StatsDota guide should be available for its main role");
 assert.equal(statsGuide.metadata.guideType,"statsdota-main-role");
@@ -27,7 +27,7 @@ assert.equal(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrun
 assert.equal(statsGuide.talentChoices.length,4,"Official talent tiers must remain visible with StatsDota skill order");
 assert.equal(engine.getCoverage(statsLoaded).statsDotaSkillGuides,1);
 const remoteFetch=async url=>url.endsWith("/statsdota-guides.json")?{ok:true,json:async()=>statsSnapshot}:mockFetch(url);
-const remoteLoaded=await engine.load({fetch:remoteFetch,force:true});
+const remoteLoaded=await engine.load({fetch:remoteFetch,patch:"7.42",force:true});
 assert.equal(remoteLoaded.statsDotaMeta.guideCount,1,"Latest remote StatsDota snapshot should load before bundled fallback");
 assert.ok(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42"),"Remote snapshot should produce a role-matched guide");
 
