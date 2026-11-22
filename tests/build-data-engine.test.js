@@ -42,7 +42,7 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  };
  const live=await engine.loadHeroBuild({heroId:2,heroName:"Axe",heroKey:"npc_dota_hero_axe",role:"Offlane",patch:"7.42",patchReleaseDate:"2026-11-18",fetch:d2pt,storage});
  assert.equal(live.source,"Dota2ProTracker");
- assert.ok(calls.some(url=>url.startsWith("https://r.jina.ai/https://d2pt.test/")||url.startsWith("https://r.jina.ai/https://dota2protracker.com/")),"D2PT data should be requested through the CORS-compatible proxy first");
+ assert.ok(calls.some(url=>url.startsWith("https://r.jina.ai/http://dota2protracker.com/")||url.startsWith("https://r.jina.ai/https://dota2protracker.com/")),"D2PT data should try the HTTP-origin CORS-compatible proxy before direct fallback");
  assert.equal(live.scope,"posición");
  assert.equal(live.matches,120);
  assert.equal(live.quality,"alta");
