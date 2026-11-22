@@ -10,7 +10,7 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
   return{ok:true,json:async()=>({code:200,status:20000,data:{content:'[{"hero_id":96,"position":"pos 3"}]'}})};
  });
  assert.deepEqual(proxied,[{hero_id:96,position:"pos 3"}],"Jina wrapper content must be decoded into the original D2PT JSON");
- assert.ok(proxyCalls[0].url.startsWith("https://r.jina.ai/https://dota2protracker.com/api/"));
+ assert.ok(proxyCalls[0].url.startsWith("https://r.jina.ai/http://dota2protracker.com/api/"),"The HTTP-origin Jina route is the working public endpoint.");
  const directCalls=[];
  const direct=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async(url)=>{
   directCalls.push(url);
@@ -18,7 +18,7 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
   return{ok:true,json:async()=>[{hero_id:96,position:"pos 3"}]};
  });
  assert.deepEqual(direct,[{hero_id:96,position:"pos 3"}],"Direct D2PT should remain a fallback if the proxy is unavailable");
- assert.equal(directCalls.length,2);
+ assert.equal(directCalls.length,3,"Both Jina routes must be attempted before the direct endpoint.");
  engine.clear();
  const calls=[];
  const d2pt=async url=>{
