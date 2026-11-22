@@ -8,6 +8,7 @@ const requiredFiles = [
   'manifest.webmanifest',
   'sw.js',
   'match-clock.js',
+  'item-icons.js',
   'inventory-ledger.js',
   'skill-data-engine.js',
   'build-data-engine.js',
