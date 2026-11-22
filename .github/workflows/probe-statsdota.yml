@@ -6,7 +6,6 @@ on:
       - 'scripts/probe-statsdota-guides.js'
       - 'scripts/sync-statsdota-guides.js'
       - 'scripts/statsdota-guide-sync.js'
-      - 'scripts/sync-d2pt-primary-guides.js'
       - 'build-data-engine.js'
       - '.github/workflows/probe-statsdota.yml'
   push:
@@ -40,12 +39,3 @@ jobs:
           path: statsdota-guides.json
           if-no-files-found: error
           retention-days: 14
-      - name: Sync missing heroes from Dota2ProTracker primary positions
-        run: node scripts/sync-d2pt-primary-guides.js --input=statsdota-guides.json --output=d2pt-primary-guides.json --delay-ms=3500 --retries=2
-      - name: Preserve Dota2ProTracker primary-role guide audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: d2pt-primary-guides-audit
-          path: d2pt-primary-guides.json
-          if-no-files-found: error
-          retention-days: 30
