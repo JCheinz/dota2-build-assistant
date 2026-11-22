@@ -9,6 +9,9 @@ on:
       - 'statsdota-guides.json'
       - 'scripts/sync-d2pt-primary-guides.js'
       - 'build-data-engine.js'
+concurrency:
+  group: primary-hero-guide-sync-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   sync:
     runs-on: ubuntu-latest
