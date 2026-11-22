@@ -2306,11 +2306,16 @@ function analyzeCore(options={}){
  window.__DOTA_ANALYSIS_STAGE="renderizado final del informe";
  $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+let skillDataLoadPromise=null;
+function ensureSkillDataLoaded(){
+ if(!skillDataLoadPromise)skillDataLoadPromise=window.DotaSkillDataEngine?.load({patch:window.DOTA_PATCH_742?.patch||"7.42"}).catch(error=>{skillDataLoadPromise=null;throw error;})||Promise.resolve(null);
+ return skillDataLoadPromise;
+}
 async function loadSelectedBuildData(force=false){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  if(!me)return null;
  // La matriz base no debe depender de que Dota2ProTracker responda.
- try{await window.DotaSkillDataEngine?.load({patch:window.DOTA_PATCH_742?.patch||"7.42"});}catch(error){console.warn("No se pudo preparar la matriz base de habilidades:",error);}
+ try{await ensureSkillDataLoaded();}catch(error){console.warn("No se pudo preparar la matriz base de habilidades:",error);}
  return window.DotaBuildDataEngine.loadHeroBuild({heroId:me.id,heroName:me.localized_name,heroKey:me.name,role,patch:window.DOTA_PATCH_742?.patch||"7.42",patchReleaseDate:window.DOTA_PATCH_742?.releaseDate||"2026-11-18",force});
 }
 function showBuildDataStatus(data,error=null){
@@ -2331,8 +2336,10 @@ function analyze(options={}){
   const selected=ally.find(h=>String(h.id)===$('myHero').value);
   if(selected&&window.DotaBuildDataEngine){
    const cached=window.DotaBuildDataEngine.get(selected.id,$('myRole').value,window.DOTA_PATCH_742?.patch);
-   if(cached)showBuildDataStatus(cached);
-   else{
+   if(cached){
+    showBuildDataStatus(cached);
+    ensureSkillDataLoaded().then(()=>{if($('result').classList.contains('show'))analyzeCore({scroll:false});}).catch(error=>console.warn("Matriz de habilidades no disponible:",error));
+   }else{
     const status=$('buildDataStatus'),badge=$('buildDataBadge');
     if(status)status.textContent="Análisis inicial listo. Consultando builds estadísticas en segundo plano…";
     if(badge)badge.textContent="Consultando…";
@@ -2493,7 +2500,7 @@ $('loadSkillDatabase').addEventListener('click',async()=>{
   const dataset=await window.DotaSkillDataEngine.load({force:true});
   const coverage=window.DotaSkillDataEngine.getCoverage(dataset);
   badge.textContent=coverage.metadataCoverage+'% de metadatos';
-  status.textContent='Fuente: OpenDota · '+dataset.counts.heroes+' héroes con asignación · '+dataset.counts.abilities+' habilidades catalogadas · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.missingMetadataSlots+' entradas sin metadatos asociados. Datos cargados en memoria para esta sesión.';
+  status.textContent='Fuentes: dotaconstants / OpenDota · '+dataset.counts.heroes+' héroes · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.skillReady+'/'+coverage.heroes+' con 4 habilidades identificadas · '+coverage.talentReady+'/'+coverage.heroes+' con 4 tiers de talentos · '+coverage.fullReady+'/'+coverage.heroes+' con matriz base completa · '+coverage.missingMetadataSlots+' entradas sin metadatos.';
   button.textContent='Actualizar nuevamente';
  }catch(error){badge.textContent='Error de carga';status.textContent='No se pudo completar la descarga: '+error.message;button.textContent='Reintentar descarga';}
  finally{button.disabled=false;}
