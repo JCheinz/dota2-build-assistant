@@ -1,7 +1,8 @@
 "use strict";
 const fs=require("node:fs"),path=require("node:path");
 const {parseGuideIndex,parseGuidePage}=require("./statsdota-guide-sync");
-const BASE="https://statsdota.com/en/guides";\nconst CURRENT_PATCH="7.42";
+const BASE="https://statsdota.com/en/guides";
+const CURRENT_PATCH="7.42";
 const CONSTANTS="https://raw.githubusercontent.com/odota/dotaconstants/master/build";
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function fetchText(url,attempts=3){
