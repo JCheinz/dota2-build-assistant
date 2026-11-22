@@ -28,6 +28,7 @@ const crystal={name:"npc_dota_hero_crystal_maiden",localized_name:"Crystal Maide
 const crystalAbilities={npc_dota_hero_crystal_maiden:{abilities:["crystal_maiden_crystal_nova","crystal_maiden_frostbite","crystal_maiden_brilliance_aura","generic_hidden","generic_hidden","crystal_maiden_freezing_field"]}};
 const crystalHtml='<h1>How to play Crystal Maiden — guide 7.42</h1><p>Based on 100 winning matches of Immortal rank players and pro players · updated November 22, 2026</p><p>Crystal Maiden is played as Carry.</p><h2>Positions</h2><p>Carry 77 games Offlane 12 games Mid 11 games</p><h2>Skill order</h2><div>1<img alt="crystal_maiden_frostbite"></div><div>2<img alt="crystal_maiden_brilliance_aura"></div><div>3<img alt="crystal_maiden_crystal_nova"></div><div>4<img alt="crystal_maiden_frostbite"></div><div>5<img alt="crystal_maiden_frostbite"></div><div>6<img alt="crystal_maiden_freezing_field"></div><h2>Frequently asked questions</h2>';
 const crystalGuide=parseGuidePage(crystalHtml,crystal,crystalAbilities,"https://statsdota.com/en/guides/crystal-maiden");
+console.log("CRYSTAL GUIDE PARSE",JSON.stringify(crystalGuide));
 assert.equal(crystalGuide.role,"Carry","StatsDota main role should come from the position with the highest game count");
 assert.equal(crystalGuide.roleGames,77);
 assert.equal(crystalGuide.status,"ready");
