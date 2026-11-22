@@ -10,7 +10,7 @@ const BASE="https://statsdota.com/en/guides",RAW="https://raw.githubusercontent.
  const heroes=Array.isArray(heroesRaw)?heroesRaw:Object.values(heroesRaw||{});
  const links=parseGuideIndex(indexHtml,heroes);
  console.log(JSON.stringify({source:"StatsDota guide index",status:indexResponse.status,heroes:heroes.length,guideLinks:links.length,sample:links.slice(0,8).map(x=>({name:x.hero.localized_name,slug:x.slug}))}));
- const checks=["centaur-warrunner","enigma","pugna"];
+ const checks=["centaur-warrunner","enigma","pugna","crystal-maiden","techies"];
  for(const slug of checks){
   try{
    const response=await fetch(BASE+"/"+slug,{headers:{"User-Agent":"Mozilla/5.0 Dota2BuildAssistant audit"}});
