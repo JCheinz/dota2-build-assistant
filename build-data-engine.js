@@ -2,6 +2,7 @@
 "use strict";
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
+const DOTACONSTANTS="https://raw.githubusercontent.com/odota/dotaconstants/master/build";
 const CACHE_KEY="dota-build-live-data-v5";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
@@ -40,18 +41,27 @@ function readCache(storage,key){
 function writeCache(storage,key,data){
  try{if(storage)storage.setItem(key,JSON.stringify({savedAt:Date.now(),data}))}catch(_){}
 }
+function normalizeItemConstants(data){
+ const byId={},byName={};
+ for(const[key,value]of Object.entries(data||{})){
+  if(!value||typeof value!=="object")continue;
+  const id=asNumber(value.id,-1),display=value.dname||value.display_name||value.name||key;
+  if(id>=0)byId[id]={key,name:display,cost:asNumber(value.cost,0)};
+  byName[key]={key,name:display,id,cost:asNumber(value.cost,0)};
+ }
+ if(!Object.keys(byId).length)throw new Error("Catálogo de objetos vacío o inválido.");
+ return{byId,byName};
+}
 async function loadItemConstants(fetchImpl,baseUrl){
  if(itemConstantsPromise)return itemConstantsPromise;
- itemConstantsPromise=fetchJson(baseUrl+"/constants/items",fetchImpl).then(data=>{
-  const byId={},byName={};
-  for(const[key,value]of Object.entries(data||{})){
-   if(!value||typeof value!=="object")continue;
-   const id=asNumber(value.id,-1),display=value.dname||value.display_name||value.name||key;
-   if(id>=0)byId[id]={key,name:display,cost:asNumber(value.cost,0)};
-   byName[key]={key,name:display,id,cost:asNumber(value&&value.cost,0)};
+ itemConstantsPromise=(async()=>{
+  let lastError=null;
+  for(const url of [baseUrl+"/constants/items",DOTACONSTANTS+"/items.json"]){
+   try{return normalizeItemConstants(await fetchJson(url,fetchImpl,20000))}
+   catch(error){lastError=error}
   }
-  return{byId,byName};
- }).catch(error=>{itemConstantsPromise=null;throw error});
+  throw lastError||new Error("No se pudo cargar el catálogo de objetos.");
+ })().catch(error=>{itemConstantsPromise=null;throw error});
  return itemConstantsPromise;
 }
 function mapD2ptItems(build,constants){
@@ -89,7 +99,14 @@ function phaseItems(payload,constants){
 let heroAbilityConstantsPromise=null;
 async function loadHeroAbilityConstants(fetchImpl,baseUrl){
  if(heroAbilityConstantsPromise)return heroAbilityConstantsPromise;
- heroAbilityConstantsPromise=fetchJson(baseUrl+"/constants/hero_abilities",fetchImpl).catch(error=>{heroAbilityConstantsPromise=null;throw error});
+ heroAbilityConstantsPromise=(async()=>{
+  let lastError=null;
+  for(const url of [baseUrl+"/constants/hero_abilities",DOTACONSTANTS+"/hero_abilities.json"]){
+   try{return await fetchJson(url,fetchImpl,20000)}
+   catch(error){lastError=error}
+  }
+  throw lastError||new Error("No se pudo cargar la asignación de habilidades.");
+ })().catch(error=>{heroAbilityConstantsPromise=null;throw error});
  return heroAbilityConstantsPromise;
 }
 const ABILITY_LEVELS=[1,2,3,4,5,6,7,8,9,11,12,13,14,16,18];
