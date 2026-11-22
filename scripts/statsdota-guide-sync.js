@@ -35,14 +35,19 @@ function parseGuidePage(html,hero,heroAbilities,sourceUrl){
  const known=new Set(slots);
  const abilityOrder=[...section.matchAll(/alt=["']([^"']+)["']/gi)].map(m=>decodeHtml(m[1])).filter(name=>known.has(name));
  const plain=stripHtml(source);
- const name=hero.localized_name,phrase=(name+" is played in").toLowerCase(),nameIndex=plain.toLowerCase().indexOf(phrase);
- const roleText=nameIndex>=0?plain.slice(nameIndex+phrase.length,nameIndex+phrase.length+80):"";
- const roleMatch=roleText.match(/^\s*(Carry|Mid|Offlane|Soft Support|Support|Hard Support)/i);
- const role=roleMatch?appRole(roleMatch[1]):null;
+ const name=hero.localized_name;
+ const positionsStart=plain.toLowerCase().indexOf("positions"),positionsText=positionsStart>=0?plain.slice(positionsStart,positionsStart+260):"";
+ const positionCounts=[...positionsText.matchAll(/(Carry|Mid|Offlane|Soft Support|Hard Support|Support)\\s+(\\d+)\\s+games/gi)].map(m=>({label:m[1],role:appRole(m[1]),games:Number(m[2])})).sort((a,b)=>b.games-a.games);
+ let role=positionCounts[0]?.role||null,roleGames=positionCounts[0]?.games||0;
+ if(!role){
+  const phrase=name+" is played",i=plain.toLowerCase().indexOf(phrase.toLowerCase()),roleText=i>=0?plain.slice(i+phrase.length,i+phrase.length+100):"";
+  const roleMatch=roleText.match(/^\\s+(?:in|as)\\s+(Carry|Mid|Offlane|Soft Support|Support|Hard Support)/i);
+  role=roleMatch?appRole(roleMatch[1]):null;
+ }
  const sample=plain.match(/Based on\s+(\d+)\s+winning matches/i);
  const patchMatch=plain.match(/How to play[^\n]{0,160}?guide\s+([0-9]+(?:\.[0-9]+)?[a-z]?)/i)||plain.match(/guide\s+([0-9]+(?:\.[0-9]+)?[a-z]?)/i);
  const updatedMatch=plain.match(/updated\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
  const updatedAt=updatedMatch?new Date(updatedMatch[1]).toISOString():null;
- return{hero:hero.name,heroName:name,role,patch:patchMatch?patchMatch[1]:null,matches:sample?Number(sample[1]):0,updatedAt,abilityOrder,sourceUrl,rankScope:"Immortal / profesionales",status:abilityOrder.length>=6&&role?"ready":"incomplete"};
+ return{hero:hero.name,heroName:name,role,roleGames,positionCounts,patch:patchMatch?patchMatch[1]:null,matches:sample?Number(sample[1]):0,updatedAt,abilityOrder,sourceUrl,rankScope:"Immortal / profesionales",status:abilityOrder.length>=6&&role?"ready":"incomplete"};
 }
 module.exports={decodeHtml,stripHtml,normalizeName,appRole,parseGuideIndex,parseGuidePage};
