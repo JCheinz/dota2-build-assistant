@@ -1,0 +1,23 @@
+name: Probe StatsDota hero guide feed
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/probe-statsdota-guides.js'
+      - '.github/workflows/probe-statsdota.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/probe-statsdota-guides.js'
+      - '.github/workflows/probe-statsdota.yml'
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Inspect public guide pages and skill order markup
+        run: node scripts/probe-statsdota-guides.js
