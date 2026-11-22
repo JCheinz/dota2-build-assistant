@@ -48,7 +48,7 @@ function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
   "Como Support 5, priorizá la herramienta que proteja al aliado, aporte control y permita disputar visión con recursos limitados.";
  return{
   title:heroName+" "+role+" · progresión base de habilidades y talentos",
-  skillIcons,skillBuild,talentChoices,
+  skillIcons,skillBuild,skillOrder:skillBuild.map(x=>skillIcons[x.code]?.name||x.code),talentChoices,
   innateAbilities:innate.map(x=>({name:x.name,description:x.description||"Habilidad innata identificada en el catálogo oficial."})),
   skillPriority:"BASE PROVISIONAL · La matriz muestra una progresión estructural Q/W/E/R para que no falten habilidades ni niveles. No representa una muestra estadística ni una recomendación validada de jugadores de alto MMR. "+roleNote+" Cambiá el orden si la línea, el draft o la habilidad de mayor impacto lo requieren.",
   combos:[],
