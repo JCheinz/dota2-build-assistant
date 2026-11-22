@@ -4,11 +4,15 @@ on:
     branches: [main]
     paths:
       - 'scripts/probe-statsdota-guides.js'
+      - 'scripts/sync-statsdota-guides.js'
+      - 'scripts/statsdota-guide-sync.js'
       - '.github/workflows/probe-statsdota.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/probe-statsdota-guides.js'
+      - 'scripts/sync-statsdota-guides.js'
+      - 'scripts/statsdota-guide-sync.js'
       - '.github/workflows/probe-statsdota.yml'
   workflow_dispatch:
 jobs:
@@ -21,5 +25,12 @@ jobs:
           node-version: 22
       - name: Inspect public guide pages and skill order markup
         run: node scripts/probe-statsdota-guides.js
-      - name: Run snapshot sync on first 15 guides as an integration test
-        run: node scripts/sync-statsdota-guides.js --output /tmp/statsdota-guides-probe.json
+      - name: Audit all StatsDota hero guides
+        run: node scripts/sync-statsdota-guides.js --output /tmp/statsdota-guides-audit.json
+      - name: Preserve complete audit snapshot and incomplete list
+        uses: actions/upload-artifact@v4
+        with:
+          name: statsdota-hero-guide-audit
+          path: /tmp/statsdota-guides-audit.json
+          if-no-files-found: error
+          retention-days: 14
