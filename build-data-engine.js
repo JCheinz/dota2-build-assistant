@@ -18,6 +18,22 @@ async function fetchJson(url,fetchImpl,timeoutMs=11000){
   return await response.json();
  }finally{if(timer)clearTimeout(timer)}
 }
+async function fetchD2ptJson(url,fetchImpl){
+ const proxyUrl="https://r.jina.ai/https://"+url.replace(/^https?:\\/\\//,"");
+ let proxyError=null;
+ try{
+  const wrapped=await fetchJson(proxyUrl,fetchImpl,20000);
+  if(Array.isArray(wrapped)||Array.isArray(wrapped&&wrapped.builds))return wrapped;
+  const content=wrapped&&wrapped.data&&wrapped.data.content;
+  if(typeof content==="string"){
+   const parsed=JSON.parse(content);
+   if(Array.isArray(parsed)||Array.isArray(parsed&&parsed.builds))return parsed;
+  }
+  throw new Error("Jina no devolvió el JSON esperado de Dota2ProTracker.");
+ }catch(error){proxyError=error}
+ try{return await fetchJson(url,fetchImpl,12000)}
+ catch(directError){throw new Error("Dota2ProTracker vía proxy: "+(proxyError&&proxyError.message||"sin respuesta")+" · acceso directo: "+directError.message)}
+}
 function readCache(storage,key){
  try{const raw=storage&&storage.getItem(key);if(!raw)return null;const v=JSON.parse(raw);return v&&v.savedAt&&Date.now()-v.savedAt<CACHE_TTL?v.data:null}catch(_){return null}
 }
@@ -198,7 +214,7 @@ async function loadHeroBuild(options){
  let d2ptError=null,constants=null;
  try{
   const [raw,items]=await Promise.all([
-   fetchJson(d2ptBase+"/hero/"+heroId+"/builds?position=pos%20"+position,fetchImpl),
+   fetchD2ptJson(d2ptBase+"/hero/"+heroId+"/builds?position=pos%20"+position,fetchImpl),
    loadItemConstants(fetchImpl,base)
   ]);
   constants=items;
@@ -239,7 +255,7 @@ function get(heroId,role,patch){
  return memory.get(key)||readCache(root&&root.localStorage,CACHE_KEY+":"+key)||null;
 }
 function clear(){memory.clear();itemConstantsPromise=null;heroAbilityConstantsPromise=null}
-const api={version:"1.2.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,cacheTtl:CACHE_TTL};
+const api={version:"1.3.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,fetchD2ptJson,cacheTtl:CACHE_TTL};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.DotaBuildDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
