@@ -20,19 +20,25 @@ async function fetchJson(url,fetchImpl,timeoutMs=11000){
  }finally{if(timer)clearTimeout(timer)}
 }
 async function fetchD2ptJson(url,fetchImpl){
- const proxyUrl="https://r.jina.ai/https://"+url.split("://").slice(1).join("://");
+ const target=url.replace(/^http:\/\//,"https://");
+ const proxyUrls=[
+  "https://r.jina.ai/http://"+target.split("://").slice(1).join("://"),
+  "https://r.jina.ai/https://"+target.split("://").slice(1).join("://")
+ ];
  let proxyError=null;
- try{
-  const wrapped=await fetchJson(proxyUrl,fetchImpl,20000);
-  if(Array.isArray(wrapped)||Array.isArray(wrapped&&wrapped.builds))return wrapped;
-  const content=wrapped&&wrapped.data&&wrapped.data.content;
-  if(typeof content==="string"){
-   const parsed=JSON.parse(content);
-   if(Array.isArray(parsed)||Array.isArray(parsed&&parsed.builds))return parsed;
-  }
-  throw new Error("Jina no devolvió el JSON esperado de Dota2ProTracker.");
- }catch(error){proxyError=error}
- try{return await fetchJson(url,fetchImpl,12000)}
+ for(const proxyUrl of proxyUrls){
+  try{
+   const wrapped=await fetchJson(proxyUrl,fetchImpl,20000);
+   if(Array.isArray(wrapped)||Array.isArray(wrapped&&wrapped.builds))return wrapped;
+   const body=wrapped&&wrapped.data&&wrapped.data.content;
+   if(typeof body==="string"){
+    const parsed=JSON.parse(body);
+    if(Array.isArray(parsed)||Array.isArray(parsed&&parsed.builds))return parsed;
+   }
+   throw new Error("Jina no devolvió el JSON esperado de Dota2ProTracker.");
+  }catch(error){proxyError=error}
+ }
+ try{return await fetchJson(target,fetchImpl,12000)}
  catch(directError){throw new Error("Dota2ProTracker vía proxy: "+(proxyError&&proxyError.message||"sin respuesta")+" · acceso directo: "+directError.message)}
 }
 function readCache(storage,key){
