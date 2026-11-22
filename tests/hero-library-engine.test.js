@@ -1,0 +1,17 @@
+"use strict";
+const assert=require("node:assert/strict");
+const lib=require("../hero-library-engine");
+const dataset={patch:"7.42",heroes:[{id:1,name:"npc_dota_hero_antimage",localized_name:"Anti-Mage"}],heroAbilities:{"npc_dota_hero_antimage":{abilities:["antimage_mana_break","antimage_blink","antimage_spell_shield","antimage_mana_void"],talents:[]}}};
+const built=lib.buildHeroLibrary(dataset,{stratz:{heroes:{"npc_dota_hero_antimage":{positions:{Carry:{source:"STRATZ",patch:"7.42",matches:120,winRate:.53,items:{starting:["Tango"],core:[{name:"Battle Fury",averageMinute:15,matchCount:70}]},skillBuild:[{level:1,ability:"Q"},{level:2,ability:"W"},{level:3,ability:"Q"},{level:4,ability:"E"},{level:5,ability:"Q"},{level:6,ability:"R"}],talents:[{level:10,name:"Talent A"},{level:15,name:"Talent B"},{level:20,name:"Talent C"},{level:25,name:"Talent D"}]}}}}}});
+assert.equal(built.heroCount,1);
+const hero=lib.getHero(built,"anti-mage");
+assert.equal(hero.name,"Anti-Mage");
+assert.equal(hero.roles.Carry.sampleSize,120);
+assert.equal(hero.roles.Carry.items.core[0].name,"Battle Fury");
+assert.equal(hero.roles.Carry.coverage.skills,true);
+assert.equal(hero.roles.Carry.coverage.talents,true);
+assert.equal(hero.roles.Mid.coverage.items,false,"No se extrapola Carry a Mid");
+assert.equal(lib.getRoleBuild(built,"npc_dota_hero_antimage","Carry").source,"STRATZ");
+assert.equal(lib.mergeProviderHero(built,"npc_dota_hero_antimage","Mid",{source:"STRATZ",items:{early:["Wraith Band"]}}),true);
+assert.equal(built.heroes.npc_dota_hero_antimage.roles.Mid.items.early[0].name,"Wraith Band");
+console.log("Hero library dictionary tests passed.");
