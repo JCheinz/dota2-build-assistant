@@ -320,12 +320,14 @@ async function loadHeroes(){
   heroLoadPromise=(async function(){
     const status=$('loadStatus');
     status.textContent='Cargando catálogo de héroes… Si OpenDota tarda, se probará una fuente alternativa.';
-    const endpoints=[API,'https://api.opendota.com/api/heroes'];
+    // El endpoint liviano /heroes responde antes y evita que el catálogo dependa
+    // de la respuesta más pesada de heroStats en móviles/conexiones lentas.
+    const endpoints=['https://api.opendota.com/api/heroes',API];
     let lastError=null, loadedFromStats=false;
     for(let i=0;i<endpoints.length;i++){
       try{
         const controller=new AbortController();
-        const timeout=setTimeout(()=>controller.abort(),9000);
+        const timeout=setTimeout(()=>controller.abort(),22000);
         let response;
         try{response=await fetch(endpoints[i],{cache:'no-store',signal:controller.signal});}
         finally{clearTimeout(timeout)}
@@ -335,7 +337,7 @@ async function loadHeroes(){
         heroes=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&h.localized_name);
         if(heroes.length<100)throw Error('Catálogo incompleto');
         heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
-        loadedFromStats=(i===0);
+        loadedFromStats=(endpoints[i]===API);
         renderSlots();
         renderHeroGrid();
         renderDynamicStateControls();
