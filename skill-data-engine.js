@@ -15,7 +15,7 @@ function abilityIsInnate(data){return !!(data&&(isTruthyFlag(data.innate)||isTru
 function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
  const hero=dataset&&dataset.heroAbilities&&dataset.heroAbilities[heroKey];
  if(!hero)return null;
- const rawSlots=Array.isArray(hero.abilities)?hero.abilities:[];
+ const rawSlots=(Array.isArray(hero.abilities)?hero.abilities:[]).map(slot=>typeof slot==="string"?slot:slot&&slot.id).filter(Boolean);
  const entry=id=>{
   if(!id||id==="generic_hidden"||String(id).startsWith("special_bonus_"))return null;
   const data=dataset.abilities&&dataset.abilities[id];
