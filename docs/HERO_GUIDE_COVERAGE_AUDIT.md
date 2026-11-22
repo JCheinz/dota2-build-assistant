@@ -27,7 +27,7 @@ Los 7 perfiles manuales incluyen secuencia, cuatro tiers de talentos y contenido
 
 - **dotaconstants / OpenDota constants:** identidad de habilidades, orden de ranuras, innatas, talentos, descripciones e iconos. No aporta por sí sola la secuencia recomendada por nivel.
 - **Dota2ProTracker:** secuencias de habilidades y elecciones de talentos por posición cuando existe una muestra y el endpoint está accesible. `abilities_new` contiene órdenes frecuentes y `talents` contiene ambos lados, tasa de elección y victoria.
-- **StatsDota:** guías por héroe con órdenes de habilidades basadas en partidas ganadoras Immortal/pro; la página pública puede servir como contraste y normalmente presenta el rol principal. No se mezcla su muestra con D2PT.
+- **StatsDota:** el snapshot diario extrae la secuencia visible de habilidades de sus guías públicas basadas en partidas ganadoras Immortal/pro. Se usa solo si el rol principal coincide exactamente con la posición elegida (Soft Support/Hard Support se distinguen; el rótulo genérico Support no se adivina). No se mezcla su muestra con D2PT. El catálogo local conserva muestra, parche, fecha y URL de origen.
 
 ## Limitaciones que deben permanecer visibles
 
@@ -35,7 +35,7 @@ Los 7 perfiles manuales incluyen secuencia, cuatro tiers de talentos y contenido
 2. Si D2PT no responde, la aplicación debe conservar el perfil manual o mostrar el fallback provisional con su etiqueta. No debe inventar tasas ni declarar que hay muestra por posición.
 3. Una guía del rol principal no equivale a una guía específica para las cinco posiciones.
 4. Los talentos oficiales se pueden mostrar con sus dos opciones y descripciones, pero una opción “recomendada” requiere una fuente de elección o una regla táctica explícita y verificable.
-5. Los perfiles 7.41f deben actualizarse antes de marcarlos como vigentes en 7.42.
+5. Los perfiles 7.41f deben actualizarse antes de marcarlos como vigentes en 7.42.\n6. El snapshot StatsDota se sincroniza diariamente; la aplicación lo usa sin consultar esa web en cada selección y solo aplica guías con secuencia válida y rol coincidente.
 
 ## Corrección de ranuras incluida en esta auditoría
 
