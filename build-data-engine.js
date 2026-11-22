@@ -2,7 +2,7 @@
 "use strict";
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
-const CACHE_KEY="dota-build-live-data-v1";
+const CACHE_KEY="dota-build-live-data-v2";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
 let itemConstantsPromise=null;
@@ -52,15 +52,18 @@ function mapD2ptItems(build,constants){
  }).filter(Boolean);
 }
 function phaseItems(payload,constants){
- const phases=[["start_game","Inicio"],["early_game","Línea"],["mid_game","Core"],["late_game","Avanzada"]],out=[];
- for(const[key,stage]of phases){
-  const group=payload&&payload[key]||{};
-  const rows=Array.isArray(group)?group:Object.entries(group).map(([item,count])=>({item,count}));
+ // OpenDota entrega actualmente start_game_items/early_game_items/etc.
+ // Se conservan también los nombres antiguos y mapas por nombre para compatibilidad.
+ const phases=[["start_game_items","start_game","Inicio"],["early_game_items","early_game","Línea"],["mid_game_items","mid_game","Core"],["late_game_items","late_game","Avanzada"]],out=[];
+ for(const[key,legacyKey,stage]of phases){
+  const group=payload&&(payload[key]??payload[legacyKey])||{};
+  const rows=Array.isArray(group)?group:Object.entries(group).map(([item,count])=>({item_id:item,item,count}));
   const mapped=rows.map(row=>{
-   const raw=String(row.item||row.name||row.key||"").replace(/^item_/,"");
-   const meta=constants.byName[raw];
+   const rawId=asNumber(row.item_id??row.id,-1);
+   const rawName=String(row.item||row.name||row.key||"").replace(/^item_/,"");
+   const meta=(rawId>=0&&constants.byId[rawId])||constants.byName[rawName];
    if(!meta)return null;
-   return{name:meta.name,count:asNumber(row.count??row.games??row.value,0),stage,minute:null,cost:meta.cost};
+   return{name:meta.name,count:asNumber(row.count??row.purchases??row.games??row.value,0),stage,minute:null,cost:meta.cost};
   }).filter(Boolean).sort((a,b)=>b.count-a.count).slice(0,12);
   out.push(...mapped);
  }
@@ -124,7 +127,7 @@ function get(heroId,role,patch){
  return memory.get(key)||readCache(root&&root.localStorage,CACHE_KEY+":"+key)||null;
 }
 function clear(){memory.clear();itemConstantsPromise=null}
-const api={version:"1.0.0",rolePosition,loadHeroBuild,get,clear,cacheTtl:CACHE_TTL};
+const api={version:"1.1.0",rolePosition,loadHeroBuild,get,clear,cacheTtl:CACHE_TTL};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.DotaBuildDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
