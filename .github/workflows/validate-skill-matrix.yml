@@ -21,7 +21,7 @@ jobs:
           node --check skill-data-engine.js
           node --check build-data-engine.js
           node --check patch-data-742.js
-      - name: Test dynamic matrix and Pugna regressions
+      - name: Audit real guide coverage, dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
       - name: Test inventory ledger lifecycle and regressions
         run: |

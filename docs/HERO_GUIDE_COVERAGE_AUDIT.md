@@ -1,6 +1,6 @@
 # Auditoría de cobertura de guías de héroes
 
-Corte de auditoría: 22 de noviembre de 2026 · parche de aplicación 7.42.
+Corte de auditoría: 22 de noviembre de 2026 · parche de aplicación 7.42. Auditoría automatizada incluida en CI.
 
 ## Cobertura técnica del catálogo
 
