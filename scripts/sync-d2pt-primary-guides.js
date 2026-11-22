@@ -26,7 +26,7 @@ async function main(){
  const prior=fs.existsSync(output)?JSON.parse(fs.readFileSync(output,"utf8")):null;
  if(prior&&prior.guides)Object.assign(existing,prior.guides);
  const results=[],minimumDelay=Number(arg("delay-ms","3500")),maxRetries=Number(arg("retries","4"));
- let lastRequest=0;
+ let lastRequest=0,rateLimitedStop=false;
  console.log("D2PT: "+tasks.length+" guías incompletas elegibles · una consulta por héroe · concurrencia 1 · espera mínima "+minimumDelay+" ms.");
  for(let i=0;i<tasks.length;i++){
   const {row,hero}=tasks[i],role=row.role,position=({Carry:1,Mid:2,Offlane:3,"Support 4":4,"Support 5":5})[role];
@@ -41,12 +41,12 @@ async function main(){
     error=e;
     const is429=/429|rate.?limit|temporarily limited/i.test(String(e&&e.message||e));
     if(attempt>=maxRetries)break;
-    const backoff=is429?Math.min(180000,30000*Math.pow(2,attempt)):Math.min(45000,5000*Math.pow(2,attempt));
+    const backoff=is429?Math.min(180000,90000*Math.pow(2,attempt)):Math.min(45000,5000*Math.pow(2,attempt));
     console.warn("Retry "+(attempt+1)+"/"+maxRetries+" "+hero.localized_name+" "+role+": "+e.message+" · espera "+backoff+" ms");
     await sleep(backoff);
    }
   }
-  if(error){results.push({hero:hero.name,heroName:hero.localized_name,heroId:hero.id,role,position,status:/429/.test(error.message)?"rate-limited":"error",reason:String(error.message).slice(0,350)});console.warn("No se pudo obtener "+hero.localized_name+": "+error.message);continue}
+  if(error){const limited=/429|rate.?limit|temporarily limited/i.test(String(error.message||error));results.push({hero:hero.name,heroName:hero.localized_name,heroId:hero.id,role,position,status:limited?"rate-limited":"error",reason:String(error.message).slice(0,350)});console.warn("No se pudo obtener "+hero.localized_name+": "+error.message);if(limited){rateLimitedStop=true;console.warn("Circuit breaker: D2PT sigue limitando peticiones; se detiene la cola para no insistir sobre el servicio.");break}continue}
   const candidates=rowsOf(raw).filter(x=>x&&x.build_data&&typeof x.build_data==="object").sort((a,b)=>Number(b.num_matches||b.build_data?.num_matches||0)-Number(a.num_matches||a.build_data?.num_matches||0));
   const build=candidates[0];
   if(!build){results.push({hero:hero.name,heroName:hero.localized_name,heroId:hero.id,role,position,status:"missing",reason:"D2PT no devolvió build para la posición principal."});continue}
