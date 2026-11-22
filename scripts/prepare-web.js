@@ -11,6 +11,8 @@ const requiredFiles = [
   'item-icons.js',
   'inventory-ledger.js',
   'skill-data-engine.js',
+  'hero-library-engine.js',
+  'hero-library.json',
   'build-data-engine.js',
   'specializations.js',
   'patch-data-742.js',
