@@ -301,6 +301,7 @@
 <script src="./item-icons.js?v=1"></script>
 <script src="./inventory-ledger.js?v=359"></script>
 <script src="./skill-data-engine.js?v=364"></script>
+<script src="./hero-library-engine.js?v=1"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
 <script src="./build-data-engine.js?v=7428"></script>
@@ -2503,11 +2504,13 @@ $('loadSkillDatabase').addEventListener('click',async()=>{
  try{
   const dataset=await window.DotaSkillDataEngine.load({force:true});
   const coverage=window.DotaSkillDataEngine.getCoverage(dataset);
+  const heroLibrary=window.DotaHeroLibrary.buildHeroLibrary(dataset,{statsDota:dataset.statsDotaGuides,d2pt:dataset.d2ptPrimaryGuides});
+  window.DOTA_HERO_LIBRARY=heroLibrary;
   badge.textContent=coverage.metadataCoverage+'% de metadatos';
   const specializationEntries=Object.entries(window.DOTA_HERO_SPECIALIZATIONS||{});
   const specializedHeroes=new Set(specializationEntries.map(([key])=>key.split("|")[0]));
   const oldPatchProfiles=specializationEntries.filter(([,value])=>/7\.41/.test(value&&value.guide&&value.guide.title||"")).length;
-  status.textContent='Fuentes: dotaconstants / OpenDota · '+dataset.counts.heroes+' héroes · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.skillReady+'/'+coverage.heroes+' con 4 habilidades identificadas · '+coverage.talentReady+'/'+coverage.heroes+' con 4 tiers de talentos · '+coverage.fullReady+'/'+coverage.heroes+' con matriz de metadatos completa · '+coverage.missingMetadataSlots+' entradas sin metadatos. Guías StatsDota con secuencia: '+(coverage.statsDotaSkillGuides||0)+'/'+coverage.heroes+' héroes para su rol principal. Guías individuales desarrolladas: '+specializedHeroes.size+'/'+coverage.heroes+' héroes y '+specializationEntries.length+' perfiles por posición; '+oldPatchProfiles+' perfiles aún citan 7.41.';
+  status.textContent='Diccionario: '+heroLibrary.heroCount+' héroes · 5 posiciones por héroe · Fuentes: dotaconstants / OpenDota · '+dataset.counts.heroes+' héroes · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.skillReady+'/'+coverage.heroes+' con 4 habilidades identificadas · '+coverage.talentReady+'/'+coverage.heroes+' con 4 tiers de talentos · '+coverage.fullReady+'/'+coverage.heroes+' con matriz de metadatos completa · '+coverage.missingMetadataSlots+' entradas sin metadatos. Guías StatsDota con secuencia: '+(coverage.statsDotaSkillGuides||0)+'/'+coverage.heroes+' héroes para su rol principal. Guías individuales desarrolladas: '+specializedHeroes.size+'/'+coverage.heroes+' héroes y '+specializationEntries.length+' perfiles por posición; '+oldPatchProfiles+' perfiles aún citan 7.41.';
   button.textContent='Actualizar nuevamente';
  }catch(error){badge.textContent='Error de carga';status.textContent='No se pudo completar la descarga: '+error.message;button.textContent='Reintentar descarga';}
  finally{button.disabled=false;}
