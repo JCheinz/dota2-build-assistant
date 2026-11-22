@@ -25,7 +25,7 @@ async function main(){
  const existing={};
  const prior=fs.existsSync(output)?JSON.parse(fs.readFileSync(output,"utf8")):null;
  if(prior&&prior.guides)Object.assign(existing,prior.guides);
- const results=[],minimumDelay=Number(arg("delay-ms","3500")),maxRetries=Number(arg("retries","4"));
+ const results=[],minimumDelay=Number(arg("delay-ms","3500")),maxRetries=Number(arg("retries","2"));
  let lastRequest=0,rateLimitedStop=false;
  console.log("D2PT: "+tasks.length+" guías incompletas elegibles · una consulta por héroe · concurrencia 1 · espera mínima "+minimumDelay+" ms.");
  for(let i=0;i<tasks.length;i++){
