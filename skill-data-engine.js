@@ -22,10 +22,10 @@ function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
   if(!data)return null;
   return{id,name:data.displayName||String(id).replace(/^[^_]+_/,"").replaceAll("_"," "),slug:id,description:data.description||"",data};
  };
- const selected=new Map();
+ const selected=new Map(),selectedIds=new Set();
  const add=(code,id)=>{
   const item=entry(id);
-  if(item&&!abilityIsInnate(item.data)&&!selected.has(id)){selected.set(id,{...item,code});return item}
+  if(item&&!abilityIsInnate(item.data)&&!selectedIds.has(id)){selectedIds.add(id);selected.set(code,{...item,code});return item}
   return null;
  };
  // Valve/OpenDota conservan los slots del héroe: Q/W/E suelen ocupar 0–2;
@@ -40,7 +40,7 @@ function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
  rawSlots.forEach(id=>{
   const item=entry(id);if(!item)return;
   if(abilityIsInnate(item.data)){if(!innate.some(x=>x.id===id))innate.push(item);return}
-  if(!selected.has(id)&&!additional.some(x=>x.id===id))additional.push(item);
+  if(!selectedIds.has(id)&&!additional.some(x=>x.id===id))additional.push(item);
  });
  const skillIcons={};
  for(const[code,item]of selected)skillIcons[code]={name:item.name,slug:item.slug};
