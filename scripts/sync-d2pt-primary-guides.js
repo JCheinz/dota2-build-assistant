@@ -64,7 +64,7 @@ async function main(){
  }
  const ready=Object.values(existing).filter(x=>x&&x.status==="ready");
  const counts={};for(const r of results)counts[r.status]=(counts[r.status]||0)+1;
- const report={schemaVersion:1,source:"Dota2ProTracker · una posición principal por héroe",patch:PATCH,patchReleaseDate:PATCH_RELEASE,generatedAt:new Date().toISOString(),requestedMissingGuides:incomplete.length,eligibleRequests:tasks.length,requestPolicy:{concurrency:1,minimumDelayMs:minimumDelay,retries:maxRetries,backoff:"exponencial; 30s inicial para HTTP 429"},readyCount:ready.length,counts,skipped,results,guides:existing};
+ const report={schemaVersion:1,source:"Dota2ProTracker · una posición principal por héroe",patch:PATCH,patchReleaseDate:PATCH_RELEASE,generatedAt:new Date().toISOString(),requestedMissingGuides:incomplete.length,eligibleRequests:tasks.length,requestPolicy:{concurrency:1,minimumDelayMs:minimumDelay,retries:maxRetries,backoff:"exponencial; 90s inicial ante HTTP 429; circuit breaker si persiste"},readyCount:ready.length,counts,skipped,results,guides:existing};
  fs.writeFileSync(output,JSON.stringify(report,null,2)+"\n");
  console.log(JSON.stringify({output,requestedMissingGuides:incomplete.length,eligibleRequests:tasks.length,readyCount:ready.length,counts,skipped:skipped.length},null,2));
  if(tasks.length===0)throw new Error("No se pudo identificar la posición principal de ninguna guía incompleta; revisar snapshot StatsDota.");
