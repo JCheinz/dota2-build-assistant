@@ -26,9 +26,9 @@ async function fetchD2ptProxyJson(url,fetchImpl){
  if(typeof response.text==="function"){
   const text=await response.text();
   try{raw=JSON.parse(text)}catch(error){
-   const status=text.match(/(?:HTTP\\/\\d(?:\\.\\d)?\\s+)?(429|403|502)\\b/i);
+   const status=text.match(/\\b(429|403|502)\\b/);
    if(status)throw new Error("HTTP "+status[1]);
-   const start=text.search(/[\\[{]/);
+   const starts=[text.indexOf("{"),text.indexOf("[")].filter(x=>x>=0);const start=starts.length?Math.min(...starts):-1;
    if(start>=0){try{raw=JSON.parse(text.slice(start))}catch(_){throw error}}else throw error;
   }
  }else raw=await response.json();
