@@ -397,19 +397,12 @@ const itemSlugs={
  'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
  'Quarterstaff':'quarterstaff','Bloodslinger':'bloodslinger','Caduceus':'caduceus',"Ristul's Devotion":'ristuls_devotion','Sabatons of Mordiggian':'sabatons_of_mordiggian','Skypiercer':'skypiercer','Starforge':'starforge',
  'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
- 'Sange':'sange','Observer Ward':'ward_observer',"Heaven's Halberd":'heavens_halberd',"Heaven’s Halberd":'heavens_halberd',"Linken's Sphere":'sphere',"Linken’s Sphere":'sphere',"Receta de Linken's Sphere":'recipe',"Receta de Linken’s Sphere":'recipe',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
  'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
  'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe','Receta de Perseverance':'recipe'
 };
-const normalizedItemSlugs=Object.create(null);
-Object.entries(itemSlugs).forEach(([name,slug])=>{
- const key=String(name).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`´]/g,"'").replace(/\s+/g," ").trim().toLocaleLowerCase("en");
- normalizedItemSlugs[key]=slug;
-});
 function renderItemIcon(name){
- const key=String(name||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`´]/g,"'").replace(/\s+/g," ").trim().toLocaleLowerCase("en");
- const slug=itemSlugs[name]||normalizedItemSlugs[key];
+ const slug=itemSlugs[name];
  const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span>';
  if(!slug)return fallback;
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
@@ -523,7 +516,7 @@ const heroPlans = {
 "npc_dota_hero_obsidian_destroyer|Mid": {title:"Outworld Destroyer Mid · Astral, Witch Blade y alcance",early:[["Null Talisman","Atributos y regeneración de maná; compra inicial frecuente."],["Power Treads","Botas de atributos para sostener el ritmo de línea."]],core:[["Witch Blade","Daño y velocidad de ataque para aprovechar ataques después de Astral Imprisonment."],["Blink Dagger","Reposicionamiento para alcanzar objetivos o salir de una entrada desfavorable."],["Hurricane Pike","Alcance y separación si los rivales pueden alcanzarte."]],situational:[["Meteor Hammer","Ruta alternativa de presión y canalización; no desplaza Witch Blade como obligación universal."],["Force Staff","Reposicionamiento cuando necesitás salvarte o crear distancia."],["Black King Bar","Si el control concreto te impide usar Astral o mantener daño."],["Scythe of Vyse","Control de cierre contra una amenaza prioritaria."]],note:"StatsDota 7.41f, snapshot 16-11-2026: Outworld Destroyer Mid 507.229 partidas en la muestra del parche y 113.830 en el corte por posición. Compras típicas: Null Talisman ~1:55, Power Treads ~8:16, Oblivion Staff ~13:10, Witch Blade ~15:21, Blink Dagger ~18:50 y Force Staff/Dragon Lance ~24 min. Meteor Hammer aparece en una ruta alternativa, no como compra universal."},
 "npc_dota_hero_invoker|Mid": {title:"Invoker Mid · Null Talisman, Kaya y Meteor Hammer",early:[["Null Talisman","Atributos y regeneración de maná; compra temprana frecuente."],["Kaya","Amplificación y regeneración para potenciar la rotación de hechizos."]],core:[["Meteor Hammer","Presión y control de área; compra típica alrededor de minuto 12."],["Boots of Travel","Movilidad global para acelerar rotaciones y presión de líneas."]],situational:[["Black King Bar","Si el control rival impide ejecutar combos."],["Force Staff","Reposicionamiento para evitar capturas o ajustar el ángulo."],["Octarine Core","Enfriamientos y alcance si el estilo de partida aprovecha sus efectos."],["Shiva’s Guard","Armadura y utilidad contra daño físico, velocidad de ataque o sustain."]],note:"StatsDota 7.41f, snapshot 16-11-2026: Invoker Mid 99.019 partidas con build por posición. Compras típicas: Null Talisman ~1:58, Kaya ~10:30, Meteor Hammer ~11:42 y Boots of Travel ~19:09. El orden puede variar por estilo Quas-Wex/Exort y por necesidades de la partida."}};
 function canonicalBuildItemName(name){
- const clean=value=>String(value||"").toLocaleLowerCase("en").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`]/g,"'").replace(/[^a-z0-9]+/g," ").trim();
+ const clean=value=>String(value||"").toLocaleLowerCase("en").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[’‘`]/g,"'").replace(/[^a-z0-9]+/g," ").trim();
  const wanted=clean(name);
  const known=Object.keys(itemSlugs||{}).find(key=>clean(key)===wanted);
  return known||name;
