@@ -10,6 +10,15 @@ const BASE="https://statsdota.com/en/guides",RAW="https://raw.githubusercontent.
  const heroes=Array.isArray(heroesRaw)?heroesRaw:Object.values(heroesRaw||{});
  const links=parseGuideIndex(indexHtml,heroes);
  console.log(JSON.stringify({source:"StatsDota guide index",status:indexResponse.status,heroes:heroes.length,guideLinks:links.length,sample:links.slice(0,8).map(x=>({name:x.hero.localized_name,slug:x.slug}))}));
+ for(const scheme of ["http://","https://"]){
+  try{
+   const url="https://r.jina.ai/"+scheme+"dota2protracker.com/api/hero/96/builds?position=pos%203";
+   const response=await fetch(url,{headers:{"Accept":"application/json,text/plain","X-Return-Format":"text"}});
+   const body=await response.text();
+   let data=null;try{data=JSON.parse(body)}catch(_){}
+   console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,status:response.status,bytes:body.length,isJson:!!data,preview:body.slice(0,350)}));
+  }catch(error){console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,error:String(error)}))}
+ }
  const checks=["centaur-warrunner","enigma","pugna","crystal-maiden","techies"];
  const d2ptChecks=[{hero:"Centaur Warrunner",id:96,position:3},{hero:"Pugna",id:45,position:2},{hero:"Enigma",id:33,position:3}];
  for(const item of d2ptChecks){
