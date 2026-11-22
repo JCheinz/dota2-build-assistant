@@ -32,6 +32,18 @@ const remoteLoaded=await engine.load({fetch:remoteFetch,patch:"7.42",force:true}
 assert.equal(remoteLoaded.statsDotaMeta.guideCount,1,"Latest remote StatsDota snapshot should load before bundled fallback");
 assert.ok(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42"),"Remote snapshot should produce a role-matched guide");
 
+const d2ptGuidePayload={title:"Centaur Warrunner Offlane",skillIcons:{Q:{name:"Hoof Stomp",slug:"centaur_hoof_stomp"},W:{name:"Double Edge",slug:"centaur_double_edge"},E:{name:"Return",slug:"centaur_return"},R:{name:"Stampede",slug:"centaur_stampede"}},skillBuild:[{level:1,code:"Q"},{level:2,code:"W"},{level:3,code:"E"},{level:4,code:"Q"},{level:5,code:"W"},{level:6,code:"R"}],skillOrder:["Hoof Stomp","Double Edge","Return","Hoof Stomp","Double Edge","Stampede"],talentChoices:[10,15,20,25].map(level=>({level,left:{name:"Left talent",reason:"Pick rate 55%"},right:{name:"Right talent",reason:"Pick rate 45%"},chosen:"left"})),metadata:{matches:150}};
+const d2ptSnapshot={generatedAt:"2026-11-22T00:00:00.000Z",source:"Dota2ProTracker",guides:{"npc_dota_hero_centaur":{hero:"npc_dota_hero_centaur",heroName:"Centaur Warrunner",heroId:96,role:"Offlane",position:3,status:"ready",patch:"7.42",matches:150,updatedAt:"2026-11-22T00:00:00.000Z",sourceUrl:"https://dota2protracker.com/hero/96",guide:d2ptGuidePayload}}};
+await engine.load({fetch:mockFetch,baseUrl:"https://d2pt-guide.test/api",patch:"7.42",force:true,statsDotaData:statsSnapshot,d2ptPrimaryData:d2ptSnapshot});
+const d2ptGuide=engine.createD2ptPrimaryGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42","https://d2pt-guide.test/api");
+assert.ok(d2ptGuide,"D2PT primary-role snapshot should create a skill guide");
+assert.equal(d2ptGuide.metadata.guideType,"d2pt-primary-role");
+assert.equal(d2ptGuide.metadata.matches,150);
+assert.equal(d2ptGuide.metadata.primaryRole,true);
+assert.equal(d2ptGuide.skillBuild.length,6);
+assert.equal(d2ptGuide.talentChoices.length,4);
+assert.equal(engine.createD2ptPrimaryGuide("npc_dota_hero_centaur","Centaur Warrunner","Carry","7.42","https://d2pt-guide.test/api"),null,"D2PT primary-role guide must not leak into other positions");
+assert.equal(engine.createD2ptPrimaryGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.41f","https://d2pt-guide.test/api"),null,"D2PT primary-role guide must reject stale patches");
 const audit=engine.getCoverage(coverageDataset);
 assert.equal(audit.heroes,127);assert.equal(audit.skillReady,127);assert.equal(audit.talentReady,127);assert.equal(audit.fullReady,127);
 for(const key of Object.keys(allHeroAbilities)){const generated=engine.createFallbackGuide(key,"Fixture","Carry","7.42","https://coverage.test/api");assert.ok(generated&&generated.skillBuild.length>=20&&generated.talentChoices.length===4,"Missing matrix for "+key);}
