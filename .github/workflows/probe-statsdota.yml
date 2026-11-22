@@ -17,6 +17,9 @@ on:
       - 'scripts/statsdota-guide-sync.js'
       - '.github/workflows/probe-statsdota.yml'
   workflow_dispatch:
+concurrency:
+  group: primary-hero-guide-sync-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   probe:
     runs-on: ubuntu-latest
