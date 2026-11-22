@@ -17,7 +17,9 @@ const BASE="https://statsdota.com/en/guides",RAW="https://raw.githubusercontent.
    const body=await response.text();
    let data=null,rows=[];try{data=JSON.parse(body);const raw=data&&data.data&&data.data.content;if(typeof raw==="string"){const parsed=JSON.parse(raw);rows=Array.isArray(parsed)?parsed:Array.isArray(parsed&&parsed.builds)?parsed.builds:[]}}catch(_){}
    const first=rows.find(x=>x&&x.build_data)||null;
-   console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,status:response.status,bytes:body.length,isJson:!!data,buildCount:rows.length,heroId:first?.hero_id,position:first?.position,matches:first?.num_matches,abilityOrders:first?.build_data?.abilities_new?.length||0,talentRows:first?.build_data?.talents?.length||0,preview:body.slice(0,220)}));
+   const engine=require("../build-data-engine.js");
+   const mapped=first?engine.mapD2ptSkillGuide(first,"npc_dota_hero_centaur",heroAbilities,{heroName:"Centaur Warrunner",heroSlug:"centaur-warrunner",role:"Offlane",patch:"7.42",matches:first.num_matches}):null;
+   console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,status:response.status,bytes:body.length,isJson:!!data,buildCount:rows.length,heroId:first?.hero_id,position:first?.position,matches:first?.num_matches,abilityOrders:first?.build_data?.abilities_new?.length||0,talentRows:first?.build_data?.talents?.length||0,mappedLevels:mapped?.skillBuild?.length||0,mappedSequence:mapped?.skillOrder?.slice(0,10)||[],mappedTalents:mapped?.talentChoices?.map(t=>({level:t.level,chosen:t.chosen}))||[],preview:body.slice(0,220)}));
   }catch(error){console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,error:String(error)}))}
  }
  const checks=["centaur-warrunner","enigma","pugna","crystal-maiden","techies"];
