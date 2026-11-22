@@ -2314,9 +2314,9 @@ function showBuildDataStatus(data,error=null){
  if(!data){badge.textContent="Sin héroe";status.textContent="Seleccioná tu héroe y posición para consultar una build.";return;}
  badge.textContent=data.source==="Dota2ProTracker"?"Build por posición":"Respaldo general";
  if(data.source==="Dota2ProTracker"){
-  status.textContent="Dota2ProTracker · "+data.role+" · parche "+(data.patch||"sin confirmar")+" · "+(data.matches||0).toLocaleString('es-AR')+" partidas"+(data.updatedAt?" · actualizado "+new Date(data.updatedAt).toLocaleString('es-AR'):"")+(data.cached?" · caché local":"");
+  status.textContent="Dota2ProTracker · "+data.role+" · parche "+(data.patch||"sin confirmar")+" · "+(data.matches||0).toLocaleString('es-AR')+" partidas · "+(data.guide?"build, habilidades y talentos disponibles":"build de objetos disponible; esta muestra no aportó una secuencia de habilidades/talentos")+(data.updatedAt?" · actualizado "+new Date(data.updatedAt).toLocaleString('es-AR'):"")+(data.cached?" · caché local":"");
  }else{
-  status.textContent="OpenDota · datos recientes del héroe, sin separación por posición ni parche verificable. Se usa solo como orientación general."+(data.cached?" · caché local":"");
+  status.textContent="OpenDota · datos recientes del héroe, sin separación por posición ni parche verificable. Se usa solo como orientación general; las habilidades y talentos requieren una muestra de builds por posición."+(data.cached?" · caché local":"");
  }
 }
 function analyze(options={}){
