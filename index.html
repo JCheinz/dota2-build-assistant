@@ -397,12 +397,19 @@ const itemSlugs={
  'Recipe':'recipe','Robe of the Magi':'robe_of_the_magi','Staff of Wizardry':'staff_of_wizardry',
  'Quarterstaff':'quarterstaff','Bloodslinger':'bloodslinger','Caduceus':'caduceus',"Ristul's Devotion":'ristuls_devotion','Sabatons of Mordiggian':'sabatons_of_mordiggian','Skypiercer':'skypiercer','Starforge':'starforge',
  'Energy Booster':'energy_booster','Vitality Booster':'vitality_booster','Band of Elvenskin':'band_of_elvenskin',
+ 'Sange':'sange','Observer Ward':'ward_observer',"Heaven's Halberd":'heavens_halberd',"Heaven’s Halberd":'heavens_halberd',"Linken's Sphere":'sphere',"Linken’s Sphere":'sphere',"Receta de Linken's Sphere":'recipe',"Receta de Linken’s Sphere":'recipe',
  'Vitality Booster':'vitality_booster','Energy Booster':'energy_booster','Gloves of Haste':'gloves','Belt of Strength':'belt_of_strength',
  'Blade of Alacrity':'blade_of_alacrity','Band of Elvenskin':'band_of_elvenskin','Broadsword':'broadsword','Claymore':'claymore',
  'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe','Receta de Perseverance':'recipe'
 };
+const normalizedItemSlugs=Object.create(null);
+Object.entries(itemSlugs).forEach(([name,slug])=>{
+ const key=String(name).normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[’‘`´]/g,"'").replace(/\\s+/g," ").trim().toLocaleLowerCase("en");
+ normalizedItemSlugs[key]=slug;
+});
 function renderItemIcon(name){
- const slug=itemSlugs[name];
+ const key=String(name||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[’‘`´]/g,"'").replace(/\\s+/g," ").trim().toLocaleLowerCase("en");
+ const slug=itemSlugs[name]||normalizedItemSlugs[key];
  const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span>';
  if(!slug)return fallback;
  return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
