@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "source": "Dota2ProTracker · una posición principal por héroe",
+  "patch": "7.42",
+  "patchReleaseDate": "2026-11-18",
+  "generatedAt": null,
+  "requestedMissingGuides": 78,
+  "eligibleRequests": 0,
+  "readyCount": 0,
+  "counts": {},
+  "skipped": [],
+  "results": [],
+  "guides": {}
+}
