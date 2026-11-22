@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
       - name: Sync only incomplete heroes at their primary position
-        run: node scripts/sync-d2pt-primary-guides.js --delay-ms=3500 --retries=4
+        run: node scripts/sync-d2pt-primary-guides.js --delay-ms=3500 --retries=2
       - name: Preserve audit report and synchronized guides
         uses: actions/upload-artifact@v4
         with:
