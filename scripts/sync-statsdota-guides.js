@@ -1,7 +1,7 @@
 "use strict";
 const fs=require("node:fs"),path=require("node:path");
 const {parseGuideIndex,parseGuidePage}=require("./statsdota-guide-sync");
-const BASE="https://statsdota.com/en/guides";
+const BASE="https://statsdota.com/en/guides";\nconst CURRENT_PATCH="7.42";
 const CONSTANTS="https://raw.githubusercontent.com/odota/dotaconstants/master/build";
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function fetchText(url,attempts=3){
@@ -40,10 +40,10 @@ async function main(){
    if((i+1)%20===0)console.log("Fetched "+(i+1)+"/"+selected.length+" · guides with skill order: "+Object.keys(guides).length);
   }catch(error){errors.push({hero:link.hero.name,error:String(error)});console.warn("Skipped "+link.hero.localized_name+": "+String(error))}
  }
- const count=Object.keys(guides).length;
+ const count=Object.keys(guides).length,currentPatchGuideCount=Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).length;
  const min=limit?1:60;
- if(count<min)throw new Error("Only "+count+" usable skill guides were parsed; minimum is "+min+". Existing snapshot was not replaced.");
- const snapshot={schemaVersion:1,source:"StatsDota public hero guides",fetchedAt:new Date().toISOString(),indexUrl:BASE,guideCount:count,heroesListed:links.length,guides,incomplete,errors};
+ if(currentPatchGuideCount<min)throw new Error("Only "+currentPatchGuideCount+" current "+CURRENT_PATCH+" skill guides were parsed; minimum is "+min+". Existing snapshot was not replaced.");
+ const snapshot={schemaVersion:1,source:"StatsDota public hero guides",currentPatch:CURRENT_PATCH,fetchedAt:new Date().toISOString(),indexUrl:BASE,guideCount:count,currentPatchGuideCount,heroesListed:links.length,guides,incomplete,errors};
  fs.writeFileSync(output,JSON.stringify(snapshot,null,2)+"\n");
  console.log(JSON.stringify({output,heroesListed:links.length,selected:selected.length,guideCount:count,incomplete:incomplete.length,errors:errors.length,patches:[...new Set(Object.values(guides).map(x=>x.patch).filter(Boolean))]},null,2));
 }
