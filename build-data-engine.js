@@ -3,7 +3,7 @@
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
 const DOTACONSTANTS="https://raw.githubusercontent.com/odota/dotaconstants/master/build";
-const CACHE_KEY="dota-build-live-data-v5";
+const CACHE_KEY="dota-build-live-data-v6";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
 let itemConstantsPromise=null;
@@ -272,7 +272,7 @@ function get(heroId,role,patch){
  return memory.get(key)||readCache(root&&root.localStorage,CACHE_KEY+":"+key)||null;
 }
 function clear(){memory.clear();itemConstantsPromise=null;heroAbilityConstantsPromise=null}
-const api={version:"1.5.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,fetchD2ptJson,cacheTtl:CACHE_TTL};
+const api={version:"1.6.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,fetchD2ptJson,cacheTtl:CACHE_TTL};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.DotaBuildDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
