@@ -13,7 +13,8 @@ const requiredFiles = [
   'skill-data-engine.js',
   'build-data-engine.js',
   'specializations.js',
-  'patch-data-742.js'
+  'patch-data-742.js',
+  'statsdota-guides.json'
 ];
 
 for (const file of requiredFiles) {
