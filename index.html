@@ -303,7 +303,7 @@
 <script src="./skill-data-engine.js?v=354"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
-<script src="./build-data-engine.js?v=7422"></script>
+<script src="./build-data-engine.js?v=7423"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -585,10 +585,13 @@ function getHeroSpecialization(hero,role){
  if(role.startsWith("Support"))risks.push("recursos limitados: priorizá utilidad y supervivencia antes que acumular objetos caros");
  risks.push(ranged?"si lo alcanzan, el posicionamiento puede ser más importante que el daño adicional":"necesita elegir bien cuándo entrar y cómo salir del combate");
  const style=role==="Carry"?(ranged?"Carry a distancia":"Carry cuerpo a cuerpo"):role==="Mid"?(roles.has("Nuker")?"Mid de daño por habilidades":roles.has("Escape")?"Mid móvil":"Mid de perfil mixto"):role==="Offlane"?(roles.has("Initiator")?"Offlane iniciador":roles.has("Durable")?"Offlane resistente":"Offlane de utilidad"):roles.has("Disabler")?"Support de control":roles.has("Nuker")?"Support de daño y habilidades":"Support de utilidad";
- const guide=window.DOTA_HERO_SPECIALIZATIONS?.[hero.name.replace("npc_dota_hero_","")+"|"+role]?.guide||null;
+ const localGuide=window.DOTA_HERO_SPECIALIZATIONS?.[hero.name.replace("npc_dota_hero_","")+"|"+role]?.guide||null;
  const liveBuild=plan?.liveData||null;
- const level=guide?"GUÍA INDIVIDUAL COMPLETA":liveBuild?"BUILD ESTADÍSTICA ACTUALIZADA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
- const source=guide?"Guía individual cargada para este héroe y posición.":liveBuild?(liveBuild.source+" · "+(liveBuild.scope==="posición"?"datos por posición":"datos generales sin separación por posición")+" · "+(liveBuild.matches?liveBuild.matches.toLocaleString("es-AR")+" partidas":"muestra sin tamaño informado")):plan?"Existe una ruta individual local de respaldo, pero todavía no una guía completa de habilidades, talentos y combos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
+ const liveGuide=liveBuild?.guide||null;
+ // La guía viva actualiza habilidades/talentos; conserva la explicación táctica manual cuando existe.
+ const guide=liveGuide?{...(localGuide||{}),...liveGuide,combos:localGuide?.combos||liveGuide.combos||[],positioning:localGuide?.positioning||liveGuide.positioning||"",mechanics:localGuide?.mechanics||liveGuide.mechanics||"",caveats:localGuide?.caveats||liveGuide.caveats||"",metadata:liveGuide.metadata}:localGuide;
+ const level=liveGuide?"GUÍA ESTADÍSTICA POR POSICIÓN":guide?"GUÍA INDIVIDUAL COMPLETA":liveBuild?"BUILD ESTADÍSTICA ACTUALIZADA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
+ const source=liveGuide?"Orden de habilidades y talentos obtenidos de Dota2ProTracker para esta posición; nombres y slots validados con OpenDota.":guide?"Guía individual cargada para este héroe y posición.":liveBuild?(liveBuild.source+" · "+(liveBuild.scope==="posición"?"datos por posición":"datos generales sin separación por posición")+" · "+(liveBuild.matches?liveBuild.matches.toLocaleString("es-AR")+" partidas":"muestra sin tamaño informado")):plan?"Existe una ruta individual local de respaldo, pero todavía no una guía completa de habilidades y talentos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
  return {heroId:hero.name.replace("npc_dota_hero_",""),heroName:hero.localized_name,role,identity,style,strengths:strengths.slice(0,4),risks:risks.slice(0,2),plan,guide,level,source,principle:plan?plan.note:"La ruta de compra debe ajustarse a su función, fase de partida, draft e inventario. No se inventan habilidades, combos ni talentos cuando no hay un perfil verificado."};
 }
 
@@ -616,7 +619,7 @@ function renderSpecializationGuide(g){
   const talents=(g.talentChoices||[]).map(t=>'<div class="item-card talent-tree-card" style="display:block;margin:8px 0"><b class="talent-tree-heading"><span class="talent-tree-icon">✥</span>Nivel '+t.level+' · elegí según la partida</b><div class="talent-tree-options"><div class="talent-option"><b>◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div class="talent-option"><b>'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
  const metadata=g.metadata&&typeof g.metadata==="object"?g.metadata:null;
  const metadataSources=Array.isArray(metadata?.source)?metadata.source:[metadata?.source].filter(Boolean);
- const metadataBlock=metadata?'<div class="hint" style="margin:5px 0 12px;padding:8px 10px;border:1px solid #344153;border-radius:9px;background:#111a24"><b>Datos de guía:</b> '+esc(metadata.patch||"Parche no especificado")+(metadata.patch&&metadata.patch!=="7.42"?' · GUÍA ANTERIOR: revisar para 7.42':"")+(metadata.role?' · '+esc(metadata.role):'')+(metadata.confidence?' · confianza: '+esc(metadata.confidence):'')+(metadataSources.length?'<br><b>Fuentes:</b> '+metadataSources.map(esc).join(' · '):'')+'</div>':"";
+ const metadataBlock=metadata?'<div class="hint" style="margin:5px 0 12px;padding:8px 10px;border:1px solid #344153;border-radius:9px;background:#111a24"><b>Datos de guía:</b> '+esc(metadata.patch||"Parche no especificado")+(metadata.patch&&metadata.patch!=="7.42"?' · GUÍA ANTERIOR: revisar para 7.42':"")+(metadata.role?' · '+esc(metadata.role):'')+(metadata.confidence?' · confianza: '+esc(metadata.confidence):'')+(metadata.matches?' · '+Number(metadata.matches).toLocaleString("es-AR")+' partidas':'')+(metadata.updatedAt?' · actualizado '+new Date(metadata.updatedAt).toLocaleDateString("es-AR"):'')+(metadataSources.length?'<br><b>Fuentes:</b> '+metadataSources.map(esc).join(' · '):'')+(metadata.crossCheckUrl?'<br><a href="'+esc(metadata.crossCheckUrl)+'" target="_blank" rel="noopener">Contrastar guía y build en StatsDota</a>':'')+'</div>':"";
  const innateAbilities=Array.isArray(g.innateAbilities)?g.innateAbilities:[];
  const innateBlock=innateAbilities.length?'<h3>Habilidades innatas</h3>'+innateAbilities.map(a=>'<div class="item-card" style="margin:7px 0"><div class="item-icon-fallback">✦</div><div class="item-copy"><b>'+esc(a.name||"Habilidad innata")+'</b><span>'+esc(a.description||"Descripción no disponible.")+'</span></div></div>').join(''):"";
  return '<div class="result-section"><h3>'+esc(g.title)+'</h3>'+metadataBlock+innateBlock+'<h3>Orden de habilidades por nivel</h3>'+(matrix||'<p class="hint">Secuencia no disponible.</p>')+'<p class="hint">Cada columna representa un nivel. El icono indica la habilidad aprendida; ✥ marca el nivel en que se desbloquea un tier de talento (la elección puede retrasarse) y + los puntos de atributo. Deslizá horizontalmente para consultar todos los niveles.</p><p class="hint">'+esc(g.skillPriority||"La progresión es orientativa y debe adaptarse a la partida.")+'</p><h3>Árbol de talentos</h3>'+(talents||cards(g.talents))+'<h3>Combos y ejecución</h3>'+cards(g.combos)+'<div class="warning"><b>Mecánicas actuales:</b> '+esc(g.mechanics||"")+'<br><br><b>Posicionamiento:</b> '+esc(g.positioning)+'<br><br><b>Nota de rigor:</b> '+esc(g.caveats)+'</div></div>';
@@ -2302,7 +2305,7 @@ function analyzeCore(options={}){
 async function loadSelectedBuildData(force=false){
  const me=ally.find(h=>String(h.id)===$('myHero').value),role=$('myRole').value;
  if(!me)return null;
- return window.DotaBuildDataEngine.loadHeroBuild({heroId:me.id,heroName:me.localized_name,role,patch:window.DOTA_PATCH_742?.patch||"7.42",patchReleaseDate:window.DOTA_PATCH_742?.releaseDate||"2026-11-18",force});
+ return window.DotaBuildDataEngine.loadHeroBuild({heroId:me.id,heroName:me.localized_name,heroKey:me.name,role,patch:window.DOTA_PATCH_742?.patch||"7.42",patchReleaseDate:window.DOTA_PATCH_742?.releaseDate||"2026-11-18",force});
 }
 function showBuildDataStatus(data,error=null){
  const status=$('buildDataStatus'),badge=$('buildDataBadge');
@@ -2311,9 +2314,9 @@ function showBuildDataStatus(data,error=null){
  if(!data){badge.textContent="Sin héroe";status.textContent="Seleccioná tu héroe y posición para consultar una build.";return;}
  badge.textContent=data.source==="Dota2ProTracker"?"Build por posición":"Respaldo general";
  if(data.source==="Dota2ProTracker"){
-  status.textContent="Dota2ProTracker · "+data.role+" · parche "+(data.patch||"sin confirmar")+" · "+(data.matches||0).toLocaleString('es-AR')+" partidas"+(data.updatedAt?" · actualizado "+new Date(data.updatedAt).toLocaleString('es-AR'):"")+(data.cached?" · caché local":"");
+  status.textContent="Dota2ProTracker · "+data.role+" · parche "+(data.patch||"sin confirmar")+" · "+(data.matches||0).toLocaleString('es-AR')+" partidas · "+(data.guide?"build, habilidades y talentos disponibles":"build de objetos disponible; esta muestra no aportó una secuencia de habilidades/talentos")+(data.updatedAt?" · actualizado "+new Date(data.updatedAt).toLocaleString('es-AR'):"")+(data.cached?" · caché local":"");
  }else{
-  status.textContent="OpenDota · datos recientes del héroe, sin separación por posición ni parche verificable. Se usa solo como orientación general."+(data.cached?" · caché local":"");
+  status.textContent="OpenDota · datos recientes del héroe, sin separación por posición ni parche verificable. Se usa solo como orientación general; las habilidades y talentos requieren una muestra de builds por posición."+(data.cached?" · caché local":"");
  }
 }
 function analyze(options={}){

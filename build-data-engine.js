@@ -2,7 +2,7 @@
 "use strict";
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
-const CACHE_KEY="dota-build-live-data-v2";
+const CACHE_KEY="dota-build-live-data-v3";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
 let itemConstantsPromise=null;
@@ -69,6 +69,113 @@ function phaseItems(payload,constants){
  }
  return out;
 }
+let heroAbilityConstantsPromise=null;
+async function loadHeroAbilityConstants(fetchImpl,baseUrl){
+ if(heroAbilityConstantsPromise)return heroAbilityConstantsPromise;
+ heroAbilityConstantsPromise=fetchJson(baseUrl+"/constants/hero_abilities",fetchImpl).catch(error=>{heroAbilityConstantsPromise=null;throw error});
+ return heroAbilityConstantsPromise;
+}
+const ABILITY_LEVELS=[1,2,3,4,5,6,7,8,9,11,12,13,14,16,18];
+const TALENT_LEVELS=[10,15,20,25];
+function pct(v){const n=Number(v);return Number.isFinite(n)?Math.round(n*100):null}
+function mapD2ptSkillGuide(build,heroKey,heroAbilities,meta){
+ const bd=build&&build.build_data||{},orders=Array.isArray(bd.abilities_new)?bd.abilities_new:[];
+ if(!orders.length||!Array.isArray(orders[0])||!Array.isArray(orders[0][0]))return null;
+ const abilityRows=Array.isArray(bd.abilities)?bd.abilities:[];
+ const byId={},byName={},rowById={};
+ for(const row of abilityRows){
+  if(!row)continue;
+  const id=asNumber(row.ability_id??row.id,-1),name=String(row.name||row.internal_name||"");
+  if(id>=0&&name){byId[id]=name;byName[name]=id;rowById[id]=row;}
+ }
+ const hero=heroAbilities&&heroAbilities[heroKey]||{},slots=Array.isArray(hero.abilities)?hero.abilities:[];
+ const basicNames=slots.slice(0,3).filter(x=>x&&x!=="generic_hidden");
+ const prefix=orders[0][0].map(x=>asNumber(x,-1)).filter(x=>x>=0);
+ if(prefix.length<6)return null;
+ let ult=prefix[5];
+ if(prefix.filter(x=>x===ult).length>3)ult=null;
+ const codeById={},skillIcons={},codeNames={};
+ ["Q","W","E"].forEach((code,i)=>{
+  const name=basicNames[i];
+  if(!name)return;
+  const id=byName[name];
+  if(id===undefined)return;
+  codeById[id]=code;codeNames[code]=name;
+  skillIcons[code]={name:name.replace(/^[^_]+_/,"").replaceAll("_"," "),slug:name};
+ });
+ if(ult!==null){
+  const name=byId[ult]||slots[5]||"Ultimate";
+  codeById[ult]="R";codeNames.R=name;
+  skillIcons.R={name:name.replace(/^[^_]+_/,"").replaceAll("_"," "),slug:name};
+ }
+ let extra=0;
+ const codeFor=id=>{
+  if(codeById[id])return codeById[id];
+  const row=rowById[id],name=byId[id]||"Habilidad "+id;
+  if(row&&(row.isTalent||row.isInnate))return null;
+  const code="S"+(++extra);
+  codeById[id]=code;codeNames[code]=name;
+  skillIcons[code]={name:row&&row.displayName||name.replace(/^[^_]+_/,"").replaceAll("_"," "),slug:name};
+  return code;
+ };
+ const skillBuild=[],points={},firstSeen={};
+ prefix.forEach((id,i)=>{
+  const level=ABILITY_LEVELS[i],code=codeFor(id);
+  if(code)skillBuild.push({level,code});
+  points[id]=(points[id]||0)+1;
+  if(firstSeen[id]===undefined)firstSeen[id]=level;
+ });
+ const priority=Object.keys(points).map(Number).sort((a,b)=>points[b]-points[a]||firstSeen[a]-firstSeen[b]);
+ // Add every non-hidden, non-innate basic ability, including one absent from the first ten points.
+ for(const name of basicNames){
+  const id=byName[name];
+  if(id!==undefined&&id!==ult&&!priority.includes(id)){priority.push(id);points[id]=0;}
+ }
+ for(const row of abilityRows){
+  const id=asNumber(row&&row.ability_id,-1);
+  if(id>=0&&!row.isTalent&&!row.isInnate&&id!==ult&&!priority.includes(id)){
+   const name=byId[id]||"";
+   if(name&&!name.startsWith("special_bonus_")){priority.push(id);points[id]=0;}
+  }
+ }
+ const used=new Set(skillBuild.map(x=>x.level));
+ const remaining=ABILITY_LEVELS.filter(level=>!used.has(level));
+ for(const level of remaining){
+  let chosen=null;
+  if(ult!==null){
+   const have=points[ult]||0;
+   if((have===1&&level>=12)||(have===2&&level>=18))chosen=ult;
+  }
+  if(chosen===null){
+   chosen=priority.find(id=>(id===ult?(points[id]||0)<3:(points[id]||0)<4))??null;
+  }
+  if(chosen===null)continue;
+  const code=codeFor(chosen);
+  if(code)skillBuild.push({level,code});
+  points[chosen]=(points[chosen]||0)+1;
+ }
+ // Dota grants attribute bonuses at levels without an ability/talent point.
+ for(const level of [17,19,21,22,23,24])skillBuild.push({level,code:"A"});
+ const talentRows=Array.isArray(bd.talents)?bd.talents:(Array.isArray(bd.ability_talents)?bd.ability_talents:[]);
+ const talentChoices=talentRows.filter(t=>TALENT_LEVELS.includes(asNumber((t&&t.lvl)??(t&&t.level),-1))).map(t=>{
+  const level=asNumber(t.lvl??t.level,0),left=t.left||null,right=t.right||null;
+  const option=(x,side)=>x?{
+   name:x.displayName||x.display_name||x.name||"Talento "+side,
+   reason:"Elegido en "+(pct(x.pick_rate??x.pr)??"—")+"% de las partidas · "+(pct(x.win_rate)??"—")+"% de victorias en esa opción."
+  }:null;
+  const l=option(left,"izquierdo"),r=option(right,"derecho");
+  if(!l||!r)return null;
+  const choice=t.choice==="lt"?"left":t.choice==="rt"?"right":(Number((left.pick_rate??left.pr)??0)>=Number((right.pick_rate??right.pr)??0)?"left":"right");
+  const chosen=choice==="left"?l:r,chosenRate=pct((choice==="left"?left:right).pick_rate??(choice==="left"?left:right).pr);
+  return{level,left:l,right:r,chosen:choice,reason:"Más elegido: "+chosen.name+" ("+(chosenRate??"—")+"%). "+chosen.reason};
+ }).filter(Boolean);
+ const stat=orders[0][1]||{},alt=orders[1]||null;
+ const matches=asNumber(build.num_matches??bd.num_matches,0),updatedAt=safeDate(build.updated_at);
+ const orderNames=prefix.map(id=>{const name=byId[id]||"habilidad "+id;return byName[name]!==undefined?name.replace(/^[^_]+_/,"").replaceAll("_"," "):name;});
+ const skillPriority="Secuencia de Dota2ProTracker para "+(meta.role||"esta posición")+". Muestra: "+(matches?matches.toLocaleString("es-AR")+" partidas":"sin tamaño informado")+". La secuencia principal aparece en "+(pct(stat.pr)??"—")+"% de la muestra"+(stat.win_rate!=null?" · "+pct(stat.win_rate)+"% de victorias":"")+". Orden observado (primeros 10 puntos): "+orderNames.join(" → ")+(alt&&Array.isArray(alt[0])?" · Alternativa: "+alt[0].slice(0,6).map(id=>(byId[id]||"habilidad "+id).replace(/^[^_]+_/,"").replaceAll("_"," ")).join(" → ")+" ("+(pct(alt[1]&&alt[1].pr)??"—")+"%).":"")+". Adaptá los puntos iniciales a la línea; la tendencia estadística no sustituye la situación de partida.";
+ const metadata={patch:meta.patch||"no confirmado",role:meta.role||"",source:["Dota2ProTracker · secuencia y talentos por posición","OpenDota · identificación de habilidades y metadatos"],confidence:matches>=100?"alta":matches>=30?"media":"baja",matches,updatedAt:updatedAt||null,crossCheckUrl:"https://statsdota.com/en/guides/"+String(meta.heroSlug||heroKey.replace("npc_dota_hero_","")).replaceAll("_","-")};
+ return{title:(meta.heroName||"Héroe")+" "+(meta.role||"")+" · guía estadística por posición",skillIcons,skillBuild:skillBuild.sort((a,b)=>a.level-b.level),talentChoices,skillPriority,metadata,skillOrder:orderNames,combos:[],positioning:"Los datos describen elecciones estadísticas de jugadores de alto nivel. Ajustá el primer punto a la amenaza de línea y coordiná las habilidades con tu equipo.",mechanics:"Los nombres y metadatos de habilidades se resuelven con OpenDota. La secuencia y las elecciones de talentos provienen de la build más jugada de Dota2ProTracker.",caveats:"No se inventan talentos ni habilidades ausentes en la muestra. La confianza depende del número de partidas. StatsDota se ofrece como referencia independiente para contrastar la guía actual; no se mezcla su muestra con la de Dota2ProTracker."};
+}
 function buildPlan(heroName,role,items,meta){
  const early=[],core=[],situational=[];
  for(const item of items){
@@ -94,6 +201,8 @@ async function loadHeroBuild(options){
    loadItemConstants(fetchImpl,base)
   ]);
   constants=items;
+  let heroAbilityConstants={};
+  try{heroAbilityConstants=await loadHeroAbilityConstants(fetchImpl,base)}catch(_){heroAbilityConstants={}}
   const rows=Array.isArray(raw)?raw:Array.isArray(raw&&raw.builds)?raw.builds:[];
   const build=rows.slice().sort((a,b)=>asNumber(b.num_matches)-asNumber(a.num_matches))[0];
   if(build&&build.build_data){
@@ -104,7 +213,9 @@ async function loadHeroBuild(options){
    if(data.length&&patchIsFresh&&matches>=20){
     const winRate=Number.isFinite(Number(build.win_rate??build.build_data.win_rate))?Number(build.win_rate??build.build_data.win_rate):null;
     const itemsForPlan=data.map(x=>({...x,stage:x.minute<12?"early":x.minute<28?"mid":"late"}));
-    const result={heroId,role,position,patch,source:"Dota2ProTracker",sourceUrl:"https://dota2protracker.com/hero/"+heroId,updatedAt,matches,winRate,items:data,plan:buildPlan(o.heroName||"Héroe",role,itemsForPlan,{source:"Dota2ProTracker",patch,matches,winRate}),quality:matches>=100?"alta":matches>=30?"media":"baja",scope:"posición",rankScope:"7.000+ MMR/pro"};
+    const heroKey=String(o.heroKey||"npc_dota_hero_"+String(o.heroName||"").toLowerCase().replaceAll(" ","_"));
+    const guide=mapD2ptSkillGuide(build,heroKey,heroAbilityConstants,{heroName:o.heroName||"Héroe",heroSlug:heroKey.replace("npc_dota_hero_",""),role,patch,matches});
+    const result={heroId,role,position,patch,source:"Dota2ProTracker",sourceUrl:"https://dota2protracker.com/hero/"+heroId,updatedAt,matches,winRate,items:data,guide,plan:buildPlan(o.heroName||"Héroe",role,itemsForPlan,{source:"Dota2ProTracker",patch,matches,winRate}),quality:matches>=100?"alta":matches>=30?"media":"baja",scope:"posición",rankScope:"7.000+ MMR/pro"};
     memory.set(key,result);writeCache(storage,CACHE_KEY+":"+key,result);return result;
    }
    d2ptError=new Error("Dota2ProTracker no tiene al menos 20 partidas recientes y actualizadas para "+patch+" en esta posición.");
@@ -126,8 +237,8 @@ function get(heroId,role,patch){
  const key=asNumber(heroId,-1)+"|"+rolePosition(role)+"|"+String(patch||"");
  return memory.get(key)||readCache(root&&root.localStorage,CACHE_KEY+":"+key)||null;
 }
-function clear(){memory.clear();itemConstantsPromise=null}
-const api={version:"1.1.0",rolePosition,loadHeroBuild,get,clear,cacheTtl:CACHE_TTL};
+function clear(){memory.clear();itemConstantsPromise=null;heroAbilityConstantsPromise=null}
+const api={version:"1.2.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,cacheTtl:CACHE_TTL};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.DotaBuildDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
