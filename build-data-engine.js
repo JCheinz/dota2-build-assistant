@@ -19,6 +19,27 @@ async function fetchJson(url,fetchImpl,timeoutMs=11000){
   return await response.json();
  }finally{if(timer)clearTimeout(timer)}
 }
+async function fetchD2ptProxyJson(url,fetchImpl){
+ const response=await fetchImpl(url,{cache:"no-store",headers:{Accept:"application/json, text/plain"}});
+ if(!response||!response.ok)throw new Error("HTTP "+(response&&response.status||"desconocido"));
+ let raw;
+ if(typeof response.text==="function"){
+  const text=await response.text();
+  try{raw=JSON.parse(text)}catch(error){
+   const status=text.match(/(?:HTTP\\/\\d(?:\\.\\d)?\\s+)?(429|403|502)\\b/i);
+   if(status)throw new Error("HTTP "+status[1]);
+   const start=text.search(/[\\[{]/);
+   if(start>=0){try{raw=JSON.parse(text.slice(start))}catch(_){throw error}}else throw error;
+  }
+ }else raw=await response.json();
+ if(Array.isArray(raw)||Array.isArray(raw&&raw.builds))return raw;
+ const body=raw&&raw.data&&raw.data.content;
+ if(typeof body==="string"){
+  const parsed=JSON.parse(body);
+  if(Array.isArray(parsed)||Array.isArray(parsed&&parsed.builds))return parsed;
+ }
+ throw new Error("Jina no devolvió el JSON esperado de Dota2ProTracker.");
+}
 async function fetchD2ptJson(url,fetchImpl){
  const target=url.replace(/^http:\/\//,"https://");
  const proxyUrls=[
@@ -28,15 +49,8 @@ async function fetchD2ptJson(url,fetchImpl){
  let proxyError=null;
  for(const proxyUrl of proxyUrls){
   try{
-   const wrapped=await fetchJson(proxyUrl,fetchImpl,20000);
-   if(Array.isArray(wrapped)||Array.isArray(wrapped&&wrapped.builds))return wrapped;
-   const body=wrapped&&wrapped.data&&wrapped.data.content;
-   if(typeof body==="string"){
-    const parsed=JSON.parse(body);
-    if(Array.isArray(parsed)||Array.isArray(parsed&&parsed.builds))return parsed;
-   }
-   throw new Error("Jina no devolvió el JSON esperado de Dota2ProTracker.");
-  }catch(error){proxyError=error}
+   return await fetchD2ptProxyJson(proxyUrl,fetchImpl);
+  }catch(error){proxyError=error;if(/HTTP 429/.test(String(error&&error.message||error)))throw new Error("Dota2ProTracker temporalmente limitado por HTTP 429; reintentar con espera antes de probar otra ruta.");}
  }
  try{return await fetchJson(target,fetchImpl,12000)}
  catch(directError){throw new Error("Dota2ProTracker vía proxy: "+(proxyError&&proxyError.message||"sin respuesta")+" · acceso directo: "+directError.message)}
