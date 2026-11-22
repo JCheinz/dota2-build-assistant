@@ -37,15 +37,15 @@ async function main(){
    const html=await fetchText(url);
    const guide=parseGuidePage(html,link.hero,heroAbilities,url);
    if(guide&&guide.status==="ready")guides[link.hero.name]=guide;
-   else incomplete.push({hero:link.hero.name,slug:link.slug,reason:guide?"no reliable skill sequence or main role":"missing guide section"});
+   else incomplete.push({hero:link.hero.name,slug:link.slug,reason:!guide?"missing guide section":!guide.role?"main role not separable into an app position":guide.roleGames<10?"fewer than 10 games in main role":"no skill sequence with at least six points"});
    if((i+1)%20===0)console.log("Fetched "+(i+1)+"/"+selected.length+" · guides with skill order: "+Object.keys(guides).length);
   }catch(error){errors.push({hero:link.hero.name,error:String(error)});console.warn("Skipped "+link.hero.localized_name+": "+String(error))}
  }
  const count=Object.keys(guides).length,currentPatchGuideCount=Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).length;
- const min=limit?1:60;
+ const min=limit?1:30;
  if(currentPatchGuideCount<min)throw new Error("Only "+currentPatchGuideCount+" current "+CURRENT_PATCH+" skill guides were parsed; minimum is "+min+". Existing snapshot was not replaced.");
  const snapshot={schemaVersion:1,source:"StatsDota public hero guides",currentPatch:CURRENT_PATCH,fetchedAt:new Date().toISOString(),indexUrl:BASE,guideCount:count,currentPatchGuideCount,heroesListed:links.length,guides,incomplete,errors};
  fs.writeFileSync(output,JSON.stringify(snapshot,null,2)+"\n");
- console.log(JSON.stringify({output,heroesListed:links.length,selected:selected.length,guideCount:count,incomplete:incomplete.length,errors:errors.length,patches:[...new Set(Object.values(guides).map(x=>x.patch).filter(Boolean))]},null,2));
+ console.log(JSON.stringify({output,heroesListed:links.length,selected:selected.length,guideCount:count,currentPatchGuideCount,readyHeroes:Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).map(g=>({hero:g.heroName,role:g.role,roleGames:g.roleGames,levels:g.abilityOrder.length})),incomplete:incomplete.length,incompleteReasons:incomplete.reduce((a,x)=>(a[x.reason]=(a[x.reason]||0)+1,a),{}),errors:errors.length,patches:[...new Set(Object.values(guides).map(x=>x.patch).filter(Boolean))]},null,2));
 }
 main().catch(error=>{console.error(error);process.exitCode=1});
