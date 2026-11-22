@@ -22,6 +22,11 @@ const BASE="https://statsdota.com/en/guides",RAW="https://raw.githubusercontent.
    console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,status:response.status,bytes:body.length,isJson:!!data,buildCount:rows.length,heroId:first?.hero_id,position:first?.position,matches:first?.num_matches,abilityOrders:first?.build_data?.abilities_new?.length||0,talentRows:first?.build_data?.talents?.length||0,mappedLevels:mapped?.skillBuild?.length||0,mappedSequence:mapped?.skillOrder?.slice(0,10)||[],mappedTalents:mapped?.talentChoices?.map(t=>({level:t.level,chosen:t.chosen}))||[],preview:body.slice(0,220)}));
   }catch(error){console.log(JSON.stringify({source:"Jina proxy for Dota2ProTracker",scheme,error:String(error)}))}
  }
+ try{
+  const engine=require("../build-data-engine.js");
+  const live=await engine.loadHeroBuild({heroId:96,heroName:"Centaur Warrunner",heroKey:"npc_dota_hero_centaur",role:"Offlane",patch:"7.42",patchReleaseDate:"2026-11-18",fetch:global.fetch});
+  console.log(JSON.stringify({source:"Build engine end-to-end",sourceName:live.source,role:live.role,matches:live.matches,patch:live.patch,skillLevels:live.guide?.skillBuild?.length||0,skillOrder:live.guide?.skillOrder?.slice(0,10)||[],talentChoices:live.guide?.talentChoices?.map(t=>({level:t.level,chosen:t.chosen}))||[],items:live.items?.length||0,quality:live.quality}));
+ }catch(error){console.log(JSON.stringify({source:"Build engine end-to-end",error:String(error)}))}
  const checks=["centaur-warrunner","enigma","pugna","crystal-maiden","techies"];
  const d2ptChecks=[{hero:"Centaur Warrunner",id:96,position:3},{hero:"Pugna",id:45,position:2},{hero:"Enigma",id:33,position:3}];
  for(const item of d2ptChecks){
