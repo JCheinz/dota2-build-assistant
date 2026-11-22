@@ -37,11 +37,11 @@ function parseGuidePage(html,hero,heroAbilities,sourceUrl){
  const plain=stripHtml(source);
  const name=hero.localized_name;
  const positionsStart=plain.toLowerCase().indexOf("positions"),positionsText=positionsStart>=0?plain.slice(positionsStart,positionsStart+260):"";
- const positionCounts=[...positionsText.matchAll(/(Carry|Mid|Offlane|Soft Support|Hard Support|Support)\\s+(\\d+)\\s+games/gi)].map(m=>({label:m[1],role:appRole(m[1]),games:Number(m[2])})).sort((a,b)=>b.games-a.games);
+ const positionCounts=[...positionsText.matchAll(/(Carry|Mid|Offlane|Soft Support|Hard Support|Support)\s+(\d+)\s+games/gi)].map(m=>({label:m[1],role:appRole(m[1]),games:Number(m[2])})).sort((a,b)=>b.games-a.games);
  let role=positionCounts[0]?.role||null,roleGames=positionCounts[0]?.games||0;
  if(!role){
   const phrase=name+" is played",i=plain.toLowerCase().indexOf(phrase.toLowerCase()),roleText=i>=0?plain.slice(i+phrase.length,i+phrase.length+100):"";
-  const roleMatch=roleText.match(/^\\s+(?:in|as)\\s+(Carry|Mid|Offlane|Soft Support|Support|Hard Support)/i);
+  const roleMatch=roleText.match(/^\s+(?:in|as)\s+(Carry|Mid|Offlane|Soft Support|Support|Hard Support)/i);
   role=roleMatch?appRole(roleMatch[1]):null;
  }
  const sample=plain.match(/Based on\s+(\d+)\s+winning matches/i);
