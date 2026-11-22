@@ -1,5 +1,5 @@
-const CACHE = 'dota-build-v116';
-const CORE = ['./', './index.html', './manifest.webmanifest', './match-clock.js?v=359', './item-icons.js?v=1', './inventory-ledger.js?v=359', './skill-data-engine.js', './build-data-engine.js?v=7425', './specializations.js?v=3280', './patch-data-742.js?v=742'];
+const CACHE = 'dota-build-v117';
+const CORE = ['./', './index.html', './manifest.webmanifest', './match-clock.js?v=359', './item-icons.js?v=1', './inventory-ledger.js?v=359', './skill-data-engine.js?v=356', './build-data-engine.js?v=7425', './specializations.js?v=3280', './patch-data-742.js?v=742'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
