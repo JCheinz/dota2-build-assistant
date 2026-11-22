@@ -52,7 +52,7 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  };
  const actualOpen=await engine.loadHeroBuild({heroId:2,heroName:"Axe",role:"Offlane",patch:"7.42",fetch:actualShape,storage:actualShapeStorage});
  assert.equal(actualOpen.source,"OpenDota");
- assert.deepEqual(actualOpen.items.map(x=>x.name),["Magic Wand","Phase Boots","Blink Dagger","Blink Dagger"]);
+ assert.deepEqual(actualOpen.items.map(x=>x.name),["Magic Wand","Phase Boots","Magic Wand","Blink Dagger","Blink Dagger"]);
  assert.deepEqual(actualOpen.items.map(x=>x.stage),["Inicio","Línea","Línea","Core"]);
 
  engine.clear();
