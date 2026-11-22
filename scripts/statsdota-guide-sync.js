@@ -35,9 +35,9 @@ function parseGuidePage(html,hero,heroAbilities,sourceUrl){
  const known=new Set(slots);
  const abilityOrder=[...section.matchAll(/alt=["']([^"']+)["']/gi)].map(m=>decodeHtml(m[1])).filter(name=>known.has(name));
  const plain=stripHtml(source);
- const name=hero.localized_name;
- const escaped=name.replace(/[.*+?^$\\{}()|[\\]\\\\]/g,"\\\\$&");
- const roleMatch=plain.match(new RegExp(escaped+"\\s+is played in\\s+(Carry|Mid|Offlane|Soft Support|Support|Hard Support)","i"));
+ const name=hero.localized_name,phrase=(name+" is played in").toLowerCase(),nameIndex=plain.toLowerCase().indexOf(phrase);
+ const roleText=nameIndex>=0?plain.slice(nameIndex+phrase.length,nameIndex+phrase.length+80):"";
+ const roleMatch=roleText.match(/^\\s*(Carry|Mid|Offlane|Soft Support|Support|Hard Support)/i);
  const role=roleMatch?appRole(roleMatch[1]):null;
  const sample=plain.match(/Based on\\s+(\\d+)\\s+winning matches/i);
  const patchMatch=plain.match(/How to play[^\\n]{0,160}?guide\\s+([0-9]+(?:\\.[0-9]+)?[a-z]?)/i)||plain.match(/guide\\s+([0-9]+(?:\\.[0-9]+)?[a-z]?)/i);
