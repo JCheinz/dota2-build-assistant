@@ -2,7 +2,7 @@
 "use strict";
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
-const CACHE_KEY="dota-build-live-data-v4";
+const CACHE_KEY="dota-build-live-data-v5";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
 let itemConstantsPromise=null;
@@ -29,7 +29,8 @@ async function loadItemConstants(fetchImpl,baseUrl){
  itemConstantsPromise=fetchJson(baseUrl+"/constants/items",fetchImpl).then(data=>{
   const byId={},byName={};
   for(const[key,value]of Object.entries(data||{})){
-   const id=asNumber(value&&value.id,-1),display=value&&(value.dname||value.display_name||value.name)||key;
+   if(!value||typeof value!=="object")continue;
+   const id=asNumber(value.id,-1),display=value.dname||value.display_name||value.name||key;
    if(id>=0)byId[id]={key,name:display,cost:asNumber(value.cost,0)};
    byName[key]={key,name:display,id,cost:asNumber(value&&value.cost,0)};
   }
@@ -38,10 +39,10 @@ async function loadItemConstants(fetchImpl,baseUrl){
  return itemConstantsPromise;
 }
 function mapD2ptItems(build,constants){
- const raw=build&&build.build_data||{},items=(Array.isArray(raw.anchor_items)&&raw.anchor_items.length?raw.anchor_items:(Array.isArray(raw.anchor_items2)?raw.anchor_items2:[])).filter(row=>row&&typeof row==="object");
+ const raw=build&&build.build_data||{},items=(Array.isArray(raw.anchor_items)&&raw.anchor_items.length?raw.anchor_items:(Array.isArray(raw.anchor_items2)?raw.anchor_items2:[])).filter(row=>row&&typeof row==="object"&&!Array.isArray(row));
  const seen=new Set();
  return items.sort((a,b)=>asNumber(a.avg_minute)-asNumber(b.avg_minute)).map(row=>{
-  const id=asNumber(row.raw_item_id??String(row.key||"").split("::")[0],-1),meta=constants.byId[id];
+  const id=asNumber(row.raw_item_id??String(row.key||"").split("::")[0],-1),meta=constants&&constants.byId?constants.byId[id]:null;
   if(!meta)return null;
   const name=meta.name;
   if(!name||seen.has(name))return null;
@@ -57,7 +58,7 @@ function phaseItems(payload,constants){
  const phases=[["start_game_items","start_game","Inicio"],["early_game_items","early_game","Línea"],["mid_game_items","mid_game","Core"],["late_game_items","late_game","Avanzada"]],out=[];
  for(const[key,legacyKey,stage]of phases){
   const group=payload&&(payload[key]??payload[legacyKey])||{};
-  const rows=Array.isArray(group)?group:Object.entries(group).map(([item,count])=>({item_id:item,item,count}));
+  const rows=(Array.isArray(group)?group:Object.entries(group).map(([item,count])=>({item_id:item,item,count}))).filter(row=>row&&typeof row==="object");
   const mapped=rows.map(row=>{
    const rawId=asNumber(row.item_id??row.id,-1);
    const rawName=String(row.item||row.name||row.key||"").replace(/^item_/,"");
@@ -203,7 +204,7 @@ async function loadHeroBuild(options){
   constants=items;
   let heroAbilityConstants={};
   try{heroAbilityConstants=await loadHeroAbilityConstants(fetchImpl,base)}catch(_){heroAbilityConstants={}}
-  const rows=(Array.isArray(raw)?raw:Array.isArray(raw&&raw.builds)?raw.builds:[]).filter(row=>row&&typeof row==="object"&&row.build_data&&typeof row.build_data==="object");
+  const rows=(Array.isArray(raw)?raw:Array.isArray(raw&&raw.builds)?raw.builds:[]).filter(row=>row&&typeof row==="object"&&!Array.isArray(row)&&row.build_data&&typeof row.build_data==="object"&&!Array.isArray(row.build_data));
   const build=rows.slice().sort((a,b)=>asNumber(b.num_matches??b.build_data?.num_matches)-asNumber(a.num_matches??a.build_data?.num_matches))[0];
   if(build&&build.build_data){
    const data=mapD2ptItems(build,constants);

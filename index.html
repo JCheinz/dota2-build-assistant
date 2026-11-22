@@ -300,10 +300,10 @@
 <script src="./match-clock.js?v=359"></script>
 <script src="./item-icons.js?v=1"></script>
 <script src="./inventory-ledger.js?v=359"></script>
-<script src="./skill-data-engine.js?v=354"></script>
+<script src="./skill-data-engine.js?v=355"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
-<script src="./build-data-engine.js?v=7424"></script>
+<script src="./build-data-engine.js?v=7425"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -322,18 +322,19 @@ async function loadHeroes(){
     status.textContent='Cargando catálogo de héroes… Si OpenDota tarda, se probará una fuente alternativa.';
     // El endpoint liviano /heroes responde antes y evita que el catálogo dependa
     // de la respuesta más pesada de heroStats en móviles/conexiones lentas.
-    const endpoints=['https://api.opendota.com/api/heroes',API];
+    const endpoints=[
+      'https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json',
+      'https://api.opendota.com/api/heroes',
+      API
+    ];
     let lastError=null, loadedFromStats=false;
     for(let i=0;i<endpoints.length;i++){
       try{
-        const controller=new AbortController();
-        const timeout=setTimeout(()=>controller.abort(),22000);
-        let response;
-        try{response=await fetch(endpoints[i],{cache:'no-store',signal:controller.signal});}
-        finally{clearTimeout(timeout)}
+        const response=await fetch(endpoints[i],{cache:i===0?'force-cache':'no-store'});
         if(!response.ok)throw Error('HTTP '+response.status);
-        const data=await response.json();
-        if(!Array.isArray(data)||data.length<100)throw Error('Catálogo incompleto');
+        const payload=await response.json();
+        const data=Array.isArray(payload)?payload:Object.values(payload||{});
+        if(data.length<100)throw Error('Catálogo incompleto');
         heroes=data.filter(h=>h&&Number.isFinite(Number(h.id))&&h.name&&h.localized_name);
         if(heroes.length<100)throw Error('Catálogo incompleto');
         heroes.sort((a,b)=>a.localized_name.localeCompare(b.localized_name,'es'));
@@ -341,7 +342,7 @@ async function loadHeroes(){
         renderSlots();
         renderHeroGrid();
         renderDynamicStateControls();
-        status.textContent=heroes.length+' héroes disponibles. '+(loadedFromStats?'Estadísticas de héroes cargadas.':'Catálogo cargado; estadísticas adicionales no disponibles por ahora.');
+        status.textContent=heroes.length+' héroes disponibles. '+(loadedFromStats?'Estadísticas de héroes cargadas.':i===0?'Catálogo estático de dotaconstants cargado; estadísticas adicionales se consultan aparte.':'Catálogo cargado; estadísticas adicionales no disponibles por ahora.');
         return true;
       }catch(error){lastError=error}
     }

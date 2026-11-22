@@ -67,7 +67,7 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
   if(url.includes("/hero/2/builds?"))return{ok:false,status:403};
   if(url.endsWith("/heroes/2/itemPopularity"))return{ok:true,json:async()=>({
    start_game_items:{"3":18},
-   early_game_items:{"2":72,"3":44},
+   early_game_items:[null,{"item_id":2,"count":72},{"item_id":3,"count":44}],
    mid_game_items:{"1":61},
    late_game_items:{"1":25}
   })};
