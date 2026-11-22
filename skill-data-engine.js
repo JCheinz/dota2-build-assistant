@@ -84,7 +84,7 @@ function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
 }
 
 function buildStatsDotaGuide(dataset,record,heroKey,heroName,role,patch){
- if(!record||record.role!==role||!Array.isArray(record.abilityOrder)||record.abilityOrder.length<6)return null;
+ if(!record||record.role!==role||Number(record.roleGames||0)<10||!Array.isArray(record.abilityOrder)||record.abilityOrder.length<6)return null;
  if(patch&&record.patch!==patch)return null;
  const base=buildFallbackGuide(dataset,heroKey,heroName,role,patch);
  if(!base)return null;
@@ -105,10 +105,10 @@ function buildStatsDotaGuide(dataset,record,heroKey,heroName,role,patch){
   skillOrder.push(skillIcons[code].name);
  }
  if(skillBuild.length<6)return null;
- const matches=Number(record.matches)||0,updatedAt=record.updatedAt||null;
+ const matches=Number(record.matches)||0,roleGames=Number(record.roleGames)||0,updatedAt=record.updatedAt||null;
  const confidence=matches>=100?"alta":matches>=30?"media":"baja";
  const mainRoleNote="StatsDota identifica "+role+" como posición principal de "+heroName+". Esta secuencia no se hereda a otras posiciones.";
- return{...base,title:heroName+" "+role+" · guía de habilidades StatsDota "+(record.patch||patch||""),skillIcons,skillBuild,skillOrder,talentChoices:base.talentChoices,skillPriority:"SECUENCIA ESTADÍSTICA STATSDOTA · "+skillBuild.length+" niveles observados en "+(matches?matches.toLocaleString("es-AR")+" partidas ganadoras Immortal/pro":"una muestra sin tamaño informado")+". Rol principal: "+role+". La fuente actualiza sus guías diariamente; adaptá el orden si la línea o el draft lo exigen.",metadata:{patch:record.patch||patch||"no confirmado",role,source:["StatsDota · secuencia de habilidades en partidas ganadoras Immortal/pro","dotaconstants · identidad, innatas y cuatro tiers de talentos"],confidence,matches,updatedAt,crossCheckUrl:record.sourceUrl||"https://statsdota.com/en/guides/"+heroKey.replace("npc_dota_hero_","").replaceAll("_","-"),guideType:"statsdota-main-role",levelsCovered:skillBuild.length},positioning:mainRoleNote+" "+base.positioning,mechanics:base.mechanics,caveats:"La secuencia de habilidades corresponde exclusivamente al rol principal publicado por StatsDota y cubre "+skillBuild.length+" niveles; no se extrapolan los niveles restantes. Los dos lados de cada talento provienen del catálogo oficial; StatsDota no aporta aquí tasas de elección de talentos, por lo que no se inventa una elección estadística."};
+ return{...base,title:heroName+" "+role+" · guía de habilidades StatsDota "+(record.patch||patch||""),skillIcons,skillBuild,skillOrder,talentChoices:base.talentChoices,skillPriority:"SECUENCIA ESTADÍSTICA STATSDOTA · "+skillBuild.length+" niveles observados en "+(matches?matches.toLocaleString("es-AR")+" partidas ganadoras Immortal/pro":"una muestra sin tamaño informado")+(roleGames?" · "+roleGames+" partidas en este rol":"")+". Rol principal: "+role+". La fuente actualiza sus guías diariamente; adaptá el orden si la línea o el draft lo exigen.",metadata:{patch:record.patch||patch||"no confirmado",role,source:["StatsDota · secuencia de habilidades en partidas ganadoras Immortal/pro","dotaconstants · identidad, innatas y cuatro tiers de talentos"],confidence,matches,roleGames,positionCounts:record.positionCounts||[],updatedAt,crossCheckUrl:record.sourceUrl||"https://statsdota.com/en/guides/"+heroKey.replace("npc_dota_hero_","").replaceAll("_","-"),guideType:"statsdota-main-role",levelsCovered:skillBuild.length},positioning:mainRoleNote+" "+base.positioning,mechanics:base.mechanics,caveats:"La secuencia de habilidades corresponde exclusivamente al rol principal publicado por StatsDota y cubre "+skillBuild.length+" niveles; no se extrapolan los niveles restantes. Los dos lados de cada talento provienen del catálogo oficial; StatsDota no aporta aquí tasas de elección de talentos, por lo que no se inventa una elección estadística."};
 }
 function getHeroSkills(d,k){return d&&d.heroAbilities&&d.heroAbilities[k]||null}
 function findAbility(d,k){return d&&d.abilities&&d.abilities[k]||null}
