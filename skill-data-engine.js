@@ -10,34 +10,48 @@ function buildDataset(payload,metadata){const source=payload.abilities||{},abili
 async function fetchJson(url,fetchImpl,timeoutMs=45000){const controller=typeof AbortController!=="undefined"?new AbortController():null;const timer=controller?setTimeout(()=>controller.abort(),timeoutMs):null;try{const r=await fetchImpl(url,{headers:{Accept:"application/json"},...(controller?{signal:controller.signal}:{})});if(!r||!r.ok)throw new Error("HTTP "+(r&&r.status||"desconocido"));return await r.json()}finally{if(timer)clearTimeout(timer)}}
 async function fetchResource(name,base,fetchImpl){const urls=[STATIC_BASE+STATIC_FILES[name],base+ENDPOINTS[name]];let last=null;for(const url of urls){try{const data=await fetchJson(url,fetchImpl);if(data&&typeof data==="object")return{data,source:url.startsWith(STATIC_BASE)?"dotaconstants GitHub estático":"OpenDota API"};throw new Error("Respuesta vacía")}catch(error){last=error}}throw last||new Error("Sin fuente para "+name)}
 async function load(options){const o=options||{},fetchImpl=o.fetch||root.fetch;if(typeof fetchImpl!=="function")throw new Error("Este entorno no dispone de fetch.");const base=(o.baseUrl||DEFAULT_BASE).replace(/\/$/,"");if(!o.force&&memoryCache.has(base))return memoryCache.get(base);const[a,h,heroes]=await Promise.all([fetchResource("abilities",base,fetchImpl),fetchResource("heroAbilities",base,fetchImpl),fetchResource("heroes",base,fetchImpl)]);const data=buildDataset({abilities:a.data,heroAbilities:h.data,heroes:Object.values(heroes.data||{})},{source:"dotaconstants estático / OpenDota API",patch:o.patch||null});data.sourcesUsed={abilities:a.source,heroAbilities:h.source,heroes:heroes.source};memoryCache.set(base,data);return data}
+function isTruthyFlag(value){return value===true||value===1||["1","true","yes","y"].includes(String(value??"").trim().toLowerCase())}
+function abilityIsInnate(data){return !!(data&&(isTruthyFlag(data.innate)||isTruthyFlag(data.raw&&data.raw.is_innate)))}
 function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
  const hero=dataset&&dataset.heroAbilities&&dataset.heroAbilities[heroKey];
  if(!hero)return null;
- const innate=[],learnable=[];
- for(const slot of hero.abilities||[]){
-  const id=slot&&slot.id,data=slot&&slot.data;
-  if(!id||id==="generic_hidden"||id.startsWith("special_bonus_")||!data)continue;
-  const entry={id,name:data.displayName||id.replace(/^[^_]+_/,"").replaceAll("_"," "),slug:id,description:data.description||""};
-  if(data.innate===true||data.raw&&data.raw.is_innate===true)innate.push(entry);
-  else learnable.push(entry);
+ const rawSlots=Array.isArray(hero.abilities)?hero.abilities:[];
+ const entry=id=>{
+  if(!id||id==="generic_hidden"||String(id).startsWith("special_bonus_"))return null;
+  const data=dataset.abilities&&dataset.abilities[id];
+  if(!data)return null;
+  return{id,name:data.displayName||String(id).replace(/^[^_]+_/,"").replaceAll("_"," "),slug:id,description:data.description||"",data};
+ };
+ const selected=new Map();
+ const add=(code,id)=>{
+  const item=entry(id);
+  if(item&&!abilityIsInnate(item.data)&&!selected.has(id)){selected.set(id,{...item,code});return item}
+  return null;
+ };
+ // Valve/OpenDota conservan los slots del héroe: Q/W/E suelen ocupar 0–2;
+ // el ultimate suele estar en el slot 5 (después del innate y generic_hidden).
+ const q=add("Q",rawSlots[0]),w=add("W",rawSlots[1]),e=add("E",rawSlots[2]);
+ let ultimateId=rawSlots[5]&&rawSlots[5]!=="generic_hidden"?rawSlots[5]:rawSlots[3];
+ if(!ultimateId||ultimateId==="generic_hidden"||abilityIsInnate(dataset.abilities&&dataset.abilities[ultimateId])){
+  ultimateId=[...rawSlots].reverse().find(id=>id&&id!=="generic_hidden"&&!String(id).startsWith("special_bonus_")&&!abilityIsInnate(dataset.abilities&&dataset.abilities[id]))||null;
  }
- if(learnable.length<4)return null;
- const main=learnable.slice(0,3),ult=learnable[learnable.length-1],extras=learnable.slice(3,-1);
- const skillIcons={Q:{name:main[0].name,slug:main[0].slug},W:{name:main[1].name,slug:main[1].slug},E:{name:main[2].name,slug:main[2].slug},R:{name:ult.name,slug:ult.slug}};
- extras.forEach((x,i)=>skillIcons["S"+(i+1)]={name:x.name,slug:x.slug});
- const skillBuild=[
-  {level:1,code:"Q"},{level:2,code:"W"},{level:3,code:"Q"},{level:4,code:"E"},
-  {level:5,code:"Q"},{level:6,code:"R"},{level:7,code:"Q"},{level:8,code:"W"},
-  {level:9,code:"W"},{level:11,code:"W"},{level:12,code:"R"},
-  {level:13,code:"E"},{level:14,code:"E"},{level:16,code:"E"},{level:18,code:"R"},
-  ...[17,19,21,22,23,24].map(level=>({level,code:"A"}))
- ];
+ const r=add("R",ultimateId);
+ const innate=[],additional=[];
+ rawSlots.forEach(id=>{
+  const item=entry(id);if(!item)return;
+  if(abilityIsInnate(item.data)){if(!innate.some(x=>x.id===id))innate.push(item);return}
+  if(!selected.has(id)&&!additional.some(x=>x.id===id))additional.push(item);
+ });
+ const skillIcons={};
+ for(const[code,item]of selected)skillIcons[code]={name:item.name,slug:item.slug};
+ additional.forEach((item,i)=>skillIcons["S"+(i+1)]={name:item.name,slug:item.slug});
+ if(selected.size<4)return null;
  const talentNames=(hero.talents||[]).map(t=>({id:t.name,level:Number(t.level)||1,data:dataset.abilities&&dataset.abilities[t.name]}));
  const talentChoices=[1,2,3,4].map(tier=>{
   const pair=talentNames.filter(t=>t.level===tier);
   if(pair.length<2)return null;
   const name=t=>t.data?.displayName||t.data?.raw?.dname||t.id.replace(/^special_bonus_/,"").replaceAll("_"," ");
-  const reason=t=>t.data?.description||t.data?.raw?.desc||"La descripción oficial del talento define su efecto; elegí según la amenaza y la necesidad concreta de la partida.";
+  const reason=t=>t.data?.description||t.data?.raw?.desc||"El catálogo confirma el efecto, pero no aporta tasa de elección. Elegí según el draft y la necesidad de esta partida.";
   return{level:tier*5+5,left:{name:name(pair[0]),reason:reason(pair[0])},right:{name:name(pair[1]),reason:reason(pair[1])}};
  }).filter(Boolean);
  if(talentChoices.length!==4)return null;
@@ -46,21 +60,32 @@ function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
   role==="Offlane"?"Como Offlane, adelantá la herramienta que te permita sobrevivir, iniciar o controlar el espacio según el dúo rival.":
   role==="Support 4"?"Como Support 4, priorizá la herramienta que habilite rotaciones, control y presión junto al iniciador.":
   "Como Support 5, priorizá la herramienta que proteja al aliado, aporte control y permita disputar visión con recursos limitados.";
+ // La matriz de cobertura es deliberadamente provisional: no se etiqueta como build estadística.
+ const skillBuild=[
+  {level:1,code:"Q"},{level:2,code:"W"},{level:3,code:"Q"},{level:4,code:"E"},
+  {level:5,code:"Q"},{level:6,code:"R"},{level:7,code:"Q"},{level:8,code:"W"},
+  {level:9,code:"W"},{level:11,code:"W"},{level:12,code:"R"},
+  {level:13,code:"E"},{level:14,code:"E"},{level:16,code:"E"},{level:18,code:"R"},
+  ...[17,19,21,22,23,24].map(level=>({level,code:"A"}))
+ ].filter(x=>x.code==="A"||skillIcons[x.code]);
+ const talentNamesByLevel=talentChoices.map(t=>t.level);
  return{
-  title:heroName+" "+role+" · progresión base de habilidades y talentos",
+  title:heroName+" "+role+" · matriz base de habilidades y talentos",
   skillIcons,skillBuild,skillOrder:skillBuild.map(x=>skillIcons[x.code]?.name||x.code),talentChoices,
   innateAbilities:innate.map(x=>({name:x.name,description:x.description||"Habilidad innata identificada en el catálogo oficial."})),
-  skillPriority:"BASE PROVISIONAL · La matriz muestra una progresión estructural Q/W/E/R para que no falten habilidades ni niveles. No representa una muestra estadística ni una recomendación validada de jugadores de alto MMR. "+roleNote+" Cambiá el orden si la línea, el draft o la habilidad de mayor impacto lo requieren.",
+  additionalAbilities:additional.map(x=>({name:x.name,description:x.description||"Habilidad adicional identificada en los slots oficiales."})),
+  skillPriority:"BASE PROVISIONAL · Esta secuencia de cobertura no es una recomendación estadística ni una build validada para "+role+". Sirve para mostrar las habilidades y la matriz mientras no se obtiene una secuencia fiable por posición. "+roleNote+" La recomendación real debe reemplazarla cuando Dota2ProTracker aporte una muestra válida.",
   combos:[],
   positioning:roleNote,
-  mechanics:"Nombres, asignación de habilidades, descripciones y talentos obtenidos del catálogo de dotaconstants/OpenDota. No se agregan interacciones no verificadas.",
-  caveats:"Esta es una guía de cobertura de datos, no una guía individual terminada al nivel de Pugna. Las cuatro parejas de talentos son las del catálogo; no se inventan tasas de elección. La progresión Q/W/E/R es una plantilla provisional hasta disponer de datos fiables por héroe y posición.",
-  metadata:{patch:patch||dataset.patch||"catálogo actual",role,source:["dotaconstants · catálogo de habilidades y talentos"],confidence:"base provisional",matches:0,guideType:"fallback"}
+  mechanics:"Slots, nombres, habilidades innatas, descripciones y talentos obtenidos del catálogo de dotaconstants/OpenDota. Las habilidades adicionales se separan de Q/W/E/R para no confundirlas con los cuatro espacios principales.",
+  caveats:"No hay una secuencia de habilidades ni una elección de talento basada en tasas para esta combinación héroe/posición. Las dos opciones de cada tier son oficiales; no se inventan porcentajes ni se presenta una preferencia estadística sin muestra.",
+  metadata:{patch:patch||dataset.patch||"catálogo actual",role,source:["dotaconstants · slots, habilidades y talentos oficiales"],confidence:"metadatos oficiales; progresión provisional",matches:0,guideType:"fallback",talentLevels:talentNamesByLevel}
  };
 }
+
 function getHeroSkills(d,k){return d&&d.heroAbilities&&d.heroAbilities[k]||null}
 function findAbility(d,k){return d&&d.abilities&&d.abilities[k]||null}
-function getCoverage(d){const hs=Object.values(d&&d.heroAbilities||{}),abilitySlots=hs.reduce((n,h)=>n+h.abilities.length,0),talentSlots=hs.reduce((n,h)=>n+h.talents.length,0),missingAbilities=hs.reduce((n,h)=>n+h.abilities.filter(x=>x.missingMetadata).length,0),missingTalents=hs.reduce((n,h)=>n+h.talents.filter(x=>x.missingMetadata).length,0),totalSlots=abilitySlots+talentSlots,missing=missingAbilities+missingTalents,skillReady=hs.filter(h=>h.abilities.filter(x=>x.id&&x.id!=="generic_hidden"&&!x.id.startsWith("special_bonus_")&&x.data&&!x.data.innate).length>=4).length,talentReady=hs.filter(h=>[1,2,3,4].every(t=>h.talents.filter(x=>Number(x.level)===t).length>=2)).length,fullReady=hs.filter(h=>h.abilities.filter(x=>x.id&&x.id!=="generic_hidden"&&!x.id.startsWith("special_bonus_")&&x.data&&!x.data.innate).length>=4&&[1,2,3,4].every(t=>h.talents.filter(x=>Number(x.level)===t).length>=2)).length;return{heroes:hs.length,abilitySlots,talentSlots,missingAbilityMetadata:missingAbilities,missingTalentMetadata:missing,totalSlots,missingMetadataSlots:missing,metadataCoverage:totalSlots?Math.round((totalSlots-missing)/totalSlots*10000)/100:0,skillReady,talentReady,fullReady}}
+function getCoverage(d){const hs=Object.values(d&&d.heroAbilities||{}),abilitySlots=hs.reduce((n,h)=>n+h.abilities.length,0),talentSlots=hs.reduce((n,h)=>n+h.talents.length,0),missingAbilities=hs.reduce((n,h)=>n+h.abilities.filter(x=>x.missingMetadata).length,0),missingTalents=hs.reduce((n,h)=>n+h.talents.filter(x=>x.missingMetadata).length,0),totalSlots=abilitySlots+talentSlots,missing=missingAbilities+missingTalents,skillReady=hs.filter(h=>h.abilities.filter(x=>x.id&&x.id!=="generic_hidden"&&!x.id.startsWith("special_bonus_")&&x.data&&!abilityIsInnate(x.data)).length>=4).length,talentReady=hs.filter(h=>[1,2,3,4].every(t=>h.talents.filter(x=>Number(x.level)===t).length>=2)).length,fullReady=hs.filter(h=>h.abilities.filter(x=>x.id&&x.id!=="generic_hidden"&&!x.id.startsWith("special_bonus_")&&x.data&&!x.data.innate).length>=4&&[1,2,3,4].every(t=>h.talents.filter(x=>Number(x.level)===t).length>=2)).length;return{heroes:hs.length,abilitySlots,talentSlots,missingAbilityMetadata:missingAbilities,missingTalentMetadata:missing,totalSlots,missingMetadataSlots:missing,metadataCoverage:totalSlots?Math.round((totalSlots-missing)/totalSlots*10000)/100:0,skillReady,talentReady,fullReady}}
 function createFallbackGuide(heroKey,heroName,role,patch,baseUrl){const base=(baseUrl&&baseUrl.endsWith("/")?baseUrl.slice(0,-1):(baseUrl||DEFAULT_BASE));const dataset=memoryCache.get(base);return dataset?buildFallbackGuide(dataset,heroKey,heroName,role,patch):null}
-const api={version:"2.1.0",sources:ENDPOINTS,load,buildDataset,normalizeAbility,parseLevelValues,getHeroSkills,findAbility,getCoverage,createFallbackGuide};if(typeof module!=="undefined"&&module.exports)module.exports=api;root.DotaSkillDataEngine=api;
+const api={version:"2.2.0",sources:ENDPOINTS,load,buildDataset,normalizeAbility,parseLevelValues,getHeroSkills,findAbility,getCoverage,createFallbackGuide};if(typeof module!=="undefined"&&module.exports)module.exports=api;root.DotaSkillDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
