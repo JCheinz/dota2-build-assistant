@@ -1,14 +1,6 @@
 name: Sync Dota2ProTracker primary-role skill guides
 on:
-  schedule:
-    - cron: '31 7 * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'statsdota-guides.json'
-      - 'scripts/sync-d2pt-primary-guides.js'
-      - 'build-data-engine.js'
 concurrency:
   group: primary-hero-guide-sync-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -23,7 +15,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Sync only incomplete heroes at their primary position
+      - name: Sync only incomplete heroes at their primary position (requires D2PT authorization)
+        env:
+          D2PT_DATA_ACCESS_AUTHORIZED: ${{ secrets.D2PT_DATA_ACCESS_AUTHORIZED }}
         run: node scripts/sync-d2pt-primary-guides.js --delay-ms=3500 --retries=2
       - name: Preserve audit report and synchronized guides
         uses: actions/upload-artifact@v4
