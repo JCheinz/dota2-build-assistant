@@ -34,7 +34,27 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  assert.equal(open.source,"OpenDota");
  assert.equal(open.scope,"todas las posiciones");
  assert.ok(open.warning.includes("no separa por posición"));
+
  assert.deepEqual(open.items.map(x=>x.name),["Phase Boots","Magic Wand","Blink Dagger"]);
+ // Formato real actual de OpenDota: fases *_items y claves numéricas de item_id.
+ engine.clear();
+ const actualShapeStorage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}})();
+ const actualShape=async url=>{
+  if(url.endsWith("/constants/items"))return{ok:true,json:async()=>items};
+  if(url.includes("/hero/2/builds?"))return{ok:false,status:403};
+  if(url.endsWith("/heroes/2/itemPopularity"))return{ok:true,json:async()=>({
+   start_game_items:{"3":18},
+   early_game_items:{"2":72,"3":44},
+   mid_game_items:{"1":61},
+   late_game_items:{"1":25}
+  })};
+  throw new Error("Unexpected URL "+url);
+ };
+ const actualOpen=await engine.loadHeroBuild({heroId:2,heroName:"Axe",role:"Offlane",patch:"7.42",fetch:actualShape,storage:actualShapeStorage});
+ assert.equal(actualOpen.source,"OpenDota");
+ assert.deepEqual(actualOpen.items.map(x=>x.name),["Magic Wand","Phase Boots","Blink Dagger","Blink Dagger"]);
+ assert.deepEqual(actualOpen.items.map(x=>x.stage),["Inicio","Línea","Línea","Core"]);
+
  engine.clear();
  const staleStorage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}})();
  const stale=async url=>{
