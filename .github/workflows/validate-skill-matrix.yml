@@ -18,6 +18,8 @@ jobs:
           node --check inventory-ledger.js
           node --check item-icons.js
           node --check match-clock.js
+          node --check scripts/statsdota-guide-sync.js
+          node --check scripts/sync-statsdota-guides.js
           node --check skill-data-engine.js
           node --check build-data-engine.js
           node --check patch-data-742.js
