@@ -48,6 +48,6 @@ function parseGuidePage(html,hero,heroAbilities,sourceUrl){
  const patchMatch=plain.match(/How to play[^\n]{0,160}?guide\s+([0-9]+(?:\.[0-9]+)?[a-z]?)/i)||plain.match(/guide\s+([0-9]+(?:\.[0-9]+)?[a-z]?)/i);
  const updatedMatch=plain.match(/updated\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
  const updatedAt=updatedMatch?new Date(updatedMatch[1]).toISOString():null;
- return{hero:hero.name,heroName:name,role,roleGames,positionCounts,patch:patchMatch?patchMatch[1]:null,matches:sample?Number(sample[1]):0,updatedAt,abilityOrder,sourceUrl,rankScope:"Immortal / profesionales",status:abilityOrder.length>=6&&role?"ready":"incomplete"};
+ return{hero:hero.name,heroName:name,role,roleGames,positionCounts,patch:patchMatch?patchMatch[1]:null,matches:sample?Number(sample[1]):0,updatedAt,abilityOrder,sourceUrl,rankScope:"Immortal / profesionales",status:abilityOrder.length>=6&&role&&roleGames>=10?"ready":"incomplete"};
 }
 module.exports={decodeHtml,stripHtml,normalizeName,appRole,parseGuideIndex,parseGuidePage};
