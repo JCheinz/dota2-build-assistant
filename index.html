@@ -300,7 +300,7 @@
 <script src="./match-clock.js?v=359"></script>
 <script src="./item-icons.js?v=1"></script>
 <script src="./inventory-ledger.js?v=359"></script>
-<script src="./skill-data-engine.js?v=356"></script>
+<script src="./skill-data-engine.js?v=357"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
 <script src="./build-data-engine.js?v=7425"></script>
@@ -2259,7 +2259,7 @@ function analyzeCore(options={}){
   'ESTADO: minuto '+live.minute+' | oro '+live.gold+' | problema '+live.problem,
   'FASE DEL MERCADO: '+adaptive.phase,
   'PERFIL TÁCTICO: '+adaptive.specialization.style+' | '+adaptive.specialization.level+' | '+adaptive.specialization.source,
-  ...(adaptive.specialization.guide?['GUÍA PUGNA MID: habilidades '+adaptive.specialization.guide.skillOrder.join(', ')+' | talentos y combos individualizados disponibles en el informe.']:[]),
+  ...(adaptive.specialization.guide?['GUÍA DE HABILIDADES '+me.localized_name+' · '+role+': '+((adaptive.specialization.guide.skillOrder||adaptive.specialization.guide.skillBuild?.map(x=>x.code)||[]).join(', ')||'secuencia no disponible')+' | talentos: '+((adaptive.specialization.guide.talentChoices||[]).length)+' tiers disponibles en el informe.']:[]),
   'INVENTARIO: '+(live.owned.join(', ')||'no informado')+' | COMPONENTES: '+(live.components.join(', ')||'no informados'),
   'RUTA SUGERIDA: '+adaptive.selected.map(x=>x.name+(x.priority?' [PRIORIDAD]':' [SITUACIONAL]')).join(' → '),
   'AMENAZAS CONTEXTUALES: '+matchups.map(m=>m.hero.localized_name+' ('+m.risk+' '+m.threat.score.toFixed(1)+'/20; impacto: '+((m.threat.matched||[]).map(x=>mechanicLabels[x]||x).join(', ')||'sin vulnerabilidad específica identificada')+')').join(' | '),
