@@ -13,6 +13,8 @@ assert.equal(statsGuide.skillBuild.length,6);
 assert.deepEqual(statsGuide.skillBuild.map(x=>x.code),["Q","W","E","Q","R","E"]);
 assert.equal(statsGuide.metadata.patch,"7.42");
 assert.equal(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Carry","7.42","https://stats-guide.test/api"),null,"Do not inherit StatsDota main-role guide to another position");
+assert.equal(engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.41f","https://stats-guide.test/api"),null,"Do not use an older patch guide as current");
+assert.equal(statsGuide.talentChoices.length,4,"Official talent tiers must remain visible with StatsDota skill order");
 assert.equal(engine.getCoverage(statsLoaded).statsDotaSkillGuides,1);const guide=engine.createFallbackGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42","https://example.test/api");assert.ok(guide);assert.equal(guide.metadata.guideType,"fallback");assert.deepEqual(guide.talentChoices.map(x=>x.level),[10,15,20,25]);assert.equal(guide.skillBuild.find(x=>x.level===6).code,"R");assert.ok(Array.isArray(guide.skillOrder)&&guide.skillOrder.length>0,"fallback guide must expose a safe skillOrder summary for the report");assert.ok(guide.innateAbilities.some(x=>x.name==="Horsepower"));assert.equal(guide.skillIcons.R.slug,"centaur_stampede","Centaur ultimate must come from canonical slot 5, not the last ability in the array");assert.ok(Object.values(guide.skillIcons).some(x=>x.name==="Work Horse"));assert.ok(Object.values(guide.skillIcons).some(x=>x.name==="Mount"));
 const allAbilities={},allHeroAbilities={},allHeroes=[];
 for(let i=1;i<=127;i++){
