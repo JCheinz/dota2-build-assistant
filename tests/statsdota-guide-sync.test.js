@@ -5,7 +5,7 @@ const heroes=[
  {name:"npc_dota_hero_centaur",localized_name:"Centaur Warrunner"},
  {name:"npc_dota_hero_enigma",localized_name:"Enigma"}
 ];
-const index='<a href="/en/guides/centaur-warrunner"><img alt="Centaur">Centaur Warrunner</a><a href="/en/guides/enigma">Enigma</a>';
+const index='<a href="https://statsdota.com/en/guides/centaur-warrunner"><img alt="Centaur">Centaur Warrunner</a><a href="/en/guides/enigma">Enigma</a>';
 const links=parseGuideIndex(index,heroes);
 assert.equal(links.length,2);
 assert.equal(links[0].hero.name,"npc_dota_hero_centaur");
