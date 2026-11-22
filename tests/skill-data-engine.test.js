@@ -13,12 +13,13 @@ for(let i=1;i<=127;i++){
 }
 const coverageFetch=async url=>{const name=url.split("/").pop().replace(".json","");const data=name==="abilities"?allAbilities:name==="hero_abilities"?allHeroAbilities:allHeroes;return{ok:true,json:async()=>data}};
 const coverageDataset=await engine.load({fetch:coverageFetch,baseUrl:"https://coverage.test/api",force:true});
-const statsSnapshot={guideCount:1,guides:{"npc_dota_hero_centaur":{hero:"npc_dota_hero_centaur",heroName:"Centaur Warrunner",role:"Offlane",patch:"7.42",matches:100,updatedAt:"2026-11-22T00:00:00.000Z",abilityOrder:["centaur_hoof_stomp","centaur_double_edge","centaur_return","centaur_hoof_stomp","centaur_stampede","centaur_return"],sourceUrl:"https://statsdota.com/en/guides/centaur-warrunner",status:"ready"}}};
+const statsSnapshot={guideCount:1,guides:{"npc_dota_hero_centaur":{hero:"npc_dota_hero_centaur",heroName:"Centaur Warrunner",role:"Offlane",roleGames:100,positionCounts:[{label:"Offlane",role:"Offlane",games:100}],patch:"7.42",matches:100,updatedAt:"2026-11-22T00:00:00.000Z",abilityOrder:["centaur_hoof_stomp","centaur_double_edge","centaur_return","centaur_hoof_stomp","centaur_stampede","centaur_return"],sourceUrl:"https://statsdota.com/en/guides/centaur-warrunner",status:"ready"}}};
 const statsLoaded=await engine.load({fetch:mockFetch,baseUrl:"https://stats-guide.test/api",patch:"7.42",force:true,statsDotaData:statsSnapshot});
 const statsGuide=engine.createStatsDotaGuide("npc_dota_hero_centaur","Centaur Warrunner","Offlane","7.42","https://stats-guide.test/api");
 assert.ok(statsGuide,"StatsDota guide should be available for its main role");
 assert.equal(statsGuide.metadata.guideType,"statsdota-main-role");
 assert.equal(statsGuide.metadata.matches,100);
+assert.equal(statsGuide.metadata.roleGames,100);
 assert.equal(statsGuide.skillBuild.length,6);
 assert.deepEqual(statsGuide.skillBuild.map(x=>x.code),["Q","W","E","Q","R","E"]);
 assert.equal(statsGuide.metadata.patch,"7.42");
