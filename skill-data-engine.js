@@ -85,7 +85,7 @@ function buildFallbackGuide(dataset,heroKey,heroName,role,patch){
 
 function buildStatsDotaGuide(dataset,record,heroKey,heroName,role,patch){
  if(!record||record.role!==role||!Array.isArray(record.abilityOrder)||record.abilityOrder.length<6)return null;
- if(patch&&record.patch&&record.patch!==patch)return null;
+ if(patch&&record.patch!==patch)return null;
  const base=buildFallbackGuide(dataset,heroKey,heroName,role,patch);
  if(!base)return null;
  const skillIcons={...(base.skillIcons||{})},codeBySlug={};
