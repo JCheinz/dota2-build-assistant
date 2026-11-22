@@ -2,7 +2,7 @@
 "use strict";
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
-const CACHE_KEY="dota-build-live-data-v3";
+const CACHE_KEY="dota-build-live-data-v4";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
 let itemConstantsPromise=null;
@@ -38,7 +38,7 @@ async function loadItemConstants(fetchImpl,baseUrl){
  return itemConstantsPromise;
 }
 function mapD2ptItems(build,constants){
- const raw=build&&build.build_data||{},items=Array.isArray(raw.anchor_items)&&raw.anchor_items.length?raw.anchor_items.slice():(Array.isArray(raw.anchor_items2)?raw.anchor_items2.slice():[]);
+ const raw=build&&build.build_data||{},items=(Array.isArray(raw.anchor_items)&&raw.anchor_items.length?raw.anchor_items:(Array.isArray(raw.anchor_items2)?raw.anchor_items2:[])).filter(row=>row&&typeof row==="object");
  const seen=new Set();
  return items.sort((a,b)=>asNumber(a.avg_minute)-asNumber(b.avg_minute)).map(row=>{
   const id=asNumber(row.raw_item_id??String(row.key||"").split("::")[0],-1),meta=constants.byId[id];
@@ -203,8 +203,8 @@ async function loadHeroBuild(options){
   constants=items;
   let heroAbilityConstants={};
   try{heroAbilityConstants=await loadHeroAbilityConstants(fetchImpl,base)}catch(_){heroAbilityConstants={}}
-  const rows=Array.isArray(raw)?raw:Array.isArray(raw&&raw.builds)?raw.builds:[];
-  const build=rows.slice().sort((a,b)=>asNumber(b.num_matches)-asNumber(a.num_matches))[0];
+  const rows=(Array.isArray(raw)?raw:Array.isArray(raw&&raw.builds)?raw.builds:[]).filter(row=>row&&typeof row==="object"&&row.build_data&&typeof row.build_data==="object");
+  const build=rows.slice().sort((a,b)=>asNumber(b.num_matches??b.build_data?.num_matches)-asNumber(a.num_matches??a.build_data?.num_matches))[0];
   if(build&&build.build_data){
    const data=mapD2ptItems(build,constants);
    const updatedAt=safeDate(build.updated_at||raw.updated_at);
