@@ -298,6 +298,7 @@
 </div>
 <div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h3 id="modalTitle">Elegir héroe</h3><button class="close" id="close">Cerrar</button></div><input class="search" id="search" placeholder="Buscar héroe…" autocomplete="off"><div class="hero-grid" id="heroGrid"><div class="loading">Cargando…</div></div></div></div>
 <script src="./match-clock.js?v=359"></script>
+<script src="./item-icons.js?v=1"></script>
 <script src="./inventory-ledger.js?v=359"></script>
 <script src="./skill-data-engine.js?v=354"></script>
 <script src="./specializations.js?v=3280"></script>
@@ -416,10 +417,12 @@ const itemSlugs={
  'Quelling Blade':'quelling_blade','Wizard Hat':'wizard_hat','Receta de Arcane Boots':'recipe','Receta de Perseverance':'recipe'
 };
 function renderItemIcon(name){
+ const catalogUrl=window.DOTA_ITEM_ICONS?.resolve(name);
  const slug=itemSlugs[name];
  const fallback='<span class="item-icon-fallback" style="display:inline-flex" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span>';
- if(!slug)return fallback;
- return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" src="'+ITEM_IMG+slug+'.png" alt="'+esc(name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
+ const src=catalogUrl||(slug?ITEM_IMG+slug+'.png':null);
+ if(!src)return fallback;
+ return '<span class="item-icon-wrap"><img class="item-icon" loading="lazy" decoding="async" src="'+esc(src)+'" alt="'+esc(name)+'" onerror="if(!this.dataset.altHostTried&&this.src.includes(\'cdn.cloudflare.steamstatic.com\')){this.dataset.altHostTried=\'1\';this.src=this.src.replace(\'cdn.cloudflare.steamstatic.com\',\'cdn.steamstatic.com\')}else{this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'}"><span class="item-icon-fallback" style="display:none" aria-hidden="true">'+esc(String(name||"?").trim().slice(0,2).toUpperCase())+'</span></span>';
 }
 function renderHeroInventory(state,hero=null,role="",adaptive=null,nextPurchase=null){
  const ledger=purchaseLedger.snapshot();
