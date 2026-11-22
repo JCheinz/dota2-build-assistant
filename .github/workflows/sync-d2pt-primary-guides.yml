@@ -1,0 +1,42 @@
+name: Sync Dota2ProTracker primary-role skill guides
+on:
+  schedule:
+    - cron: '31 7 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'statsdota-guides.json'
+      - 'scripts/sync-d2pt-primary-guides.js'
+      - 'build-data-engine.js'
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Sync only incomplete heroes at their primary position
+        run: node scripts/sync-d2pt-primary-guides.js --delay-ms=3500 --retries=4
+      - name: Preserve audit report and synchronized guides
+        uses: actions/upload-artifact@v4
+        with:
+          name: d2pt-primary-guides-audit
+          path: d2pt-primary-guides.json
+          retention-days: 30
+      - name: Commit snapshot when at least one guide is ready
+        run: |
+          READY=$(node -e "const x=require('./d2pt-primary-guides.json'); console.log(x.readyCount||0)")
+          if [ "$READY" -gt 0 ] && ! git diff --quiet -- d2pt-primary-guides.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add d2pt-primary-guides.json
+            git commit -m "Refresh Dota2ProTracker primary-role skill guides"
+            git push
+          else
+            echo "No new validated primary-role guides to publish."
+          fi
