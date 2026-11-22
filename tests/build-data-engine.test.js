@@ -23,8 +23,10 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  const calls=[];
  const d2pt=async url=>{
   calls.push(url);
-  if(url.endsWith("/constants/items"))return{ok:true,json:async()=>items};
-  if(url.endsWith("/constants/hero_abilities"))return{ok:true,json:async()=>({"npc_dota_hero_axe":{abilities:["axe_berserkers_call","axe_battle_hunger","axe_counter_helix","generic_hidden","generic_hidden","axe_culling_blade"],talents:[]}})};
+  if(url.endsWith("/constants/items"))return{ok:false,status:403};
+  if(url.endsWith("/items.json"))return{ok:true,json:async()=>items};
+  if(url.endsWith("/constants/hero_abilities"))return{ok:false,status:403};
+  if(url.endsWith("/hero_abilities.json"))return{ok:true,json:async()=>({"npc_dota_hero_axe":{abilities:["axe_berserkers_call","axe_battle_hunger","axe_counter_helix","generic_hidden","generic_hidden","axe_culling_blade"],talents:[]}})};
   if(url.includes("/hero/2/builds?position=pos%203"))return{ok:true,json:async()=>[null,{hero_id:2,position:"pos 3",num_matches:120,num_wins:66,win_rate:.55,updated_at:"2026-11-21T08:00:00Z",build_data:{
    anchor_items:[null,{raw_item_id:2,avg_minute:6.5,rel_pr:.9,rel_count:110},{raw_item_id:1,avg_minute:15.2,rel_pr:.7,rel_count:84}],
    abilities:[{ability_id:10,name:"axe_berserkers_call"},{ability_id:11,name:"axe_battle_hunger"},{ability_id:12,name:"axe_counter_helix"},{ability_id:13,name:"axe_culling_blade"}],
