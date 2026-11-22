@@ -272,7 +272,7 @@ function get(heroId,role,patch){
  return memory.get(key)||readCache(root&&root.localStorage,CACHE_KEY+":"+key)||null;
 }
 function clear(){memory.clear();itemConstantsPromise=null;heroAbilityConstantsPromise=null}
-const api={version:"1.4.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,fetchD2ptJson,cacheTtl:CACHE_TTL};
+const api={version:"1.5.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,fetchD2ptJson,cacheTtl:CACHE_TTL};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.DotaBuildDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
