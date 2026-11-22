@@ -10,6 +10,7 @@ function rowsOf(raw){return Array.isArray(raw)?raw:Array.isArray(raw&&raw.builds
 function updatedAt(row){const v=row&&row.updated_at;if(!v)return null;const n=Number(v),d=new Date(Number.isFinite(n)&&n>1e9&&n<1e12?n*1000:v);return Number.isNaN(d.getTime())?null:d.toISOString()}
 async function fetchJson(url){const r=await fetch(url,{headers:{Accept:"application/json","User-Agent":"Dota2BuildAssistant-primary-guide-sync"}});if(!r.ok)throw new Error("HTTP "+r.status+" · "+url);return r.json()}
 async function main(){
+ if(process.env.D2PT_DATA_ACCESS_AUTHORIZED!=="true")throw new Error("Sincronización D2PT deshabilitada: se requiere autorización expresa del titular para acceso automatizado y uso de datos en esta aplicación. No se realizará ninguna petición.");
  const input=arg("input",path.resolve(__dirname,"..","statsdota-guides.json"));
  const output=arg("output",path.resolve(__dirname,"..","d2pt-primary-guides.json"));
  const snapshot=JSON.parse(fs.readFileSync(input,"utf8"));
