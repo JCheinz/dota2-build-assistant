@@ -4,6 +4,21 @@ const engine=require("../build-data-engine.js");
 const items={blink:{id:1,dname:"Blink Dagger",cost:2250},phase_boots:{id:2,dname:"Phase Boots",cost:1500},magic_wand:{id:3,dname:"Magic Wand",cost:450}};
 const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}})();
 (async()=>{
+ const proxyCalls=[];
+ const proxied=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async(url,options)=>{
+  proxyCalls.push({url,options});
+  return{ok:true,json:async()=>({code:200,status:20000,data:{content:'[{"hero_id":96,"position":"pos 3"}]'}})};
+ });
+ assert.deepEqual(proxied,[{hero_id:96,position:"pos 3"}],"Jina wrapper content must be decoded into the original D2PT JSON");
+ assert.ok(proxyCalls[0].url.startsWith("https://r.jina.ai/https://dota2protracker.com/api/"));
+ const directCalls=[];
+ const direct=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async(url)=>{
+  directCalls.push(url);
+  if(url.startsWith("https://r.jina.ai/"))return{ok:false,status:502};
+  return{ok:true,json:async()=>[{hero_id:96,position:"pos 3"}]};
+ });
+ assert.deepEqual(direct,[{hero_id:96,position:"pos 3"}],"Direct D2PT should remain a fallback if the proxy is unavailable");
+ assert.equal(directCalls.length,2);
  engine.clear();
  const calls=[];
  const d2pt=async url=>{
