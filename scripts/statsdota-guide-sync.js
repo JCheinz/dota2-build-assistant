@@ -13,7 +13,7 @@ function appRole(value){
  if(role==="carry")return"Carry";
  if(role==="mid")return"Mid";
  if(role==="offlane")return"Offlane";
- if(role==="support"||role==="soft support")return"Support 4";
+ if(role==="soft support")return"Support 4";
  if(role==="hard support"||role==="hard-support")return"Support 5";
  return null;
 }
@@ -37,7 +37,7 @@ function parseGuidePage(html,hero,heroAbilities,sourceUrl){
  const plain=stripHtml(source);
  const name=hero.localized_name;
  const escaped=name.replace(/[.*+?^$\\{}()|[\\]\\\\]/g,"\\\\$&");
- const roleMatch=plain.match(new RegExp(escaped+"\\s+is played in\\s+(Carry|Mid|Offlane|Support|Hard Support)","i"));
+ const roleMatch=plain.match(new RegExp(escaped+"\\s+is played in\\s+(Carry|Mid|Offlane|Soft Support|Support|Hard Support)","i"));
  const role=roleMatch?appRole(roleMatch[1]):null;
  const sample=plain.match(/Based on\\s+(\\d+)\\s+winning matches/i);
  const patchMatch=plain.match(/How to play[^\\n]{0,160}?guide\\s+([0-9]+(?:\\.[0-9]+)?[a-z]?)/i)||plain.match(/guide\\s+([0-9]+(?:\\.[0-9]+)?[a-z]?)/i);
