@@ -31,6 +31,8 @@ jobs:
         run: node tests/match-clock.test.js
       - name: Test skill data extraction engine
         run: node tests/skill-data-engine.test.js
+      - name: Audit real hero guide coverage
+        run: node tests/skill-matrix.test.js
       - name: Test live build data engine
         run: node tests/build-data-engine.test.js
       - name: Test Dota 2 7.42 compatibility data
