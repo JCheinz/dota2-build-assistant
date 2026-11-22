@@ -19,7 +19,7 @@ function appRole(value){
 }
 function parseGuideIndex(html,heroes){
  const byName=new Map((heroes||[]).map(h=>[normalizeName(h.localized_name),h]));
- const links=new Map(),re=/<a\\b[^>]*href=["']\\/en\\/guides\\/([^"'?#]+)["'][^>]*>([\\s\\S]*?)<\\/a>/gi;
+ const links=new Map(),re=/<a\b[^>]*href=["'](?:https?:\/\/statsdota\.com)?\/en\/guides\/([^"'?#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
  for(const match of String(html||"").matchAll(re)){
   const slug=match[1],title=stripHtml(match[2]);
   const hero=byName.get(normalizeName(title));
