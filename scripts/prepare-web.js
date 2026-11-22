@@ -14,7 +14,8 @@ const requiredFiles = [
   'build-data-engine.js',
   'specializations.js',
   'patch-data-742.js',
-  'statsdota-guides.json'
+  'statsdota-guides.json',
+  'd2pt-primary-guides.json'
 ];
 
 for (const file of requiredFiles) {
