@@ -157,7 +157,7 @@ function mapD2ptSkillGuide(build,heroKey,heroAbilities,meta){
  // Dota grants attribute bonuses at levels without an ability/talent point.
  for(const level of [17,19,21,22,23,24])skillBuild.push({level,code:"A"});
  const talentRows=Array.isArray(bd.talents)?bd.talents:(Array.isArray(bd.ability_talents)?bd.ability_talents:[]);
- const talentChoices=talentRows.filter(t=>TALENT_LEVELS.includes(asNumber(t&&t.lvl??t&&t.level,-1))).map(t=>{
+ const talentChoices=talentRows.filter(t=>TALENT_LEVELS.includes(asNumber((t&&t.lvl)??(t&&t.level),-1))).map(t=>{
   const level=asNumber(t.lvl??t.level,0),left=t.left||null,right=t.right||null;
   const option=(x,side)=>x?{
    name:x.displayName||x.display_name||x.name||"Talento "+side,
@@ -165,7 +165,7 @@ function mapD2ptSkillGuide(build,heroKey,heroAbilities,meta){
   }:null;
   const l=option(left,"izquierdo"),r=option(right,"derecho");
   if(!l||!r)return null;
-  const choice=t.choice==="lt"?"left":t.choice==="rt"?"right":(Number(left.pick_rate??left.pr||0)>=Number(right.pick_rate??right.pr||0)?"left":"right");
+  const choice=t.choice==="lt"?"left":t.choice==="rt"?"right":(Number((left.pick_rate??left.pr)??0)>=Number((right.pick_rate??right.pr)??0)?"left":"right");
   const chosen=choice==="left"?l:r,chosenRate=pct((choice==="left"?left:right).pick_rate??(choice==="left"?left:right).pr);
   return{level,left:l,right:r,chosen:choice,reason:"Más elegido: "+chosen.name+" ("+(chosenRate??"—")+"%). "+chosen.reason};
  }).filter(Boolean);
