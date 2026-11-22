@@ -21,7 +21,7 @@ jobs:
           node --check skill-data-engine.js
           node --check build-data-engine.js
           node --check patch-data-742.js
-      - name: Test dynamic matrix and Pugna regressions
+      - name: Audit real guide coverage, dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
       - name: Test inventory ledger lifecycle and regressions
         run: |
@@ -31,8 +31,6 @@ jobs:
         run: node tests/match-clock.test.js
       - name: Test skill data extraction engine
         run: node tests/skill-data-engine.test.js
-      - name: Audit real hero guide coverage
-        run: node tests/skill-matrix.test.js
       - name: Test live build data engine
         run: node tests/build-data-engine.test.js
       - name: Test Dota 2 7.42 compatibility data
