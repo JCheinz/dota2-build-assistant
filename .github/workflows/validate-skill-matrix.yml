@@ -24,7 +24,8 @@ jobs:
       - name: Test dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
       - name: Test inventory ledger lifecycle and regressions
-        run: node tests/inventory-ledger.test.js
+        run: |
+          node tests/inventory-ledger.test.js
           node tests/item-icons.test.js
       - name: Test pausable match clock and phase boundaries
         run: node tests/match-clock.test.js
