@@ -1,104 +1,31 @@
 "use strict";
-const fs = require("node:fs");
-const path = require("node:path");
-const { createClient } = require("./stratz-api-client");
-
-const schemaPath = path.resolve("data/stratz-schema-audit.json");
-
-function graphType(type) {
-  return String(type || "").replace(/\s+/g, "");
+const fs=require("node:fs"); const path=require("node:path"); const {createClient}=require("./stratz-api-client");
+const schemaPath=path.resolve("data/stratz-schema-audit.json");
+const targets=[
+ {name:"itemStartingPurchase",alias:"startingItems",fields:["itemId","matchCount","winCount","winsAverage","wasGiven"]},
+ {name:"itemFullPurchase",alias:"purchasedItems",fields:["itemId","matchCount","winCount","winsAverage","time","position"]},
+ {name:"itemBootPurchase",alias:"boots",fields:["itemId","matchCount","winCount","winAverage","timeAverage"]},
+ {name:"itemNeutral",alias:"neutralItems",fields:["itemId","matchCount","winCount","equippedMatchCount","equippedMatchWinCount"]},
+ {name:"talent",alias:"talents",fields:["abilityId","matchCount","winCount","time","winsAverage","timeAverage"]},
+ {name:"abilityMinLevel",alias:"abilityMinLevel",fields:["abilityId","level","matchCount","winCount"]},
+ {name:"abilityMaxLevel",alias:"abilityMaxLevel",fields:["abilityId","level","matchCount","winCount"]}
+];
+async function main(){
+ if(!fs.existsSync(schemaPath)) throw new Error("Falta auditoría de esquema.");
+ const schema=JSON.parse(fs.readFileSync(schemaPath,"utf8")); const heroId=45; const selections=[]; const included=[];
+ for(const target of targets){const field=schema.candidates.find(x=>x.name===target.name); if(!field) continue;
+  const heroArg=field.args.find(a=>a.name==="heroId"); if(!heroArg) continue;
+  const available=target.fields.filter(name=>field.fields.some(x=>(typeof x==="string"?x:x.name)===name));
+  if(!available.length) continue;
+  const args=heroArg.required?`(heroId:$heroId)`:`(heroId:$heroId)`;
+  selections.push(`${target.alias}:${target.name}${args}{${available.join(" ")}}`); included.push({field:target.name,alias:target.alias,selected:available});
+ }
+ if(!selections.length) throw new Error("El esquema no ofrece campos consultables para Pugna.");
+ const heroArgType=schema.candidates.find(x=>x.name===included[0].field).args.find(a=>a.name==="heroId").type.replace(/!$/,"");
+ const query=`query PugnaBuildAudit($heroId:${heroArgType}!){heroStats{${selections.join("\n")}}}`;
+ const response=await createClient().graphql(query,{heroId}); const stats=response.heroStats;
+ const output={hero:"Pugna",heroId,source:"STRATZ GraphQL",queriedAt:new Date().toISOString(),schemaAudit:schema.inspectedAt,queryPlan:included,data:stats,hasAnyData:!!stats&&Object.values(stats).some(v=>Array.isArray(v)?v.length>0:v!=null)};
+ fs.mkdirSync(path.resolve("data"),{recursive:true}); fs.writeFileSync(path.resolve("data/stratz-pugna-probe.json"),JSON.stringify(output,null,2)+"\n"); console.log(JSON.stringify(output,null,2));
+ if(!output.hasAnyData) console.warn("STRATZ respondió sin datos para heroId 45 con los filtros predeterminados; no se fabricaron recomendaciones.");
 }
-
-async function main() {
-  if (!fs.existsSync(schemaPath)) {
-    throw new Error("Primero ejecutá npm run stratz:inspect para verificar el esquema real.");
-  }
-
-  const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
-  const required = [
-    {
-      name: "itemFullPurchase",
-      args: ["heroId", "minTime", "maxTime"],
-      fields: ["matchCount", "winCount", "winsAverage", "itemId"]
-    },
-    {
-      name: "talent",
-      args: ["heroId"],
-      fields: ["matchCount", "winCount", "abilityId"]
-    }
-  ];
-
-  for (const need of required) {
-    const found = schema.candidates.find(candidate => candidate.name === need.name);
-    if (!found) {
-      throw new Error("El esquema actual no confirma " + need.name + ". No se envían consultas especulativas.");
-    }
-    for (const arg of need.args) {
-      if (!found.args.some(candidate => candidate.name === arg)) {
-        throw new Error(need.name + " no confirma argumento " + arg);
-      }
-    }
-    for (const field of need.fields) {
-      if (!found.fields.includes(field)) {
-        throw new Error(need.name + " no confirma campo de respuesta " + field);
-      }
-    }
-  }
-
-  const item = schema.candidates.find(candidate => candidate.name === "itemFullPurchase");
-  const talent = schema.candidates.find(candidate => candidate.name === "talent");
-  const argType = (field, name) => graphType(field.args.find(arg => arg.name === name).type);
-  const heroType = argType(item, "heroId");
-
-  if (heroType !== argType(talent, "heroId")) {
-    throw new Error("El tipo de heroId no coincide entre consultas.");
-  }
-
-  // STRATZ schema requires heroId (Short!) for both fields.
-  const minType = argType(item, "minTime");
-  const maxType = argType(item, "maxTime");
-  const query = `
-    query PugnaBuildAudit($heroId: ${heroType}!, $minTime: ${minType}, $maxTime: ${maxType}) {
-      heroStats {
-        items: itemFullPurchase(heroId: $heroId, minTime: $minTime, maxTime: $maxTime) {
-          matchCount
-          winCount
-          winsAverage
-          itemId
-        }
-        talents: talent(heroId: $heroId) {
-          matchCount
-          winCount
-          abilityId
-        }
-      }
-    }
-  `;
-
-  const data = await createClient().graphql(query, {
-    heroId: 45,
-    minTime: 0,
-    maxTime: 999
-  });
-
-  const output = {
-    hero: "Pugna",
-    heroId: 45,
-    source: "STRATZ GraphQL",
-    queriedAt: new Date().toISOString(),
-    schemaAudit: schema.inspectedAt,
-    data: data.heroStats || data
-  };
-
-  fs.mkdirSync(path.resolve("data"), { recursive: true });
-  fs.writeFileSync(
-    path.resolve("data/stratz-pugna-probe.json"),
-    JSON.stringify(output, null, 2) + "\n"
-  );
-  console.log(JSON.stringify(output, null, 2));
-}
-
-main().catch(error => {
-  console.error(error.message);
-  process.exitCode = 1;
-});
+main().catch(e=>{console.error(e.message);process.exitCode=1;});
