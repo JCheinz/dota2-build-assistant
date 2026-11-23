@@ -67,4 +67,5 @@ async function main(){
  fs.writeFileSync(output,JSON.stringify(snapshot,null,2)+"\n");
  console.log(JSON.stringify({output,heroesListed:links.length,selected:selected.length,guideCount:count,currentPatchGuideCount,readyHeroes:Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).map(g=>({hero:g.heroName,role:g.role,roleGames:g.roleGames,levels:g.abilityOrder.length})),incomplete:incomplete.length,incompleteReasons:incomplete.reduce((a,x)=>(a[x.reason]=(a[x.reason]||0)+1,a),{}),errors:errors.length,patches:[...new Set(Object.values(guides).map(x=>x.patch).filter(Boolean))]},null,2));
 }
-if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1});\nmodule.exports={RateLimitError,fetchText};
+if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1});
+module.exports={RateLimitError,fetchText};
