@@ -32,8 +32,10 @@ jobs:
           node --check scripts/stratz-api-client.js
           node --check scripts/inspect-stratz-schema.js
           node --check scripts/stratz-query-plan.js
+          node --check scripts/stratz-normalize.js
           node --check scripts/probe-stratz-pugna.js
           node tests/stratz-query-plan.test.js
+          node tests/stratz-normalize.test.js
       - name: Inspect live STRATZ GraphQL schema
         env:
           STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
