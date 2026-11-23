@@ -43,11 +43,20 @@ No existe una sola fuente que entregue con la misma calidad el catálogo del jue
 - D2PT permanece deshabilitado hasta autorización expresa.
 - La fuente canónica de habilidades/talentos puede migrar gradualmente al Datafeed oficial de Valve; OpenDota/dotaconstants queda como respaldo/mapeo hasta completar pruebas comparativas de esquema.
 
+## Normalizador inicial implementado
+
+- `scripts/stratz-normalize.js` convierte compras e ítems neutrales a las etapas locales cuando el ID existe en el catálogo.
+- Conserva `abilityMinLevel`, `abilityMaxLevel` y `talent` como observaciones agregadas, sin transformarlas en orden de habilidades ni selección de talentos.
+- Verifica que la posición de cada fila coincida con la solicitada y exige que el parche se indique explícitamente.
+- Los IDs de objetos desconocidos quedan en `unmappedItems`; no se inventan nombres.
+- `hero-library-engine.js` conserva las observaciones en cada rol sin marcar cobertura de habilidades/talentos como completa.
+- Tests usan fixtures sintéticos; no equivalen a una validación con datos reales de STRATZ.
+
 ## Próximas validaciones antes de sincronizar 127 héroes
 
-1. Validar una única posición de Pugna en STRATZ y guardar respuesta cruda como artefacto.
+1. Validar una única posición de Pugna en STRATZ y guardar respuesta cruda como artefacto (pendiente de desbloquear IP estable).
 2. Documentar con ejemplos reales el significado de `abilityMinLevel`, `abilityMaxLevel`, `talent` y los campos de compras.
-3. Implementar y testear normalizador crudo → contrato de biblioteca.
+3. Implementar y testear normalizador crudo → contrato de biblioteca. (Implementado de forma conservadora; falta validarlo con una respuesta real STRATZ.)
 4. Validar las cinco posiciones de Pugna por separado.
 5. Solo entonces ampliar a los 127 héroes, con concurrencia 1, caché, snapshots atómicos y corte por errores/rate limit.
 
