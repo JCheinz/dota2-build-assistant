@@ -1,32 +1,70 @@
 "use strict";
-const fs=require("node:fs"); const path=require("node:path"); const {createClient}=require("./stratz-api-client");
-const schemaPath=path.resolve("data/stratz-schema-audit.json");
-// Query without week, rank or role filters first to test STRATZ aggregate defaults.
-const targets=[
- {name:"itemStartingPurchase",alias:"startingItems",fields:["itemId","matchCount","winCount","winsAverage","wasGiven"]},
- {name:"itemFullPurchase",alias:"purchasedItems",fields:["itemId","matchCount","winCount","winsAverage","time","position"]},
- {name:"itemBootPurchase",alias:"boots",fields:["itemId","matchCount","winCount","winAverage","timeAverage"]},
- {name:"itemNeutral",alias:"neutralItems",fields:["itemId","matchCount","winCount","equippedMatchCount","equippedMatchWinCount"]},
- {name:"talent",alias:"talents",fields:["abilityId","matchCount","winCount","time","winsAverage","timeAverage"]},
- {name:"abilityMinLevel",alias:"abilityMinLevel",fields:["abilityId","level","matchCount","winCount"]},
- {name:"abilityMaxLevel",alias:"abilityMaxLevel",fields:["abilityId","level","matchCount","winCount"]}
+const fs = require("node:fs");
+const path = require("node:path");
+const { createClient } = require("./stratz-api-client");
+
+const schemaPath = path.resolve("data/stratz-schema-audit.json");
+const HERO = { name: "Pugna", id: 45, position: "POSITION_2" };
+
+const selections = [
+  { alias: "startingItems", field: "itemStartingPurchase", args: "heroId: $heroId, positionIds: [$position]", fields: ["itemId", "instance", "wasGiven", "matchCount", "winCount", "winsAverage", "position"] },
+  { alias: "earlyItems", field: "itemFullPurchase", args: "heroId: $heroId, minTime: 1, maxTime: 15, positionIds: [$position]", fields: ["itemId", "instance", "time", "matchCount", "winCount", "winsAverage", "position"] },
+  { alias: "midItems", field: "itemFullPurchase", args: "heroId: $heroId, minTime: 16, maxTime: 30, positionIds: [$position]", fields: ["itemId", "instance", "time", "matchCount", "winCount", "winsAverage", "position"] },
+  { alias: "lateItems", field: "itemFullPurchase", args: "heroId: $heroId, minTime: 31, maxTime: 75, positionIds: [$position]", fields: ["itemId", "instance", "time", "matchCount", "winCount", "winsAverage", "position"] },
+  { alias: "boots", field: "itemBootPurchase", args: "heroId: $heroId, positionIds: [$position]", fields: ["itemId", "instance", "time", "timeAverage", "matchCount", "winCount", "winAverage", "position"] },
+  { alias: "neutralItems", field: "itemNeutral", args: "heroId: $heroId, positionIds: [$position]", fields: ["itemId", "matchCount", "winCount", "equippedMatchCount", "equippedMatchWinCount", "position"] },
+  { alias: "talents", field: "talent", args: "heroId: $heroId, positionIds: [$position]", fields: ["abilityId", "matchCount", "winCount", "time", "winsAverage", "timeAverage", "position"] },
+  { alias: "abilityMinLevel", field: "abilityMinLevel", args: "heroId: $heroId, positionIds: [$position]", fields: ["abilityId", "level", "matchCount", "winCount", "position"] },
+  { alias: "abilityMaxLevel", field: "abilityMaxLevel", args: "heroId: $heroId, positionIds: [$position]", fields: ["abilityId", "level", "matchCount", "winCount", "position"] }
 ];
-async function main(){
- if(!fs.existsSync(schemaPath)) throw new Error("Falta auditoría de esquema.");
- const schema=JSON.parse(fs.readFileSync(schemaPath,"utf8")); const heroId=45; const selections=[]; const included=[];
- for(const target of targets){const field=schema.candidates.find(x=>x.name===target.name); if(!field) continue;
-  const heroArg=field.args.find(a=>a.name==="heroId"); if(!heroArg) continue;
-  const available=target.fields.filter(name=>field.fields.some(x=>(typeof x==="string"?x:x.name)===name));
-  if(!available.length) continue;
-  const args=heroArg.required?`(heroId:$heroId)`:`(heroId:$heroId)`;
-  selections.push(`${target.alias}:${target.name}${args}{${available.join(" ")}}`); included.push({field:target.name,alias:target.alias,selected:available});
- }
- if(!selections.length) throw new Error("El esquema no ofrece campos consultables para Pugna.");
- const heroArgType=schema.candidates.find(x=>x.name===included[0].field).args.find(a=>a.name==="heroId").type.replace(/!$/,"");
- const query=`query PugnaBuildAudit($heroId:${heroArgType}!){heroStats{${selections.join("\n")}}}`;
- const response=await createClient().graphql(query,{heroId}); const stats=response.heroStats;
- const output={hero:"Pugna",heroId,source:"STRATZ GraphQL",queriedAt:new Date().toISOString(),schemaAudit:schema.inspectedAt,queryPlan:included,data:stats,hasAnyData:!!stats&&Object.values(stats).some(v=>Array.isArray(v)?v.length>0:v!=null)};
- fs.mkdirSync(path.resolve("data"),{recursive:true}); fs.writeFileSync(path.resolve("data/stratz-pugna-probe.json"),JSON.stringify(output,null,2)+"\n"); console.log(JSON.stringify(output,null,2));
- if(!output.hasAnyData) console.warn("STRATZ respondió sin datos para heroId 45 con los filtros predeterminados; no se fabricaron recomendaciones.");
+
+async function main() {
+  if (!fs.existsSync(schemaPath)) throw new Error("Falta auditoría de esquema.");
+  const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
+  const included = [];
+  const queryFields = [];
+
+  for (const entry of selections) {
+    const candidate = schema.candidates.find(x => x.name === entry.field);
+    if (!candidate) continue;
+    const heroArg = candidate.args.find(x => x.name === "heroId");
+    const positionArg = candidate.args.find(x => x.name === "positionIds");
+    if (!heroArg || !positionArg) continue;
+    const available = entry.fields.filter(name => candidate.fields.some(x => (typeof x === "string" ? x : x.name) === name));
+    if (!available.length) continue;
+    queryFields.push(entry.alias + ":" + entry.field + "(" + entry.args + "){" + available.join(" ") + "}");
+    included.push({ alias: entry.alias, field: entry.field, selected: available });
+  }
+
+  if (!queryFields.length) throw new Error("El esquema no ofrece campos consultables para Pugna y su posición.");
+  const heroType = schema.candidates.find(x => x.name === included[0].field).args.find(x => x.name === "heroId").type.replace(/!$/, "");
+  const query = `query PugnaPositionAudit($heroId: ${heroType}!, $position: MatchPlayerPositionType!) {
+    heroStats { ${queryFields.join("\n")} }
+  }`;
+
+  const response = await createClient().graphql(query, { heroId: HERO.id, position: HERO.position });
+  const data = response.heroStats || {};
+  const counts = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, Array.isArray(value) ? value.length : null]));
+  const hasAnyData = Object.values(data).some(value => Array.isArray(value) && value.length > 0);
+  const output = {
+    hero: HERO.name,
+    heroId: HERO.id,
+    position: HERO.position,
+    source: "STRATZ GraphQL",
+    queriedAt: new Date().toISOString(),
+    schemaAudit: schema.inspectedAt,
+    queryPlan: included,
+    counts,
+    data,
+    hasAnyData
+  };
+
+  fs.mkdirSync(path.resolve("data"), { recursive: true });
+  fs.writeFileSync(path.resolve("data/stratz-pugna-probe.json"), JSON.stringify(output, null, 2) + "\n");
+  console.log(JSON.stringify(output, null, 2));
+  if (!hasAnyData) throw new Error("STRATZ no devolvió registros para Pugna en " + HERO.position + "; no se generaron recomendaciones.");
+  if (!data.abilityMinLevel?.length && !data.abilityMaxLevel?.length) {
+    throw new Error("No hay registros de habilidades por nivel; Pugna aún no puede considerarse validada.");
+  }
 }
-main().catch(e=>{console.error(e.message);process.exitCode=1;});
+main().catch(error => { console.error(error.message); process.exitCode = 1; });
