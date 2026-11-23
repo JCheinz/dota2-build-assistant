@@ -34,7 +34,7 @@ jobs:
           node tests/item-icons.test.js
       - name: Test pausable match clock and phase boundaries
         run: node tests/match-clock.test.js
-      - name: Test STRATZ query plan by position
+      - name: Test STRATZ single-position query planner (schema and role isolation)
         run: node tests/stratz-query-plan.test.js
       - name: Test hero dictionary library
         run: node tests/hero-library-engine.test.js
