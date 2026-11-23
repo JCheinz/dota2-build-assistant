@@ -1,0 +1,53 @@
+name: STRATZ Pugna validation on stable egress
+on:
+  workflow_dispatch:
+    inputs:
+      position:
+        description: "Una posición por ejecución"
+        required: true
+        type: choice
+        default: POSITION_1
+        options:
+          - POSITION_1
+          - POSITION_2
+          - POSITION_3
+          - POSITION_4
+          - POSITION_5
+concurrency:
+  group: stratz-api-access
+  cancel-in-progress: false
+jobs:
+  pugna:
+    runs-on: self-hosted
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/statsdota-skill-guide-snapshot
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check STRATZ planner and normalizer
+        run: |
+          node --check scripts/stratz-api-client.js
+          node --check scripts/stratz-query-plan.js
+          node --check scripts/stratz-normalize.js
+          node --check scripts/probe-stratz-pugna.js
+          node tests/stratz-query-plan.test.js
+          node tests/stratz-normalize.test.js
+      - name: Inspect STRATZ schema from stable egress
+        env:
+          STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
+        run: npm run stratz:inspect
+      - name: Probe Pugna for one selected position
+        env:
+          STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
+        run: node scripts/probe-stratz-pugna.js --position=${{ inputs.position }}
+      - name: Preserve raw and normalized evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stratz-pugna-self-hosted-${{ inputs.position }}
+          path: data/
+          if-no-files-found: warn
+          retention-days: 14
