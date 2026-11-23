@@ -1,6 +1,14 @@
 name: STRATZ Pugna validation
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/statsdota-skill-guide-snapshot
+    paths:
+      - 'scripts/stratz-api-client.js'
+      - 'scripts/inspect-stratz-schema.js'
+      - 'scripts/probe-stratz-pugna.js'
+      - '.github/workflows/stratz-pugna-validation.yml'
 jobs:
   pugna:
     runs-on: ubuntu-latest
