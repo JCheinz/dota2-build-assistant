@@ -39,6 +39,8 @@ jobs:
         run: node tests/skill-data-engine.test.js
       - name: Test StatsDota guide parser
         run: node tests/statsdota-guide-sync.test.js
+      - name: Test StatsDota rate-limit circuit breaker
+        run: node tests/statsdota-sync-network.test.js
       - name: Test live build data engine
         run: node tests/build-data-engine.test.js
       - name: Test Dota 2 7.42 compatibility data
