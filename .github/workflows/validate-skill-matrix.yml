@@ -21,6 +21,7 @@ jobs:
           node --check scripts/statsdota-guide-sync.js
           node --check scripts/sync-statsdota-guides.js
           node --check scripts/stratz-query-plan.js
+          node --check scripts/stratz-normalize.js
           node --check scripts/sync-d2pt-primary-guides.js
           node --check skill-data-engine.js
           node --check hero-library-engine.js
@@ -36,6 +37,8 @@ jobs:
         run: node tests/match-clock.test.js
       - name: Test STRATZ single-position query planner (schema and role isolation)
         run: node tests/stratz-query-plan.test.js
+      - name: Test conservative STRATZ normalizer
+        run: node tests/stratz-normalize.test.js
       - name: Test hero dictionary library
         run: node tests/hero-library-engine.test.js
       - name: Test skill data extraction engine
