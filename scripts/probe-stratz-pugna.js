@@ -1,6 +1,7 @@
 "use strict";
 const fs=require("node:fs"); const path=require("node:path"); const {createClient}=require("./stratz-api-client");
 const schemaPath=path.resolve("data/stratz-schema-audit.json");
+// Query without week, rank or role filters first to test STRATZ aggregate defaults.
 const targets=[
  {name:"itemStartingPurchase",alias:"startingItems",fields:["itemId","matchCount","winCount","winsAverage","wasGiven"]},
  {name:"itemFullPurchase",alias:"purchasedItems",fields:["itemId","matchCount","winCount","winsAverage","time","position"]},
