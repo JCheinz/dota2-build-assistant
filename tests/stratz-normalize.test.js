@@ -43,4 +43,12 @@ assert.throws(() => normalizeStratzHeroPosition(raw, { position: "POSITION_6", p
 assert.throws(() => normalizeStratzHeroPosition(raw, { position: "POSITION_1", itemsById }), /Debe indicarse el parche/);
 assert.throws(() => normalizeStratzHeroPosition({ ...raw, earlyItems: [{ itemId: 50, position: "POSITION_2" }] }, { position: "POSITION_1", patch: "7.42", itemsById }), /devolvió POSITION_2/);
 assert.throws(() => normalizeStratzHeroPosition({ ...raw, talents: {} }, { position: "POSITION_1", patch: "7.42", itemsById }), /no-array: talents/);
+const library = require("../hero-library-engine");
+const heroDataset = { heroes: [{ id: 45, name: "npc_dota_hero_pugna", localized_name: "Pugna" }] };
+const built = library.buildHeroLibrary(heroDataset);
+assert.equal(library.mergeProviderHero(built, "npc_dota_hero_pugna", "Carry", normalized), true);
+const stored = library.getRoleBuild(built, "Pugna", "Carry");
+assert.equal(stored.skillObservations.length, 2);
+assert.equal(stored.talentObservations.length, 1);
+assert.equal(stored.coverage.skills, false);
 console.log("STRATZ normalizer tests passed.");
