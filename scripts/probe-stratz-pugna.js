@@ -40,7 +40,23 @@ async function main() {
     }
   }
 
-  if (!queryFields.length) throw new Error("El esquema no ofrece campos consultables para Pugna.");
+  const expected = POSITIONS.length * selections.length;
+  const missing = [];
+  for (const position of POSITIONS) {
+    for (const entry of selections) {
+      const alias = position.toLowerCase() + "_" + entry.alias;
+      if (!included.some(item => item.position === position && item.alias === alias)) {
+        missing.push(position + ":" + entry.alias);
+      }
+    }
+  }
+  if (missing.length) {
+    throw new Error("Esquema STRATZ incompleto para el probe; faltan " + missing.length + "/" + expected +
+      " combinaciones posición/categoría: " + missing.join(", "));
+  }
+  if (queryFields.length !== expected) {
+    throw new Error("Plan de consulta inesperado: " + queryFields.length + "/" + expected + " campos.");
+  }
   const query = `query PugnaAllPositionsAudit($heroId: Short!) { heroStats { ${queryFields.join("\n")} } }`;
   const response = await createClient().graphql(query, { heroId: HERO.id });
   const raw = response.heroStats || {};
@@ -54,9 +70,19 @@ async function main() {
       byPosition[position][name] = value;
     }
   }
+  const malformed = [];
+  for (const position of POSITIONS) {
+    for (const entry of selections) {
+      const value = byPosition[position][entry.alias];
+      if (!Array.isArray(value)) malformed.push(position + ":" + entry.alias);
+    }
+  }
+  if (malformed.length) {
+    throw new Error("Respuesta STRATZ incompleta: campos ausentes o no-array (" + malformed.join(", ") + ").");
+  }
   const counts = Object.fromEntries(Object.entries(byPosition).map(([position, values]) => [
     position,
-    Object.fromEntries(Object.entries(values).map(([key, value]) => [key, Array.isArray(value) ? value.length : null]))
+    Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value.length]))
   ]));
   const output = {
     hero: HERO.name,
