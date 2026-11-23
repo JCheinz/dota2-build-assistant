@@ -50,15 +50,18 @@ No existe una sola fuente que entregue con la misma calidad el catálogo del jue
 - Verifica que la posición de cada fila coincida con la solicitada y exige que el parche se indique explícitamente.
 - Los IDs de objetos desconocidos quedan en `unmappedItems`; no se inventan nombres.
 - `hero-library-engine.js` conserva las observaciones en cada rol sin marcar cobertura de habilidades/talentos como completa.
+- El probe de Pugna guarda primero la respuesta cruda y después el JSON normalizado, ambos como artefactos.
+- El parche por defecto se etiqueta `unverified`; solo se puede cambiar con `--patch=` cuando una consulta/criterio externo demuestre ese alcance.
 - Tests usan fixtures sintéticos; no equivalen a una validación con datos reales de STRATZ.
 
 ## Próximas validaciones antes de sincronizar 127 héroes
 
-1. Validar una única posición de Pugna en STRATZ y guardar respuesta cruda como artefacto (pendiente de desbloquear IP estable).
-2. Documentar con ejemplos reales el significado de `abilityMinLevel`, `abilityMaxLevel`, `talent` y los campos de compras.
-3. Implementar y testear normalizador crudo → contrato de biblioteca. (Implementado de forma conservadora; falta validarlo con una respuesta real STRATZ.)
+1. Registrar un runner self-hosted de GitHub Actions con salida de red estable y restringido a este repositorio.
+2. Ejecutar `.github/workflows/stratz-pugna-self-hosted.yml` para una sola posición de Pugna y guardar respuesta cruda/normalizada.
+3. Documentar con ejemplos reales el significado de `abilityMinLevel`, `abilityMaxLevel`, `talent` y los campos de compras.
 4. Validar las cinco posiciones de Pugna por separado.
 5. Solo entonces ampliar a los 127 héroes, con concurrencia 1, caché, snapshots atómicos y corte por errores/rate limit.
+
 
 ## Referencias técnicas
 
