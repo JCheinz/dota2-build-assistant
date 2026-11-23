@@ -14,7 +14,7 @@ for (const position of POSITIONS) {
   assert.equal(plan.position, position);
   assert.equal(plan.included.length, 9);
   assert.match(plan.query, new RegExp("positionIds: \\[" + position + "\\]"));
-  const requested = [...plan.query.matchAll(/positionIds: \\[([^\\]]+)\\]/g)].map(match => match[1]);
+  const requested = [...plan.query.matchAll(/positionIds: \[([^\]]+)\]/g)].map(match => match[1]);
   assert.equal(new Set(requested).size, 1, "una consulta no debe mezclar posiciones");
   assert.ok(requested.every(value => value === position));
 }
