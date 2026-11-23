@@ -1,0 +1,35 @@
+name: STRATZ Pugna validation
+on:
+  workflow_dispatch:
+jobs:
+  pugna:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/statsdota-skill-guide-snapshot
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check STRATZ integration syntax
+        run: |
+          node --check scripts/stratz-api-client.js
+          node --check scripts/inspect-stratz-schema.js
+          node --check scripts/probe-stratz-pugna.js
+      - name: Inspect live STRATZ GraphQL schema
+        env:
+          STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
+        run: npm run stratz:inspect
+      - name: Validate Pugna items and talents against STRATZ
+        env:
+          STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
+        run: node scripts/probe-stratz-pugna.js
+      - name: Preserve schema and Pugna evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stratz-pugna-validation
+          path: data/
+          if-no-files-found: warn
+          retention-days: 14
