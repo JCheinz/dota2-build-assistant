@@ -4,12 +4,35 @@ const engine=require("../build-data-engine.js");
 const items={blink:{id:1,dname:"Blink Dagger",cost:2250},phase_boots:{id:2,dname:"Phase Boots",cost:1500},magic_wand:{id:3,dname:"Magic Wand",cost:450}};
 const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}})();
 (async()=>{
+ const proxyCalls=[];
+ const proxied=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async(url,options)=>{
+  proxyCalls.push({url,options});
+  return{ok:true,json:async()=>({code:200,status:20000,data:{content:'[{"hero_id":96,"position":"pos 3"}]'}})};
+ });
+ assert.deepEqual(proxied,[{hero_id:96,position:"pos 3"}],"Jina wrapper content must be decoded into the original D2PT JSON");
+ const rateLimitCalls=[];
+ await assert.rejects(()=>engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async url=>{rateLimitCalls.push(url);return{ok:false,status:429,json:async()=>({})}}),/HTTP 429/);
+ assert.equal(rateLimitCalls.length,1,"A 429 must stop proxy/direct fallbacks so the caller can back off without multiplying requests");
+ const textProxy=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async()=>({ok:true,text:async()=> 'HTTP/1.1 200 OK\\n\\n[{"hero_id":96}]'}));
+ assert.deepEqual(textProxy,[{hero_id:96}],"Jina plain-text responses with an HTTP preamble must still parse the embedded JSON");
+
+ assert.ok(proxyCalls[0].url.startsWith("https://r.jina.ai/http://dota2protracker.com/api/"),"The HTTP-origin Jina route is the working public endpoint.");
+ const directCalls=[];
+ const direct=await engine.fetchD2ptJson("https://dota2protracker.com/api/hero/96/builds?position=pos%203",async(url)=>{
+  directCalls.push(url);
+  if(url.startsWith("https://r.jina.ai/"))return{ok:false,status:502};
+  return{ok:true,json:async()=>[{hero_id:96,position:"pos 3"}]};
+ });
+ assert.deepEqual(direct,[{hero_id:96,position:"pos 3"}],"Direct D2PT should remain a fallback if the proxy is unavailable");
+ assert.equal(directCalls.length,3,"Both Jina routes must be attempted before the direct endpoint.");
  engine.clear();
  const calls=[];
  const d2pt=async url=>{
   calls.push(url);
-  if(url.endsWith("/constants/items"))return{ok:true,json:async()=>items};
-  if(url.endsWith("/constants/hero_abilities"))return{ok:true,json:async()=>({"npc_dota_hero_axe":{abilities:["axe_berserkers_call","axe_battle_hunger","axe_counter_helix","generic_hidden","generic_hidden","axe_culling_blade"],talents:[]}})};
+  if(url.endsWith("/constants/items"))return{ok:false,status:403};
+  if(url.endsWith("/items.json"))return{ok:true,json:async()=>items};
+  if(url.endsWith("/constants/hero_abilities"))return{ok:false,status:403};
+  if(url.endsWith("/hero_abilities.json"))return{ok:true,json:async()=>({"npc_dota_hero_axe":{abilities:["axe_berserkers_call","axe_battle_hunger","axe_counter_helix","generic_hidden","generic_hidden","axe_culling_blade"],talents:[]}})};
   if(url.includes("/hero/2/builds?position=pos%203"))return{ok:true,json:async()=>[null,{hero_id:2,position:"pos 3",num_matches:120,num_wins:66,win_rate:.55,updated_at:"2026-11-21T08:00:00Z",build_data:{
    anchor_items:[null,{raw_item_id:2,avg_minute:6.5,rel_pr:.9,rel_count:110},{raw_item_id:1,avg_minute:15.2,rel_pr:.7,rel_count:84}],
    abilities:[{ability_id:10,name:"axe_berserkers_call"},{ability_id:11,name:"axe_battle_hunger"},{ability_id:12,name:"axe_counter_helix"},{ability_id:13,name:"axe_culling_blade"}],
@@ -25,6 +48,7 @@ const storage=(()=>{const data=new Map();return{getItem:k=>data.get(k)||null,set
  };
  const live=await engine.loadHeroBuild({heroId:2,heroName:"Axe",heroKey:"npc_dota_hero_axe",role:"Offlane",patch:"7.42",patchReleaseDate:"2026-11-18",fetch:d2pt,storage});
  assert.equal(live.source,"Dota2ProTracker");
+ assert.ok(calls.some(url=>url.startsWith("https://r.jina.ai/http://dota2protracker.com/")||url.startsWith("https://r.jina.ai/https://dota2protracker.com/")),"D2PT data should try the HTTP-origin CORS-compatible proxy before direct fallback");
  assert.equal(live.scope,"posición");
  assert.equal(live.matches,120);
  assert.equal(live.quality,"alta");

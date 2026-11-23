@@ -1,0 +1,26 @@
+name: Audit Dota2ProTracker hero-position coverage
+on:
+  workflow_dispatch:
+concurrency:
+  group: d2pt-coverage-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check audit script syntax
+        run: node --check scripts/audit-d2pt-hero-positions.js
+      - name: Audit all heroes and all five positions
+        run: node scripts/audit-d2pt-hero-positions.js --output=/tmp/d2pt-hero-position-audit.json
+      - name: Upload complete position audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: d2pt-hero-position-audit
+          path: /tmp/d2pt-hero-position-audit.json
+          if-no-files-found: error
+          retention-days: 30

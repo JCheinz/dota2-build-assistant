@@ -1,23 +1,29 @@
 name: Probe StatsDota hero guide feed
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'scripts/probe-statsdota-guides.js'
-      - '.github/workflows/probe-statsdota.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/probe-statsdota-guides.js'
-      - '.github/workflows/probe-statsdota.yml'
   workflow_dispatch:
+concurrency:
+  group: primary-hero-guide-sync
+  cancel-in-progress: false
 jobs:
   probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feature/statsdota-skill-guide-snapshot
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Inspect public guide pages and skill order markup
         run: node scripts/probe-statsdota-guides.js
+      - name: Audit all StatsDota hero guides
+        run: node scripts/sync-statsdota-guides.js --output=statsdota-guides.json
+      - name: Preserve complete audit snapshot and incomplete list
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: statsdota-hero-guide-audit
+          path: statsdota-guides.json
+          if-no-files-found: error
+          retention-days: 14

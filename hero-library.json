@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "dota2-hero-dictionary",
+  "description": "Índice persistente. Los registros detallados se generan desde constantes oficiales y proveedores estadísticos validados; no se rellenan con datos inventados.",
+  "generatedAt": null,
+  "patch": null,
+  "heroCount": 0,
+  "roles": ["Carry", "Mid", "Offlane", "Support 4", "Support 5"],
+  "stages": ["starting", "laning", "early", "core", "late", "situational", "neutral"],
+  "heroes": {}
+}

@@ -2,7 +2,8 @@
 "use strict";
 const OPENDOTA="https://api.opendota.com/api";
 const D2PT="https://dota2protracker.com/api";
-const CACHE_KEY="dota-build-live-data-v5";
+const DOTACONSTANTS="https://raw.githubusercontent.com/odota/dotaconstants/master/build";
+const CACHE_KEY="dota-build-live-data-v6";
 const CACHE_TTL=6*60*60*1000;
 const memory=new Map();
 let itemConstantsPromise=null;
@@ -18,24 +19,69 @@ async function fetchJson(url,fetchImpl,timeoutMs=11000){
   return await response.json();
  }finally{if(timer)clearTimeout(timer)}
 }
+async function fetchD2ptProxyJson(url,fetchImpl){
+ const response=await fetchImpl(url,{cache:"no-store",headers:{Accept:"application/json, text/plain"}});
+ if(!response||!response.ok)throw new Error("HTTP "+(response&&response.status||"desconocido"));
+ let raw;
+ if(typeof response.text==="function"){
+  const text=await response.text();
+  try{raw=JSON.parse(text)}catch(error){
+   const status=text.match(/\b(429|403|502)\b/);
+   if(status)throw new Error("HTTP "+status[1]);
+   const starts=[text.indexOf("{"),text.indexOf("[")].filter(x=>x>=0);const start=starts.length?Math.min(...starts):-1;
+   if(start>=0){try{raw=JSON.parse(text.slice(start))}catch(_){throw error}}else throw error;
+  }
+ }else raw=await response.json();
+ if(Array.isArray(raw)||Array.isArray(raw&&raw.builds))return raw;
+ const body=raw&&raw.data&&raw.data.content;
+ if(typeof body==="string"){
+  const parsed=JSON.parse(body);
+  if(Array.isArray(parsed)||Array.isArray(parsed&&parsed.builds))return parsed;
+ }
+ throw new Error("Jina no devolvió el JSON esperado de Dota2ProTracker.");
+}
+async function fetchD2ptJson(url,fetchImpl){
+ const target=url.replace(/^http:\/\//,"https://");
+ const proxyUrls=[
+  "https://r.jina.ai/http://"+target.split("://").slice(1).join("://"),
+  "https://r.jina.ai/https://"+target.split("://").slice(1).join("://")
+ ];
+ let proxyError=null;
+ for(const proxyUrl of proxyUrls){
+  try{
+   return await fetchD2ptProxyJson(proxyUrl,fetchImpl);
+  }catch(error){proxyError=error;if(/HTTP 429/.test(String(error&&error.message||error)))throw new Error("Dota2ProTracker temporalmente limitado por HTTP 429; reintentar con espera antes de probar otra ruta.");}
+ }
+ try{return await fetchJson(target,fetchImpl,12000)}
+ catch(directError){throw new Error("Dota2ProTracker vía proxy: "+(proxyError&&proxyError.message||"sin respuesta")+" · acceso directo: "+directError.message)}
+}
 function readCache(storage,key){
  try{const raw=storage&&storage.getItem(key);if(!raw)return null;const v=JSON.parse(raw);return v&&v.savedAt&&Date.now()-v.savedAt<CACHE_TTL?v.data:null}catch(_){return null}
 }
 function writeCache(storage,key,data){
  try{if(storage)storage.setItem(key,JSON.stringify({savedAt:Date.now(),data}))}catch(_){}
 }
+function normalizeItemConstants(data){
+ const byId={},byName={};
+ for(const[key,value]of Object.entries(data||{})){
+  if(!value||typeof value!=="object")continue;
+  const id=asNumber(value.id,-1),display=value.dname||value.display_name||value.name||key;
+  if(id>=0)byId[id]={key,name:display,cost:asNumber(value.cost,0)};
+  byName[key]={key,name:display,id,cost:asNumber(value.cost,0)};
+ }
+ if(!Object.keys(byId).length)throw new Error("Catálogo de objetos vacío o inválido.");
+ return{byId,byName};
+}
 async function loadItemConstants(fetchImpl,baseUrl){
  if(itemConstantsPromise)return itemConstantsPromise;
- itemConstantsPromise=fetchJson(baseUrl+"/constants/items",fetchImpl).then(data=>{
-  const byId={},byName={};
-  for(const[key,value]of Object.entries(data||{})){
-   if(!value||typeof value!=="object")continue;
-   const id=asNumber(value.id,-1),display=value.dname||value.display_name||value.name||key;
-   if(id>=0)byId[id]={key,name:display,cost:asNumber(value.cost,0)};
-   byName[key]={key,name:display,id,cost:asNumber(value&&value.cost,0)};
+ itemConstantsPromise=(async()=>{
+  let lastError=null;
+  for(const url of [baseUrl+"/constants/items",DOTACONSTANTS+"/items.json"]){
+   try{return normalizeItemConstants(await fetchJson(url,fetchImpl,20000))}
+   catch(error){lastError=error}
   }
-  return{byId,byName};
- }).catch(error=>{itemConstantsPromise=null;throw error});
+  throw lastError||new Error("No se pudo cargar el catálogo de objetos.");
+ })().catch(error=>{itemConstantsPromise=null;throw error});
  return itemConstantsPromise;
 }
 function mapD2ptItems(build,constants){
@@ -73,7 +119,14 @@ function phaseItems(payload,constants){
 let heroAbilityConstantsPromise=null;
 async function loadHeroAbilityConstants(fetchImpl,baseUrl){
  if(heroAbilityConstantsPromise)return heroAbilityConstantsPromise;
- heroAbilityConstantsPromise=fetchJson(baseUrl+"/constants/hero_abilities",fetchImpl).catch(error=>{heroAbilityConstantsPromise=null;throw error});
+ heroAbilityConstantsPromise=(async()=>{
+  let lastError=null;
+  for(const url of [baseUrl+"/constants/hero_abilities",DOTACONSTANTS+"/hero_abilities.json"]){
+   try{return await fetchJson(url,fetchImpl,20000)}
+   catch(error){lastError=error}
+  }
+  throw lastError||new Error("No se pudo cargar la asignación de habilidades.");
+ })().catch(error=>{heroAbilityConstantsPromise=null;throw error});
  return heroAbilityConstantsPromise;
 }
 const ABILITY_LEVELS=[1,2,3,4,5,6,7,8,9,11,12,13,14,16,18];
@@ -198,7 +251,7 @@ async function loadHeroBuild(options){
  let d2ptError=null,constants=null;
  try{
   const [raw,items]=await Promise.all([
-   fetchJson(d2ptBase+"/hero/"+heroId+"/builds?position=pos%20"+position,fetchImpl),
+   fetchD2ptJson(d2ptBase+"/hero/"+heroId+"/builds?position=pos%20"+position,fetchImpl),
    loadItemConstants(fetchImpl,base)
   ]);
   constants=items;
@@ -239,7 +292,7 @@ function get(heroId,role,patch){
  return memory.get(key)||readCache(root&&root.localStorage,CACHE_KEY+":"+key)||null;
 }
 function clear(){memory.clear();itemConstantsPromise=null;heroAbilityConstantsPromise=null}
-const api={version:"1.2.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,cacheTtl:CACHE_TTL};
+const api={version:"1.6.0",rolePosition,loadHeroBuild,get,clear,mapD2ptSkillGuide,fetchD2ptJson,cacheTtl:CACHE_TTL};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.DotaBuildDataEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

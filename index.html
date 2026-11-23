@@ -230,7 +230,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.59 · PARCHE 7.42</div></header>
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.60 · PARCHE 7.42</div></header>
   <section class="panel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
@@ -300,10 +300,11 @@
 <script src="./match-clock.js?v=359"></script>
 <script src="./item-icons.js?v=1"></script>
 <script src="./inventory-ledger.js?v=359"></script>
-<script src="./skill-data-engine.js?v=358"></script>
+<script src="./skill-data-engine.js?v=364"></script>
+<script src="./hero-library-engine.js?v=1"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
-<script src="./build-data-engine.js?v=7425"></script>
+<script src="./build-data-engine.js?v=7428"></script>
 <script>
 const API='https://api.opendota.com/api/heroStats';
 const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
@@ -591,11 +592,13 @@ function getHeroSpecialization(hero,role){
  const localGuide=window.DOTA_HERO_SPECIALIZATIONS?.[hero.name.replace("npc_dota_hero_","")+"|"+role]?.guide||null;
  const liveBuild=plan?.liveData||null;
  const liveGuide=liveBuild?.guide||null;
- const fallbackGuide=!liveGuide&&!localGuide?window.DotaSkillDataEngine?.createFallbackGuide(hero.name,hero.localized_name,role,window.DOTA_PATCH_742?.patch)||null:null;
- // Orden de prioridad: datos vivos por posición, guía manual validada y, por último, cobertura oficial provisional.
- const guide=liveGuide?{...(localGuide||{}),...liveGuide,combos:localGuide?.combos||liveGuide.combos||[],positioning:localGuide?.positioning||liveGuide.positioning||"",mechanics:localGuide?.mechanics||liveGuide.mechanics||"",caveats:localGuide?.caveats||liveGuide.caveats||"",metadata:liveGuide.metadata}:localGuide||fallbackGuide;
- const level=liveGuide?"GUÍA ESTADÍSTICA POR POSICIÓN":localGuide?"GUÍA INDIVIDUAL COMPLETA":fallbackGuide?"MATRIZ BASE · PENDIENTE DE VALIDACIÓN POR POSICIÓN":liveBuild?"BUILD ESTADÍSTICA ACTUALIZADA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
- const source=liveGuide?"Orden de habilidades y talentos obtenidos de Dota2ProTracker para esta posición; nombres y slots validados con OpenDota.":localGuide?"Guía individual cargada para este héroe y posición.":fallbackGuide?"Habilidades, iconos y cuatro parejas de talentos identificados en dotaconstants. La progresión Q/W/E/R es provisional y no se presenta como estadística de alto MMR.":liveBuild?(liveBuild.source+" · "+(liveBuild.scope==="posición"?"datos por posición":"datos generales sin separación por posición")+" · "+(liveBuild.matches?liveBuild.matches.toLocaleString("es-AR")+" partidas":"muestra sin tamaño informado")):plan?"Existe una ruta individual local de respaldo, pero todavía no una guía completa de habilidades y talentos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
+ const d2ptPrimaryGuide=!liveGuide?window.DotaSkillDataEngine?.createD2ptPrimaryGuide(hero.name,hero.localized_name,role,window.DOTA_PATCH_742?.patch)||null:null;
+ const statsDotaGuide=!liveGuide&&!d2ptPrimaryGuide?window.DotaSkillDataEngine?.createStatsDotaGuide(hero.name,hero.localized_name,role,window.DOTA_PATCH_742?.patch)||null:null;
+ const fallbackGuide=!liveGuide&&!d2ptPrimaryGuide&&!statsDotaGuide&&!localGuide?window.DotaSkillDataEngine?.createFallbackGuide(hero.name,hero.localized_name,role,window.DOTA_PATCH_742?.patch)||null:null;
+ // Prioridad: D2PT en vivo, snapshot D2PT del rol principal, StatsDota, guía manual y matriz provisional.
+ const guide=liveGuide?{...(localGuide||{}),...liveGuide,combos:localGuide?.combos||liveGuide.combos||[],positioning:localGuide?.positioning||liveGuide.positioning||"",mechanics:localGuide?.mechanics||liveGuide.mechanics||"",caveats:liveGuide.caveats||localGuide?.caveats||"",metadata:liveGuide.metadata}:d2ptPrimaryGuide?{...(localGuide||{}),...d2ptPrimaryGuide,combos:localGuide?.combos||d2ptPrimaryGuide.combos||[],positioning:d2ptPrimaryGuide.positioning||localGuide?.positioning||"",mechanics:localGuide?.mechanics||d2ptPrimaryGuide.mechanics||"",caveats:d2ptPrimaryGuide.caveats||localGuide?.caveats||"",metadata:d2ptPrimaryGuide.metadata}:statsDotaGuide?{...(localGuide||{}),...statsDotaGuide,combos:localGuide?.combos||statsDotaGuide.combos||[],positioning:localGuide?.positioning||statsDotaGuide.positioning||"",mechanics:localGuide?.mechanics||statsDotaGuide.mechanics||"",caveats:statsDotaGuide.caveats||localGuide?.caveats||"",metadata:statsDotaGuide.metadata}:localGuide||fallbackGuide;
+ const level=liveGuide?"GUÍA ESTADÍSTICA POR POSICIÓN":d2ptPrimaryGuide?"GUÍA ESTADÍSTICA D2PT · ROL PRINCIPAL":statsDotaGuide?"GUÍA ESTADÍSTICA · ROL PRINCIPAL":localGuide?"GUÍA INDIVIDUAL COMPLETA":fallbackGuide?"MATRIZ BASE · PENDIENTE DE VALIDACIÓN POR POSICIÓN":liveBuild?"BUILD ESTADÍSTICA ACTUALIZADA":plan?"RUTA INDIVIDUAL DE OBJETOS":"PERFIL POR ARQUETIPO";
+ const source=liveGuide?"Orden de habilidades y talentos obtenidos de Dota2ProTracker para esta posición; nombres y slots validados con OpenDota.":d2ptPrimaryGuide?"Secuencia y talentos sincronizados desde Dota2ProTracker para la posición principal del héroe. No se extrapola a otros roles.":statsDotaGuide?"Secuencia de habilidades StatsDota para su rol principal, con muestra, parche y fecha; talentos oficiales identificados por dotaconstants. No se extrapola a otra posición.":localGuide?"Guía individual cargada para este héroe y posición.":fallbackGuide?"Habilidades, iconos y cuatro parejas de talentos identificados en dotaconstants. La progresión Q/W/E/R es provisional y no se presenta como estadística de alto MMR.":liveBuild?(liveBuild.source+" · "+(liveBuild.scope==="posición"?"datos por posición":"datos generales sin separación por posición")+" · "+(liveBuild.matches?liveBuild.matches.toLocaleString("es-AR")+" partidas":"muestra sin tamaño informado")):plan?"Existe una ruta individual local de respaldo, pero todavía no una guía completa de habilidades y talentos.":"Inferencia conservadora desde atributo, alcance y roles del catálogo; no equivale a una guía individual.";
  return {heroId:hero.name.replace("npc_dota_hero_",""),heroName:hero.localized_name,role,identity,style,strengths:strengths.slice(0,4),risks:risks.slice(0,2),plan,guide,level,source,principle:plan?plan.note:"La ruta de compra debe ajustarse a su función, fase de partida, draft e inventario. No se inventan habilidades, combos ni talentos cuando no hay un perfil verificado."};
 }
 
@@ -623,7 +626,7 @@ function renderSpecializationGuide(g){
   const talents=(g.talentChoices||[]).map(t=>'<div class="item-card talent-tree-card" style="display:block;margin:8px 0"><b class="talent-tree-heading"><span class="talent-tree-icon">✥</span>Nivel '+t.level+' · elegí según la partida</b><div class="talent-tree-options"><div class="talent-option"><b>◀ '+esc(t.left.name)+'</b><p class="hint">'+esc(t.left.reason)+'</p></div><div class="talent-option"><b>'+esc(t.right.name)+' ▶</b><p class="hint">'+esc(t.right.reason)+'</p></div></div></div>').join('');
  const metadata=g.metadata&&typeof g.metadata==="object"?g.metadata:null;
  const metadataSources=Array.isArray(metadata?.source)?metadata.source:[metadata?.source].filter(Boolean);
- const metadataBlock=metadata?'<div class="hint" style="margin:5px 0 12px;padding:8px 10px;border:1px solid #344153;border-radius:9px;background:#111a24"><b>Datos de guía:</b> '+esc(metadata.patch||"Parche no especificado")+(metadata.patch&&metadata.patch!=="7.42"?' · GUÍA ANTERIOR: revisar para 7.42':"")+(metadata.role?' · '+esc(metadata.role):'')+(metadata.confidence?' · confianza: '+esc(metadata.confidence):'')+(metadata.matches?' · '+Number(metadata.matches).toLocaleString("es-AR")+' partidas':'')+(metadata.updatedAt?' · actualizado '+new Date(metadata.updatedAt).toLocaleDateString("es-AR"):'')+(metadataSources.length?'<br><b>Fuentes:</b> '+metadataSources.map(esc).join(' · '):'')+(metadata.crossCheckUrl?'<br><a href="'+esc(metadata.crossCheckUrl)+'" target="_blank" rel="noopener">Contrastar guía y build en StatsDota</a>':'')+'</div>':"";
+ const metadataBlock=metadata?'<div class="hint" style="margin:5px 0 12px;padding:8px 10px;border:1px solid #344153;border-radius:9px;background:#111a24"><b>Datos de guía:</b> '+esc(metadata.patch||"Parche no especificado")+(metadata.patch&&metadata.patch!=="7.42"?' · GUÍA ANTERIOR: revisar para 7.42':"")+(metadata.role?' · '+esc(metadata.role):'')+(metadata.confidence?' · confianza: '+esc(metadata.confidence):'')+(metadata.matches?' · '+Number(metadata.matches).toLocaleString("es-AR")+' partidas totales':'')+(metadata.roleGames?' · '+Number(metadata.roleGames).toLocaleString("es-AR")+' en este rol':'')+(metadata.levelsCovered?' · '+metadata.levelsCovered+' niveles con secuencia':'')+(metadata.updatedAt?' · actualizado '+new Date(metadata.updatedAt).toLocaleDateString("es-AR"):'')+(metadataSources.length?'<br><b>Fuentes:</b> '+metadataSources.map(esc).join(' · '):'')+(metadata.crossCheckUrl?'<br><a href="'+esc(metadata.crossCheckUrl)+'" target="_blank" rel="noopener">Contrastar guía y build en StatsDota</a>':'')+'</div>':"";
  const innateAbilities=Array.isArray(g.innateAbilities)?g.innateAbilities:[];
  const innateBlock=innateAbilities.length?'<h3>Habilidades innatas</h3>'+innateAbilities.map(a=>'<div class="item-card" style="margin:7px 0"><div class="item-icon-fallback">✦</div><div class="item-copy"><b>'+esc(a.name||"Habilidad innata")+'</b><span>'+esc(a.description||"Descripción no disponible.")+'</span></div></div>').join(''):"";
  const additionalAbilities=Array.isArray(g.additionalAbilities)?g.additionalAbilities:[];
@@ -2501,11 +2504,13 @@ $('loadSkillDatabase').addEventListener('click',async()=>{
  try{
   const dataset=await window.DotaSkillDataEngine.load({force:true});
   const coverage=window.DotaSkillDataEngine.getCoverage(dataset);
+  const heroLibrary=window.DotaHeroLibrary.buildHeroLibrary(dataset,{statsDota:dataset.statsDotaGuides,d2pt:dataset.d2ptPrimaryGuides});
+  window.DOTA_HERO_LIBRARY=heroLibrary;
   badge.textContent=coverage.metadataCoverage+'% de metadatos';
   const specializationEntries=Object.entries(window.DOTA_HERO_SPECIALIZATIONS||{});
   const specializedHeroes=new Set(specializationEntries.map(([key])=>key.split("|")[0]));
   const oldPatchProfiles=specializationEntries.filter(([,value])=>/7\.41/.test(value&&value.guide&&value.guide.title||"")).length;
-  status.textContent='Fuentes: dotaconstants / OpenDota · '+dataset.counts.heroes+' héroes · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.skillReady+'/'+coverage.heroes+' con 4 habilidades identificadas · '+coverage.talentReady+'/'+coverage.heroes+' con 4 tiers de talentos · '+coverage.fullReady+'/'+coverage.heroes+' con matriz de metadatos completa · '+coverage.missingMetadataSlots+' entradas sin metadatos. Guías individuales desarrolladas: '+specializedHeroes.size+'/'+coverage.heroes+' héroes y '+specializationEntries.length+' perfiles por posición; '+oldPatchProfiles+' perfiles aún citan 7.41.';
+  status.textContent='Diccionario: '+heroLibrary.heroCount+' héroes · 5 posiciones por héroe · Fuentes: dotaconstants / OpenDota · '+dataset.counts.heroes+' héroes · '+coverage.abilitySlots+' ranuras de habilidades · '+coverage.talentSlots+' talentos · '+coverage.skillReady+'/'+coverage.heroes+' con 4 habilidades identificadas · '+coverage.talentReady+'/'+coverage.heroes+' con 4 tiers de talentos · '+coverage.fullReady+'/'+coverage.heroes+' con matriz de metadatos completa · '+coverage.missingMetadataSlots+' entradas sin metadatos. Guías StatsDota con secuencia: '+(coverage.statsDotaSkillGuides||0)+'/'+coverage.heroes+' héroes para su rol principal. Guías individuales desarrolladas: '+specializedHeroes.size+'/'+coverage.heroes+' héroes y '+specializationEntries.length+' perfiles por posición; '+oldPatchProfiles+' perfiles aún citan 7.41.';
   button.textContent='Actualizar nuevamente';
  }catch(error){badge.textContent='Error de carga';status.textContent='No se pudo completar la descarga: '+error.message;button.textContent='Reintentar descarga';}
  finally{button.disabled=false;}

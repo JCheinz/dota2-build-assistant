@@ -8,7 +8,9 @@
     "check:android": "node --check scripts/prepare-web.js && node --check capacitor.config.js",
     "android:add": "npx cap add android",
     "android:sync": "npm run build:web && npx cap sync android",
-    "android:open": "npx cap open android"
+    "android:open": "npx cap open android",
+    "stratz:inspect": "node scripts/inspect-stratz-schema.js",
+    "stratz:pugna": "npm run stratz:inspect && node scripts/probe-stratz-pugna.js"
   },
   "dependencies": {
     "@capacitor/android": "8.6.2",
