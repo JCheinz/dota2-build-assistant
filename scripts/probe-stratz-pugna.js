@@ -13,7 +13,7 @@ function arg(name, fallback) {
   const item = process.argv.find(x => x.startsWith(prefix));
   return item ? item.slice(prefix.length) : fallback;
 }
-function outputDate() { return new Date().toISOString(); }\nasync function main() {
+async function main() {
   if (!fs.existsSync(schemaPath)) throw new Error("Falta auditoría de esquema; ejecutar primero npm run stratz:inspect.");
   const position = arg("position", "POSITION_1");
   const patch = arg("patch", "unverified");
@@ -31,12 +31,18 @@ function outputDate() { return new Date().toISOString(); }\nasync function main(
   }
   if (malformed.length) throw new Error("Respuesta STRATZ incompleta para " + position + ": " + malformed.join(", "));
   const counts = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value.length]));
+  const itemsResponse = await fetch(ITEM_CONSTANTS_URL, { headers: { Accept: "application/json" } });
+  if (!itemsResponse.ok) throw new Error("No se pudo cargar catálogo de objetos para normalizar: HTTP " + itemsResponse.status);
+  const itemsById = await itemsResponse.json();
+  const queriedAt = new Date().toISOString();
+  const normalized = normalizeStratzHeroPosition(data, { position, patch, updatedAt: queriedAt, itemsById });
   const output = {
     hero: HERO.name,
     heroId: HERO.id,
     position,
     source: "STRATZ GraphQL",
-    queriedAt: new Date().toISOString(),
+    queriedAt,
+    patchScope: patch === "unverified" ? "unverified" : "externally-asserted",
     schemaAudit: schema.inspectedAt,
     queryPlan: plan.included,
     counts,
@@ -44,8 +50,19 @@ function outputDate() { return new Date().toISOString(); }\nasync function main(
   };
   fs.mkdirSync(path.resolve("data"), { recursive: true });
   const outputPath = path.resolve("data", "stratz-pugna-" + position.toLowerCase() + ".json");
+  const normalizedPath = path.resolve("data", "stratz-pugna-" + position.toLowerCase() + "-normalized.json");
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2) + "\n");
-  console.log(JSON.stringify({ output: outputPath, hero: HERO.name, position, counts }, null, 2));
+  fs.writeFileSync(normalizedPath, JSON.stringify(normalized, null, 2) + "\n");
+  console.log(JSON.stringify({
+    output: outputPath,
+    normalizedOutput: normalizedPath,
+    hero: HERO.name,
+    position,
+    patchScope: patch,
+    counts,
+    normalizedCoverage: normalized.coverage,
+    unmappedItems: normalized.unmappedItems.length
+  }, null, 2));
   const anyData = Object.values(data).some(value => value.length > 0);
   if (!anyData) throw new Error("STRATZ no devolvió registros para Pugna / " + position + ".");
 }
