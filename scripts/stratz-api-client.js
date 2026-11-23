@@ -51,7 +51,7 @@ function createClient(options = {}) {
       if (!response.ok) {
         let detail = "";
         try {
-          detail = (await response.text()).slice(0, 600).replace(/Bearer\\s+[^\\s"']+/gi, "Bearer [REDACTED]");
+          detail = (await response.text()).slice(0, 600).replace(/Bearer\s+[^\s"']+/gi, "Bearer [REDACTED]");
         } catch (_) {
           detail = "";
         }
