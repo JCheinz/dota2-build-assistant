@@ -5,14 +5,26 @@ const BASE="https://statsdota.com/en/guides";
 const CURRENT_PATCH="7.42";
 const CONSTANTS="https://raw.githubusercontent.com/odota/dotaconstants/master/build";
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+class RateLimitError extends Error{
+ constructor(url,retryAfter){super("HTTP 429 rate limit for "+url+(retryAfter?" · Retry-After "+retryAfter+"s":""));this.name="RateLimitError";this.retryAfter=retryAfter||null;}
+}
 async function fetchText(url,attempts=3){
  let last;
  for(let attempt=0;attempt<attempts;attempt++){
   try{
    const response=await fetch(url,{headers:{"User-Agent":"Mozilla/5.0 Dota2BuildAssistant/1.0","Accept":"text/html,application/json"}});
+   if(response.status===429){
+    const retryAfter=Number(response.headers.get("retry-after"))||null;
+    throw new RateLimitError(url,retryAfter);
+   }
+   if(response.status===403)throw new Error("HTTP 403 forbidden for "+url+" · no se reintentará");
    if(!response.ok)throw new Error("HTTP "+response.status+" for "+url);
    return await response.text();
-  }catch(error){last=error;if(attempt+1<attempts)await sleep(1500*(attempt+1))}
+  }catch(error){
+   last=error;
+   if(error instanceof RateLimitError)throw error;
+   if(attempt+1<attempts)await sleep(2000*Math.pow(2,attempt));
+  }
  }
  throw last||new Error("Fetch failed: "+url);
 }
@@ -39,7 +51,14 @@ async function main(){
    if(guide&&guide.status==="ready")guides[link.hero.name]=guide;
    else incomplete.push({hero:link.hero.name,heroName:link.hero.localized_name,slug:link.slug,role:guide&&guide.role||null,roleGames:guide&&guide.roleGames||0,positionCounts:guide&&guide.positionCounts||[],patch:guide&&guide.patch||null,matches:guide&&guide.matches||0,updatedAt:guide&&guide.updatedAt||null,sourceUrl:url,reason:guide&&guide.incompleteReason||(!guide?"unparseable guide page":"no usable skill sequence")});
    if((i+1)%20===0)console.log("Fetched "+(i+1)+"/"+selected.length+" · guides with skill order: "+Object.keys(guides).length);
-  }catch(error){errors.push({hero:link.hero.name,error:String(error)});console.warn("Skipped "+link.hero.localized_name+": "+String(error))}
+  }catch(error){
+   if(error instanceof RateLimitError)throw error;
+   errors.push({hero:link.hero.name,error:String(error)});
+   console.warn("Skipped "+link.hero.localized_name+": "+String(error));
+  }
+ }
+ if(errors.some(item=>/HTTP 403|HTTP 429|rate limit/i.test(item.error))){
+  throw new Error("El proveedor limitó o denegó el acceso; snapshot existente preservado.");
  }
  const count=Object.keys(guides).length,currentPatchGuideCount=Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).length;
  const min=limit?1:30;
