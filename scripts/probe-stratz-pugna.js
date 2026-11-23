@@ -3,6 +3,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { createClient } = require("./stratz-api-client");
 const { POSITIONS, SELECTIONS, buildProbeQuery } = require("./stratz-query-plan");
+const { normalizeStratzHeroPosition } = require("./stratz-normalize");
+const ITEM_CONSTANTS_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/items.json";
 
 const schemaPath = path.resolve("data/stratz-schema-audit.json");
 const HERO = { name: "Pugna", id: 45 };
@@ -11,9 +13,10 @@ function arg(name, fallback) {
   const item = process.argv.find(x => x.startsWith(prefix));
   return item ? item.slice(prefix.length) : fallback;
 }
-async function main() {
+function outputDate() { return new Date().toISOString(); }\nasync function main() {
   if (!fs.existsSync(schemaPath)) throw new Error("Falta auditoría de esquema; ejecutar primero npm run stratz:inspect.");
   const position = arg("position", "POSITION_1");
+  const patch = arg("patch", "unverified");
   if (!POSITIONS.includes(position)) throw new Error("Posición inválida. Valores: " + POSITIONS.join(", "));
   const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
   const plan = buildProbeQuery(schema, position);
