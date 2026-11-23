@@ -1,30 +1,17 @@
 name: Probe StatsDota hero guide feed
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'scripts/probe-statsdota-guides.js'
-      - 'scripts/sync-statsdota-guides.js'
-      - 'scripts/statsdota-guide-sync.js'
-      - 'build-data-engine.js'
-      - '.github/workflows/probe-statsdota.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/probe-statsdota-guides.js'
-      - 'scripts/sync-statsdota-guides.js'
-      - 'scripts/statsdota-guide-sync.js'
-      - '.github/workflows/probe-statsdota.yml'
   workflow_dispatch:
 concurrency:
-  group: primary-hero-guide-sync-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: primary-hero-guide-sync
+  cancel-in-progress: false
 jobs:
   probe:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feature/statsdota-skill-guide-snapshot
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -33,6 +20,7 @@ jobs:
       - name: Audit all StatsDota hero guides
         run: node scripts/sync-statsdota-guides.js --output=statsdota-guides.json
       - name: Preserve complete audit snapshot and incomplete list
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: statsdota-hero-guide-audit
