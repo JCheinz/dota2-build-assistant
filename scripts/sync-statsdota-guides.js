@@ -8,11 +8,11 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 class RateLimitError extends Error{
  constructor(url,retryAfter){super("HTTP 429 rate limit for "+url+(retryAfter?" · Retry-After "+retryAfter+"s":""));this.name="RateLimitError";this.retryAfter=retryAfter||null;}
 }
-async function fetchText(url,attempts=3){
+async function fetchText(url,attempts=3,fetchImpl=fetch){
  let last;
  for(let attempt=0;attempt<attempts;attempt++){
   try{
-   const response=await fetch(url,{headers:{"User-Agent":"Mozilla/5.0 Dota2BuildAssistant/1.0","Accept":"text/html,application/json"}});
+   const response=await fetchImpl(url,{headers:{"User-Agent":"Mozilla/5.0 Dota2BuildAssistant/1.0","Accept":"text/html,application/json"}});
    if(response.status===429){
     const retryAfter=Number(response.headers.get("retry-after"))||null;
     throw new RateLimitError(url,retryAfter);
@@ -67,4 +67,4 @@ async function main(){
  fs.writeFileSync(output,JSON.stringify(snapshot,null,2)+"\n");
  console.log(JSON.stringify({output,heroesListed:links.length,selected:selected.length,guideCount:count,currentPatchGuideCount,readyHeroes:Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).map(g=>({hero:g.heroName,role:g.role,roleGames:g.roleGames,levels:g.abilityOrder.length})),incomplete:incomplete.length,incompleteReasons:incomplete.reduce((a,x)=>(a[x.reason]=(a[x.reason]||0)+1,a),{}),errors:errors.length,patches:[...new Set(Object.values(guides).map(x=>x.patch).filter(Boolean))]},null,2));
 }
-main().catch(error=>{console.error(error);process.exitCode=1});
+if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1});\nmodule.exports={RateLimitError,fetchText};
