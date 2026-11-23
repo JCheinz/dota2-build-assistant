@@ -14,7 +14,9 @@ for (const position of POSITIONS) {
   assert.equal(plan.position, position);
   assert.equal(plan.included.length, 9);
   assert.match(plan.query, new RegExp("positionIds: \\[" + position + "\\]"));
-  assert.doesNotMatch(plan.query, /POSITION_[1-5].*POSITION_[1-5]/s, "una consulta no debe mezclar posiciones");
+  const requested = [...plan.query.matchAll(/positionIds: \\[([^\\]]+)\\]/g)].map(match => match[1]);
+  assert.equal(new Set(requested).size, 1, "una consulta no debe mezclar posiciones");
+  assert.ok(requested.every(value => value === position));
 }
 assert.throws(() => buildProbeQuery(schema, "POSITION_6"), /Posición STRATZ inválida/);
 const incomplete = structuredClone(schema);
