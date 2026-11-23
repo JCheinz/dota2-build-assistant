@@ -8,6 +8,9 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 class RateLimitError extends Error{
  constructor(url,retryAfter){super("HTTP 429 rate limit for "+url+(retryAfter?" · Retry-After "+retryAfter+"s":""));this.name="RateLimitError";this.retryAfter=retryAfter||null;}
 }
+class AccessDeniedError extends Error{
+ constructor(url){super("HTTP 403 forbidden for "+url+" · no se reintentará");this.name="AccessDeniedError";}
+}
 async function fetchText(url,attempts=3,fetchImpl=fetch){
  let last;
  for(let attempt=0;attempt<attempts;attempt++){
@@ -17,12 +20,12 @@ async function fetchText(url,attempts=3,fetchImpl=fetch){
     const retryAfter=Number(response.headers.get("retry-after"))||null;
     throw new RateLimitError(url,retryAfter);
    }
-   if(response.status===403)throw new Error("HTTP 403 forbidden for "+url+" · no se reintentará");
+   if(response.status===403)throw new AccessDeniedError(url);
    if(!response.ok)throw new Error("HTTP "+response.status+" for "+url);
    return await response.text();
   }catch(error){
    last=error;
-   if(error instanceof RateLimitError)throw error;
+   if(error instanceof RateLimitError||error instanceof AccessDeniedError)throw error;
    if(attempt+1<attempts)await sleep(2000*Math.pow(2,attempt));
   }
  }
@@ -68,4 +71,4 @@ async function main(){
  console.log(JSON.stringify({output,heroesListed:links.length,selected:selected.length,guideCount:count,currentPatchGuideCount,readyHeroes:Object.values(guides).filter(g=>g.patch===CURRENT_PATCH).map(g=>({hero:g.heroName,role:g.role,roleGames:g.roleGames,levels:g.abilityOrder.length})),incomplete:incomplete.length,incompleteReasons:incomplete.reduce((a,x)=>(a[x.reason]=(a[x.reason]||0)+1,a),{}),errors:errors.length,patches:[...new Set(Object.values(guides).map(x=>x.patch).filter(Boolean))]},null,2));
 }
 if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1});
-module.exports={RateLimitError,fetchText};
+module.exports={RateLimitError,AccessDeniedError,fetchText};
