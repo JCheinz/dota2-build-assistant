@@ -15,6 +15,7 @@ assert.equal(hero.roleClassification.Carry.status,"viable","A role with role-spe
 assert.equal(hero.roleClassification.Mid.status,"sin_datos","Missing evidence must not be mislabeled as not recommended.");
 assert.deepEqual(lib.getSupportedRoles(hero,"7.42"),["Carry"],"Only evidenced roles are surfaced as supported.");
 assert.equal(lib.roleEvidenceSummary({source:"STRATZ",patch:"unverified",items:{starting:[{name:"Tango",matchCount:500}]}},"7.42").status,"situacional","Unverified patch evidence remains provisional.");
+assert.equal(lib.roleEvidenceSummary({source:"STRATZ",patch:"7.42",items:{starting:[{name:"Tango",matchCount:500}]}},"7.42").status,"situacional","Item observation counts alone must not be mistaken for a role match sample.");
 assert.equal(lib.roleEvidenceSummary({source:"editorial",recommended:false,classification:"no_recomendado"},"7.42").status,"no_recomendado","A role is not rejected unless the source explicitly marks it.");
 
 assert.equal(lib.getRoleBuild(built,"npc_dota_hero_antimage","Carry").source,"STRATZ");
