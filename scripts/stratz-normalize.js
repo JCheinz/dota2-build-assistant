@@ -16,6 +16,7 @@ const ITEM_GROUPS = [
   ["neutralItems", "neutral"]
 ];
 const OBSERVATION_GROUPS = ["abilityMinLevel", "abilityMaxLevel", "talents"];
+const { classifyEvidence } = require("./stratz-evidence-quality");
 
 function numberOrNull(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -64,11 +65,13 @@ function normalizeStratzHeroPosition(raw, options = {}) {
       seen.add(key);
       const matchCount = numberOrNull(row.matchCount);
       const winCount = numberOrNull(row.winCount);
+      const evidenceQuality = classifyEvidence(matchCount);
       items[stage].push({
         id,
         name: meta.dname || meta.display_name || meta.name || meta.localized_name || meta.key || null,
         stage,
         matchCount,
+        evidenceQuality,
         winRate: matchCount > 0 && winCount !== null ? winCount / matchCount : null,
         averageMinute: field === "boots"
           ? (numberOrNull(row.timeAverage ?? row.time) === null ? null : numberOrNull(row.timeAverage ?? row.time) / 60)
