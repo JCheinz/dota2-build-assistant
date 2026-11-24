@@ -25,14 +25,26 @@ jobs:
           node-version: 22
       - name: Check STRATZ scripts syntax
         run: |
-          node --check scripts/stratz-api-client.js
-          node --check scripts/stratz-query-plan.js
-          node --check scripts/stratz-normalize.js
-          node --check scripts/stratz-evidence-quality.js
-          node --check scripts/stratz-batch-audit.js
+          $checks = @(
+            'node --check scripts/stratz-api-client.js',
+            'node --check scripts/stratz-query-plan.js',
+            'node --check scripts/stratz-normalize.js',
+            'node --check scripts/stratz-evidence-quality.js',
+            'node --check scripts/stratz-batch-audit.js'
+          )
+          foreach ($check in $checks) {
+            Invoke-Expression $check
+            if ($LASTEXITCODE -ne 0) { throw "Falló la sintaxis: $check" }
+          }
       - name: Run offline STRATZ tests (no API calls)
         run: |
-          node tests/stratz-query-plan.test.js
-          node tests/stratz-normalize.test.js
-          node tests/stratz-evidence-quality.test.js
-          node tests/stratz-batch-audit.test.js
+          $tests = @(
+            'node tests/stratz-query-plan.test.js',
+            'node tests/stratz-normalize.test.js',
+            'node tests/stratz-evidence-quality.test.js',
+            'node tests/stratz-batch-audit.test.js'
+          )
+          foreach ($test in $tests) {
+            Invoke-Expression $test
+            if ($LASTEXITCODE -ne 0) { throw "Falló la prueba: $test" }
+          }
