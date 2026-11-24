@@ -1728,7 +1728,29 @@ function getNextPurchase(build,state,preferredName=null){
   const decisionScore=urgency*0.72+(next?(state.gold>=next.cost?1.15:0.75):0.5)+progress*0.65+(remainingCost<=state.gold?0.8:0)+stageFit+(target.threatSpecific?0.55:0);
   return {...target,recipe,missing,next,decisionScore};
  }).filter(x=>(x.score||0)>0).sort((a,b)=>b.decisionScore-a.decisionScore);
- if(!options.length)return {done:true,message:"No hay una compra pendiente con prioridad suficiente en esta ruta. Revisá el inventario, el minuto y el problema seleccionado."};
+ if(!options.length){
+  // Último recurso común para cualquier héroe/posición: no dejar vacía la compra
+  // si la ruta aún contiene un objetivo válido y no comprado.
+  const fallbackTargets=build.filter(x=>!owned.has(x.name)&&
+   (!x.marketPhase||({Inicio:0,"Línea":1,Transición:2,Core:3,Avanzada:4}[x.marketPhase]??0)<=phaseIndex)&&
+   !(state.minute<25&&x.stage==="Avanzada")&&
+   (x.roleBaseline||x.heroSpecific||(Number(x.score)||0)>0))
+   .sort((a,b)=>{
+    const roleA=a.roleBaseline&&a.marketRole===state.role?0:1;
+    const roleB=b.roleBaseline&&b.marketRole===state.role?0:1;
+    if(roleA!==roleB)return roleA-roleB;
+    const routeA=Number.isFinite(a.routeIndex)?a.routeIndex:999;
+    const routeB=Number.isFinite(b.routeIndex)?b.routeIndex:999;
+    if(routeA!==routeB)return routeA-routeB;
+    return (Number(b.score)||0)-(Number(a.score)||0);
+   });
+  if(fallbackTargets.length){
+   const target=fallbackTargets[0];
+   return {...recipeTarget(target),marketPhase:target.marketPhase||marketPhase.key,phaseLabel,
+    routeReason:"Siguiente objetivo pendiente de la ruta disponible. El motor respeta héroe, posición, fase, oro e inventario; si falta un dato estadístico, conserva la ruta como orientación y no como build validada."};
+  }
+  return {done:true,message:"No hay objetivos válidos pendientes en la ruta actual. Revisá el inventario o actualizá el estado de partida."};
+ }
  const chosen=options[0],alt=options[1];
  return {...recipeTarget(chosen),marketPhase:chosen.marketPhase||marketPhase.key,phaseLabel:phaseLabel,alternative:alt?recipeTarget(alt):null,routeReason:"La elección pondera fase, prioridad de posición, oro e inventario y progreso de componentes."};
 }
