@@ -38,22 +38,23 @@ function normalizeStratzHeroPosition(raw, options = {}) {
   const updatedAt = options.updatedAt || null;
   const items = { starting: [], laning: [], early: [], core: [], late: [], situational: [], neutral: [] };
   const unmappedItems = [];
+  const mismatchedPositionRows = [];
   const seen = new Set();
   const readRows = key => {
     const rows = raw[key];
     if (rows === undefined || rows === null) return [];
     if (!Array.isArray(rows)) throw new Error("Campo STRATZ no-array: " + key);
-    return rows;
-  };
-  const assertPosition = (row, field) => {
-    if (row.position && row.position !== position) {
-      throw new Error("STRATZ devolvió " + row.position + " dentro de " + field + " solicitado para " + position);
-    }
+    return rows.filter(row => {
+      if (row && row.position && row.position !== position) {
+        mismatchedPositionRows.push({ field: key, returnedPosition: row.position, requestedPosition: position });
+        return false;
+      }
+      return true;
+    });
   };
   for (const [field, stage] of ITEM_GROUPS) {
     for (const row of readRows(field)) {
       if (!row || typeof row !== "object") continue;
-      assertPosition(row, field);
       const id = numberOrNull(row.itemId);
       const meta = id === null ? null : itemIndex.get(String(id));
       if (!meta) {
@@ -85,7 +86,6 @@ function normalizeStratzHeroPosition(raw, options = {}) {
   for (const field of ["abilityMinLevel", "abilityMaxLevel"]) {
     for (const row of readRows(field)) {
       if (!row || typeof row !== "object") continue;
-      assertPosition(row, field);
       skillObservations.push({
         kind: field,
         abilityId: numberOrNull(row.abilityId),
@@ -97,7 +97,6 @@ function normalizeStratzHeroPosition(raw, options = {}) {
     }
   }
   const talentObservations = readRows("talents").filter(Boolean).map(row => {
-    assertPosition(row, "talents");
     return {
       abilityId: numberOrNull(row.abilityId),
       matchCount: numberOrNull(row.matchCount),
@@ -109,6 +108,7 @@ function normalizeStratzHeroPosition(raw, options = {}) {
     };
   });
   const notes = [];
+  if (mismatchedPositionRows.length) notes.push("Se excluyeron " + mismatchedPositionRows.length + " registros que STRATZ etiquetó con una posición distinta de " + position + "; no se mezclaron roles.");
   if (unmappedItems.length) notes.push("Hay " + unmappedItems.length + " registros de objetos sin correspondencia con el catálogo; se conservaron como incidencias.");
   if (skillObservations.length) notes.push("STRATZ entregó observaciones agregadas de nivel mínimo/máximo; no se interpretan como una secuencia de subida por nivel.");
   if (talentObservations.length) notes.push("Las elecciones de talentos se conservan como observaciones por ID; no se asigna tier hasta cruzar cada ID con los talentos oficiales del héroe.");
@@ -125,6 +125,7 @@ function normalizeStratzHeroPosition(raw, options = {}) {
     skillObservations,
     talentObservations,
     unmappedItems,
+    mismatchedPositionRows,
     notes,
     coverage: {
       items: Object.values(items).some(rows => rows.length > 0),
