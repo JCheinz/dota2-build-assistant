@@ -557,8 +557,11 @@ console.log("OK: catálogo común de compras cubre Carry, Mid, Offlane, Support 
   if (!appHtml.includes("if(markingBought)consumeRecipeComponents(name)")) {
     throw new Error("La compra de un objeto completo no consume su receta");
   }
-  if (!appHtml.includes("purchaseLedger.reset();clearTrackedPurchases();updateRoleFit()")
-      || !appHtml.includes("purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls()")) {
+  const heroChangeHandler = appHtml.match(/\$\('myHero'\)\.onchange\s*=\s*\(\)\s*=>\s*\{([^}]+)\}/);
+  const roleChangeHandler = appHtml.match(/\$\('myRole'\)\.onchange\s*=\s*\(\)\s*=>\s*\{([^}]+)\}/);
+  const resetsInventory = handler => handler && handler[1].includes("purchaseLedger.reset()")
+    && handler[1].includes("clearTrackedPurchases()");
+  if (!resetsInventory(heroChangeHandler) || !resetsInventory(roleChangeHandler)) {
     throw new Error("El inventario no se reinicia al cambiar de héroe o posición");
   }
   console.log("OK: inventario aislado por héroe/posición al cambiar la configuración");
