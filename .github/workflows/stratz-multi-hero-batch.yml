@@ -36,6 +36,11 @@ on:
         required: false
         default: ""
         type: string
+      restore_artifact_name:
+        description: "Nombre exacto del artifact de esa ejecución"
+        required: false
+        default: "stratz-complete-audit-6"
+        type: string
 concurrency:
   group: stratz-api-access
   cancel-in-progress: false
@@ -80,8 +85,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           run-id: ${{ inputs.restore_from_run_id }}
-          name: stratz-complete-audit-5
-          path: data/
+          name: ${{ inputs.restore_artifact_name }}
+          path: data/stratz-batch/
       - name: Inspect STRATZ schema
         env:
           STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
