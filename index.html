@@ -300,8 +300,8 @@
 <script src="./match-clock.js?v=359"></script>
 <script src="./item-icons.js?v=1"></script>
 <script src="./inventory-ledger.js?v=359"></script>
-<script src="./skill-data-engine.js?v=364"></script>
-<script src="./hero-library-engine.js?v=1"></script>
+<script src="./skill-data-engine.js?v=365"></script>
+<script src="./hero-library-engine.js?v=2"></script>
 <script src="./specializations.js?v=3280"></script>
 <script src="./patch-data-742.js?v=742"></script>
 <script src="./build-data-engine.js?v=7428"></script>
@@ -2496,7 +2496,27 @@ if('serviceWorker' in navigator){
       .catch(()=>{});
   });
 }
-loadHeroes();
+loadHeroes().then(async()=>{
+ // Cargar automáticamente la base oficial de habilidades y talentos.
+ // El usuario no debe tener que abrir el panel técnico para ver la matriz del héroe.
+ const button=$('loadSkillDatabase'),status=$('skillDataStatus'),badge=$('skillDataBadge');
+ if(status)status.textContent='Preparando automáticamente habilidades y talentos oficiales…';
+ try{
+  const dataset=await window.DotaSkillDataEngine.load({force:true});
+  const coverage=window.DotaSkillDataEngine.getCoverage(dataset);
+  const heroLibrary=window.DotaHeroLibrary.buildHeroLibrary(dataset,{
+   statsDota:dataset.statsDotaGuides,d2pt:dataset.d2ptPrimaryGuides
+  });
+  window.DOTA_HERO_LIBRARY=heroLibrary;
+  if(badge)badge.textContent=coverage.metadataCoverage+'% de metadatos';
+  if(status)status.textContent='Listo: '+heroLibrary.heroCount+' héroes · '+coverage.abilitySlots+' habilidades · '+coverage.talentSlots+' talentos oficiales. Las secuencias provisionales se identifican como tales y no se presentan como estadísticas.';
+  if(button)button.textContent='Actualizar base de habilidades';
+  if($('result')?.classList.contains('show'))analyze({scroll:false});
+ }catch(error){
+  if(badge)badge.textContent='Base pendiente';
+  if(status)status.textContent='No se pudo precargar la base oficial. Podés reintentar desde Actualizar base de habilidades. '+error.message;
+ }
+});
 
 $('loadSkillDatabase').addEventListener('click',async()=>{
  const button=$('loadSkillDatabase'),status=$('skillDataStatus'),badge=$('skillDataBadge');
