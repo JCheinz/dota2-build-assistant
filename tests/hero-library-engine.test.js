@@ -11,6 +11,12 @@ assert.equal(hero.roles.Carry.items.core[0].name,"Battle Fury");
 assert.equal(hero.roles.Carry.coverage.skills,true);
 assert.equal(hero.roles.Carry.coverage.talents,true);
 assert.equal(hero.roles.Mid.coverage.items,false,"No se extrapola Carry a Mid");
+assert.equal(hero.roleClassification.Carry.status,"viable","A role with role-specific medium/high evidence and a verified patch is viable.");
+assert.equal(hero.roleClassification.Mid.status,"sin_datos","Missing evidence must not be mislabeled as not recommended.");
+assert.deepEqual(lib.getSupportedRoles(hero,"7.42"),["Carry"],"Only evidenced roles are surfaced as supported.");
+assert.equal(lib.roleEvidenceSummary({source:"STRATZ",patch:"unverified",items:{starting:[{name:"Tango",matchCount:500}]}},"7.42").status,"situacional","Unverified patch evidence remains provisional.");
+assert.equal(lib.roleEvidenceSummary({source:"editorial",recommended:false,classification:"no_recomendado"},"7.42").status,"no_recomendado","A role is not rejected unless the source explicitly marks it.");
+
 assert.equal(lib.getRoleBuild(built,"npc_dota_hero_antimage","Carry").source,"STRATZ");
 assert.equal(lib.mergeProviderHero(built,"npc_dota_hero_antimage","Mid",{source:"STRATZ",items:{early:["Wraith Band"]}}),true);
 assert.equal(built.heroes.npc_dota_hero_antimage.roles.Mid.items.early[0].name,"Wraith Band");
