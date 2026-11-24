@@ -66,8 +66,23 @@ async function main() {
     const normalizedPath = path.join(DATA_DIR, slug + "-" + position.toLowerCase() + "-normalized.json");
     try {
       if (fs.existsSync(normalizedPath)) {
+        const savedNormalized = JSON.parse(fs.readFileSync(normalizedPath, "utf8"));
+        const savedRaw = fs.existsSync(rawPath) ? JSON.parse(fs.readFileSync(rawPath, "utf8")) : null;
+        const invalidRoleEvidence =
+          savedNormalized.position !== position ||
+          hasOnlyMismatchedPositionRows(savedRaw && savedRaw.data, position);
+        if (invalidRoleEvidence) {
+          progress.completed = progress.completed.filter(id => Number(id) !== heroId);
+          progress.failed = progress.failed.filter(item => item.heroId !== heroId);
+          progress.failed.push({
+            heroId, hero: heroName,
+            error: "Evidencia previa inválida: STRATZ etiquetó registros con otra posición. Se conserva el raw y no se vuelve a consultar automáticamente."
+          });
+          console.warn("REJECT SAVED " + heroName + " (" + heroId + "): posición incorrecta; no se marca como completado.");
+          continue;
+        }
         if (!progress.completed.includes(heroId)) progress.completed.push(heroId);
-        console.log("SKIP " + heroName + " (" + heroId + "): evidencia normalizada ya existe.");
+        console.log("SKIP " + heroName + " (" + heroId + "): evidencia normalizada validada.");
         continue;
       }
 
