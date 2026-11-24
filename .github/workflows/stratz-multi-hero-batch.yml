@@ -48,6 +48,7 @@ jobs:
           node --check scripts/stratz-batch-audit.js
           node tests/stratz-query-plan.test.js
           node tests/stratz-normalize.test.js
+          node tests/stratz-evidence-quality.test.js
           node tests/stratz-batch-audit.test.js
       - name: Inspect STRATZ schema
         env:
