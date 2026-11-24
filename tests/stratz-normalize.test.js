@@ -7,7 +7,7 @@ const raw = {
   earlyItems: [{ itemId: 51, matchCount: 80, winCount: 44, time: 420, position: "POSITION_1" }],
   midItems: [{ itemId: 116, matchCount: 60, winCount: 33, time: 1200, position: "POSITION_1" }],
   lateItems: [],
-  boots: [{ itemId: 51, matchCount: 75, winCount: 40, timeAverage: 500, position: "POSITION_1" }],
+  boots: [{ itemId: 52, matchCount: 75, winCount: 40, timeAverage: 500, position: "POSITION_1" }],
   neutralItems: [{ itemId: 700, matchCount: 30, winCount: 16, position: "POSITION_1" }],
   abilityMinLevel: [{ abilityId: 501, level: 1, matchCount: 70, winCount: 39, position: "POSITION_1" }],
   abilityMaxLevel: [{ abilityId: 502, level: 4, matchCount: 65, winCount: 37, position: "POSITION_1" }],
@@ -16,6 +16,7 @@ const raw = {
 const itemsById = {
   44: { id: 44, dname: "Tango" },
   51: { id: 51, dname: "Boots of Speed" },
+  52: { id: 52, dname: "Boots of Speed (boots group)" },
   116: { id: 116, dname: "Blink Dagger" },
   700: { id: 700, dname: "Neutral Item" }
 };
