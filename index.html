@@ -563,8 +563,10 @@ function canonicalBuildItemName(name){
 function getHeroPlan(hero,role){
  const live=window.DotaBuildDataEngine?.get(hero.id,role,window.DOTA_PATCH_742?.patch);
  const manual=heroPlans[hero.name+"|"+role]||null;
- // Solo una fuente con datos por posición puede desplazar la ruta individual manual.
- if(live?.plan&&(live.source==="Dota2ProTracker"||!manual)){
+ // Solo una build validada para la posición seleccionada puede alimentar el mercado del héroe.
+ // OpenDota itemPopularity mezcla posiciones: se conserva como referencia informativa,
+ // pero nunca reemplaza una guía específica ni crea una ruta de compras para otro rol.
+ if(live?.plan&&live.source==="Dota2ProTracker"&&live.scope==="posición"){
   const adapt=rows=>(rows||[]).map(([name,why])=>[canonicalBuildItemName(name),why]);
   return {...live.plan,early:adapt(live.plan.early),core:adapt(live.plan.core),situational:adapt(live.plan.situational),liveData:live};
  }
