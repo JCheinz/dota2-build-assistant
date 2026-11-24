@@ -1679,7 +1679,20 @@ function getNextPurchase(build,state,preferredName=null){
    if(laneTarget)return {...recipeTarget(laneTarget),marketPhase:"Línea",phaseLabel:phaseLabel,routeReason:"Primero completá la progresión de línea de Anti-Mage; Battle Fury no desplaza los objetos previos antes del minuto 12."};
    return {done:true,message:"La fase inicial de Anti-Mage está cubierta. La ruta de farmeo de Battle Fury se habilita desde el minuto 12."};
   }
-  if(state.minute<5)return {done:true,message:"Inicio de partida: priorizá consumibles y atributos de línea antes de completar Power Treads."};
+  if(state.minute<5){
+   const opening=build.filter(x=>!owned.has(x.name)&&x.heroSpecific&&x.heroKey?.startsWith("npc_dota_hero_antimage|")&&
+    (x.marketPhase==="Inicio"||x.stage==="Inicio"||x.stage==="early"))
+    .sort((a,b)=>(Number(a.routeIndex)||0)-(Number(b.routeIndex)||0)||(Number(b.score)||0)-(Number(a.score)||0));
+   const openingTarget=opening[0]||build.filter(x=>!owned.has(x.name)&&
+    (x.roleBaseline&&x.marketRole===state.role&&(x.marketPhase==="Inicio"||x.marketPhase==="Línea")))
+    .sort((a,b)=>(Number(a.priority)||99)-(Number(b.priority)||99))[0];
+   if(openingTarget)return {...recipeTarget(openingTarget),marketPhase:"Inicio",phaseLabel:"Inicio de partida",routeReason:"Compra inicial de Anti-Mage: se eligió el siguiente objetivo pendiente de la ruta y se descuentan los objetos y componentes ya registrados."};
+   const fallbackOpening=build.filter(x=>!owned.has(x.name)&&
+    (x.stage==="Inicio"||x.stage==="Línea"||x.stage==="early"))
+    .sort((a,b)=>(Number(a.routeIndex)||999)-(Number(b.routeIndex)||999)||(Number(b.score)||0)-(Number(a.score)||0))[0];
+   if(fallbackOpening)return {...recipeTarget(fallbackOpening),marketPhase:"Inicio",phaseLabel:"Inicio de partida",routeReason:"No hay una apertura específica de Anti-Mage disponible; se usa la primera compra inicial válida de la ruta actual."};
+   return {done:true,message:"La ruta no contiene una compra inicial pendiente. Revisá los objetos iniciales de la build y el inventario."};
+  }
   const coreOrder=["Power Treads","Battle Fury","Yasha","Manta Style"];
   const coreTarget=coreOrder.find(name=>!owned.has(name));
   if(coreTarget){const target=build.find(x=>x.name===coreTarget);if(target)return recipeTarget(target);}
