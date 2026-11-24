@@ -11,7 +11,7 @@ function buildSnapshot(inputDir){
   const role=POSITION_ROLE[String(row.position||"").toLowerCase()];
   if(!role||!row.hero||!row.heroId||!row.items||typeof row.items!=="object")continue;
   if(row.position!==("POSITION_"+Object.keys(POSITION_ROLE).find(k=>POSITION_ROLE[k]===role).split("_")[1]))continue;
-  const rawPath=full.replace(/-normalized\\.json$/,".json");let rawMeta={};if(fs.existsSync(rawPath)){try{rawMeta=JSON.parse(fs.readFileSync(rawPath,"utf8"))}catch{rawMeta={}}}const key=rawMeta.heroInternalName||row.heroInternalName||("hero_id_"+Number(row.heroId));
+  const rawPath=full.replace(/-normalized\.json$/,".json");let rawMeta={};if(fs.existsSync(rawPath)){try{rawMeta=JSON.parse(fs.readFileSync(rawPath,"utf8"))}catch{rawMeta={}}}const key=rawMeta.heroInternalName||row.heroInternalName||("hero_id_"+Number(row.heroId));
   if(!heroes[key])heroes[key]={id:Number(row.heroId),name:row.hero,positions:{}};
   // One exact role per normalized file. Never infer missing positions from another role.
   heroes[key].positions[role]={...row,role,source:row.source||"STRATZ",patch:row.patch||"unverified"};
