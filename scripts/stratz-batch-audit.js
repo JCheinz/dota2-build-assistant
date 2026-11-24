@@ -21,6 +21,11 @@ function safeName(value) {
 function hasCompleteEvidence(raw) {
   return Boolean(raw && raw.data && SELECTIONS.every(entry => Array.isArray(raw.data[entry.alias])));
 }
+function hasOnlyMismatchedPositionRows(data, requestedPosition) {
+  const taggedRows = Object.values(data || {}).flat()
+    .filter(row => row && typeof row === "object" && row.position);
+  return taggedRows.length > 0 && taggedRows.every(row => row.position !== requestedPosition);
+}
 function writeJson(filePath, value) {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + "\n");
 }
@@ -145,4 +150,4 @@ async function main() {
   if (progress.failed.some(item => selected.some(hero => Number(hero.id) === item.heroId))) process.exitCode = 1;
 }
 if (require.main === module) main().catch(error => { console.error(error.stack || error); process.exitCode = 1; });
-module.exports = { safeName, hasCompleteEvidence, main };
+module.exports = { safeName, hasCompleteEvidence, hasOnlyMismatchedPositionRows, main };
