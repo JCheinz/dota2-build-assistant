@@ -107,6 +107,18 @@ async function main() {
         writeJson(rawPath, evidence);
       }
 
+      // Reject a provider response that labels every position-tagged row as another role.
+      // Empty arrays are not proof that a hero/position was successfully audited.
+      const returnedPositionRows = Object.values(evidence.data || {}).flat()
+        .filter(row => row && typeof row === "object" && row.position);
+      const mismatchedPositionRows = returnedPositionRows
+        .filter(row => row.position !== position);
+      if (returnedPositionRows.length > 0 && mismatchedPositionRows.length === returnedPositionRows.length) {
+        throw new Error("STRATZ devolvió registros de " +
+          [...new Set(mismatchedPositionRows.map(row => row.position))].join(", ") +
+          " al solicitar " + position + "; se conserva la evidencia raw y no se marca como completado.");
+      }
+
       const normalized = normalizeStratzHeroPosition(evidence.data, {
         position, patch: evidence.patchScope || patch, updatedAt: evidence.queriedAt, itemsById
       });
