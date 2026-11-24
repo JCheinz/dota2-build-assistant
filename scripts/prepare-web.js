@@ -17,7 +17,8 @@ const requiredFiles = [
   'specializations.js',
   'patch-data-742.js',
   'statsdota-guides.json',
-  'd2pt-primary-guides.json'
+  'd2pt-primary-guides.json',
+  'stratz-hero-positions.json'
 ];
 
 for (const file of requiredFiles) {
