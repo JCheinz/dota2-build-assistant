@@ -12,9 +12,11 @@ function roleEvidenceSummary(roleData,currentPatch){
  const counts=rows.map(item=>Number(item&&item.matchCount)).filter(n=>Number.isFinite(n)&&n>=0);
  const maxItemSample=counts.length?Math.max(...counts):Number(data.sampleSize)||0;
  const eligibleItemCount=rows.filter(item=>item&&item.evidenceQuality&&item.evidenceQuality.eligibleForRecommendation===true).length;
- const hasEvidence=!!(data.source||rows.length||(Array.isArray(data.skillBuild)&&data.skillBuild.length)||(Array.isArray(data.skillObservations)&&data.skillObservations.length)||(Array.isArray(data.talentObservations)&&data.talentObservations.length));
+ const hasRecords=!!(rows.length||(Array.isArray(data.skillBuild)&&data.skillBuild.length)||(Array.isArray(data.skillObservations)&&data.skillObservations.length)||(Array.isArray(data.talentObservations)&&data.talentObservations.length));
+ const hasEvidence=!!(data.source||hasRecords);
  const patchVerified=!!(currentPatch&&data.patch&&data.patch!=="unverified"&&String(data.patch)===String(currentPatch));
  if(!hasEvidence)return{status:"sin_datos",label:"Sin evidencia",maxItemSample,eligibleItemCount,patchVerified};
+ if(!hasRecords)return{status:"evidencia_insuficiente",label:"Evidencia insuficiente",maxItemSample,eligibleItemCount,patchVerified};
  if(data.recommended===false||data.classification==="no_recomendado"||data.roleStatus==="no_recomendado")return{status:"no_recomendado",label:"No recomendado",maxItemSample,eligibleItemCount,patchVerified};
  if(data.isPrimary===true||data.primary===true||data.classification==="principal"||data.roleStatus==="principal")return{status:"principal",label:"Principal",maxItemSample,eligibleItemCount,patchVerified};
  if(patchVerified&&maxItemSample>=30)return{status:"viable",label:"Viable",maxItemSample,eligibleItemCount,patchVerified};
