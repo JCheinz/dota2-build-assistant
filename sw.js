@@ -1,5 +1,5 @@
-const CACHE = 'dota-build-v128';
-const CORE = ['./', './index.html', './manifest.webmanifest', './match-clock.js?v=359', './item-icons.js?v=1', './inventory-ledger.js?v=359', './skill-data-engine.js?v=364', './hero-library-engine.js?v=1', './hero-library.json', './build-data-engine.js?v=7428', './specializations.js?v=3280', './patch-data-742.js?v=742', './statsdota-guides.json', './d2pt-primary-guides.json'];
+const CACHE = 'dota-build-v129';
+const CORE = ['./', './index.html', './manifest.webmanifest', './match-clock.js?v=359', './item-icons.js?v=1', './inventory-ledger.js?v=359', './skill-data-engine.js?v=365', './hero-library-engine.js?v=2', './hero-library.json', './build-data-engine.js?v=7428', './specializations.js?v=3280', './patch-data-742.js?v=742', './statsdota-guides.json', './d2pt-primary-guides.json', './stratz-hero-positions.json'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
