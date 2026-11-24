@@ -4,10 +4,10 @@ const { normalizeStratzHeroPosition } = require("../scripts/stratz-normalize");
 
 const raw = {
   startingItems: [{ itemId: 44, matchCount: 100, winCount: 55, wasGiven: false, position: "POSITION_1" }],
-  earlyItems: [{ itemId: 50, matchCount: 80, winCount: 44, time: 420, position: "POSITION_1" }],
+  earlyItems: [{ itemId: 51, matchCount: 80, winCount: 44, time: 420, position: "POSITION_1" }],
   midItems: [{ itemId: 116, matchCount: 60, winCount: 33, time: 1200, position: "POSITION_1" }],
   lateItems: [],
-  boots: [{ itemId: 50, matchCount: 75, winCount: 40, timeAverage: 500, position: "POSITION_1" }],
+  boots: [{ itemId: 51, matchCount: 75, winCount: 40, timeAverage: 500, position: "POSITION_1" }],
   neutralItems: [{ itemId: 700, matchCount: 30, winCount: 16, position: "POSITION_1" }],
   abilityMinLevel: [{ abilityId: 501, level: 1, matchCount: 70, winCount: 39, position: "POSITION_1" }],
   abilityMaxLevel: [{ abilityId: 502, level: 4, matchCount: 65, winCount: 37, position: "POSITION_1" }],
@@ -15,7 +15,7 @@ const raw = {
 };
 const itemsById = {
   44: { id: 44, dname: "Tango" },
-  50: { id: 50, dname: "Boots of Speed" },
+  51: { id: 51, dname: "Boots of Speed" },
   116: { id: 116, dname: "Blink Dagger" },
   700: { id: 700, dname: "Neutral Item" }
 };
@@ -44,7 +44,7 @@ assert.equal(normalized.coverage.skills, false);
 assert.equal(normalized.coverage.talents, false);
 assert.throws(() => normalizeStratzHeroPosition(raw, { position: "POSITION_6", patch: "7.42", itemsById }), /Posición STRATZ desconocida/);
 assert.throws(() => normalizeStratzHeroPosition(raw, { position: "POSITION_1", itemsById }), /Debe indicarse el parche/);
-assert.throws(() => normalizeStratzHeroPosition({ ...raw, earlyItems: [{ itemId: 50, position: "POSITION_2" }] }, { position: "POSITION_1", patch: "7.42", itemsById }), /devolvió POSITION_2/);
+assert.throws(() => normalizeStratzHeroPosition({ ...raw, earlyItems: [{ itemId: 51, position: "POSITION_2" }] }, { position: "POSITION_1", patch: "7.42", itemsById }), /excluyeron 1 registros/);
 assert.throws(() => normalizeStratzHeroPosition({ ...raw, talents: {} }, { position: "POSITION_1", patch: "7.42", itemsById }), /no-array: talents/);
 const library = require("../hero-library-engine");
 const heroDataset = { heroes: [{ id: 45, name: "npc_dota_hero_pugna", localized_name: "Pugna" }] };
