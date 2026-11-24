@@ -4,6 +4,7 @@ const path = require("node:path");
 const { createClient } = require("./stratz-api-client");
 const { POSITIONS, SELECTIONS, buildProbeQuery } = require("./stratz-query-plan");
 const { normalizeStratzHeroPosition } = require("./stratz-normalize");
+const { buildSnapshot } = require("./build-stratz-snapshot");
 
 const HEROES_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json";
 const ITEMS_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/items.json";
@@ -157,6 +158,9 @@ async function main() {
       writeJson(progressPath, progress);
     }
   }
+  const snapshot = buildSnapshot(DATA_DIR);
+  writeJson(path.resolve("stratz-hero-positions.json"), snapshot);
+  console.log("Snapshot de posiciones actualizado: " + snapshot.profileCount + " perfiles en " + snapshot.heroCount + " héroes.");
   console.log(JSON.stringify({
     position, catalogCount: heroes.length, batchStart: start, batchSize: selected.length,
     completedInManifest: progress.completed.length, failedInManifest: progress.failed.length,
