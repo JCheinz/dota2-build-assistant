@@ -18,6 +18,12 @@ function arg(name, fallback) {
 function safeName(value) {
   return String(value || "hero").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
+function hasCompleteEvidence(raw) {
+  return Boolean(raw && raw.data && SELECTIONS.every(entry => Array.isArray(raw.data[entry.alias])));
+}
+function writeJson(filePath, value) {
+  fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + "\n");
+}
 async function getJson(url) {
   const response = await fetch(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error("No se pudo descargar " + url + ": HTTP " + response.status);
@@ -53,49 +59,69 @@ async function main() {
     const slug = safeName(hero.name || heroName);
     const rawPath = path.join(DATA_DIR, slug + "-" + position.toLowerCase() + ".json");
     const normalizedPath = path.join(DATA_DIR, slug + "-" + position.toLowerCase() + "-normalized.json");
-    if (fs.existsSync(rawPath) && fs.existsSync(normalizedPath)) {
-      if (!progress.completed.includes(heroId)) progress.completed.push(heroId);
-      console.log("SKIP " + heroName + " (" + heroId + "): ya existe evidencia raw y normalizada.");
-      continue;
-    }
     try {
-      const plan = buildProbeQuery(schema, position);
-      const response = await client.graphql(plan.query, { heroId });
-      const raw = response.heroStats || {};
-      const data = {};
-      const malformed = [];
-      for (const entry of SELECTIONS) {
-        if (!Array.isArray(raw[entry.alias])) malformed.push(entry.alias);
-        else data[entry.alias] = raw[entry.alias];
+      if (fs.existsSync(normalizedPath)) {
+        if (!progress.completed.includes(heroId)) progress.completed.push(heroId);
+        console.log("SKIP " + heroName + " (" + heroId + "): evidencia normalizada ya existe.");
+        continue;
       }
-      if (malformed.length) throw new Error("Respuesta incompleta: " + malformed.join(", "));
-      if (!Object.values(data).some(rows => rows.length > 0)) throw new Error("STRATZ devolvió cero registros en los nueve grupos.");
-      const queriedAt = new Date().toISOString();
-      const evidence = {
-        hero: heroName, heroInternalName: hero.name, heroId, position,
-        source: "STRATZ GraphQL", queriedAt, patchScope: patch,
-        schemaAudit: schema.inspectedAt, queryPlan: plan.included,
-        counts: Object.fromEntries(Object.entries(data).map(([key, rows]) => [key, rows.length])),
-        data
-      };
-      // Persist provider evidence first; normalization can be repeated without another API request.
-      fs.writeFileSync(rawPath, JSON.stringify(evidence, null, 2) + "\n");
-      const normalized = normalizeStratzHeroPosition(data, {
-        position, patch, updatedAt: queriedAt, itemsById
+
+      // Resume from raw provider evidence whenever possible; never spend another API request to normalize it.
+      let evidence = null;
+      if (fs.existsSync(rawPath)) {
+        try {
+          const saved = JSON.parse(fs.readFileSync(rawPath, "utf8"));
+          if (hasCompleteEvidence(saved)) {
+            evidence = saved;
+            console.log("RESUME " + heroName + " (" + heroId + "): reutilizando evidencia raw.");
+          } else {
+            console.warn("RAW INCOMPLETE " + heroName + " (" + heroId + "): se volverá a consultar.");
+          }
+        } catch {
+          console.warn("RAW INVALID " + heroName + " (" + heroId + "): se volverá a consultar.");
+        }
+      }
+
+      if (!evidence) {
+        const plan = buildProbeQuery(schema, position);
+        const response = await client.graphql(plan.query, { heroId });
+        const raw = response.heroStats || {};
+        const data = {};
+        const malformed = [];
+        for (const entry of SELECTIONS) {
+          if (!Array.isArray(raw[entry.alias])) malformed.push(entry.alias);
+          else data[entry.alias] = raw[entry.alias];
+        }
+        if (malformed.length) throw new Error("Respuesta incompleta: " + malformed.join(", "));
+        if (!Object.values(data).some(rows => rows.length > 0)) throw new Error("STRATZ devolvió cero registros en los nueve grupos.");
+        const queriedAt = new Date().toISOString();
+        evidence = {
+          hero: heroName, heroInternalName: hero.name, heroId, position,
+          source: "STRATZ GraphQL", queriedAt, patchScope: patch,
+          schemaAudit: schema.inspectedAt, queryPlan: plan.included,
+          counts: Object.fromEntries(Object.entries(data).map(([key, rows]) => [key, rows.length])),
+          data
+        };
+        // Persist provider evidence first; normalization can be repeated without another API request.
+        writeJson(rawPath, evidence);
+      }
+
+      const normalized = normalizeStratzHeroPosition(evidence.data, {
+        position, patch: evidence.patchScope || patch, updatedAt: evidence.queriedAt, itemsById
       });
-      fs.writeFileSync(normalizedPath, JSON.stringify({
-        hero: heroName, heroId, position, ...normalized
-      }, null, 2) + "\n");
+      writeJson(normalizedPath, {
+        hero: evidence.hero || heroName, heroId, position, ...normalized
+      });
       progress.completed = [...new Set([...progress.completed, heroId])];
       progress.failed = progress.failed.filter(item => item.heroId !== heroId);
-      console.log("OK " + heroName + " (" + heroId + "): " + JSON.stringify(evidence.counts));
+      console.log("OK " + heroName + " (" + heroId + "): " + JSON.stringify(evidence.counts || {}));
     } catch (error) {
       progress.failed = progress.failed.filter(item => item.heroId !== heroId);
       progress.failed.push({ heroId, hero: heroName, error: String(error.message || error).slice(0, 500) });
       console.error("FAIL " + heroName + " (" + heroId + "): " + (error.message || error));
     } finally {
       progress.updatedAt = new Date().toISOString();
-      fs.writeFileSync(progressPath, JSON.stringify(progress, null, 2) + "\n");
+      writeJson(progressPath, progress);
     }
   }
   console.log(JSON.stringify({
@@ -106,4 +132,4 @@ async function main() {
   if (progress.failed.some(item => selected.some(hero => Number(hero.id) === item.heroId))) process.exitCode = 1;
 }
 if (require.main === module) main().catch(error => { console.error(error.stack || error); process.exitCode = 1; });
-module.exports = { safeName, main };
+module.exports = { safeName, hasCompleteEvidence, main };
