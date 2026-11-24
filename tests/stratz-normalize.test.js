@@ -33,6 +33,8 @@ assert.equal(normalized.items.early[0].name, "Boots of Speed");
 assert.equal(normalized.items.core[0].name, "Blink Dagger");
 assert.equal(normalized.items.neutral[0].id, 700);
 assert.equal(normalized.items.early[0].winRate, 0.55);
+assert.equal(normalized.items.starting[0].evidenceQuality.confidence, "high");
+assert.equal(normalized.items.starting[0].evidenceQuality.eligibleForRecommendation, true);
 assert.equal(normalized.items.early[1].averageMinute, 500 / 60, "boot timeAverage is seconds and must be stored as minutes");
 assert.equal(normalized.skillBuild.length, 0, "min/max level aggregates are not a per-level build");
 assert.equal(normalized.talents.length, 0, "talent IDs require canonical tier mapping first");
