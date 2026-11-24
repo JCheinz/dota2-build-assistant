@@ -1,0 +1,16 @@
+"use strict";
+const assert = require("node:assert/strict");
+const { classifyEvidence, summarizeEvidence } = require("../scripts/stratz-evidence-quality");
+assert.equal(classifyEvidence(150).confidence, "high");
+assert.equal(classifyEvidence(30).confidence, "medium");
+assert.equal(classifyEvidence(10).confidence, "low");
+assert.equal(classifyEvidence(9).confidence, "insufficient");
+assert.equal(classifyEvidence(null).confidence, "insufficient");
+assert.equal(classifyEvidence("not-a-number").eligibleForRecommendation, false);
+const summary = summarizeEvidence([{matchCount:120},{matchCount:30},{matchCount:5},{matchCount:null}]);
+assert.equal(summary.total, 4);
+assert.equal(summary.high, 1);
+assert.equal(summary.medium, 1);
+assert.equal(summary.insufficient, 2);
+assert.equal(summary.recommendationEligible, 2);
+console.log("STRATZ evidence quality tests passed.");
