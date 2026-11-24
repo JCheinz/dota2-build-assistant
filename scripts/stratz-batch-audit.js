@@ -89,7 +89,8 @@ async function main() {
         const data = {};
         const malformed = [];
         for (const entry of SELECTIONS) {
-          if (!Array.isArray(raw[entry.alias])) malformed.push(entry.alias);
+          if (raw[entry.alias] == null) data[entry.alias] = [];
+          else if (!Array.isArray(raw[entry.alias])) malformed.push(entry.alias);
           else data[entry.alias] = raw[entry.alias];
         }
         if (malformed.length) throw new Error("Respuesta incompleta: " + malformed.join(", "));
