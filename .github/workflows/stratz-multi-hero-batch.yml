@@ -1,9 +1,17 @@
-name: STRATZ multi-hero batch audit
+name: STRATZ complete hero and position audit
 on:
   workflow_dispatch:
     inputs:
+      audit_mode:
+        description: "Auditoría completa o una sola posición"
+        required: true
+        type: choice
+        default: all_positions
+        options:
+          - all_positions
+          - one_position
       position:
-        description: "Posición a auditar en este lote"
+        description: "Solo se utiliza cuando eliges one_position"
         required: true
         type: choice
         default: POSITION_1
@@ -14,12 +22,12 @@ on:
           - POSITION_4
           - POSITION_5
       start:
-        description: "Índice inicial del catálogo (empieza en 0)"
+        description: "Índice inicial (solo una posición; empieza en 0)"
         required: true
         default: "0"
         type: string
       limit:
-        description: "Cantidad de héroes para este lote (prueba inicial: 3)"
+        description: "Cantidad de héroes (solo una posición; máximo 127)"
         required: true
         default: "3"
         type: string
@@ -29,7 +37,7 @@ concurrency:
 jobs:
   audit:
     runs-on: self-hosted
-    timeout-minutes: 90
+    timeout-minutes: 360
     defaults:
       run:
         shell: powershell -ExecutionPolicy Bypass -command ". '{0}'"
@@ -40,11 +48,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate batch auditor
+      - name: Validate auditor and offline tests
         run: |
           node --check scripts/stratz-api-client.js
           node --check scripts/stratz-query-plan.js
           node --check scripts/stratz-normalize.js
+          node --check scripts/stratz-evidence-quality.js
           node --check scripts/stratz-batch-audit.js
           node tests/stratz-query-plan.test.js
           node tests/stratz-normalize.test.js
@@ -54,15 +63,30 @@ jobs:
         env:
           STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
         run: npm run stratz:inspect
-      - name: Audit selected hero batch
+      - name: Audit all five positions automatically
+        if: inputs.audit_mode == 'all_positions'
         env:
           STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
-        run: node scripts/stratz-batch-audit.js --position=${{ inputs.position }} --start=${{ inputs.start }} --limit=${{ inputs.limit }}
-      - name: Preserve batch evidence and checkpoint
+        run: |
+          $positions = @("POSITION_1", "POSITION_2", "POSITION_3", "POSITION_4", "POSITION_5")
+          foreach ($position in $positions) {
+            Write-Host "=== Auditoría completa: $position ==="
+            node scripts/stratz-batch-audit.js --position=$position --start=0 --limit=127
+            if ($LASTEXITCODE -ne 0) {
+              throw "La auditoría de $position tuvo errores. El progreso quedó guardado; se puede reanudar."
+            }
+          }
+      - name: Audit one selected position
+        if: inputs.audit_mode == 'one_position'
+        env:
+          STRATZ_API_TOKEN: ${{ secrets.STRATZ_API_TOKEN }}
+        run: |
+          node scripts/stratz-batch-audit.js --position=${{ inputs.position }} --start=${{ inputs.start }} --limit=${{ inputs.limit }}
+      - name: Preserve all evidence and checkpoints
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: stratz-batch-${{ inputs.position }}-${{ inputs.start }}-${{ inputs.limit }}
+          name: stratz-complete-audit-${{ github.run_number }}
           path: data/stratz-batch/
           if-no-files-found: warn
           retention-days: 30
