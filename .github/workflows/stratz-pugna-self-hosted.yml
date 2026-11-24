@@ -19,6 +19,9 @@ concurrency:
 jobs:
   pugna:
     runs-on: self-hosted
+    defaults:
+      run:
+        shell: powershell -ExecutionPolicy Bypass -command ". '{0}'"
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
