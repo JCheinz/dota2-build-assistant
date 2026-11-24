@@ -58,15 +58,21 @@ jobs:
           node-version: 22
       - name: Validate auditor and offline tests
         run: |
-          node --check scripts/stratz-api-client.js
-          node --check scripts/stratz-query-plan.js
-          node --check scripts/stratz-normalize.js
-          node --check scripts/stratz-evidence-quality.js
-          node --check scripts/stratz-batch-audit.js
-          node tests/stratz-query-plan.test.js
-          node tests/stratz-normalize.test.js
-          node tests/stratz-evidence-quality.test.js
-          node tests/stratz-batch-audit.test.js
+          $checks = @(
+            'node --check scripts/stratz-api-client.js',
+            'node --check scripts/stratz-query-plan.js',
+            'node --check scripts/stratz-normalize.js',
+            'node --check scripts/stratz-evidence-quality.js',
+            'node --check scripts/stratz-batch-audit.js',
+            'node tests/stratz-query-plan.test.js',
+            'node tests/stratz-normalize.test.js',
+            'node tests/stratz-evidence-quality.test.js',
+            'node tests/stratz-batch-audit.test.js'
+          )
+          foreach ($check in $checks) {
+            Invoke-Expression $check
+            if ($LASTEXITCODE -ne 0) { throw "Falló la validación: $check" }
+          }
       - name: Restore previous audit checkpoint when provided
         if: inputs.audit_mode == 'all_positions' && inputs.restore_from_run_id != ''
         uses: actions/download-artifact@v4
