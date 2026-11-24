@@ -7,6 +7,8 @@ function normalizeItem(x,stage){if(typeof x==="string")return{name:x,stage,match
 function normalizeRole(role,raw){const out=emptyRole(role);if(!raw||typeof raw!=="object")return out;out.source=raw.source||raw.provider||null;out.patch=raw.patch||null;out.updatedAt=raw.updatedAt||raw.fetchedAt||null;out.isPrimary=raw.isPrimary===true||raw.primary===true||raw.roleStatus==="principal";out.sampleSize=Number(raw.sampleSize??raw.matches??raw.matchCount)||0;out.winRate=Number.isFinite(Number(raw.winRate))?Number(raw.winRate):null;const src=raw.items||raw.itemBuild||raw.build||{};for(const stage of STAGES){const rows=src[stage]??src[stage+"Items"]??[];out.items[stage]=(Array.isArray(rows)?rows:[]).map(x=>normalizeItem(x,stage)).filter(x=>x&&x.name)}out.skillBuild=(Array.isArray(raw.skillBuild)?raw.skillBuild:Array.isArray(raw.abilityBuild)?raw.abilityBuild:[]).map((x,i)=>typeof x==="string"?{level:i+1,ability:x}:x).filter(Boolean);out.talents=(Array.isArray(raw.talents)?raw.talents:[]).map(t=>({...t,level:Number(t.level??t.tier)||null}));out.skillObservations=Array.isArray(raw.skillObservations)?raw.skillObservations:[];out.talentObservations=Array.isArray(raw.talentObservations)?raw.talentObservations:[];out.unmappedItems=Array.isArray(raw.unmappedItems)?raw.unmappedItems:[];out.counters={strongAgainst:Array.isArray(raw.counters?.strongAgainst)?raw.counters.strongAgainst:[],weakAgainst:Array.isArray(raw.counters?.weakAgainst)?raw.counters.weakAgainst:[]};out.notes=Array.isArray(raw.notes)?raw.notes:[];out.coverage={items:STAGES.some(s=>out.items[s].length>0),skills:out.skillBuild.length>=6,talents:[10,15,20,25].every(l=>out.talents.some(t=>Number(t.level)===l))};return out}
 function roleEvidenceSummary(roleData,currentPatch){
  const data=roleData&&typeof roleData==="object"?roleData:null;
+ const sampleValue=data?Number(data.sampleSize??data.matches??data.matchCount):0;
+ const sampleSize=Number.isFinite(sampleValue)&&sampleValue>0?Math.floor(sampleValue):0;
  if(!data)return{status:"sin_datos",label:"Sin evidencia",maxItemSample:0,eligibleItemCount:0,patchVerified:false};
  const rows=STAGES.flatMap(stage=>data.items&&Array.isArray(data.items[stage])?data.items[stage]:[]);
  const counts=rows.map(item=>Number(item&&item.matchCount)).filter(n=>Number.isFinite(n)&&n>=0);
@@ -19,7 +21,7 @@ function roleEvidenceSummary(roleData,currentPatch){
  if(data.recommended===false||data.classification==="no_recomendado"||data.roleStatus==="no_recomendado")return{status:"no_recomendado",label:"No recomendado",maxItemSample,eligibleItemCount,patchVerified};
  if(data.isPrimary===true||data.primary===true||data.classification==="principal"||data.roleStatus==="principal")return{status:"principal",label:"Principal",maxItemSample,eligibleItemCount,patchVerified};
  if(!hasRecords)return{status:"evidencia_insuficiente",label:"Evidencia insuficiente",maxItemSample,eligibleItemCount,patchVerified};
- if(patchVerified&&maxItemSample>=30)return{status:"viable",label:"Viable",maxItemSample,eligibleItemCount,patchVerified};
+ if(patchVerified&&sampleSize>=30)return{status:"viable",label:"Viable",sampleSize,maxItemSample,eligibleItemCount,patchVerified};
  if(maxItemSample>=10||!patchVerified)return{status:"situacional",label:"Situacional / por validar",maxItemSample,eligibleItemCount,patchVerified};
  return{status:"evidencia_insuficiente",label:"Evidencia insuficiente",maxItemSample,eligibleItemCount,patchVerified};
 }
