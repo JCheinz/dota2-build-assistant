@@ -1,0 +1,38 @@
+name: STRATZ quality checks (Windows runner)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/stratz-*.js"
+      - "tests/stratz-*.test.js"
+      - ".github/workflows/stratz-quality-checks.yml"
+concurrency:
+  group: stratz-quality-checks
+  cancel-in-progress: false
+jobs:
+  quality:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: powershell -ExecutionPolicy Bypass -command ". '{0}'"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/statsdota-skill-guide-snapshot
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check STRATZ scripts syntax
+        run: |
+          node --check scripts/stratz-api-client.js
+          node --check scripts/stratz-query-plan.js
+          node --check scripts/stratz-normalize.js
+          node --check scripts/stratz-evidence-quality.js
+          node --check scripts/stratz-batch-audit.js
+      - name: Run offline STRATZ tests (no API calls)
+        run: |
+          node tests/stratz-query-plan.test.js
+          node tests/stratz-normalize.test.js
+          node tests/stratz-evidence-quality.test.js
+          node tests/stratz-batch-audit.test.js
