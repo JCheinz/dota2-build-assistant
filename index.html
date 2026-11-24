@@ -2414,7 +2414,7 @@ function analyze(options={}){
 }
 $('search').addEventListener('input',renderHeroGrid);$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
 $('myHero').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();$('analyze').disabled=ally.filter(Boolean).length+enemy.filter(Boolean).length!==10||!$('myHero').value;if($('result').classList.contains('show'))analyze({scroll:false});};
-$('myRole').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
+$('myRole').onchange=()=>{purchaseLedger.reset();clearTrackedPurchases();updateRoleFit();renderDynamicStateControls();if($('result').classList.contains('show'))analyze({scroll:false});};
 $('analyze').onclick=analyze;
 $('refreshBuildData').onclick=async()=>{
  const button=$('refreshBuildData');button.disabled=true;button.textContent="Actualizando…";
