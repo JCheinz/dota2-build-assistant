@@ -16,9 +16,9 @@ function roleEvidenceSummary(roleData,currentPatch){
  const hasEvidence=!!(data.source||hasRecords);
  const patchVerified=!!(currentPatch&&data.patch&&data.patch!=="unverified"&&String(data.patch)===String(currentPatch));
  if(!hasEvidence)return{status:"sin_datos",label:"Sin evidencia",maxItemSample,eligibleItemCount,patchVerified};
- if(!hasRecords)return{status:"evidencia_insuficiente",label:"Evidencia insuficiente",maxItemSample,eligibleItemCount,patchVerified};
  if(data.recommended===false||data.classification==="no_recomendado"||data.roleStatus==="no_recomendado")return{status:"no_recomendado",label:"No recomendado",maxItemSample,eligibleItemCount,patchVerified};
  if(data.isPrimary===true||data.primary===true||data.classification==="principal"||data.roleStatus==="principal")return{status:"principal",label:"Principal",maxItemSample,eligibleItemCount,patchVerified};
+ if(!hasRecords)return{status:"evidencia_insuficiente",label:"Evidencia insuficiente",maxItemSample,eligibleItemCount,patchVerified};
  if(patchVerified&&maxItemSample>=30)return{status:"viable",label:"Viable",maxItemSample,eligibleItemCount,patchVerified};
  if(maxItemSample>=10||!patchVerified)return{status:"situacional",label:"Situacional / por validar",maxItemSample,eligibleItemCount,patchVerified};
  return{status:"evidencia_insuficiente",label:"Evidencia insuficiente",maxItemSample,eligibleItemCount,patchVerified};
