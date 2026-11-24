@@ -70,7 +70,9 @@ function normalizeStratzHeroPosition(raw, options = {}) {
         stage,
         matchCount,
         winRate: matchCount > 0 && winCount !== null ? winCount / matchCount : null,
-        averageMinute: numberOrNull(row.timeAverage ?? row.time),
+        averageMinute: field === "boots"
+          ? (numberOrNull(row.timeAverage ?? row.time) === null ? null : numberOrNull(row.timeAverage ?? row.time) / 60)
+          : numberOrNull(row.time),
         source: "STRATZ",
         reason: row.wasGiven === true ? "Objeto otorgado; no cuenta como compra" : null
       });
