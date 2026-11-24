@@ -46,12 +46,16 @@ jobs:
           node --check specializations.js
           node --check inventory-ledger.js
           node --check skill-data-engine.js
+          node --check hero-library-engine.js
+          node --check scripts/build-stratz-snapshot.js
           node --check build-data-engine.js
           node --check patch-data-742.js
           npm run check:android
           node tests/skill-matrix.test.js
           node tests/inventory-ledger.test.js
           node tests/skill-data-engine.test.js
+          node tests/hero-library-engine.test.js
+          node tests/build-stratz-snapshot.test.js
           node tests/build-data-engine.test.js
           node tests/patch-data-742.test.js
 
