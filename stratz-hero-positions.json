@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "source": "STRATZ GraphQL normalized position audit",
+  "generatedAt": null,
+  "patchScope": "unverified",
+  "heroCount": 0,
+  "profileCount": 0,
+  "roles": [
+    "Carry",
+    "Mid",
+    "Offlane",
+    "Support 4",
+    "Support 5"
+  ],
+  "heroes": {}
+}
