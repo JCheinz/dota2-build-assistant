@@ -2553,6 +2553,7 @@ loadHeroes().then(async()=>{
    statsDota:dataset.statsDotaGuides,d2pt:dataset.d2ptPrimaryGuides,stratz:{heroes:dataset.stratzHeroPositions?.heroes||{}}
   });
   window.DOTA_HERO_LIBRARY=heroLibrary;
+  updateRoleFit();
   if(badge)badge.textContent=coverage.metadataCoverage+'% de metadatos';
   if(status)status.textContent='Listo: '+heroLibrary.heroCount+' héroes · '+coverage.abilitySlots+' habilidades · '+coverage.talentSlots+' talentos oficiales. Las secuencias provisionales se identifican como tales y no se presentan como estadísticas.';
   if(button)button.textContent='Actualizar base de habilidades';
@@ -2571,6 +2572,7 @@ $('loadSkillDatabase').addEventListener('click',async()=>{
   const coverage=window.DotaSkillDataEngine.getCoverage(dataset);
   const heroLibrary=window.DotaHeroLibrary.buildHeroLibrary(dataset,{statsDota:dataset.statsDotaGuides,d2pt:dataset.d2ptPrimaryGuides,stratz:{heroes:dataset.stratzHeroPositions?.heroes||{}}});
   window.DOTA_HERO_LIBRARY=heroLibrary;
+  updateRoleFit();
   badge.textContent=coverage.metadataCoverage+'% de metadatos';
   const specializationEntries=Object.entries(window.DOTA_HERO_SPECIALIZATIONS||{});
   const specializedHeroes=new Set(specializationEntries.map(([key])=>key.split("|")[0]));
