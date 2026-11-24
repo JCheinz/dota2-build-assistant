@@ -25,6 +25,7 @@ jobs:
           node --check scripts/sync-d2pt-primary-guides.js
           node --check skill-data-engine.js
           node --check hero-library-engine.js
+          node --check scripts/build-stratz-snapshot.js
           node --check build-data-engine.js
           node --check patch-data-742.js
       - name: Audit real guide coverage, dynamic matrix and Pugna regressions
@@ -41,6 +42,7 @@ jobs:
         run: node tests/stratz-normalize.test.js
       - name: Test hero dictionary library
         run: node tests/hero-library-engine.test.js
+          node tests/build-stratz-snapshot.test.js
       - name: Test skill data extraction engine
         run: node tests/skill-data-engine.test.js
       - name: Test StatsDota guide parser
