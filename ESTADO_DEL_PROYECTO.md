@@ -917,3 +917,15 @@ Se incorpora la primera capa de extracción automática para construir el conoci
 - El extractor de habilidades aún carga bajo demanda y mantiene el dataset en memoria durante la sesión; snapshot versionado e índice de efectos para Threat Counter siguen pendientes.
 - Esta etapa actualiza la documentación y prepara el Service Worker para invalidar caché. No declara todavía CI, Pages, Android ni APK como aprobados.
 - Próximos criterios de salida: CI verde en PR, Pages actualizado, prueba visual en Android del draft/mercado/inventario, prueba de persistencia y flujo de instalación Android documentados. Solo después generar y probar APK firmada.
+
+
+## Interfaz compacta y horizontal — versión 3.60 (25-11-2026)
+
+- Base de trabajo: `main` versión 3.59, commit `ba3cde50e5498ef83d7e3896cca85461e18adbd7`.
+- Rama: `work/minimal-landscape-dashboard-v3-60`.
+- Respaldo previo creado en `backup/3.59-before-minimal-landscape-ui-v3-60-2026-11-25/` para `index.html`, `sw.js`, `package.json` y `README.md`.
+- `index.html`: añadido organizador visual de informe en cuatro paneles: draft/sinergia/amenazas, habilidades/talentos, build principal y situacionales. Los apartados de mercado y análisis complementario se agrupan en «Más análisis y mercado».
+- CSS: modo horizontal compacto para pantallas con orientación horizontal y altura limitada; se aprovecha el ancho, se reducen tarjetas y controles y se mantiene el scroll interno de la matriz de habilidades.
+- No se modifican los algoritmos de draft, amenazas, sinergias, build ni selección de objetos.
+- Versión de interfaz y paquete: 3.60.0; Service Worker `dota-build-v120`.
+- Estado de validación: pendiente CI del PR, inspección del HTML final y prueba visual en Android. No declarar Pages o APK probadas hasta verificar.
