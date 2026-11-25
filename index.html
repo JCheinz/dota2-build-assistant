@@ -1586,6 +1586,21 @@ function enforceSingleBootChoice(items,ownedNames=[]){
 function getNextPurchase(build,state,preferredName=null){
  const owned=new Set(state.owned||[]),components=normalizeQuantityMap(state.components||[]);
  build=enforceSingleBootChoice(build,state.owned||[]);
+ // Si ya poseés un objeto mejorado, no volver a sugerir sus componentes
+ // como compras independientes (ej.: Magic Wand ya contiene Magic Stick).
+ // Recorremos recetas anidadas para cubrir mejoras de varios niveles.
+ const ownedUpgradeParts=new Set();
+ const collectOwnedRecipeParts=(name,path=[])=>{
+  if(path.includes(name))return;
+  (itemRecipes[name]||[]).forEach(part=>{
+   const partName=String(part.name||"");
+   if(!partName)return;
+   ownedUpgradeParts.add(partName.toLocaleLowerCase("en"));
+   collectOwnedRecipeParts(partName,[...path,name]);
+  });
+ };
+ owned.forEach(name=>collectOwnedRecipeParts(String(name)));
+ build=build.filter(target=>!ownedUpgradeParts.has(String(target.name||"").toLocaleLowerCase("en")));
  const initialMarketPhase=getMarketPhase(state.minute);
   const phase=state.minute<12?initialMarketPhase.key:state.minute<25?"Core":"Avanzada";
  const recipeTarget=target=>{
