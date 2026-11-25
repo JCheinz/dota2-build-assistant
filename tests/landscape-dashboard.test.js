@@ -10,7 +10,8 @@ assert.ok(html.includes("VERSIÓN 3.60 · PARCHE 7.42"), "La interfaz debe ident
 assert.ok(html.includes('id="draftPanel"'), "El draft debe tener un contenedor identificable para el layout");
 assert.ok(html.includes('id="configPanel"'), "La configuración debe tener un contenedor identificable para el layout");
 assert.ok(html.includes("@media(orientation:landscape) and (min-width:600px) and (max-height:700px)"), "Debe existir el modo horizontal compacto");
-assert.ok(html.includes(".analysis-dashboard{grid-template-columns:repeat(4,minmax(0,1fr))"), "El informe horizontal debe usar cuatro columnas");
+assert.ok(html.includes(".analysis-dashboard{grid-template-columns:repeat(3,minmax(0,1fr))"), "El informe horizontal debe usar tres paneles junto al draft");
+assert.ok(html.includes("$('draftPanel').append(panes[id].pane)"), "La sinergia y las amenazas deben quedar dentro del panel del draft");
 assert.ok(html.includes("function organizeReportDashboard()"), "Debe existir el organizador del informe");
 for (const pane of [
   "Draft · sinergia y amenazas",
