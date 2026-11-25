@@ -262,6 +262,11 @@
  .wrap>#buildDataPanel{grid-column:3/5;margin:0;padding:9px}
  .wrap>#configPanel{grid-column:1/-1;margin:0;padding:10px}
  .wrap>#result{grid-column:1/-1;margin:0;padding:10px}
+ #draftPanel{display:grid;grid-template-columns:minmax(0,2fr) minmax(190px,1fr);gap:8px;align-items:start}
+ #draftPanel>h2,#draftPanel>.actions,#draftPanel>#loadStatus{grid-column:1/-1}
+ #draftPanel>.teams{grid-column:1;grid-row:3;min-width:0}
+ #draftPanel>.dashboard-pane-draft{grid-column:2;grid-row:3;max-height:230px;overflow:auto}
+ #draftPanel>.dashboard-pane-draft .dashboard-pane-content{max-height:185px;overflow:auto}
  #draftPanel .teams{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #draftPanel .team{padding:7px}
  #draftPanel .team-title{margin-bottom:6px;font-size:10px}
@@ -285,7 +290,7 @@
  #configPanel .live-toggle{min-height:30px;padding:6px 9px;font-size:11px}
  #result>h2{font-size:13px;margin-bottom:6px}
  #result>.hint{display:none}
- .analysis-dashboard{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ .analysis-dashboard{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
  .dashboard-pane{padding:8px;border-radius:11px}
  .dashboard-pane-title{font-size:10px!important;margin-bottom:6px!important}
  .dashboard-pane .result-section{padding:6px 0;margin-bottom:6px}
@@ -2466,7 +2471,8 @@ function organizeReportDashboard(){
    empty.textContent=id==='skills'?'La guía de habilidades/talentos no está disponible para esta combinación.':'No hay recomendaciones específicas para mostrar.';
    body.append(empty);
   }
-  dashboard.append(panes[id].pane);
+  if(id==='draft'&&$('draftPanel'))$('draftPanel').append(panes[id].pane);
+  else dashboard.append(panes[id].pane);
  });
  if(extras.length){
   const details=document.createElement('details');
