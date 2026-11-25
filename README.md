@@ -8,7 +8,7 @@ Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar
 
 ## Interfaz 3.60
 
-- Dashboard de cuatro paneles tras el análisis: draft/sinergia y amenazas, habilidades/talentos, build principal y respuestas situacionales al draft.
+- Dashboard de cuatro áreas: draft con sinergia/amenazas dentro del panel de composición, más habilidades/talentos, build principal y situacionales.
 - Reorganización de los bloques del informe sin alterar las funciones de los motores de análisis ni los datos de compra.
 - Modo horizontal compacto para pantallas móviles: draft ancho, controles y fuentes reducidos, y cuatro paneles de análisis en columnas.
 - El mercado completo y el análisis complementario quedan agrupados en una sección desplegable para reducir el desplazamiento.
