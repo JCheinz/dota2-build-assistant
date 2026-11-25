@@ -23,6 +23,8 @@ jobs:
           node --check patch-data-742.js
       - name: Audit real guide coverage, dynamic matrix and Pugna regressions
         run: node tests/skill-matrix.test.js
+      - name: Test compact landscape dashboard
+        run: node tests/landscape-dashboard.test.js
       - name: Test inventory ledger lifecycle and regressions
         run: |
           node tests/inventory-ledger.test.js
