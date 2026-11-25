@@ -928,4 +928,5 @@ Se incorpora la primera capa de extracción automática para construir el conoci
 - CSS: modo horizontal compacto para pantallas con orientación horizontal y altura limitada; se aprovecha el ancho, se reducen tarjetas y controles y se mantiene el scroll interno de la matriz de habilidades.
 - No se modifican los algoritmos de draft, amenazas, sinergias, build ni selección de objetos.
 - Versión de interfaz y paquete: 3.60.0; Service Worker `dota-build-v120`.
-- Estado de validación: pendiente CI del PR, inspección del HTML final y prueba visual en Android. No declarar Pages o APK probadas hasta verificar.
+- Prueba estática añadida: `tests/landscape-dashboard.test.js`; el workflow de validación ejecuta cuatro paneles, media query horizontal, preservación de apartados y eventos delegados.
+- Estado de validación: CI del PR en curso, inspección del HTML final y prueba visual en Android pendientes. No declarar Pages o APK probadas hasta verificar.
