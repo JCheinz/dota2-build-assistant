@@ -52,6 +52,7 @@ El workflow `.github/workflows/validate-skill-matrix.yml` ejecuta:
 - `tests/match-clock.test.js`.
 - `tests/skill-data-engine.test.js`.
 - `tests/build-data-engine.test.js`.
+- `tests/landscape-dashboard.test.js`.
 
 Las pruebas automáticas no sustituyen la validación visual en Android ni las pruebas de uso en una partida.
 
