@@ -1,10 +1,17 @@
-# Dota 2 Build Assistant — versión 3.59
+# Dota 2 Build Assistant — versión 3.60
 
 Aplicación web progresiva comunitaria para analizar drafts de Dota 2 y orientar compras según héroe, posición, amenazas, fase de partida, oro e inventario.
 
 **Aplicación:** https://jcheinz.github.io/dota2-build-assistant/  
 **Repositorio:** https://github.com/JCheinz/dota2-build-assistant  
-**Estado:** rama 3.59 en validación; incorpora reloj de partida pausable y rotación de inventario por fases.
+**Estado:** interfaz 3.60 en rama de trabajo; incorpora paneles compactos para orientación horizontal, draft/sinergia, habilidades/talentos, build y situacionales.
+
+## Interfaz 3.60
+
+- Dashboard de cuatro paneles tras el análisis: draft/sinergia y amenazas, habilidades/talentos, build principal y respuestas situacionales al draft.
+- Reorganización de los bloques del informe sin alterar las funciones de los motores de análisis ni los datos de compra.
+- Modo horizontal compacto para pantallas móviles: draft ancho, controles y fuentes reducidos, y cuatro paneles de análisis en columnas.
+- El mercado completo y el análisis complementario quedan agrupados en una sección desplegable para reducir el desplazamiento.
 
 ## Funcionalidades actuales
 
