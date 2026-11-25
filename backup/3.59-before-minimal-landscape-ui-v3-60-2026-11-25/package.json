@@ -1,0 +1,20 @@
+{
+  "name": "dota2-build-assistant",
+  "version": "3.59.0",
+  "private": true,
+  "description": "Dota 2 Build Assistant - Android wrapper with Capacitor",
+  "scripts": {
+    "build:web": "node scripts/prepare-web.js",
+    "check:android": "node --check scripts/prepare-web.js && node --check capacitor.config.js",
+    "android:add": "npx cap add android",
+    "android:sync": "npm run build:web && npx cap sync android",
+    "android:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

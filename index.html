@@ -226,12 +226,93 @@
     .match-clock-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
     .match-clock-actions .btn{min-width:112px}
     @media(max-width:430px){.match-clock{grid-template-columns:1fr}.match-clock-actions{justify-content:stretch}.match-clock-actions .btn{flex:1;min-width:0}}
+
+/* v3.60 — dashboard compacto y adaptativo en horizontal */
+.analysis-dashboard{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:start}
+.dashboard-pane{min-width:0;background:linear-gradient(155deg,#1a2430,#131a23);border:1px solid #354254;border-radius:14px;padding:11px;overflow:hidden}
+.dashboard-pane-title{display:flex;align-items:center;gap:7px;margin:0 0 9px!important;padding-bottom:7px;border-bottom:1px solid #344153;color:#efbd62;font-size:12px!important;letter-spacing:.2px}
+.dashboard-pane-title .dashboard-pane-count{margin-left:auto;color:var(--muted);font-size:10px;font-weight:500}
+.dashboard-pane .result-section{margin:0 0 9px;padding:8px 0;border-top:1px solid #344153}
+.dashboard-pane .result-section:first-child{border-top:0;padding-top:0}
+.dashboard-pane .result-section h3{font-size:12px;margin:0 0 7px}
+.dashboard-pane .item-list{grid-template-columns:minmax(0,1fr);gap:6px}
+.dashboard-pane .item-card{padding:7px;gap:7px;border-radius:10px}
+.dashboard-pane .item-icon{width:44px;height:34px;flex-basis:44px}
+.dashboard-pane .item-copy b{font-size:11px}
+.dashboard-pane .item-copy span,.dashboard-pane .item-copy small{font-size:10px;line-height:1.35}
+.dashboard-pane .hint{font-size:10px;line-height:1.4}
+.dashboard-pane .warning{font-size:10px;padding:7px 8px}
+.dashboard-pane .skill-matrix-scroll{max-width:100%;overflow-x:auto}
+.dashboard-pane .talent-tree-options{gap:5px}
+.dashboard-pane .talent-option{padding:7px}
+.dashboard-pane .talent-option p{font-size:10px}
+.dashboard-pane .dashboard-block{margin:0 0 8px}
+.dashboard-pane .dashboard-block>h3{font-size:12px;margin:0 0 7px;color:var(--gold)}
+.dashboard-pane .dashboard-block .item-list{margin-top:5px}
+.dashboard-pane-empty{color:var(--muted);font-size:11px;margin:0}
+.dashboard-extra{margin-top:8px;border-top:1px solid #344153;padding-top:7px}
+.dashboard-extra>summary{cursor:pointer;color:var(--muted);font-size:11px;font-weight:700;padding:5px 0}
+@media(min-width:651px) and (max-width:999px){.analysis-dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.analysis-dashboard{grid-template-columns:minmax(0,1fr)}.dashboard-pane{padding:10px}}
+@media(orientation:landscape) and (min-width:600px) and (max-height:700px){
+ .wrap{display:grid;width:calc(100% - 16px);max-width:1600px;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:8px 0 24px;align-items:start}
+ .wrap>header,.wrap>footer{grid-column:1/-1;margin:0;padding:4px 2px 8px}
+ .wrap>#draftPanel{grid-column:1/-1;margin:0;padding:10px}
+ .wrap>#skillDataPanel{grid-column:1/3;margin:0;padding:9px}
+ .wrap>#buildDataPanel{grid-column:3/5;margin:0;padding:9px}
+ .wrap>#configPanel{grid-column:1/-1;margin:0;padding:10px}
+ .wrap>#result{grid-column:1/-1;margin:0;padding:10px}
+ #draftPanel{display:grid;grid-template-columns:minmax(0,2fr) minmax(190px,1fr);gap:8px;align-items:start}
+ #draftPanel>h2,#draftPanel>.actions,#draftPanel>#loadStatus{grid-column:1/-1}
+ #draftPanel>.teams{grid-column:1;grid-row:3;min-width:0}
+ #draftPanel>.dashboard-pane-draft{grid-column:2;grid-row:3;max-height:230px;overflow:auto}
+ #draftPanel>.dashboard-pane-draft .dashboard-pane-content{max-height:185px;overflow:auto}
+ #draftPanel .teams{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #draftPanel .team{padding:7px}
+ #draftPanel .team-title{margin-bottom:6px;font-size:10px}
+ #draftPanel .slots{gap:5px}
+ #draftPanel .slot{min-height:62px;border-radius:8px}
+ #draftPanel .slot img{height:40px}
+ #draftPanel .slot span{font-size:9px;padding:2px 2px 4px}
+ #draftPanel .actions{margin-top:7px}
+ #draftPanel .actions .btn,#configPanel .actions .btn{min-height:34px;padding:7px 10px;font-size:12px}
+ #skillDataPanel h2,#buildDataPanel h2{font-size:12px;margin-bottom:5px}
+ #skillDataPanel p.hint,#buildDataPanel p.hint{display:none}
+ #skillDataPanel .actions,#buildDataPanel .actions{margin-top:5px}
+ #skillDataPanel .status,#buildDataPanel .status{font-size:10px;margin:5px 0 0}
+ #configPanel .controls{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ #configPanel .field label{font-size:10px}
+ #configPanel .field select,#configPanel input{padding:8px;font-size:12px}
+ #configPanel #roleFitHint{font-size:9px}
+ #configPanel .live-state-panel{padding:8px;margin-top:8px!important}
+ #configPanel .live-state-heading h3{font-size:12px}
+ #configPanel .live-state-heading .hint{display:none}
+ #configPanel .live-toggle{min-height:30px;padding:6px 9px;font-size:11px}
+ #result>h2{font-size:13px;margin-bottom:6px}
+ #result>.hint{display:none}
+ .analysis-dashboard{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .dashboard-pane{padding:8px;border-radius:11px}
+ .dashboard-pane-title{font-size:10px!important;margin-bottom:6px!important}
+ .dashboard-pane .result-section{padding:6px 0;margin-bottom:6px}
+ .dashboard-pane .item-card{padding:5px;gap:5px}
+ .dashboard-pane .item-icon{width:36px;height:28px;flex-basis:36px}
+ .dashboard-pane .item-number{width:17px;height:17px;flex-basis:17px;font-size:9px}
+ .dashboard-pane .item-list{gap:5px}
+ .dashboard-pane .skill-matrix{min-width:850px}
+}
+@media(orientation:landscape) and (min-width:600px) and (max-height:430px){
+ #draftPanel .slot{min-height:52px}
+ #draftPanel .slot img{height:32px}
+ #configPanel .live-state-heading{gap:6px}
+ .dashboard-pane-title{position:sticky;top:0;background:#18222d;z-index:2}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.59 · PARCHE 7.42</div></header>
-  <section class="panel">
+  <header><div class="logo">D2</div><div><h1>Dota 2 Build Assistant</h1><div class="sub">Draft inteligente · counters · builds con iconos de objetos</div></div><div class="tag">VERSIÓN 3.60 · PARCHE 7.42</div></header>
+  <section class="panel" id="draftPanel">
     <h2>Composición de la partida <span class="count" id="draftCount">0 / 10 héroes</span></h2><div class="actions"><button class="btn secondary" id="clearHeroes" type="button">Borrar héroes</button></div>
     <div class="teams">
       <div class="team">
@@ -258,7 +339,7 @@
     <p class="status" id="buildDataStatus" aria-live="polite">La build estadística se consulta al analizar el draft. Las rutas manuales quedan como respaldo si las fuentes no responden.</p>
     <p class="hint">Fuentes: <a href="https://dota2protracker.com/" target="_blank" rel="noopener">Dota2ProTracker</a> · <a href="https://www.opendota.com/" target="_blank" rel="noopener">OpenDota</a> · <a href="https://statsdota.com/en/guides" target="_blank" rel="noopener">StatsDota</a>. La guía de Centaur consultada aún figuraba como 7.41f; no se usa para sustituir rutas 7.42 hasta que publique datos del parche vigente.</p>
   </section>
-  <section class="panel">
+  <section class="panel" id="configPanel">
     <h2>Tu configuración</h2>
     <div class="controls">
       <div class="field"><label for="myHero">¿Cuál es tu héroe?</label><select id="myHero"><option value="">Seleccioná primero tu equipo</option></select></div>
@@ -2254,7 +2335,7 @@ function analyzeCore(options={}){
  window.__DOTA_ANALYSIS_STAGE="cálculo de sinergias aliadas";
  const allySynergy=buildAllySynergy(me,role,allies,enemies);
  lastReport=[
-  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.52',
+  'DOTA 2 BUILD ASSISTANT — ANÁLISIS v3.60',
   'MI HÉROE: '+me.localized_name+' | POSICIÓN: '+role+' | MODO: '+$('gameMode').value+' | RANGO: '+$('rank').value,
   'ALIADOS: '+allies.map(h=>h.localized_name).join(', '),
   'ENEMIGOS: '+enemies.map(h=>h.localized_name).join(', '),
@@ -2306,8 +2387,107 @@ function analyzeCore(options={}){
  }
  html.push('<div class="warning">Asistente de builds Dota 2 · perfiles especializados por héroe y posición; matriz visual de habilidades por nivel e iconos oficiales; guías individuales y rutas de objetos adaptativas. Los perfiles específicos cubren enfrentamientos seleccionados; el resto usa inferencia conservadora por roles. No es una simulación de habilidades ni estadísticas en vivo.</div>');
  window.__DOTA_ANALYSIS_STAGE="renderizado final del informe";
- $('report').innerHTML=html.join('');$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
+ $('report').innerHTML=html.join('');organizeReportDashboard();$('result').classList.add('show');$('confidence').textContent=matchups.length+' enemigos evaluados · análisis adaptable';if(options.scroll!==false)$('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+function organizeReportDashboard(){
+ const report=$('report');
+ if(!report)return;
+ const original=[...report.children];
+ const dashboard=document.createElement('div');
+ dashboard.className='analysis-dashboard';
+ const paneSpecs=[
+  ['draft','Draft · sinergia y amenazas'],
+  ['skills','Habilidades y talentos'],
+  ['build','Build principal'],
+  ['situational','Situacionales contra el draft']
+ ];
+ const panes={};
+ paneSpecs.forEach(([id,title])=>{
+  const pane=document.createElement('section');
+  pane.className='dashboard-pane dashboard-pane-'+id;
+  const heading=document.createElement('h3');
+  heading.className='dashboard-pane-title';
+  heading.textContent=title;
+  const body=document.createElement('div');
+  body.className='dashboard-pane-content';
+  pane.append(heading,body);
+  panes[id]={pane,body,title};
+ });
+ const extras=[];
+ const headingOf=node=>node.querySelector(':scope > h3')?.textContent?.trim()||'';
+ const add=(id,node)=>{if(node)panes[id].body.append(node)};
+ const addBlock=(id,title,nodes)=>{
+  if(!nodes.length)return;
+  const block=document.createElement('div');
+  block.className='dashboard-block';
+  if(title){
+   const h=document.createElement('h3');
+   h.textContent=title;
+   block.append(h);
+  }
+  nodes.forEach(node=>block.append(node));
+  add(id,block);
+ };
+ const analysis=original.find(node=>headingOf(node).startsWith('Análisis adaptable'));
+ if(analysis){
+  const guide=[...analysis.querySelectorAll('.result-section')].find(node=>node.querySelector('.skill-matrix-scroll,.talent-tree-options,.skill-matrix'));
+  if(guide)add('skills',guide);
+  const children=[...analysis.children].filter(node=>node!==guide);
+  let currentTitle='',group=[];
+  const flush=()=>{
+   if(!group.length)return;
+   const title=currentTitle.toLocaleLowerCase('es');
+   let pane='draft';
+   if(title.startsWith('ruta principal')||title.startsWith('núcleo orientativo'))pane='build';
+   else if(title.includes('situacionales')||title.includes('alternativas'))pane='situational';
+   else if(title.includes('habilidad')||title.includes('talento'))pane='skills';
+   addBlock(pane,currentTitle,group);
+   group=[];
+  };
+  children.forEach(node=>{
+   if(node.tagName==='H3'){
+    flush();
+    currentTitle=node.textContent.trim();
+    group=[node];
+   }else group.push(node);
+  });
+  flush();
+  analysis.remove();
+ }
+ original.forEach(node=>{
+  if(!node.isConnected)return;
+  const title=headingOf(node).toLocaleLowerCase('es');
+  if(title.includes('sinergias')||title.includes('amenazas')||title.includes('resumen del draft')||title.includes('problema seleccionado'))add('draft',node);
+  else if(title.includes('próxima compra')||title.includes('compras y seguimiento'))add('build',node);
+  else if(title.includes('situacionales')||title.includes('decisión de compra defensiva'))add('situational',node);
+  else extras.push(node);
+ });
+ paneSpecs.forEach(([id])=>{
+  const body=panes[id].body;
+  if(!body.children.length){
+   const empty=document.createElement('p');
+   empty.className='dashboard-pane-empty';
+   empty.textContent=id==='skills'?'La guía de habilidades/talentos no está disponible para esta combinación.':'No hay recomendaciones específicas para mostrar.';
+   body.append(empty);
+  }
+  if(id==='draft'&&$('draftPanel'))$('draftPanel').append(panes[id].pane);
+  else dashboard.append(panes[id].pane);
+ });
+ if(extras.length){
+  const details=document.createElement('details');
+  details.className='dashboard-extra';
+  const summary=document.createElement('summary');
+  summary.textContent='Más análisis y mercado';
+  const content=document.createElement('div');
+  extras.forEach(node=>content.append(node));
+  details.append(summary,content);
+  dashboard.append(details);
+ }
+ report.replaceChildren(dashboard);
+ report.dataset.dashboardReady='true';
+}
+
 let skillDataLoadPromise=null;
 function ensureSkillDataLoaded(){
  if(!skillDataLoadPromise)skillDataLoadPromise=window.DotaSkillDataEngine?.load({patch:window.DOTA_PATCH_742?.patch||"7.42"}).catch(error=>{skillDataLoadPromise=null;throw error;})||Promise.resolve(null);
