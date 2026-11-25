@@ -4,7 +4,7 @@
 Reducir desplazamiento y mejorar la lectura en móvil sin cambiar los motores tácticos ni el cálculo de compras.
 
 ## Paneles del informe
-1. **Draft, sinergia y amenazas:** resumen de composición, amenazas detectadas, prioridad y sinergias aliadas.
+1. **Draft con sinergia y amenazas:** el cuadro de sinergia/prioridad queda dentro del mismo panel de composición, al lado de los diez héroes en landscape.
 2. **Habilidades y talentos:** guía por héroe/posición, matriz de niveles y elecciones de talentos disponibles.
 3. **Build principal:** ruta de objetos, inventario/seguimiento y próxima compra.
 4. **Situacionales contra el draft:** respuestas defensivas, grupos de amenazas y alternativas condicionales.
@@ -13,8 +13,8 @@ El mercado completo y las secciones no clasificadas se mantienen disponibles den
 
 ## Orientación horizontal
 - Aplica a pantallas en landscape con ancho desde 600 px y altura hasta 700 px.
-- El draft ocupa el ancho completo; las herramientas de datos quedan compactas en dos columnas; la configuración usa controles en fila.
-- El informe se muestra en cuatro columnas con tarjetas compactas.
+- El panel de draft ocupa el ancho completo y divide composición/sinergia en dos áreas; las herramientas de datos quedan compactas en dos columnas; la configuración usa controles en fila.
+- El informe complementario se muestra en tres columnas: habilidades/talentos, build principal y situacionales.
 - La matriz de habilidades conserva su desplazamiento horizontal interno.
 - En orientación vertical, el informe vuelve a una columna o dos columnas según el ancho disponible.
 
