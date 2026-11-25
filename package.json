@@ -1,6 +1,6 @@
 {
   "name": "dota2-build-assistant",
-  "version": "3.59.0",
+  "version": "3.60.0",
   "private": true,
   "description": "Dota 2 Build Assistant - Android wrapper with Capacitor",
   "scripts": {
